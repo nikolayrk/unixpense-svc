@@ -1,0 +1,28 @@
+{
+  "name": "unixpense-svc",
+  "version": "1.0.0",
+  "description": "An automated expense tracker for UniCredit Bulbank users",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nikolayrk/unixpense-svc.git"
+  },
+  "keywords": [
+    "unicredit",
+    "bulbank",
+    "gmail",
+    "expense",
+    "tracker",
+    "budget",
+    "budgeting"
+  ],
+  "author": "Nikolay Kostadinov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nikolayrk/unixpense-svc/issues"
+  },
+  "homepage": "https://github.com/nikolayrk/unixpense-svc#readme"
+}
