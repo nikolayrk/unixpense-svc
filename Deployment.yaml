@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unixpense-svc
+  namespace: unixpense
+spec:
+  selector:
+    matchLabels:
+      app: unixpense-svc
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: unixpense-svc
+    spec:
+      securityContext:
+        runAsUser: 1000
+      containers:
+      - name: app
+        image: DOCKER_REPO:BUILD_NUMBER # The Docker repo and Build number are populated via the Jenkins Job
