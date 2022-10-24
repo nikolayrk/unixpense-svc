@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/nikolayrk/unixpense-svc#readme",
   "devDependencies": {
+    "@types/node": "^18.11.4",
     "@typescript-eslint/eslint-plugin": "^5.40.1",
     "@typescript-eslint/parser": "^5.40.1",
     "dotenv": "^16.0.3",
