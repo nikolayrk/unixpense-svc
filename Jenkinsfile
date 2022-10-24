@@ -2,6 +2,9 @@ pipeline {
     agent any
     stages {
         stage('Init') {
+            options {
+                skipDefaultCheckout()
+            }
             agent {
                 kubernetes {
                     yaml '''
@@ -51,7 +54,7 @@ pipeline {
                 }
             }
         }
-        stage('Build & Deploy') {
+        stage('Prepare Environment') {
             agent {
                 kubernetes {
                     yamlFile 'AgentPod.yaml'
@@ -65,8 +68,8 @@ pipeline {
                             DOCKER_REPO=nikolayrk/temp
                             
                             /kaniko/executor --context=dir://${WORKSPACE}/ \
-                                            --dockerfile=Dockerfile \
-                                            --destination=${DOCKER_REPO}:${BUILD_NUMBER}
+                                             --dockerfile=Dockerfile \
+                                             --destination=${DOCKER_REPO}:${BUILD_NUMBER}
                             '''
                         }
                     }
