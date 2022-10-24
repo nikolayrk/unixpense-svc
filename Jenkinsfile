@@ -65,7 +65,7 @@ pipeline {
                     steps {
                         container('kaniko') {
                             sh '''
-                            DOCKER_REPO=nikolayrk/temp
+                            DOCKER_REPO=nikolayrk/unixpense-svc
                             
                             /kaniko/executor --context=dir://${WORKSPACE}/ \
                                              --dockerfile=Dockerfile \
@@ -79,7 +79,7 @@ pipeline {
                         container('kubectl') {
                             withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                                 sh '''
-                                DOCKER_REPO=nikolayrk/temp
+                                DOCKER_REPO=nikolayrk/unixpense-svc
                             
                                 DEPLOYMENT_FILENAME=Deployment.yaml
 
