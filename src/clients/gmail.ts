@@ -10,11 +10,12 @@ export default class GmailClient {
     }
     
     public async GetMessageListAsync(pageToken?: string): Promise<Array<gmail_v1.Schema$Message>> {
-        const messagesResponse: any = await exponentialBackoff(0, this.gmailApi.users.messages.list.bind(this.gmailApi), {
-            userId: 'me',
-            q: this.searchQuery,
-            pageToken: pageToken
-        });
+        const messagesResponse: any = await exponentialBackoff(0,
+            this.gmailApi.users.messages.list.bind(this.gmailApi), {
+                userId: 'me',
+                q: this.searchQuery,
+                pageToken: pageToken
+            });
     
         const messages: Array<gmail_v1.Schema$Message> = messagesResponse.data.messages;
         const nextPageToken: string | undefined = messagesResponse.data.nextPageToken;
@@ -33,10 +34,11 @@ export default class GmailClient {
     }
     
     public async GetMessageAsync(messageItem: any): Promise<gmail_v1.Schema$Message> {
-        const messageResponse: any = await exponentialBackoff(0, this.gmailApi.users.messages.get.bind(this.gmailApi), {
-            userId: 'me',
-            id: messageItem.id
-        });
+        const messageResponse: any = await exponentialBackoff(0,
+            this.gmailApi.users.messages.get.bind(this.gmailApi), {
+                userId: 'me',
+                id: messageItem.id
+            });
     
         const message: gmail_v1.Schema$Message = messageResponse.data;
     
@@ -44,11 +46,12 @@ export default class GmailClient {
     }
     
     public async GetAttachmentAsync(attachmentId: string, messageId: string) {
-        const attachmentResponse: gmail_v1.Schema$MessagePartBody = await exponentialBackoff(0, this.gmailApi.users.messages.attachments.get.bind(this.gmailApi), {
-            userId: 'me',
-            messageId: messageId,
-            id: attachmentId
-        });
+        const attachmentResponse: gmail_v1.Schema$MessagePartBody = await exponentialBackoff(0,
+            this.gmailApi.users.messages.attachments.get.bind(this.gmailApi), {
+                userId: 'me',
+                messageId: messageId,
+                id: attachmentId
+            });
     
         const attachment = attachmentResponse.data;
     
