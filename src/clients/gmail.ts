@@ -19,10 +19,6 @@ export default class GmailClient {
         const messages: Array<gmail_v1.Schema$Message> = messagesResponse.data.messages;
         const nextPageToken: string | undefined = messagesResponse.data.nextPageToken;
     
-        if (messages === undefined) {
-            return messages;
-        }
-    
         if(nextPageToken !== undefined) {
             const nextPageMessages: Array<gmail_v1.Schema$Message> = await this.GetMessageListAsync(nextPageToken);
     
