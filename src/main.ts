@@ -1,73 +1,41 @@
-
 import express from 'express';
 import dotenv from 'dotenv';
-import {google} from 'googleapis';
+import GetAttachmentsRoute from './routes/getMessagesRoute';
+import Authentication from './middleware/authentication';
 
 function bootstrap(): void {
     dotenv.config();
     
     const port = process.env.PORT;
-    const client_id = process.env.CLIENT_ID;
-    const client_secret = process.env.CLIENT_SECRET;
-    const redirect_uri = process.env.REDIRECT_URI;
+    const clientId = process.env.CLIENT_ID;
+    const clientSecret = process.env.CLIENT_SECRET;
+    const redirectUri = process.env.REDIRECT_URI;
 
-    const oauth2Client = new google.auth.OAuth2(
-        client_id,
-        client_secret,
-        redirect_uri
-    );
+    if (clientId === undefined) {
+        console.log(`Missing client ID`);
 
-    const scopes = [
-        'https://www.googleapis.com/auth/gmail.readonly'
-      ];
+        return;
+    }
 
-    const url = oauth2Client.generateAuthUrl({
-        access_type: 'offline',
-        
-        scope: scopes
-    });
+    if (clientSecret === undefined) {
+        console.log(`Missing client secret`);
+
+        return;
+    }
+
+    if (redirectUri === undefined) {
+        console.log(`Missing redirect URI`);
+
+        return;
+    }
 
     const app = express();
 
-    let authenticated = false;
+    const authentication = new Authentication(clientId, clientSecret, redirectUri);
 
-    app.get('/oauthcallback', async (req, res, next) => {
-        const code = req.query.code?.toString();
+    app.use('/oauthcallback', authentication.oauth2Callback);
 
-        if (code === undefined) {
-            res.send('No authorization code provided');
-
-            return;
-        }
-
-        await oauth2Client.getToken(code, (err, token) => {
-            if (err !== null) {
-                res.send(err.message);
-
-                return;
-            }
-
-            if (token === null || token === undefined) {
-                return;
-            }
-
-            oauth2Client.setCredentials(token);
-    
-            authenticated = true;
-    
-            res.send('Authorized successfully');
-        });
-    });
-
-    app.get('*', async(req, res, next) => {
-        if (authenticated == false) {
-            res.redirect(url);
-
-            return;
-        }
-
-        next();
-    });
+    const getMessagesRoute = new GetAttachmentsRoute(authentication.oauth2Client);
 
     app.listen(port, () => {
         console.log(`[server]: Server is running at https://localhost:${port}`);
