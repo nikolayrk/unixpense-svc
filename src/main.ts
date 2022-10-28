@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import GetAttachmentsRoute from './routes/getMessagesRoute';
+import GetAttachmentsRoute from './routes/getAttachmentsRoute';
 import Authentication from './middleware/authentication';
 
 function bootstrap(): void {
@@ -35,9 +35,9 @@ function bootstrap(): void {
 
     app.use('/oauthcallback', authentication.oauth2Callback);
 
-    const getMessagesRoute = new GetAttachmentsRoute(authentication.oauth2Client);
+    const getAttachmentsRoute = new GetAttachmentsRoute(authentication.oauth2Client);
 
-    app.get('/getattachments', authentication.ensureAuthenticated, getMessagesRoute.route);
+    app.get('/getattachments', authentication.ensureAuthenticated, getAttachmentsRoute.route);
 
     app.listen(port, () => {
         console.log(`[server]: Server is running at https://localhost:${port}`);
