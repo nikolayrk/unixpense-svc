@@ -9,7 +9,7 @@ export default class GmailClient {
         this.gmailApi = gmailApi;
     }
     
-    public async GetMessageListAsync(pageToken?: string): Promise<Array<gmail_v1.Schema$Message>> {
+    public async getMessageListAsync(pageToken?: string): Promise<Array<gmail_v1.Schema$Message>> {
         const messagesResponse: any = await exponentialBackoff(0,
             this.gmailApi.users.messages.list.bind(this.gmailApi), {
                 userId: 'me',
@@ -21,7 +21,7 @@ export default class GmailClient {
         const nextPageToken: string | undefined = messagesResponse.data.nextPageToken;
     
         if(nextPageToken !== undefined) {
-            const nextPageMessages: Array<gmail_v1.Schema$Message> = await this.GetMessageListAsync(nextPageToken);
+            const nextPageMessages: Array<gmail_v1.Schema$Message> = await this.getMessageListAsync(nextPageToken);
     
             for(const messageIdx in nextPageMessages) {
                 const message: gmail_v1.Schema$Message = nextPageMessages[messageIdx];
@@ -33,7 +33,7 @@ export default class GmailClient {
         return messages;
     }
     
-    public async GetMessageAsync(messageItem: any): Promise<gmail_v1.Schema$Message> {
+    public async getMessageAsync(messageItem: any): Promise<gmail_v1.Schema$Message> {
         const messageResponse: any = await exponentialBackoff(0,
             this.gmailApi.users.messages.get.bind(this.gmailApi), {
                 userId: 'me',
@@ -45,15 +45,17 @@ export default class GmailClient {
         return message;
     }
     
-    public async GetAttachmentAsync(attachmentId: string, messageId: string) {
-        const attachmentResponse: gmail_v1.Schema$MessagePartBody = await exponentialBackoff(0,
+    public async getAttachmentAsync(attachmentId: string, messageId: string) {
+        const attachmentResponse = await exponentialBackoff(0,
             this.gmailApi.users.messages.attachments.get.bind(this.gmailApi), {
                 userId: 'me',
                 messageId: messageId,
                 id: attachmentId
             });
     
-        const attachment = attachmentResponse.data;
+        const messagePartBody: gmail_v1.Schema$MessagePartBody = attachmentResponse.data;
+
+        const attachment = messagePartBody.data;
     
         return attachment;
     }

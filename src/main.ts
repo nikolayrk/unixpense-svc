@@ -37,6 +37,8 @@ function bootstrap(): void {
 
     const getMessagesRoute = new GetAttachmentsRoute(authentication.oauth2Client);
 
+    app.get('/getattachments', authentication.ensureAuthenticated, getMessagesRoute.route);
+
     app.listen(port, () => {
         console.log(`[server]: Server is running at https://localhost:${port}`);
     });
