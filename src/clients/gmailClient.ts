@@ -9,31 +9,25 @@ export default class GmailClient {
         this.gmailApi = gmailApi;
     }
     
-    public async getMessageListAsync(pageToken?: string): Promise<Array<gmail_v1.Schema$Message>> {
-        const messagesResponse: any = await exponentialBackoff(0,
+    public async* getMessageListAsync(pageToken?: string): AsyncGenerator<gmail_v1.Schema$ListMessagesResponse, any, unknown> {
+        const response: any = await exponentialBackoff(0,
             this.gmailApi.users.messages.list.bind(this.gmailApi), {
                 userId: 'me',
                 q: this.searchQuery,
                 pageToken: pageToken
             });
-    
-        const messages: Array<gmail_v1.Schema$Message> = messagesResponse.data.messages;
-        const nextPageToken: string | undefined = messagesResponse.data.nextPageToken;
-    
-        if(nextPageToken !== undefined) {
-            const nextPageMessages: Array<gmail_v1.Schema$Message> = await this.getMessageListAsync(nextPageToken);
-    
-            for(const messageIdx in nextPageMessages) {
-                const message: gmail_v1.Schema$Message = nextPageMessages[messageIdx];
-    
-                messages.push(message);
-            }
+
+        const messageListResponse: gmail_v1.Schema$ListMessagesResponse = response.data;
+        const nextPageToken = messageListResponse.nextPageToken;
+
+        if (nextPageToken !== null && nextPageToken !== undefined) {
+            await (yield * this.getMessageListAsync(nextPageToken));
         }
     
-        return messages;
+        yield messageListResponse;
     }
     
-    public async getMessageAsync(messageItem: any): Promise<gmail_v1.Schema$Message> {
+    public async getMessageAsync(messageItem: gmail_v1.Schema$Message): Promise<gmail_v1.Schema$Message> {
         const messageResponse: any = await exponentialBackoff(0,
             this.gmailApi.users.messages.get.bind(this.gmailApi), {
                 userId: 'me',
@@ -45,11 +39,17 @@ export default class GmailClient {
         return message;
     }
     
-    public async getAttachmentAsync(attachmentId: string, messageId: string) {
+    public async getAttachmentAsync(message: gmail_v1.Schema$Message) {
+        const attachmentId = message.payload?.parts?.[1].body?.attachmentId;
+
+        if (attachmentId === null || attachmentId === undefined) {
+            throw new Error(`No attachment ID found in message with ID ${message.id}`);
+        }
+
         const attachmentResponse: any = await exponentialBackoff(0,
             this.gmailApi.users.messages.attachments.get.bind(this.gmailApi), {
                 userId: 'me',
-                messageId: messageId,
+                messageId: message.id,
                 id: attachmentId
             });
     
