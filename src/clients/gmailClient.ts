@@ -46,7 +46,7 @@ export default class GmailClient {
     }
     
     public async getAttachmentAsync(attachmentId: string, messageId: string) {
-        const attachmentResponse = await exponentialBackoff(0,
+        const attachmentResponse: any = await exponentialBackoff(0,
             this.gmailApi.users.messages.attachments.get.bind(this.gmailApi), {
                 userId: 'me',
                 messageId: messageId,
