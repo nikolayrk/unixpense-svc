@@ -1,5 +1,5 @@
 import EntryType from "../enums/entryType";
-import TransactionType from "./transactionTypes";
+import TransactionType from "./transactionType";
 
 export default interface Transaction<T extends TransactionType> {
     messageId: string;

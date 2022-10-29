@@ -2,7 +2,7 @@ import { parse as htmlParse } from 'node-html-parser';
 import { parse as dateParse } from 'date-format-parse';
 import EntryType from '../enums/entryType';
 import Transaction from '../models/transaction';
-import TransactionType from '../models/transactionTypes';
+import TransactionType from '../models/transactionType';
 import TransactionTypeFactory from '../models/transactionTypeFactory';
 
 export default class TransactionFactory {
@@ -57,6 +57,10 @@ export default class TransactionFactory {
                 ? EntryType.CREDIT
                 : EntryType.INVALID;
 
+        if (entryType === EntryType.INVALID) {
+            throw new Error(`Unregonised transaction entry '${entryTypeStr}'`);
+        }
+
         const transactionType = txnData[11]
             .childNodes[0]
             .rawText;
@@ -69,7 +73,7 @@ export default class TransactionFactory {
             const description = transactionTypeFactory?.create(transactionDetails);
 
             if (description === undefined) {
-                throw new Error(`Failed to process transaction with type ${transactionType}`);
+                throw new Error(`Failed to process transaction with type '${transactionType}'`);
             }
 
             const transaction: Transaction<TransactionType> = {
