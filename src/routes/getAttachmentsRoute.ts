@@ -3,6 +3,9 @@ import { google } from 'googleapis';
 import { OAuth2Client } from "google-auth-library";
 import GmailClient from "../clients/gmailClient";
 import base64UrlDecode from "../utils/base64UrlDecode";
+import TransactionFactory from "../factories/transactionFactory";
+import Transaction from "../models/transaction";
+import TransactionType from "../models/transactionTypes";
 
 export default class GetAttachmentsRoute {
     private oauth2Client: OAuth2Client;
@@ -21,7 +24,9 @@ export default class GetAttachmentsRoute {
     
         console.log(`Received ${messageList.length} messages`);
     
-        const attachments = new Array<string>();
+        const transactions = new Array<Transaction<TransactionType>>();
+
+        const transactionFactory = new TransactionFactory();
     
         for (const messageIdx in messageList) {
             const messageItem = messageList[messageIdx];
@@ -59,11 +64,23 @@ export default class GetAttachmentsRoute {
             console.log(`Received attachment from message with ID ${message.id}`);
     
             const decodedAttachment = await this.decodeAttachment(attachment);
-    
-            attachments.push(decodedAttachment);
+
+            try {
+                console.log(`Processing transaction from message with ID ${message.id}`);
+
+                const transaction = transactionFactory.create(message.id, decodedAttachment);
+                
+                console.log(`Successfully processed transaction with reference ${transaction.referece}`);
+                
+                transactions.push(transaction);
+            } catch(ex) {
+                if (ex instanceof Error) {
+                    console.log(`Failed to process transaction from message with ID ${message.id}: ${ex.stack}`);
+                }
+            }
         }
     
-        res.send(attachments);
+        res.send(transactions);
     }
 
     private async decodeAttachment(attachment: string) {
