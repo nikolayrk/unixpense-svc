@@ -5,6 +5,9 @@ import { OAuth2Client } from "google-auth-library";
 export default class Authentication {
     private _oauth2Client: OAuth2Client;
     private authenticated: boolean;
+    private readonly scopes = [
+        'https://www.googleapis.com/auth/gmail.readonly'
+      ];
 
     get oauth2Client(): OAuth2Client {
         return this._oauth2Client;
@@ -27,13 +30,9 @@ export default class Authentication {
 
     public ensureAuthenticated = (_: Request, res: Response, next: NextFunction) => {
         if (this.authenticated == false) {
-            const scopes = [
-                'https://www.googleapis.com/auth/gmail.readonly'
-              ];
-        
             const url = this.oauth2Client.generateAuthUrl({
                 access_type: 'offline',
-                scope: scopes
+                scope: this.scopes
             });
 
             res.redirect(url);
