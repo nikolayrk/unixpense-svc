@@ -22,6 +22,7 @@ export default class GetTransactionsRoute {
         } catch(ex) {
             if (ex instanceof Error) {
                 console.log(ex.stack);
+                res.send(ex.stack);
             }
 
             return;
