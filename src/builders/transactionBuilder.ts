@@ -57,7 +57,7 @@ export default class TransactionBuilder {
 
             console.log(`Received attachment from message with ID ${message.id}`);
 
-            const decodedAttachment = await this.decodeAttachment(attachment);
+            const decodedAttachment = this.decodeAttachment(attachment);
 
             try {
                 console.log(`Processing transaction from message with ID ${message.id}`);
