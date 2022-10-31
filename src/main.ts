@@ -1,6 +1,5 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import GetTransactionsRoute from './routes/getTransactionsRouter';
 import Authentication from './middleware/authentication';
 import GmailClient from './clients/gmailClient';
 import { google } from 'googleapis';
