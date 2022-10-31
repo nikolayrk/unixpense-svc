@@ -87,15 +87,10 @@ export default class TransactionFactory {
 
         const transactionType = txnData[11]
             .childNodes
-            .map(n => {
-                const regex = XRegExp('(?:[^\\/])*((?=\\p{Lu})\\p{Cyrillic}*[\\W]+.*)');
-                const regexResult = regex.exec(n.rawText);
-                const type = regexResult?.[0];
-
-                return type;
-            })
-            .filter(n => n !== '')
-            .slice(0, 1)?.[0];
+            .map(n => 
+                XRegExp('(?:[^\\/])*((?=\\p{Lu})\\p{Cyrillic}*[\\W]+.*)')
+                    .exec(n.rawText)?.[0])
+            .filter(n => n !== '')?.[0];
 
         const transactionTypeValid = transactionType !== undefined;
 
