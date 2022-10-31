@@ -1,11 +1,12 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import GetTransactionsRoute from './routes/getTransactionsRoute';
+import GetTransactionsRoute from './routes/getTransactionsRouter';
 import Authentication from './middleware/authentication';
 import GmailClient from './clients/gmailClient';
 import { google } from 'googleapis';
 import TransactionBuilder from './builders/transactionBuilder';
 import TransactionFactory from './factories/transactionFactory';
+import getTransactionsRouter from './routes/getTransactionsRouter';
 
 function bootstrap(): void {
     dotenv.config();
@@ -45,9 +46,7 @@ function bootstrap(): void {
     const transactionFactory = new TransactionFactory();
     const transactionBuilder = new TransactionBuilder(gmailClient, transactionFactory);
 
-    const getAttachmentsRoute = new GetTransactionsRoute(transactionBuilder);
-
-    app.get('/gettransactions', authentication.ensureAuthenticated, getAttachmentsRoute.route);
+    app.use('/gettransactions', authentication.ensureAuthenticated, getTransactionsRouter(gmailClient, transactionBuilder));
 
     app.listen(port, () => {
         console.log(`[server]: Server is running at https://localhost:${port}`);

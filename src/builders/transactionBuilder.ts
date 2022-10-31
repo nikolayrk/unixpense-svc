@@ -12,57 +12,30 @@ export default class TransactionBuilder {
         this.transactionFactory = transactionFactory;
     }
 
-    public async* buildAsync() {
-        for await (const messageListPage of this.gmailClient.getMessageListAsync()) {
-            const messageList = await this.constructMessageList(messageListPage);
+    public async* buildAsync(messageItem: gmail_v1.Schema$Message) {
+        const message = await this.constructMessageAsync(messageItem);
 
-            await (yield* this.constructTransactionAsync(messageList));            
-        }
-    }
+        try {
+            const attachment = await this.constructAttachmentAsync(message);
 
-    private async constructMessageList(messageListPage: gmail_v1.Schema$ListMessagesResponse) {
-        const messageList = messageListPage.messages;
-        const nextPageToken = messageListPage.nextPageToken;
+            const decodedAttachment = this.decodeAttachment(attachment);
 
-        console.log(`Requesting message list${nextPageToken !== undefined ? ` with page token ${nextPageToken}` : ''}`);
+            console.log(`Processing transaction from message with ID ${message.id}`);
 
-        if (messageList === undefined) {
-            throw new Error(`Failed to get message list`);
-        }
+            const transaction = this.transactionFactory.create(message, decodedAttachment);
 
-        console.log(`Received page of ${messageList.length} messages`);
+            console.log(`Successfully processed transaction with reference ${transaction.reference}`);
 
-        return messageList;
-    }
-
-    private async* constructTransactionAsync(messageList: gmail_v1.Schema$Message[]) {
-        for (const messageIdx in messageList) {
-            const messageItem = messageList[messageIdx];
-
-            const message = await this.constructMessageAsync(messageItem, messageIdx);
-
-            try {
-                const attachment = await this.constructAttachmentAsync(message);
-
-                const decodedAttachment = this.decodeAttachment(attachment);
-
-                console.log(`Processing transaction from message with ID ${message.id}`);
-
-                const transaction = this.transactionFactory.create(message, decodedAttachment);
-
-                console.log(`Successfully processed transaction with reference ${transaction.reference}`);
-
-                yield transaction;
-            } catch (ex) {
-                if (ex instanceof Error) {
-                    console.log(`Failed to process transaction from message with ID ${message.id}: ${ex.stack}`);
-                }
+            yield transaction;
+        } catch (ex) {
+            if (ex instanceof Error) {
+                console.log(`Failed to process transaction from message with ID ${message.id}: ${ex.stack}`);
             }
         }
     }
 
-    private async constructMessageAsync(messageItem: gmail_v1.Schema$Message, messageIdx: string) {
-        console.log(`Requesting message #${messageIdx} with ID ${messageItem.id}...`);
+    private async constructMessageAsync(messageItem: gmail_v1.Schema$Message) {
+        console.log(`Requesting message ID ${messageItem.id}...`);
 
         const message = await this.gmailClient.getMessageAsync(messageItem);
 
