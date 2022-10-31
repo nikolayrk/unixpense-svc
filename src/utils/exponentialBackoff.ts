@@ -10,7 +10,6 @@ const wait = (ms: number): Promise<NodeJS.Timeout> => new Promise((res) => setTi
         if (depth > 7) {
             throw e;
         }
-        console.log(e);
         await wait(2 ** depth * 1000); // [1s ... 64s]
 
         return exponentialBackoff(depth + 1, fn, ...params);

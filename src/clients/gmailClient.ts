@@ -43,7 +43,7 @@ export default class GmailClient {
         const attachmentId = message.payload?.parts?.[1].body?.attachmentId;
 
         if (attachmentId === null || attachmentId === undefined) {
-            throw new Error(`No attachment ID found in message with ID ${message.id}`);
+            throw new Error(`No attachment ID found`);
         }
 
         const attachmentResponse: any = await exponentialBackoff(0,

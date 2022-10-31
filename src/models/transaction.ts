@@ -4,9 +4,9 @@ import TransactionType from "./transactionType";
 export default interface Transaction<T extends TransactionType> {
     messageId: string;
     date: number;
-    referece: string;
+    reference: string;
     valueDate: number;
     sum: number;
     entryType: EntryType;
-    description: T
+    description: T;
 }
