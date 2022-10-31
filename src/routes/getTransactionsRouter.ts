@@ -3,7 +3,7 @@ import TransactionBuilder from "../builders/transactionBuilder";
 import GmailClient from "../clients/gmailClient";
 import Transaction from "../models/transaction";
 import TransactionType from "../models/transactionType";
-import { transactionIterator } from "../utils/transactionIterator";
+import transactionIterator from "../utils/transactionIterator";
 
 export default function getTransactionsRoute(gmailClient: GmailClient, transactionBuilder: TransactionBuilder) {
     const router = express.Router();

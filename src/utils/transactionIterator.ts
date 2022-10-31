@@ -17,7 +17,7 @@ async function constructMessageList(messageListPage: gmail_v1.Schema$ListMessage
     return messageList;
 }
 
-export async function* transactionIterator(gmailClient: GmailClient, transactionBuilder: TransactionBuilder) {
+export default async function* transactionIterator(gmailClient: GmailClient, transactionBuilder: TransactionBuilder) {
     for await (const messageListPage of gmailClient.getMessageListAsync()) {
         const messageList = await constructMessageList(messageListPage);
 
