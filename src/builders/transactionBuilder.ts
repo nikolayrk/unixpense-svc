@@ -14,57 +14,43 @@ export default class TransactionBuilder {
 
     public async* buildAsync() {
         for await (const messageListPage of this.gmailClient.getMessageListAsync()) {
-            const messageList = messageListPage.messages;
-            const nextPageToken = messageListPage.nextPageToken;
-
-            console.log(`Requesting message list${nextPageToken !== undefined ? ` with page token ${nextPageToken}` : ''}`);
-
-            if (messageList === undefined) {
-                throw new Error(`Failed to get message list`);
-            }
-
-            console.log(`Received page of ${messageList.length} messages`);
+            const messageList = await this.constructMessageList(messageListPage);
 
             await (yield* this.constructTransactionAsync(messageList));            
         }
+    }
+
+    private async constructMessageList(messageListPage: gmail_v1.Schema$ListMessagesResponse) {
+        const messageList = messageListPage.messages;
+        const nextPageToken = messageListPage.nextPageToken;
+
+        console.log(`Requesting message list${nextPageToken !== undefined ? ` with page token ${nextPageToken}` : ''}`);
+
+        if (messageList === undefined) {
+            throw new Error(`Failed to get message list`);
+        }
+
+        console.log(`Received page of ${messageList.length} messages`);
+
+        return messageList;
     }
 
     private async* constructTransactionAsync(messageList: gmail_v1.Schema$Message[]) {
         for (const messageIdx in messageList) {
             const messageItem = messageList[messageIdx];
 
-            console.log(`Requesting message #${messageIdx} with ID ${messageItem.id}...`);
-
-            const message = await this.gmailClient.getMessageAsync(messageItem);
-
-            if (message.id === null || message.id === undefined) {
-                console.log(`Failed to get message #${messageIdx}`);
-
-                continue;
-            }
-
-            console.log(`Received message with ID ${message.id}`);
-
-            console.log(`Requesting attachment from message with ID ${message.id}...`);
-
-            const attachment = await this.gmailClient.getAttachmentAsync(message);
-
-            if (attachment === null || attachment === undefined) {
-                console.log(`Failed to get attachment from message with ID ${message.id}`);
-
-                continue;
-            }
-
-            console.log(`Received attachment from message with ID ${message.id}`);
-
-            const decodedAttachment = this.decodeAttachment(attachment);
+            const message = await this.constructMessageAsync(messageItem, messageIdx);
 
             try {
+                const attachment = await this.constructAttachmentAsync(message);
+
+                const decodedAttachment = this.decodeAttachment(attachment);
+
                 console.log(`Processing transaction from message with ID ${message.id}`);
 
-                const transaction = this.transactionFactory.create(message.id, decodedAttachment);
+                const transaction = this.transactionFactory.create(message, decodedAttachment);
 
-                console.log(`Successfully processed transaction with reference ${transaction.referece}`);
+                console.log(`Successfully processed transaction with reference ${transaction.reference}`);
 
                 yield transaction;
             } catch (ex) {
@@ -73,6 +59,30 @@ export default class TransactionBuilder {
                 }
             }
         }
+    }
+
+    private async constructMessageAsync(messageItem: gmail_v1.Schema$Message, messageIdx: string) {
+        console.log(`Requesting message #${messageIdx} with ID ${messageItem.id}...`);
+
+        const message = await this.gmailClient.getMessageAsync(messageItem);
+
+        console.log(`Received message with ID ${message.id}`);
+
+        return message;
+    }
+
+    private async constructAttachmentAsync(message: gmail_v1.Schema$Message) {
+        console.log(`Requesting attachment from message with ID ${message.id}...`);
+
+        const attachment = await this.gmailClient.getAttachmentAsync(message);
+
+        if (attachment === null || attachment === undefined) {
+            throw new Error(`Missing attachment`);
+        }
+
+        console.log(`Received attachment from message with ID ${message.id}`);
+
+        return attachment;
     }
 
     private decodeAttachment(attachment: string) {
