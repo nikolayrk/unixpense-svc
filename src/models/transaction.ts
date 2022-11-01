@@ -8,5 +8,5 @@ export default interface Transaction<T extends TransactionType> {
     valueDate: number;
     sum: number;
     entryType: EntryType;
-    description: T;
+    paymentDetails: T;
 }

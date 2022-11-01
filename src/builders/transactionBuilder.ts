@@ -7,20 +7,23 @@ import TransactionType from "../models/transactionType";
 import base64UrlDecode from "../utils/base64UrlDecode";
 import EntryType from '../enums/entryType';
 import XRegExp from 'xregexp';
-import TransactionTypeFactory from '../models/transactionTypeFactory';
+import PaymentDetailsFactory from '../models/paymentDetailsFactory';
+import CardOperationFactory from '../factories/cardOperationFactory';
+import UnsupportedTransactionError from '../errors/unsupportedTransactionError';
+import PaymentDetailsProcessingError from '../errors/paymentDetailsProcessingError';
 
 export default class TransactionBuilder {
     private gmailClient: GmailClient;
-    private readonly transactionTypeFactories: Partial<Record<string, TransactionTypeFactory<TransactionType>>>;
+    private readonly paymentDetailsFactories: Partial<Record<string, PaymentDetailsFactory<TransactionType>>>;
 
-    private static readonly emptyDescription: TransactionType = {
+    private static readonly emptyPaymentDetails: TransactionType = {
         beneficiary: ''
     }
 
     constructor(gmailClient: GmailClient) {
         this.gmailClient = gmailClient;
-        this.transactionTypeFactories = {
-            // 'Операция с карта': ...,
+        this.paymentDetailsFactories = {
+            'Операция с карта': new CardOperationFactory(),
             // 'Периодична такса': ...,
             // 'Комунално плaщане': ...,
             // 'Комунално плащане mBanking': ...,
@@ -43,6 +46,8 @@ export default class TransactionBuilder {
             // 'Такса за междубанков превод': ...,
             // 'Издаване на превод във валута': ...,
             // 'Такси издадени валутни преводи': ...,
+            // 'Такса за теглене над определена сума': ...,
+            // 'Теглене на пари на каса от клнт с-к': ...
         };
     }
 
@@ -140,56 +145,85 @@ export default class TransactionBuilder {
                 : EntryType.INVALID;
 
         if (entryType === EntryType.INVALID) {
-            throw new Error(`Transaction reference ${reference}: Unregonised transaction entry '${entryTypeStr}'`);
+            throw new Error(`Transaction reference ${reference}: Unregonised entry type '${entryTypeStr}'`);
         }
 
         const transactionType = txnData[11]
             .childNodes
             .map(n => 
                 XRegExp('(?:[^\\/])*[\\/]*((?=\\p{Lu})\\p{Cyrillic}+.*)')
-                .exec(n.rawText)
-               ?.filter(r => r !== null && r !== undefined)[1])
-           ?.filter(n => n !== undefined && n !== '')?.[0];
+                    .exec(n.rawText)
+                   ?.filter(r => r !== null && r !== undefined)
+                   ?.[1])
+           ?.filter(n => n !== undefined && n !== '')
+           ?.[0];
 
         const transactionTypeValid = transactionType !== undefined;
 
         const transactionDetails = txnData.slice(11);
 
-        const description = this.tryConstructTransactionDescription(transactionType, transactionDetails, reference);
-        
-        const descriptionValid = description !== null;
+        try {
+            const paymentDetails = this.tryConstructPaymentDetails(transactionType, transactionDetails);
+            
+            const paymentDetailsValid = paymentDetails !== null;
 
-        const finalDescription = transactionTypeValid && descriptionValid
-            ? description
-            : TransactionBuilder.emptyDescription;
+            const finalPaymentDetails = transactionTypeValid && paymentDetailsValid
+                ? paymentDetails
+                : TransactionBuilder.emptyPaymentDetails;
 
-        const transaction: Transaction<TransactionType> = {
-            messageId: message.id,
-            date: date,
-            reference: reference,
-            valueDate: valueDate,
-            sum: sum,
-            entryType: entryType,
-            description: finalDescription
+            const transaction: Transaction<TransactionType> = {
+                messageId: message.id,
+                date: date,
+                reference: reference,
+                valueDate: valueDate,
+                sum: sum,
+                entryType: entryType,
+                paymentDetails: finalPaymentDetails
+            }
+            
+            console.log(`Successfully processed transaction with reference ${transaction.reference}`);
+
+            return transaction;
         }
-        
-        console.log(`Successfully processed transaction with reference ${transaction.reference}`);
+        catch(ex) {
+            if(ex instanceof UnsupportedTransactionError) {
+                throw new Error(`Transaction reference ${reference}: ${ex.message}`);
+            }
 
-        return transaction;
+            if(ex instanceof Error) {
+                throw ex;
+            }
+
+            throw new Error(`Transaction reference ${reference}: '${ex}'`);
+        }
     }
 
-    private tryConstructTransactionDescription(transactionType: string | undefined, transactionDetails: Node[], reference: string) {
+    private tryConstructPaymentDetails(transactionType: string | undefined, transactionDetails: Node[]) {
         if (transactionType === undefined) {
             return null;
         }
 
-        const transactionTypeFactory = this.transactionTypeFactories[transactionType];
-        const description = transactionTypeFactory?.tryCreate(transactionDetails);
+        try {
+            const paymentDetailsFactory = this.paymentDetailsFactories[transactionType];
+            const paymentDetails = paymentDetailsFactory?.create(transactionDetails);
 
-        if (description === undefined) {
-            throw new Error(`Transaction reference ${reference}: Unsupported transaction type '${transactionType}'`);
+            if (paymentDetails === undefined) {
+                throw new UnsupportedTransactionError(transactionType);
+            }
+
+            return paymentDetails;
+        } catch(ex) {
+            if (ex instanceof UnsupportedTransactionError) {
+                throw ex;
+            }
+
+            if (ex instanceof PaymentDetailsProcessingError) {
+                console.log(`Failed to construct payment details. Reason: ${ex.message}. Falling back to using empty payment details body...`);
+
+                return null;
+            }
+
+            throw ex;
         }
-
-        return description;
     }
 }
