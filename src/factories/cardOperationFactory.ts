@@ -11,22 +11,6 @@ export default class CardOperationFactory implements PaymentDetailsFactory<CardO
             .map((c) => c.rawText)
             .join('');
 
-        // const extraDetails = [
-        //     details[2]
-        //         .childNodes[1]
-        //         .childNodes[1]
-        //         .childNodes[1]
-        //         .childNodes[0]
-        //         .rawText,
-
-        //     details[2]
-        //         .childNodes[1]
-        //         .childNodes[3]
-        //         .childNodes[1]
-        //         .childNodes[0]
-        //         ?.rawText
-        // ];
-
         const regex = /^(?<instrument>[^\d]+)\s(?<sum>[^\s]+)\s(?<currency>\w*)[,]?\sавт.код:(?:[^\s,-]*)[\s]*[-]?[,]?[\s]?(?<merchant>[^\/]+(?<! ))/;
 
         const regexResult = regex.exec(transactionDetailsRaw);
