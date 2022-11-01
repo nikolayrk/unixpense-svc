@@ -4,7 +4,6 @@ import Authentication from './middleware/authentication';
 import GmailClient from './clients/gmailClient';
 import { google } from 'googleapis';
 import TransactionBuilder from './builders/transactionBuilder';
-import TransactionFactory from './factories/transactionFactory';
 import getTransactionsRouter from './routes/getTransactionsRouter';
 
 function bootstrap(): void {
@@ -42,8 +41,7 @@ function bootstrap(): void {
     const gmailApi = google.gmail({version: 'v1', auth: authentication.oauth2Client});
     const gmailClient = new GmailClient(gmailApi);
 
-    const transactionFactory = new TransactionFactory();
-    const transactionBuilder = new TransactionBuilder(gmailClient, transactionFactory);
+    const transactionBuilder = new TransactionBuilder(gmailClient);
 
     app.use('/gettransactions', authentication.ensureAuthenticated, getTransactionsRouter(gmailClient, transactionBuilder));
 
