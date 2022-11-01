@@ -43,7 +43,7 @@ function bootstrap(): void {
 
     const transactionBuilder = new TransactionBuilder(gmailClient);
 
-    app.use('/gettransactions', authentication.ensureAuthenticated, getTransactionsRouter(gmailClient, transactionBuilder));
+    app.use(authentication.ensureAuthenticated, getTransactionsRouter(gmailClient, transactionBuilder));
 
     app.listen(port, () => {
         console.log(`[server]: Server is running at https://localhost:${port}`);
