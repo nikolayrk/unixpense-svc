@@ -46,7 +46,7 @@ export default class TransactionBuilder {
         };
     }
 
-    public async* buildAsync(messageItem: gmail_v1.Schema$Message) {
+    public async * buildAsync(messageItem: gmail_v1.Schema$Message) {
         const message = await this.constructMessageAsync(messageItem);
 
         try {
@@ -146,9 +146,10 @@ export default class TransactionBuilder {
         const transactionType = txnData[11]
             .childNodes
             .map(n => 
-                XRegExp('(?:[^\\/])*((?=\\p{Lu})\\p{Cyrillic}*[\\W]+.*)')
-                    .exec(n.rawText)?.[0])
-            .filter(n => n !== '')?.[0];
+                XRegExp('(?:[^\\/])*[\\/]*((?=\\p{Lu})\\p{Cyrillic}+.*)')
+                .exec(n.rawText)
+               ?.filter(r => r !== null && r !== undefined)[1])
+           ?.filter(n => n !== undefined && n !== '')?.[0];
 
         const transactionTypeValid = transactionType !== undefined;
 
