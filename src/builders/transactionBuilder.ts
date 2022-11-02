@@ -213,10 +213,6 @@ export default class TransactionBuilder {
 
             return paymentDetails;
         } catch(ex) {
-            if (ex instanceof UnsupportedTransactionError) {
-                throw ex;
-            }
-
             if (ex instanceof PaymentDetailsProcessingError) {
                 console.log(`Failed to construct payment details. Reason: ${ex.message}. Falling back to using empty payment details body...`);
 
