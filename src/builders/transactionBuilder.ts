@@ -14,6 +14,7 @@ import PaymentDetailsProcessingError from '../errors/paymentDetailsProcessingErr
 import FailedToProcessTxnError from '../errors/failedToProcessTxnError';
 import StandardTransferFactory from '../factories/standardTransferFactory';
 import StandardFeeFactory from '../factories/standardFeeFactory';
+import CrossBorderTransferFactory from '../factories/crossBorderTransferFactory';
 
 export default class TransactionBuilder {
     private gmailClient: GmailClient;
@@ -200,9 +201,13 @@ export default class TransactionBuilder {
             case 'Операция с карта':
                 return new CardOperationFactory();
 
+            case 'Издаване на превод във валута':
+                return new CrossBorderTransferFactory();
+
             case 'Периодична такса':
             case 'Такса за междубанков превод':
             case 'Такса за превод':
+            case 'Такси издадени валутни преводи':
             case 'Такса за вътрешнобанков превод':
             case 'Такса за теглене над определена сума':
             case 'Теглене на пари на каса от клнт с-к':
@@ -230,7 +235,5 @@ export default class TransactionBuilder {
                 throw new UnsupportedTxnError(transactionType);
 
         }
-        // 'Издаване на превод във валута': ...,
-        // 'Такси издадени валутни преводи': ...,
     }
 }
