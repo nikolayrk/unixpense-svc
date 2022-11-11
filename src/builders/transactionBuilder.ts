@@ -13,6 +13,7 @@ import UnsupportedTxnError from '../errors/unsupportedTxnError';
 import PaymentDetailsProcessingError from '../errors/paymentDetailsProcessingError';
 import FailedToProcessTxnError from '../errors/failedToProcessTxnError';
 import InternalTransferPayrollFactory from '../factories/internalTransferPayrollFactory';
+import PeriodicFeeFactory from '../factories/periodicFeeFactory';
 
 export default class TransactionBuilder {
     private gmailClient: GmailClient;
@@ -26,7 +27,7 @@ export default class TransactionBuilder {
         this.gmailClient = gmailClient;
         this.paymentDetailsFactories = {
             'Операция с карта': new CardOperationFactory(),
-            // 'Периодична такса': ...,
+            'Периодична такса': new PeriodicFeeFactory(),
             // 'Комунално плaщане': ...,
             // 'Комунално плащане mBanking': ...,
             // 'Комунално плащане BBO': ...,
