@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { google } from 'googleapis';
-import { OAuth2Client } from "google-auth-library";
+import { OAuth2Client } from 'googleapis-common';
 
-export default class Authentication {
+export default class GoogleApiAuth {
     private _oauth2Client: OAuth2Client;
     private authenticated: boolean;
     private readonly scopes = [
@@ -43,7 +43,7 @@ export default class Authentication {
         next();
     }
 
-    public oauth2Callback = async (req: Request, res: Response) => {
+    public callback = async (req: Request, res: Response) => {
         const code = req.query.code?.toString();
     
         if (code === undefined) {

@@ -1,10 +1,9 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import Authentication from './middleware/authentication';
 import GmailClient from './clients/gmailClient';
-import { google } from 'googleapis';
 import TransactionBuilder from './builders/transactionBuilder';
 import getTransactionsRouter from './routes/getTransactionsRouter';
+import GoogleApiAuth from './middleware/googleApiAuth';
 
 function bootstrap(): void {
     dotenv.config();
@@ -14,36 +13,20 @@ function bootstrap(): void {
     const clientSecret = process.env.CLIENT_SECRET;
     const redirectUri = process.env.REDIRECT_URI;
 
-    if (clientId === undefined) {
-        console.log(`Missing client ID`);
+    if (clientId === undefined || clientSecret === undefined || redirectUri === undefined) {
+        console.log(`Missing OAuth2 credentials. Exiting...`);
 
         return;
     }
 
-    if (clientSecret === undefined) {
-        console.log(`Missing client secret`);
-
-        return;
-    }
-
-    if (redirectUri === undefined) {
-        console.log(`Missing redirect URI`);
-
-        return;
-    }
+    const googleApiAuth = new GoogleApiAuth(clientId, clientSecret, redirectUri);
+    const gmailClient = new GmailClient(googleApiAuth.oauth2Client);
+    const transactionBuilder = new TransactionBuilder(gmailClient);
 
     const app = express();
 
-    const authentication = new Authentication(clientId, clientSecret, redirectUri);
-
-    app.use('/oauthcallback', authentication.oauth2Callback);
-
-    const gmailApi = google.gmail({version: 'v1', auth: authentication.oauth2Client});
-    const gmailClient = new GmailClient(gmailApi);
-
-    const transactionBuilder = new TransactionBuilder(gmailClient);
-
-    app.use(authentication.ensureAuthenticated, getTransactionsRouter(gmailClient, transactionBuilder));
+    app.use('/oauthcallback', googleApiAuth.callback);
+    app.use(googleApiAuth.ensureAuthenticated, getTransactionsRouter(gmailClient, transactionBuilder));
 
     app.listen(port, () => {
         console.log(`[server]: Server is running at https://localhost:${port}`);
