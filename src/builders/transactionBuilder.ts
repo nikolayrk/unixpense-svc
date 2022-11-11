@@ -17,7 +17,6 @@ import StandardFeeFactory from '../factories/standardFeeFactory';
 
 export default class TransactionBuilder {
     private gmailClient: GmailClient;
-    private readonly paymentDetailsFactories: Partial<Record<string, PaymentDetailsFactory<TransactionType>>>;
 
     private static readonly emptyPaymentDetails: TransactionType = {
         beneficiary: ''
@@ -25,33 +24,6 @@ export default class TransactionBuilder {
 
     constructor(gmailClient: GmailClient) {
         this.gmailClient = gmailClient;
-        this.paymentDetailsFactories = {
-            'Операция с карта': new CardOperationFactory(),
-            'Вътрешно банков превод Payroll': new StandardTransferFactory('Вътрешно банков превод Payroll'),
-            'Периодична такса': new StandardFeeFactory('Периодична такса'),
-            'Плащане на лихва': new StandardTransferFactory('Плащане на лихва'),
-            'Удържане на данък в/у лихва': new StandardTransferFactory('Удържане на данък в/у лихва'),
-            'Вътрешнобанков превод FC': new StandardTransferFactory('Вътрешнобанков превод FC'),
-            'Вътрешнобанков превод': new StandardTransferFactory('Вътрешнобанков превод'),
-            'Платежно нареждане извън банката': new StandardTransferFactory('Платежно нареждане извън банката'),
-            'Такса за междубанков превод': new StandardFeeFactory('Такса за междубанков превод'),
-            'Комунално плащане mBanking': new StandardTransferFactory('Комунално плащане mBanking'),
-            'Такса за превод': new StandardFeeFactory('Такса за превод'),
-            'Комунално плaщане': new StandardTransferFactory('Комунално плaщане'),
-            'Получен междубанков превод': new StandardTransferFactory('Получен междубанков превод'),
-            'Комунално плащане BBO': new StandardTransferFactory('Комунално плащане BBO'),
-            'Получен вътр.банков превод': new StandardTransferFactory('Получен вътр.банков превод'),
-            'Периодично плащане': new StandardTransferFactory('Периодично плащане'),
-            // 'Издаване на превод във валута': ...,
-            // 'Такси издадени валутни преводи': ...,
-            'Погасяване на главница': new StandardTransferFactory('Погасяване на главница'),
-            'Застрахователна премия': new StandardTransferFactory('Застрахователна премия'),
-            'Погасяв.на л-ва за редовна главница': new StandardTransferFactory('Погасяв.на л-ва за редовна главница'),
-            'Издаден вътр.банков превод': new StandardTransferFactory('Издаден вътр.банков превод'),
-            'Такса за вътрешнобанков превод': new StandardFeeFactory('Такса за вътрешнобанков превод'),
-            'Такса за теглене над определена сума': new StandardFeeFactory('Такса за теглене над определена сума'),
-            'Теглене на пари на каса от клнт с-к': new StandardFeeFactory('Теглене на пари на каса от клнт с-к')
-        };
     }
 
     public async buildAsync(messageItem: gmail_v1.Schema$Message) {
@@ -208,12 +180,8 @@ export default class TransactionBuilder {
         }
 
         try {
-            const paymentDetailsFactory = this.paymentDetailsFactories[transactionType];
-            const paymentDetails = paymentDetailsFactory?.create(transactionDetails);
-
-            if (paymentDetails === undefined) {
-                throw new UnsupportedTxnError(transactionType);
-            }
+            const paymentDetailsFactory = this.getPaymentDetailsFactory(transactionType);
+            const paymentDetails = paymentDetailsFactory.create(transactionDetails);
 
             return paymentDetails;
         } catch(ex) {
@@ -225,5 +193,44 @@ export default class TransactionBuilder {
 
             throw ex;
         }
+    }
+
+    private getPaymentDetailsFactory(transactionType: string): PaymentDetailsFactory<TransactionType> {
+        switch(transactionType) {
+            case 'Операция с карта':
+                return new CardOperationFactory();
+
+            case 'Периодична такса':
+            case 'Такса за междубанков превод':
+            case 'Такса за превод':
+            case 'Такса за вътрешнобанков превод':
+            case 'Такса за теглене над определена сума':
+            case 'Теглене на пари на каса от клнт с-к':
+                return new StandardFeeFactory(transactionType);
+            
+            case 'Вътрешно банков превод Payroll': 
+            case 'Плащане на лихва':
+            case 'Удържане на данък в/у лихва':
+            case 'Вътрешнобанков превод FC':
+            case 'Вътрешнобанков превод':
+            case 'Платежно нареждане извън банката':
+            case 'Комунално плащане mBanking':
+            case 'Комунално плaщане':
+            case 'Получен междубанков превод':
+            case 'Комунално плащане BBO':
+            case 'Получен вътр.банков превод':
+            case 'Периодично плащане':
+            case 'Погасяване на главница':
+            case 'Застрахователна премия':
+            case 'Погасяв.на л-ва за редовна главница':
+            case 'Издаден вътр.банков превод':
+                return new StandardTransferFactory(transactionType);
+
+            default:
+                throw new UnsupportedTxnError(transactionType);
+
+        }
+        // 'Издаване на превод във валута': ...,
+        // 'Такси издадени валутни преводи': ...,
     }
 }
