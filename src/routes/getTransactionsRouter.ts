@@ -1,5 +1,4 @@
 import express, { Request, Response } from "express";
-import { gmail_v1 } from "googleapis";
 import TransactionBuilder from "../builders/transactionBuilder";
 import GmailClient from "../clients/gmailClient";
 import FailedToProcessTxnError from "../errors/failedToProcessTxnError";
