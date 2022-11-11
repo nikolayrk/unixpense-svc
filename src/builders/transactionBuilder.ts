@@ -12,6 +12,7 @@ import CardOperationFactory from '../factories/cardOperationFactory';
 import UnsupportedTxnError from '../errors/unsupportedTxnError';
 import PaymentDetailsProcessingError from '../errors/paymentDetailsProcessingError';
 import FailedToProcessTxnError from '../errors/failedToProcessTxnError';
+import InternalTransferPayrollFactory from '../factories/internalTransferPayrollFactory';
 
 export default class TransactionBuilder {
     private gmailClient: GmailClient;
@@ -35,7 +36,7 @@ export default class TransactionBuilder {
             // 'Издаден вътр.банков превод': ...,
             // 'Вътрешнобанков превод': ...,
             // 'Вътрешнобанков превод FC': ...,
-            // 'Вътрешно банков превод Payroll': ...,
+            'Вътрешно банков превод Payroll': new InternalTransferPayrollFactory(),
             // 'Такса за вътрешнобанков превод': ...,
             // "Погасяване на главница': ...,
             // "Погасяв.на л-ва за редовна главница': ...,
