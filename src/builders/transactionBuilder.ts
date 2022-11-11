@@ -9,8 +9,9 @@ import EntryType from '../enums/entryType';
 import XRegExp from 'xregexp';
 import PaymentDetailsFactory from '../models/paymentDetailsFactory';
 import CardOperationFactory from '../factories/cardOperationFactory';
-import UnsupportedTransactionError from '../errors/unsupportedTransactionError';
+import UnsupportedTxnError from '../errors/unsupportedTxnError';
 import PaymentDetailsProcessingError from '../errors/paymentDetailsProcessingError';
+import FailedToProcessTxnError from '../errors/failedToProcessTxnError';
 
 export default class TransactionBuilder {
     private gmailClient: GmailClient;
@@ -51,7 +52,7 @@ export default class TransactionBuilder {
         };
     }
 
-    public async * buildAsync(messageItem: gmail_v1.Schema$Message) {
+    public async buildAsync(messageItem: gmail_v1.Schema$Message) {
         const message = await this.constructMessageAsync(messageItem);
 
         try {
@@ -61,11 +62,13 @@ export default class TransactionBuilder {
 
             const transaction = this.constructTransaction(message, decodedAttachment);
 
-            yield transaction;
+            return transaction;
         } catch (ex) {
             if (ex instanceof Error) {
-                console.log(`Failed to process transaction from message with ID ${message.id}: ${ex.stack}`);
+                throw new FailedToProcessTxnError(`Failed to process transaction from message with ID ${message.id}: ${ex.stack}`);
             }
+            
+            throw new FailedToProcessTxnError(`Failed to process transaction from message with ID ${message.id}: ${ex}`);
         }
     }
 
@@ -184,9 +187,8 @@ export default class TransactionBuilder {
             console.log(`Successfully processed transaction with reference ${transaction.reference}`);
 
             return transaction;
-        }
-        catch(ex) {
-            if(ex instanceof UnsupportedTransactionError) {
+        } catch(ex) {
+            if(ex instanceof UnsupportedTxnError) {
                 throw new Error(`Transaction reference ${reference}: ${ex.message}`);
             }
 
@@ -208,7 +210,7 @@ export default class TransactionBuilder {
             const paymentDetails = paymentDetailsFactory?.create(transactionDetails);
 
             if (paymentDetails === undefined) {
-                throw new UnsupportedTransactionError(transactionType);
+                throw new UnsupportedTxnError(transactionType);
             }
 
             return paymentDetails;
