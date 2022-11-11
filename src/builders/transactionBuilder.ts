@@ -14,6 +14,7 @@ import PaymentDetailsProcessingError from '../errors/paymentDetailsProcessingErr
 import FailedToProcessTxnError from '../errors/failedToProcessTxnError';
 import InternalTransferPayrollFactory from '../factories/internalTransferPayrollFactory';
 import PeriodicFeeFactory from '../factories/periodicFeeFactory';
+import InterestPaymentFactory from '../factories/interestPaymentFactory';
 
 export default class TransactionBuilder {
     private gmailClient: GmailClient;
@@ -42,7 +43,7 @@ export default class TransactionBuilder {
             // "Погасяване на главница': ...,
             // "Погасяв.на л-ва за редовна главница': ...,
             // "Застрахователна премия': ...,
-            // 'Плащане на лихва': ...,
+            'Плащане на лихва': new InterestPaymentFactory(),
             // 'Удържане на данък в/у лихва': ...,
             // 'Платежно нареждане извън банката': ...,
             // 'Получен междубанков превод': ...,
