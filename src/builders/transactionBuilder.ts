@@ -12,10 +12,8 @@ import CardOperationFactory from '../factories/cardOperationFactory';
 import UnsupportedTxnError from '../errors/unsupportedTxnError';
 import PaymentDetailsProcessingError from '../errors/paymentDetailsProcessingError';
 import FailedToProcessTxnError from '../errors/failedToProcessTxnError';
-import InternalTransferPayrollFactory from '../factories/internalTransferPayrollFactory';
-import PeriodicFeeFactory from '../factories/periodicFeeFactory';
-import InterestPaymentFactory from '../factories/interestPaymentFactory';
-import InterestPaymentTaxFactory from '../factories/interestPaymentTaxFactory';
+import StandardTransferFactory from '../factories/standardTransferFactory';
+import StandardFeeFactory from '../factories/standardFeeFactory';
 
 export default class TransactionBuilder {
     private gmailClient: GmailClient;
@@ -29,30 +27,30 @@ export default class TransactionBuilder {
         this.gmailClient = gmailClient;
         this.paymentDetailsFactories = {
             'Операция с карта': new CardOperationFactory(),
-            'Периодична такса': new PeriodicFeeFactory(),
-            // 'Комунално плaщане': ...,
-            // 'Комунално плащане mBanking': ...,
-            // 'Комунално плащане BBO': ...,
-            // 'Такса за превод': ...,
-            // 'Периодично плащане': ...,
-            // 'Получен вътр.банков превод': ...,
-            // 'Издаден вътр.банков превод': ...,
-            // 'Вътрешнобанков превод': ...,
-            // 'Вътрешнобанков превод FC': ...,
-            'Вътрешно банков превод Payroll': new InternalTransferPayrollFactory(),
-            // 'Такса за вътрешнобанков превод': ...,
-            // "Погасяване на главница': ...,
-            // "Погасяв.на л-ва за редовна главница': ...,
-            // "Застрахователна премия': ...,
-            'Плащане на лихва': new InterestPaymentFactory(),
-            'Удържане на данък в/у лихва': new InterestPaymentTaxFactory(),
-            // 'Платежно нареждане извън банката': ...,
-            // 'Получен междубанков превод': ...,
-            // 'Такса за междубанков превод': ...,
+            'Вътрешно банков превод Payroll': new StandardTransferFactory('Вътрешно банков превод Payroll'),
+            'Периодична такса': new StandardFeeFactory('Периодична такса'),
+            'Плащане на лихва': new StandardTransferFactory('Плащане на лихва'),
+            'Удържане на данък в/у лихва': new StandardTransferFactory('Удържане на данък в/у лихва'),
+            'Вътрешнобанков превод FC': new StandardTransferFactory('Вътрешнобанков превод FC'),
+            'Вътрешнобанков превод': new StandardTransferFactory('Вътрешнобанков превод'),
+            'Платежно нареждане извън банката': new StandardTransferFactory('Платежно нареждане извън банката'),
+            'Такса за междубанков превод': new StandardFeeFactory('Такса за междубанков превод'),
+            'Комунално плащане mBanking': new StandardTransferFactory('Комунално плащане mBanking'),
+            'Такса за превод': new StandardFeeFactory('Такса за превод'),
+            'Комунално плaщане': new StandardTransferFactory('Комунално плaщане'),
+            'Получен междубанков превод': new StandardTransferFactory('Получен междубанков превод'),
+            'Комунално плащане BBO': new StandardTransferFactory('Комунално плащане BBO'),
+            'Получен вътр.банков превод': new StandardTransferFactory('Получен вътр.банков превод'),
+            'Периодично плащане': new StandardTransferFactory('Периодично плащане'),
             // 'Издаване на превод във валута': ...,
             // 'Такси издадени валутни преводи': ...,
-            // 'Такса за теглене над определена сума': ...,
-            // 'Теглене на пари на каса от клнт с-к': ...
+            'Погасяване на главница': new StandardTransferFactory('Погасяване на главница'),
+            'Застрахователна премия': new StandardTransferFactory('Застрахователна премия'),
+            'Погасяв.на л-ва за редовна главница': new StandardTransferFactory('Погасяв.на л-ва за редовна главница'),
+            'Издаден вътр.банков превод': new StandardTransferFactory('Издаден вътр.банков превод'),
+            'Такса за вътрешнобанков превод': new StandardFeeFactory('Такса за вътрешнобанков превод'),
+            'Такса за теглене над определена сума': new StandardFeeFactory('Такса за теглене над определена сума'),
+            'Теглене на пари на каса от клнт с-к': new StandardFeeFactory('Теглене на пари на каса от клнт с-к')
         };
     }
 
