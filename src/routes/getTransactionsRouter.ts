@@ -3,7 +3,7 @@ import TransactionBuilder from "../builders/transactionBuilder";
 import GmailClient from "../clients/gmailClient";
 import FailedToProcessTxnError from "../errors/failedToProcessTxnError";
 import Transaction from "../models/transaction";
-import TransactionType from "../models/transactionType";
+import PaymentDetails from "../models/paymentDetails";
 import { gmailMessageListItemIterator, messageItemIterator } from "../utils/iterators";
 
 export default function getTransactionsRoute(gmailClient: GmailClient, transactionBuilder: TransactionBuilder) {
@@ -11,7 +11,7 @@ export default function getTransactionsRoute(gmailClient: GmailClient, transacti
 
     router.use('/gettransactions', async (req: Request, res: Response) => {
         const messageIdQuery = req.query.messageId?.toString();
-        const transactions: Array<Transaction<TransactionType>> = new Array<Transaction<TransactionType>>;
+        const transactions: Array<Transaction<PaymentDetails>> = new Array<Transaction<PaymentDetails>>;
         
         try {
             const iterator = messageIdQuery !== undefined

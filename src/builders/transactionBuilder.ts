@@ -3,7 +3,7 @@ import { parse as dateParse } from 'date-format-parse';
 import { gmail_v1 } from "googleapis";
 import GmailClient from "../clients/gmailClient";
 import Transaction from "../models/transaction";
-import TransactionType from "../models/transactionType";
+import PaymentDetails from "../models/paymentDetails";
 import base64UrlDecode from "../utils/base64UrlDecode";
 import EntryType from '../enums/entryType';
 import XRegExp from 'xregexp';
@@ -19,7 +19,7 @@ import CrossBorderTransferFactory from '../factories/crossBorderTransferFactory'
 export default class TransactionBuilder {
     private gmailClient: GmailClient;
 
-    private static readonly emptyPaymentDetails: TransactionType = {
+    private static readonly emptyPaymentDetails: PaymentDetails = {
         beneficiary: ''
     }
 
@@ -81,7 +81,7 @@ export default class TransactionBuilder {
         return utf16Decoded;
     }
 
-    private constructTransaction(message: gmail_v1.Schema$Message, attachmentData: string): Transaction<TransactionType> {
+    private constructTransaction(message: gmail_v1.Schema$Message, attachmentData: string): Transaction<PaymentDetails> {
         console.log(`Processing transaction from message with ID ${message.id}`);
 
         if (message.id === null || message.id === undefined) {
@@ -149,7 +149,7 @@ export default class TransactionBuilder {
                 ? paymentDetails
                 : TransactionBuilder.emptyPaymentDetails;
 
-            const transaction: Transaction<TransactionType> = {
+            const transaction: Transaction<PaymentDetails> = {
                 messageId: message.id,
                 date: date,
                 reference: reference,
@@ -163,12 +163,8 @@ export default class TransactionBuilder {
 
             return transaction;
         } catch(ex) {
-            if(ex instanceof UnsupportedTxnError) {
-                throw new Error(`Transaction reference ${reference}: ${ex.message}`);
-            }
-
             if(ex instanceof Error) {
-                throw ex;
+                throw new Error(`Transaction reference ${reference}: ${ex.message}`);
             }
 
             throw new Error(`Transaction reference ${reference}: '${ex}'`);
@@ -186,7 +182,8 @@ export default class TransactionBuilder {
 
             return paymentDetails;
         } catch(ex) {
-            if (ex instanceof PaymentDetailsProcessingError) {
+            if (ex instanceof UnsupportedTxnError ||
+                ex instanceof PaymentDetailsProcessingError) {
                 console.log(`Failed to construct payment details. Reason: ${ex.message}. Falling back to using empty payment details body...`);
 
                 return null;
@@ -196,7 +193,7 @@ export default class TransactionBuilder {
         }
     }
 
-    private getPaymentDetailsFactory(transactionType: string): PaymentDetailsFactory<TransactionType> {
+    private getPaymentDetailsFactory(transactionType: string): PaymentDetailsFactory<PaymentDetails> {
         switch(transactionType) {
             case 'Операция с карта':
                 return new CardOperationFactory();
