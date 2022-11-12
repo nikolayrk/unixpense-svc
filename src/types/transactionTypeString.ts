@@ -1,4 +1,4 @@
- type transactionTypes =
+ type TransactionTypeString =
     'Операция с карта' |
     'Издаване на превод във валута' |
     'Периодична такса' |
@@ -25,4 +25,4 @@
     'Погасяв.на л-ва за редовна главница' |
     'Издаден вътр.банков превод';
 
-export default transactionTypes;
+export default TransactionTypeString;

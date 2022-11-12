@@ -1,8 +1,8 @@
 import TransactionType from '../enums/transactionType';
-import transactionTypes from '../types/transactionTypes';
+import TransactionTypeString from '../types/transactionTypeString';
 
 const transactionTypeByString: {
-    [key in transactionTypes]: TransactionType;
+    [key in TransactionTypeString]: TransactionType;
 } = {
     ['Операция с карта']:                       TransactionType.CARD_OPERATION,
     ['Издаване на превод във валута']:          TransactionType.CROSS_BORDER_TRANSFER,
