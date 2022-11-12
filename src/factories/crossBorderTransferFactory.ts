@@ -2,17 +2,13 @@ import { Node } from "node-html-parser";
 import PaymentDetailsFactory from "../models/paymentDetailsFactory";
 import CrossBorderTransfer from "../models/crossBorderTransfer";
 import PaymentDetailsProcessingError from "../errors/paymentDetailsProcessingError";
+import '../extensions/cleanPaymentDetails';
 
 export default class CrossBorderTransferFactory implements PaymentDetailsFactory<CrossBorderTransfer> {
-    private readonly type: string = 'Издаване на превод във валута';
-
     public create(transactionDetails: Node[]): CrossBorderTransfer {
         const paymentDetailsRaw = transactionDetails[0]
             .childNodes
-            .map((c) => c.rawText
-                .replace(this.type, '')
-                .replace(/\/+$/, '')
-                .trim())
+            .map(c => c.rawText.cleanTransactionDetails())
             .reverse()
             .join('')
 

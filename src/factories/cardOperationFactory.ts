@@ -8,7 +8,7 @@ export default class CardOperationFactory implements PaymentDetailsFactory<CardO
         const transactionDetailsRaw = transactionDetails[0]
             .childNodes
             .slice(1)
-            .map((c) => c.rawText)
+            .map(c => c.rawText)
             .join('');
 
         const regex = /^(?<instrument>[^\d]+)\s(?<sum>[^\s]+)\s(?<currency>\w*)[,]?\sавт.код:(?:[^\s,-]*)[\s]*[-]?[,]?[\s]?(?<merchant>[^\/]+(?<! ))/;

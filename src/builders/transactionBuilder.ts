@@ -7,14 +7,12 @@ import PaymentDetails from "../models/paymentDetails";
 import base64UrlDecode from "../utils/base64UrlDecode";
 import EntryType from '../enums/entryType';
 import XRegExp from 'xregexp';
-import PaymentDetailsFactory from '../models/paymentDetailsFactory';
-import CardOperationFactory from '../factories/cardOperationFactory';
 import UnsupportedTxnError from '../errors/unsupportedTxnError';
 import PaymentDetailsProcessingError from '../errors/paymentDetailsProcessingError';
 import FailedToProcessTxnError from '../errors/failedToProcessTxnError';
-import StandardTransferFactory from '../factories/standardTransferFactory';
-import StandardFeeFactory from '../factories/standardFeeFactory';
-import CrossBorderTransferFactory from '../factories/crossBorderTransferFactory';
+import transactionTypeByString from '../utils/transactionTypeByString';
+import TransactionType from '../enums/transactionType';
+import constructPaymentDetailsFactory from '../utils/constructPaymentDetailsFactory';
 
 export default class TransactionBuilder {
     private gmailClient: GmailClient;
@@ -126,17 +124,22 @@ export default class TransactionBuilder {
             throw new Error(`Transaction reference ${reference}: Unregonised entry type '${entryTypeStr}'`);
         }
 
-        const transactionType = txnData[11]
+        const regex = XRegExp('(?:[^\\/])*[\\/]*((?=\\p{Lu})\\p{Cyrillic}+.*)');
+
+        const transactionTypeStr = txnData[11]
             .childNodes
             .map(n => 
-                XRegExp('(?:[^\\/])*[\\/]*((?=\\p{Lu})\\p{Cyrillic}+.*)')
-                    .exec(n.rawText)
-                   ?.filter(r => r !== null && r !== undefined)
-                   ?.[1])
+                regex.exec(n.rawText)
+                    ?.filter(r => r !== null && r !== undefined)
+                    ?.[1])
            ?.filter(n => n !== undefined && n !== '')
            ?.[0];
 
-        const transactionTypeValid = transactionType !== undefined;
+        const transactionTypeValid = transactionTypeStr !== undefined;
+
+        const transactionType = transactionTypeValid
+            ? transactionTypeByString[transactionTypeStr as keyof typeof transactionTypeByString]
+            : TransactionType.UNKNOWN;
 
         const transactionDetails = txnData.slice(11);
 
@@ -156,6 +159,7 @@ export default class TransactionBuilder {
                 valueDate: valueDate,
                 sum: sum,
                 entryType: entryType,
+                type: transactionType,
                 paymentDetails: finalPaymentDetails
             }
             
@@ -171,13 +175,9 @@ export default class TransactionBuilder {
         }
     }
 
-    private tryConstructPaymentDetails(transactionType: string | undefined, transactionDetails: Node[]) {
-        if (transactionType === undefined) {
-            return null;
-        }
-
+    private tryConstructPaymentDetails(transactionType: TransactionType, transactionDetails: Node[]) {
         try {
-            const paymentDetailsFactory = this.getPaymentDetailsFactory(transactionType);
+            const paymentDetailsFactory = constructPaymentDetailsFactory(transactionType);
             const paymentDetails = paymentDetailsFactory.create(transactionDetails);
 
             return paymentDetails;
@@ -190,47 +190,6 @@ export default class TransactionBuilder {
             }
 
             throw ex;
-        }
-    }
-
-    private getPaymentDetailsFactory(transactionType: string): PaymentDetailsFactory<PaymentDetails> {
-        switch(transactionType) {
-            case 'Операция с карта':
-                return new CardOperationFactory();
-
-            case 'Издаване на превод във валута':
-                return new CrossBorderTransferFactory();
-
-            case 'Периодична такса':
-            case 'Такса за междубанков превод':
-            case 'Такса за превод':
-            case 'Такси издадени валутни преводи':
-            case 'Такса за вътрешнобанков превод':
-            case 'Такса за теглене над определена сума':
-            case 'Теглене на пари на каса от клнт с-к':
-                return new StandardFeeFactory(transactionType);
-            
-            case 'Вътрешно банков превод Payroll': 
-            case 'Плащане на лихва':
-            case 'Удържане на данък в/у лихва':
-            case 'Вътрешнобанков превод FC':
-            case 'Вътрешнобанков превод':
-            case 'Платежно нареждане извън банката':
-            case 'Комунално плащане mBanking':
-            case 'Комунално плaщане':
-            case 'Получен междубанков превод':
-            case 'Комунално плащане BBO':
-            case 'Получен вътр.банков превод':
-            case 'Периодично плащане':
-            case 'Погасяване на главница':
-            case 'Застрахователна премия':
-            case 'Погасяв.на л-ва за редовна главница':
-            case 'Издаден вътр.банков превод':
-                return new StandardTransferFactory(transactionType);
-
-            default:
-                throw new UnsupportedTxnError(transactionType);
-
         }
     }
 }

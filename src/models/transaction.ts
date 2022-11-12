@@ -1,4 +1,5 @@
 import EntryType from "../enums/entryType";
+import TransactionType from "../enums/transactionType";
 import PaymentDetails from "./paymentDetails";
 
 export default interface Transaction<T extends PaymentDetails> {
@@ -8,5 +9,6 @@ export default interface Transaction<T extends PaymentDetails> {
     valueDate: number;
     sum: number;
     entryType: EntryType;
+    type: TransactionType;
     paymentDetails: T;
 }

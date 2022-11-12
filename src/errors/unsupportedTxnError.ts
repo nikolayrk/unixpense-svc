@@ -1,7 +1,5 @@
 export default class UnsupportedTxnError extends Error {
-    constructor(transactionType: string) {
-        const message = `Unsupported transaction type '${transactionType}'`;
-
+    constructor(message: string) {
         super(message);
 
         this.name = "UnsupportedTxnError";

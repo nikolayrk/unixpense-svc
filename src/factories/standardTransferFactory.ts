@@ -1,23 +1,16 @@
 import { Node } from "node-html-parser";
 import StandardTransfer from "../models/standardTransfer";
 import PaymentDetailsFactory from "../models/paymentDetailsFactory";
+import '../extensions/cleanPaymentDetails';
 
 export default class StandardTransferFactory implements PaymentDetailsFactory<StandardTransfer> {
-    private readonly type: string;
-    
-    public constructor(type: string) {
-        this.type = type;
-    }
-
     public create(transactionDetails: Node[]): StandardTransfer {
         const paymentDetails = transactionDetails[0]
             .childNodes
             .slice(1)
-            .map((c) => c.rawText)
+            .map(c => c.rawText)
             .join('')
-            .replace(this.type, '')
-            .replace(/\/+$/, '')
-            .trim();
+            .cleanTransactionDetails();
 
         const iban = transactionDetails[2]
             .childNodes[1]
@@ -34,7 +27,6 @@ export default class StandardTransferFactory implements PaymentDetailsFactory<St
            ?.rawText;
 
         const transaction: StandardTransfer = {
-            type: this.type,
             beneficiary: beneficiary,
             iban: iban,
             description: paymentDetails,
