@@ -22,12 +22,12 @@ export default class GmailClient {
 
         const messageListResponse: gmail_v1.Schema$ListMessagesResponse = response.data;
         const nextPageToken = messageListResponse.nextPageToken;
-
-        if (nextPageToken !== null && nextPageToken !== undefined) {
-            await (yield * this.getMessageListAsync(nextPageToken));
-        }
     
         yield messageListResponse;
+
+        if (nextPageToken !== null && nextPageToken !== undefined) {
+            yield * this.getMessageListAsync(nextPageToken);
+        }
     }
     
     public async getMessageAsync(messageItem: gmail_v1.Schema$Message): Promise<gmail_v1.Schema$Message> {
