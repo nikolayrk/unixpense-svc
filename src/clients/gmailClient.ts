@@ -1,39 +1,36 @@
-import { gmail_v1 } from 'googleapis';
+import { gmail_v1, google } from 'googleapis';
+import { OAuth2Client } from 'googleapis-common';
 import exponentialBackoff from "../utils/exponentialBackoff";
 
 export default class GmailClient {
     private readonly gmailApi: gmail_v1.Gmail;
     private readonly searchQuery: string = 'from:pb@unicreditgroup.bg subject: "Dvizhenie po smetka"';
 
-    constructor(gmailApi: gmail_v1.Gmail) {
+    constructor(oauth2Client: OAuth2Client) {
+        const gmailApi = google.gmail({version: 'v1', auth: oauth2Client});
+
         this.gmailApi = gmailApi;
     }
     
-    public async getMessageListAsync(pageToken?: string): Promise<Array<gmail_v1.Schema$Message>> {
-        const messagesResponse: any = await exponentialBackoff(0,
+    public async* getMessageListAsync(pageToken?: string): AsyncGenerator<gmail_v1.Schema$ListMessagesResponse, any, unknown> {
+        const response: any = await exponentialBackoff(0,
             this.gmailApi.users.messages.list.bind(this.gmailApi), {
                 userId: 'me',
                 q: this.searchQuery,
                 pageToken: pageToken
             });
+
+        const messageListResponse: gmail_v1.Schema$ListMessagesResponse = response.data;
+        const nextPageToken = messageListResponse.nextPageToken;
     
-        const messages: Array<gmail_v1.Schema$Message> = messagesResponse.data.messages;
-        const nextPageToken: string | undefined = messagesResponse.data.nextPageToken;
-    
-        if(nextPageToken !== undefined) {
-            const nextPageMessages: Array<gmail_v1.Schema$Message> = await this.getMessageListAsync(nextPageToken);
-    
-            for(const messageIdx in nextPageMessages) {
-                const message: gmail_v1.Schema$Message = nextPageMessages[messageIdx];
-    
-                messages.push(message);
-            }
+        yield messageListResponse;
+
+        if (nextPageToken !== null && nextPageToken !== undefined) {
+            yield * this.getMessageListAsync(nextPageToken);
         }
-    
-        return messages;
     }
     
-    public async getMessageAsync(messageItem: any): Promise<gmail_v1.Schema$Message> {
+    public async getMessageAsync(messageItem: gmail_v1.Schema$Message): Promise<gmail_v1.Schema$Message> {
         const messageResponse: any = await exponentialBackoff(0,
             this.gmailApi.users.messages.get.bind(this.gmailApi), {
                 userId: 'me',
@@ -45,11 +42,17 @@ export default class GmailClient {
         return message;
     }
     
-    public async getAttachmentAsync(attachmentId: string, messageId: string) {
-        const attachmentResponse = await exponentialBackoff(0,
+    public async getAttachmentAsync(message: gmail_v1.Schema$Message) {
+        const attachmentId = message.payload?.parts?.[1].body?.attachmentId;
+
+        if (attachmentId === null || attachmentId === undefined) {
+            throw new Error(`No attachment ID found`);
+        }
+
+        const attachmentResponse: any = await exponentialBackoff(0,
             this.gmailApi.users.messages.attachments.get.bind(this.gmailApi), {
                 userId: 'me',
-                messageId: messageId,
+                messageId: message.id,
                 id: attachmentId
             });
     

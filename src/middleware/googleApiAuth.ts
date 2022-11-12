@@ -1,10 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { google } from 'googleapis';
-import { OAuth2Client } from "google-auth-library";
+import { OAuth2Client } from 'googleapis-common';
 
-export default class Authentication {
+export default class GoogleApiAuth {
     private _oauth2Client: OAuth2Client;
     private authenticated: boolean;
+    private readonly scopes = [
+        'https://www.googleapis.com/auth/gmail.readonly'
+      ];
 
     get oauth2Client(): OAuth2Client {
         return this._oauth2Client;
@@ -27,13 +30,9 @@ export default class Authentication {
 
     public ensureAuthenticated = (_: Request, res: Response, next: NextFunction) => {
         if (this.authenticated == false) {
-            const scopes = [
-                'https://www.googleapis.com/auth/gmail.readonly'
-              ];
-        
             const url = this.oauth2Client.generateAuthUrl({
                 access_type: 'offline',
-                scope: scopes
+                scope: this.scopes
             });
 
             res.redirect(url);
@@ -44,7 +43,7 @@ export default class Authentication {
         next();
     }
 
-    public oauth2Callback = async (req: Request, res: Response) => {
+    public callback = async (req: Request, res: Response) => {
         const code = req.query.code?.toString();
     
         if (code === undefined) {
