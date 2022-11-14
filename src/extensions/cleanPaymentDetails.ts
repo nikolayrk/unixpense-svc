@@ -1,5 +1,7 @@
 import XRegExp from "xregexp";
 
+export {};
+
 declare global {
     interface String {
         cleanTransactionDetails(this: string): string
