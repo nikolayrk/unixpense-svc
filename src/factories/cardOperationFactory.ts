@@ -30,7 +30,7 @@ export default class CardOperationFactory implements PaymentDetailsFactory<CardO
 
         const paymentDetails: CardOperation = {
             instrument: instrument,
-            sum: Number(sum),
+            sum: sum,
             currency: currency,
             beneficiary: merchant
         }

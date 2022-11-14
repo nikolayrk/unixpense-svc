@@ -95,7 +95,7 @@ export default class TransactionBuilder {
 
         const date = dateParse(txnData[1]
             .childNodes[0]
-            .rawText, 'DD.MM.YYYY HH:mm:ss').getTime();
+            .rawText, 'DD.MM.YYYY HH:mm:ss'); //.getTime();
 
         const reference = txnData[3]
             .childNodes[1]
@@ -104,11 +104,11 @@ export default class TransactionBuilder {
 
         const valueDate = dateParse(txnData[5]
             .childNodes[0]
-            .rawText, 'DD.MM.YYYY').getTime();
+            .rawText, 'DD.MM.YYYY'); //.getTime();
 
-        const sum = Number(txnData[7]
+        const sum = txnData[7]
             .childNodes[0]
-            .rawText);
+            .rawText;
 
         const entryTypeStr = txnData[9]
             .childNodes[0]
