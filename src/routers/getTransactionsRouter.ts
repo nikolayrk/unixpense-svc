@@ -9,7 +9,7 @@ import TransactionRepository from "../repositories/transactionRepository";
 import PaymentDetailsRepository from "../repositories/paymentDetailsRepository";
 import { Sequelize } from "sequelize-typescript";
 
-export default function getTransactionsRoute(
+export default function getTransactionsRouter(
     gmailClient: GmailClient,
     transactionBuilder: TransactionBuilder,
     dbConnection: Sequelize,

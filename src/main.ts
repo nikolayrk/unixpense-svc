@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import GmailClient from './clients/gmailClient';
 import TransactionBuilder from './builders/transactionBuilder';
-import getTransactionsRouter from './routes/getTransactionsRouter';
+import getTransactionsRouter from './routers/getTransactionsRouter';
 import GoogleApiAuth from './middleware/googleApiAuth';
 import TransactionRepository from './repositories/transactionRepository';
 import createDbConnection from './utils/createDbConnection';
