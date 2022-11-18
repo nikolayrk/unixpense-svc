@@ -8,9 +8,5 @@ import PaymentDetailsEntity from "./paymentDetails.base";
 export default class StandardFeeEntity extends PaymentDetailsEntity {
     @AllowNull(false)
     @Column
-    iban!: string;
-
-    @AllowNull(false)
-    @Column
     description!: string;
 }
