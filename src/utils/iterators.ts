@@ -1,5 +1,6 @@
 import { gmail_v1 } from "googleapis";
 import GmailClient from "../clients/gmailClient";
+import TransactionRepository from "../repositories/transactionRepository";
 
 export function * messageItemIterator(messageIdQuery: string) {
     const messageIds = messageIdQuery.split(',');
@@ -14,7 +15,7 @@ export function * messageItemIterator(messageIdQuery: string) {
     }
 }
 
-export async function* gmailMessageListItemIterator(gmailClient: GmailClient) {
+export async function* gmailMessageListItemIterator(gmailClient: GmailClient): AsyncGenerator<gmail_v1.Schema$Message, any, unknown> {
     for await (const messageListPage of gmailClient.getMessageListAsync()) {
         const messageList = constructMessageList(messageListPage);
 
@@ -22,6 +23,12 @@ export async function* gmailMessageListItemIterator(gmailClient: GmailClient) {
             const messageItem = messageList[messageIdx];
             
             yield messageItem;
+        }
+
+        const nextPageToken = messageListPage.nextPageToken;
+
+        if (nextPageToken !== undefined) {
+            yield * gmailMessageListItemIterator(gmailClient);
         }
     }
 }
