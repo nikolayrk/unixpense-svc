@@ -1,8 +1,6 @@
 import { Table, Column, Model, PrimaryKey, DataType, Unique, AllowNull, IsDate, HasOne } from 'sequelize-typescript';
 import EntryType from '../enums/entryType';
 import TransactionType from '../enums/transactionType';
-import PaymentDetails from '../models/paymentDetails';
-import PaymentDetailsEntity from './paymentDetails.base';
 import CardOperation from '../models/cardOperation';
 import CardOperationEntity from './cardOperation.entity';
 import CrossBorderTransfer from '../models/crossBorderTransfer';

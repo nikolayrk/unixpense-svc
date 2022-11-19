@@ -33,6 +33,39 @@ export async function* gmailMessageListItemIterator(gmailClient: GmailClient): A
     }
 }
 
+export async function * gmailNewMessageListItemIterator(gmailClient: GmailClient, transactionRepository: TransactionRepository): AsyncGenerator<gmail_v1.Schema$Message, any, unknown> {
+    for await (const messageListPage of gmailClient.getMessageListAsync()) {
+        const messageList = constructMessageList(messageListPage);
+        const newMessages: Array<gmail_v1.Schema$Message> = new Array<gmail_v1.Schema$Message>;
+
+        for (const messageIdx in messageList) {
+            const messageItem = messageList[messageIdx];
+
+            if (messageItem.id === null || messageItem.id === undefined) {
+                throw new Error('Empty message id');
+            }
+            
+            const transactionEntity = await transactionRepository.tryFindAsync(messageItem.id);
+
+            if (transactionEntity !== null) {
+               continue;
+            }
+            
+            newMessages.push(messageItem);
+
+            yield messageItem;
+        }
+
+        const anyNewMessages = newMessages.length > 0;
+
+        const nextPageToken = messageListPage.nextPageToken;
+
+        if (anyNewMessages && nextPageToken !== undefined) {
+            yield * gmailNewMessageListItemIterator(gmailClient, transactionRepository);
+        }
+    }
+}
+
 function constructMessageList(messageListPage: gmail_v1.Schema$ListMessagesResponse) {
     const messageList = messageListPage.messages;
     const nextPageToken = messageListPage.nextPageToken;

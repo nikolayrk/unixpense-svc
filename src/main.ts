@@ -5,8 +5,9 @@ import TransactionBuilder from './builders/transactionBuilder';
 import getTransactionsRouter from './routers/getTransactionsRouter';
 import GoogleApiAuth from './middleware/googleApiAuth';
 import TransactionRepository from './repositories/transactionRepository';
-import createDbConnection from './utils/createDbConnection';
+import createDatabaseConnection from './utils/createDatabaseConnection';
 import PaymentDetailsRepository from './repositories/paymentDetailsRepository';
+import refreshRouter from './routers/refreshRouter';
 
 async function bootstrap() {
     dotenv.config();
@@ -45,7 +46,7 @@ async function bootstrap() {
         const gmailClient = new GmailClient(googleApiAuth.oauth2Client);
         const transactionBuilder = new TransactionBuilder(gmailClient);
         
-        const dbConnection = await createDbConnection(dbHost, Number(dbPort), dbUsername, dbPassword, dbName);
+        const dbConnection = await createDatabaseConnection(dbHost, Number(dbPort), dbUsername, dbPassword, dbName);
         const transactionRepository = new TransactionRepository();
         const paymentDetailsRepository = new PaymentDetailsRepository();
 
@@ -53,6 +54,12 @@ async function bootstrap() {
 
         app.use('/oauthcallback', googleApiAuth.callback);
         app.use(googleApiAuth.ensureAuthenticated, getTransactionsRouter(gmailClient, transactionBuilder));
+        app.use(googleApiAuth.ensureAuthenticated, refreshRouter(
+            gmailClient,
+            transactionBuilder,
+            dbConnection,
+            transactionRepository,
+            paymentDetailsRepository));
 
         app.listen(port, () => {
             console.log(`[server]: Server is running at https://localhost:${port}`);

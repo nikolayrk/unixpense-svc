@@ -1,7 +1,7 @@
 import mariadb from 'mariadb';
 import { Sequelize } from 'sequelize-typescript';
 
-export default async function createDbConnection(host: string, port: number, username: string, password: string, database: string) {
+export default async function createDatabaseConnection(host: string, port: number, username: string, password: string, database: string) {
     await createDatabaseIfNotExists(host, port, username, password, database);
 
     const connection = new Sequelize({
