@@ -52,12 +52,7 @@ async function bootstrap() {
         const app = express();
 
         app.use('/oauthcallback', googleApiAuth.callback);
-        app.use(googleApiAuth.ensureAuthenticated, getTransactionsRouter(
-            gmailClient,
-            transactionBuilder,
-            dbConnection,
-            transactionRepository,
-            paymentDetailsRepository));
+        app.use(googleApiAuth.ensureAuthenticated, getTransactionsRouter(gmailClient, transactionBuilder));
 
         app.listen(port, () => {
             console.log(`[server]: Server is running at https://localhost:${port}`);

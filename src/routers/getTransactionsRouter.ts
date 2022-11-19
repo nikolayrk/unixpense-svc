@@ -5,16 +5,10 @@ import FailedToProcessTxnError from "../errors/failedToProcessTxnError";
 import Transaction from "../models/transaction";
 import PaymentDetails from "../models/paymentDetails";
 import { gmailMessageListItemIterator, messageItemIterator } from "../utils/iterators";
-import TransactionRepository from "../repositories/transactionRepository";
-import PaymentDetailsRepository from "../repositories/paymentDetailsRepository";
-import { Sequelize } from "sequelize-typescript";
 
 export default function getTransactionsRouter(
     gmailClient: GmailClient,
-    transactionBuilder: TransactionBuilder,
-    dbConnection: Sequelize,
-    transactionRepository: TransactionRepository,
-    paymentDetailsRepository: PaymentDetailsRepository) {
+    transactionBuilder: TransactionBuilder) {
     const router = express.Router();
 
     router.use('/gettransactions', async (req: Request, res: Response) => {
@@ -30,10 +24,6 @@ export default function getTransactionsRouter(
                 try {
                     const transaction = await transactionBuilder.buildAsync(messageItem);
 
-                    await transactionRepository.createAsync(transaction);
-
-                    await paymentDetailsRepository.createAsync(transaction.messageId, transaction.type, transaction.paymentDetails);
-        
                     transactions.push(transaction);
                 } catch(ex) {
                     if (ex instanceof FailedToProcessTxnError) {
@@ -44,9 +34,7 @@ export default function getTransactionsRouter(
         
                     throw ex;
                 }
-            }            
-
-            dbConnection.sync();
+            }
 
             res.send(transactions);
         } catch (ex) {
