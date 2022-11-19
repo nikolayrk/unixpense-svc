@@ -8,6 +8,7 @@ import TransactionRepository from './repositories/transactionRepository';
 import createDatabaseConnection from './utils/createDatabaseConnection';
 import PaymentDetailsRepository from './repositories/paymentDetailsRepository';
 import refreshRouter from './routers/refreshRouter';
+import PaymentDetailsBuilder from './builders/paymentDetailsBuilder';
 
 async function bootstrap() {
     dotenv.config();
@@ -44,7 +45,8 @@ async function bootstrap() {
     try {
         const googleApiAuth = new GoogleApiAuth(clientId, clientSecret, redirectUri);
         const gmailClient = new GmailClient(googleApiAuth.oauth2Client);
-        const transactionBuilder = new TransactionBuilder(gmailClient);
+        const paymentDetailsBuilder = new PaymentDetailsBuilder();
+        const transactionBuilder = new TransactionBuilder(gmailClient, paymentDetailsBuilder);
         
         const dbConnection = await createDatabaseConnection(dbHost, Number(dbPort), dbUsername, dbPassword, dbName);
         const transactionRepository = new TransactionRepository();

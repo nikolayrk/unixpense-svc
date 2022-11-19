@@ -1,4 +1,4 @@
-import { parse as htmlParse, Node } from 'node-html-parser';
+import { parse as htmlParse } from 'node-html-parser';
 import { parse as dateParse } from 'date-format-parse';
 import { gmail_v1 } from "googleapis";
 import GmailClient from "../clients/gmailClient";
@@ -7,22 +7,22 @@ import PaymentDetails from "../models/paymentDetails";
 import base64UrlDecode from "../utils/base64UrlDecode";
 import EntryType from '../enums/entryType';
 import XRegExp from 'xregexp';
-import UnsupportedTxnError from '../errors/unsupportedTxnError';
-import PaymentDetailsProcessingError from '../errors/paymentDetailsProcessingError';
 import FailedToProcessTxnError from '../errors/failedToProcessTxnError';
 import transactionTypeByString from '../utils/transactionTypeByString';
 import TransactionType from '../enums/transactionType';
-import constructPaymentDetailsFactory from '../utils/constructPaymentDetailsFactory';
+import PaymentDetailsBuilder from './paymentDetailsBuilder';
 
 export default class TransactionBuilder {
-    private gmailClient: GmailClient;
+    private readonly gmailClient: GmailClient;
+    private readonly paymentDetailsBuilder: PaymentDetailsBuilder;
 
     private static readonly emptyPaymentDetails: PaymentDetails = {
         beneficiary: ''
     }
 
-    constructor(gmailClient: GmailClient) {
+    constructor(gmailClient: GmailClient, paymentDetailsBuilder: PaymentDetailsBuilder) {
         this.gmailClient = gmailClient;
+        this.paymentDetailsBuilder = paymentDetailsBuilder;
     }
 
     public async buildAsync(messageItem: gmail_v1.Schema$Message) {
@@ -95,7 +95,7 @@ export default class TransactionBuilder {
 
         const date = dateParse(txnData[1]
             .childNodes[0]
-            .rawText, 'DD.MM.YYYY HH:mm:ss'); //.getTime();
+            .rawText, 'DD.MM.YYYY HH:mm:ss');
 
         const reference = txnData[3]
             .childNodes[1]
@@ -104,7 +104,7 @@ export default class TransactionBuilder {
 
         const valueDate = dateParse(txnData[5]
             .childNodes[0]
-            .rawText, 'DD.MM.YYYY'); //.getTime();
+            .rawText, 'DD.MM.YYYY');
 
         const sum = txnData[7]
             .childNodes[0]
@@ -144,7 +144,7 @@ export default class TransactionBuilder {
         const transactionDetails = txnData.slice(11);
 
         try {
-            const paymentDetails = this.tryConstructPaymentDetails(transactionType, transactionDetails);
+            const paymentDetails = this.paymentDetailsBuilder.tryBuild(transactionType, transactionDetails);
             
             const paymentDetailsValid = paymentDetails !== null;
 
@@ -172,24 +172,6 @@ export default class TransactionBuilder {
             }
 
             throw new Error(`Transaction reference ${reference}: '${ex}'`);
-        }
-    }
-
-    private tryConstructPaymentDetails(transactionType: TransactionType, transactionDetails: Node[]) {
-        try {
-            const paymentDetailsFactory = constructPaymentDetailsFactory(transactionType);
-            const paymentDetails = paymentDetailsFactory.create(transactionDetails);
-
-            return paymentDetails;
-        } catch(ex) {
-            if (ex instanceof UnsupportedTxnError ||
-                ex instanceof PaymentDetailsProcessingError) {
-                console.log(`Failed to construct payment details. Reason: ${ex.message}. Falling back to using empty payment details body...`);
-
-                return null;
-            }
-
-            throw ex;
         }
     }
 }
