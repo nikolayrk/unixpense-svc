@@ -1,13 +1,21 @@
 FROM node:current-alpine3.16
 
+ARG PORT
+
 WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm install
+COPY tsconfig.json ./
 
-COPY . /usr/src/app
+COPY src ./src
 
-RUN npm run lint
+RUN npm ci
+
+COPY . /
+
+RUN npm run build
+
+EXPOSE $PORT
 
 CMD [ "npm", "start" ]

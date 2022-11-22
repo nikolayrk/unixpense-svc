@@ -2,10 +2,12 @@
   "name": "unixpense-svc",
   "version": "1.0.0",
   "description": "An automated expense tracker for UniCredit Bulbank users",
-  "main": "index.js",
+  "main": "dist/main.js",
   "scripts": {
+    "dev": "npx ts-node src/main.ts",
     "lint": "eslint . --fix",
-    "start": "npx ts-node src/main.ts",
+    "build": "tsc -p .",
+    "start": "node dist/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -31,7 +33,7 @@
     "@types/express": "^4.17.14",
     "@types/node": "^18.11.4",
     "@types/validator": "^13.7.10",
-    "@typescript-eslint/eslint-plugin": "^5.40.1",
+    "@typescript-eslint/eslint-plugin": "^5.44.0",
     "@typescript-eslint/parser": "^5.40.1"
   },
   "dependencies": {
