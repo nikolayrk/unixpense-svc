@@ -9,44 +9,20 @@ import UnsupportedTxnError from "../errors/unsupportedTxnError";
 import CrossBorderTransferEntity from "../entities/crossBorderTransfer.entity";
 import StandardTransferEntity from "../entities/standardTransfer.entity";
 import StandardFeeEntity from "../entities/standardFee.entity";
+import { TransactionTypeExtensions } from "../extensions/transactionTypeExtensions";
 
 export default class PaymentDetailsRepository {
     public async createAsync(messageId: string, transactionType: TransactionType, paymentDetails: PaymentDetails) {
-        switch (transactionType) {
-            case TransactionType.CARD_OPERATION:
-                await this.createCardOperationAsync(paymentDetails as CardOperation, messageId);
-                break;
-            
-            case TransactionType.CROSS_BORDER_TRANSFER:
-                await this.createCrossBorderTransferAsync(paymentDetails as CrossBorderTransfer, messageId);
-                break;
-            
-            case TransactionType.PERIODIC_FEE:
-            case TransactionType.INTERBANK_TRANSFER_FEE:
-            case TransactionType.TRANSFER_FEE:
-            case TransactionType.CROSS_BORDER_TRANSFER_FEE:
-            case TransactionType.INTERNAL_TRANSFER_FEE:
-            case TransactionType.WITHDRAWAL_FEE:
-            case TransactionType.DESK_WITHDRAWAL_FEE:
-                await this.createStandardFeeAsync(paymentDetails as StandardFee, messageId);
-                break;
-                
-            case TransactionType.INTEREST_PAYMENT:
-            case TransactionType.INTEREST_TAX:
-            case TransactionType.INTERNAL_TRANSFER:
-            case TransactionType.INTERBANK_TRANSFER:
-            case TransactionType.UTILITY_PAYMENT:
-            case TransactionType.RECEIVED_INTERBANK_TRANSFER:
-            case TransactionType.RECEIVED_INTERNAL_PAYMENT:
-            case TransactionType.PERIODIC_PAYMENT:
-            case TransactionType.PRINCIPAL_REPAYMENT:
-            case TransactionType.INSURANCE_PREMIUM:
-            case TransactionType.INTEREST_REPAYMENT:
-                await this.createStandardTransferAsync(paymentDetails as StandardTransfer, messageId);
-                break;
-
-            default:
-                throw new UnsupportedTxnError('Unsupported transaction type');
+        if (TransactionTypeExtensions.IsCardOperation(transactionType)) {
+            await this.createCardOperationAsync(paymentDetails as CardOperation, messageId);
+        } else if (TransactionTypeExtensions.IsCrossBorderTransfer(transactionType)) {
+            await this.createCrossBorderTransferAsync(paymentDetails as CrossBorderTransfer, messageId);
+        } else if (TransactionTypeExtensions.IsStandardFee(transactionType)) {
+            await this.createStandardFeeAsync(paymentDetails as StandardFee, messageId);
+        } else if (TransactionTypeExtensions.IsStandardTransfer(transactionType)) {
+            await this.createStandardTransferAsync(paymentDetails as StandardTransfer, messageId);
+        } else {
+            throw new UnsupportedTxnError('Unsupported transaction type');
         }
     }
 

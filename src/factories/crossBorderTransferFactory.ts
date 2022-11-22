@@ -2,7 +2,7 @@ import { Node } from "node-html-parser";
 import PaymentDetailsFactory from "../models/paymentDetailsFactory";
 import CrossBorderTransfer from "../models/crossBorderTransfer";
 import PaymentDetailsProcessingError from "../errors/paymentDetailsProcessingError";
-import '../extensions/cleanPaymentDetails';
+import '../extensions/stringExtensions';
 
 export default class CrossBorderTransferFactory implements PaymentDetailsFactory<CrossBorderTransfer> {
     public create(transactionDetails: Node[]): CrossBorderTransfer {

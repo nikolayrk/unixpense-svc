@@ -1,8 +1,9 @@
 import Transaction from '../models/transaction';
 import TransactionEntity from '../entities/transaction.entity';
 import PaymentDetails from "../models/paymentDetails";
-import '../extensions/toSqlDate';
-import { EntryTypeUtil, TransactionTypeUtil } from '../utils/enumExtensionUtils';
+import '../extensions/dateExtensions';
+import { EntryTypeExtensions } from "../extensions/entryTypeExtensions";
+import { TransactionTypeExtensions } from "../extensions/transactionTypeExtensions";
 import CardOperationEntity from '../entities/cardOperation.entity';
 import CrossBorderTransferEntity from '../entities/crossBorderTransfer.entity';
 import StandardFeeEntity from '../entities/standardFee.entity';
@@ -16,8 +17,8 @@ export default class TransactionRepository {
             reference: transaction.reference,
             value_date: transaction.valueDate.toSqlDate(),
             sum: transaction.sum,
-            entry_type: EntryTypeUtil.ToString(transaction.entryType),
-            type: TransactionTypeUtil.ToString(transaction.type),
+            entry_type: EntryTypeExtensions.ToString(transaction.entryType),
+            type: TransactionTypeExtensions.ToString(transaction.type),
         });
     }
 
