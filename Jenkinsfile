@@ -1,5 +1,8 @@
 pipeline {
     agent any
+	environment {
+        UNIXPENSE_K8S_NAMESPACE = 'unixpense'
+	}
     stages {
         stage('Init') {
             options {
@@ -25,16 +28,12 @@ pipeline {
                     withCredentials([usernameColonPassword(credentialsId: 'docker-regcred', variable: 'DOCKER_REGISTRY_CREDENTIALS')]) {
                         withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                             sh '''
-                            K8S_NAMESPACE=unixpense
-                            
-                            DOCKER_REGISTRY_URL=https://index.docker.io/v1/
-
                             DOCKER_REGISTRY_CREDENTIALS=$(echo -n ${DOCKER_REGISTRY_CREDENTIALS} | base64)
 
                             DOCKERCONFIGJSON=$(cat <<EOF
                             {
                                 "auths": {
-                                    "${DOCKER_REGISTRY_URL}": {
+                                    "${UNIXPENSE_DOCKER_REGISTRY_URL}": {
                                             "auth": "${DOCKER_REGISTRY_CREDENTIALS}"
                                     }
                                 }
@@ -42,12 +41,33 @@ pipeline {
                             EOF
                             )
 
-                            kubectl create namespace ${K8S_NAMESPACE} --dry-run=client -o yaml | kubectl apply -f -
+                            kubectl create namespace ${UNIXPENSE_K8S_NAMESPACE} --dry-run=client -o yaml | kubectl apply -f -
+
+                            kubectl create configmap unixpense-svc-config \
+                                --dry-run=client -o yaml \
+                                --namespace=${UNIXPENSE_K8S_NAMESPACE} \
+                                --from-literal=PORT=${UNIXPENSE_PORT} | kubectl apply -f -
 
                             kubectl create secret generic unixpense-svc-regcred \
                                 --dry-run=client -o yaml \
+                                --namespace=${UNIXPENSE_K8S_NAMESPACE} \
                                 --type=kubernetes.io/dockerconfigjson \
                                 --from-literal=.dockerconfigjson="$DOCKERCONFIGJSON" | kubectl apply -f -
+
+                            kubectl create secret generic unixpense-svc-googlecred \
+                                --dry-run=client -o yaml \
+                                --namespace=${UNIXPENSE_K8S_NAMESPACE} \
+                                --from-literal=CLIENT_ID=${UNIXPENSE_GOOGLE_CLIENT_ID} \
+                                --from-literal=CLIENT_SECRET=${UNIXPENSE_GOOGLE_CLIENT_SECRET} \
+                                --from-literal=REDIRECT_URI=${UNIXPENSE_GOOGLE_REDIRECT_URI} | kubectl apply -f -
+
+                            kubectl create secret generic unixpense-svc-dbcred \
+                                --dry-run=client -o yaml \
+                                --namespace=${UNIXPENSE_K8S_NAMESPACE} \
+                                --from-literal=DB_HOST=${UNIXPENSE_MARIADB_HOST} \
+                                --from-literal=DB_PORT=${UNIXPENSE_MARIADB_PORT} \
+                                --from-literal=DB_USERNAME=${UNIXPENSE_MARIADB_USERNAME} \
+                                --from-literal=DB_PASSWORD=${UNIXPENSE_MARIADB_PASSWORD} | kubectl apply -f -
                             '''.stripIndent().stripLeading()
                         }
                     }
@@ -65,11 +85,10 @@ pipeline {
                     steps {
                         container('kaniko') {
                             sh '''
-                            DOCKER_REPO=nikolayrk/unixpense-svc
-                            
                             /kaniko/executor --context=dir://${WORKSPACE}/ \
                                              --dockerfile=Dockerfile \
-                                             --destination=${DOCKER_REPO}:${BUILD_NUMBER}
+                                             --destination=${UNIXPENSE_DOCKER_REPO}:${BUILD_NUMBER} \
+                                             --build-arg="PORT=${UNIXPENSE_PORT}"
                             '''
                         }
                     }
@@ -79,13 +98,9 @@ pipeline {
                         container('kubectl') {
                             withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                                 sh '''
-                                DOCKER_REPO=nikolayrk/unixpense-svc
-                            
-                                DEPLOYMENT_FILENAME=Deployment.yaml
+                                DEPLOYMENT_RESOURCE=$(sed s/BUILD_NUMBER/${BUILD_NUMBER}/ ${UNIXPENSE_DEPLOYMENT_PATH})
 
-                                DEPLOYMENT_RESOURCE=$(sed s/BUILD_NUMBER/${BUILD_NUMBER}/ ${DEPLOYMENT_FILENAME})
-
-                                DEPLOYMENT_RESOURCE=$(echo "${DEPLOYMENT_RESOURCE}" | sed s#DOCKER_REPO#${DOCKER_REPO}#)
+                                DEPLOYMENT_RESOURCE=$(echo "${DEPLOYMENT_RESOURCE}" | sed s#DOCKER_REPO#${UNIXPENSE_DOCKER_REPO}#)
 
                                 cat <<EOF | kubectl apply -f -
                                 $DEPLOYMENT_RESOURCE
