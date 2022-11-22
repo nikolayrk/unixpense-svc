@@ -4,10 +4,10 @@ import PaymentDetails from "./paymentDetails";
 
 export default interface Transaction<T extends PaymentDetails> {
     messageId: string;
-    date: number;
+    date: Date;
     reference: string;
-    valueDate: number;
-    sum: number;
+    valueDate: Date;
+    sum: string;
     entryType: EntryType;
     type: TransactionType;
     paymentDetails: T;

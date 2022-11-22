@@ -1,7 +1,7 @@
 import { Node } from "node-html-parser";
 import StandardTransfer from "../models/standardTransfer";
 import PaymentDetailsFactory from "../models/paymentDetailsFactory";
-import '../extensions/cleanPaymentDetails';
+import '../extensions/stringExtensions';
 
 export default class StandardTransferFactory implements PaymentDetailsFactory<StandardTransfer> {
     public create(transactionDetails: Node[]): StandardTransfer {

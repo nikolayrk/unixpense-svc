@@ -12,7 +12,7 @@ export default class GmailClient {
         this.gmailApi = gmailApi;
     }
     
-    public async* getMessageListAsync(pageToken?: string): AsyncGenerator<gmail_v1.Schema$ListMessagesResponse, any, unknown> {
+    public async* getMessageListAsync(pageToken?: string) {
         const response: any = await exponentialBackoff(0,
             this.gmailApi.users.messages.list.bind(this.gmailApi), {
                 userId: 'me',
@@ -24,13 +24,9 @@ export default class GmailClient {
         const nextPageToken = messageListResponse.nextPageToken;
     
         yield messageListResponse;
-
-        if (nextPageToken !== null && nextPageToken !== undefined) {
-            yield * this.getMessageListAsync(nextPageToken);
-        }
     }
     
-    public async getMessageAsync(messageItem: gmail_v1.Schema$Message): Promise<gmail_v1.Schema$Message> {
+    public async getMessageAsync(messageItem: gmail_v1.Schema$Message) {
         const messageResponse: any = await exponentialBackoff(0,
             this.gmailApi.users.messages.get.bind(this.gmailApi), {
                 userId: 'me',
