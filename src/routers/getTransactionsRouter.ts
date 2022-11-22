@@ -6,9 +6,7 @@ import Transaction from "../models/transaction";
 import PaymentDetails from "../models/paymentDetails";
 import { gmailMessageListItemIterator, messageItemIterator } from "../utils/iterators";
 
-export default function getTransactionsRouter(
-    gmailClient: GmailClient,
-    transactionBuilder: TransactionBuilder) {
+export default function getTransactionsRouter(gmailClient: GmailClient, transactionBuilder: TransactionBuilder) {
     const router = express.Router();
 
     router.use('/gettransactions', async (req: Request, res: Response) => {
