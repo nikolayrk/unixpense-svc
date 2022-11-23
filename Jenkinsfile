@@ -84,12 +84,14 @@ pipeline {
                 stage('Build') {
                     steps {
                         container('kaniko') {
-                            sh '''
-                            /kaniko/executor --context=dir://${WORKSPACE}/ \
-                                             --dockerfile=Dockerfile \
-                                             --destination=${UNIXPENSE_DOCKER_REPO}:${GIT_COMMIT} \
-                                             --build-arg="PORT=${UNIXPENSE_PORT}"
-                            '''
+                            ansiColor('xterm') {
+                                sh '''
+                                /kaniko/executor --context=dir://${WORKSPACE}/ \
+                                                --dockerfile=Dockerfile \
+                                                --destination=${UNIXPENSE_DOCKER_REPO}:${GIT_COMMIT} \
+                                                --build-arg="PORT=${UNIXPENSE_PORT}"
+                                '''
+                            }
                         }
                     }
                 }
