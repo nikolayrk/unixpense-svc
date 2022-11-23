@@ -12,7 +12,7 @@ export default async function createDatabaseConnection(host: string, port: numbe
         password: password,
         database: database,
         logging: false,
-        models: [__dirname + '/../entities/*.entity.ts'],
+        models: [__dirname + '/../entities/*.entity.{js,ts}'],
         });
         
     await connection.sync();
