@@ -13,16 +13,16 @@ import PaymentDetailsBuilder from './builders/paymentDetailsBuilder';
 async function bootstrap() {
     dotenv.config();
     
-    const port = process.env.PORT;
-    const clientId = process.env.CLIENT_ID;
-    const clientSecret = process.env.CLIENT_SECRET;
-    const redirectUri = process.env.REDIRECT_URI;
+    const port = process.env.UNIXPENSE_PORT;
+    const clientId = process.env.UNIXPENSE_GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.UNIXPENSE_GOOGLE_CLIENT_SECRET;
+    const redirectUri = process.env.UNIXPENSE_GOOGLE_REDIRECT_URI;
 
-    const dbHost = process.env.DB_HOST;
-    const dbPort = process.env.DB_PORT;
-    const dbUsername = process.env.DB_USERNAME;
-    const dbPassword = process.env.DB_PASSWORD;
-    const dbName = "unixpense";
+    const dbHost = process.env.UNIXPENSE_MARIADB_HOST;
+    const dbPort = process.env.UNIXPENSE_MARIADB_PORT;
+    const dbUsername = process.env.UNIXPENSE_MARIADB_USERNAME;
+    const dbPassword = process.env.UNIXPENSE_MARIADB_PASSWORD;
+    const dbName = process.env.UNIXPENSE_MARIADB_DATABASE;
 
     if (clientId === undefined || 
         clientSecret === undefined || 

@@ -19,51 +19,57 @@ spec:
       - name: app
         image: DOCKER_REPO:BUILD_NUMBER # Populated from environmental variables via Jenkins Job
         env:
-        - name: PORT
+        - name: UNIXPENSE_PORT
           valueFrom:
             configMapKeyRef:
               name: unixpense-svc-config
               key: PORT
               optional: false
-        - name: CLIENT_ID
+        - name: UNIXPENSE_GOOGLE_CLIENT_ID
           valueFrom:
             secretKeyRef:
               name: unixpense-svc-googlecred
               key: CLIENT_ID
               optional: false
-        - name: CLIENT_SECRET
+        - name: UNIXPENSE_GOOGLE_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
               name: unixpense-svc-googlecred
               key: CLIENT_SECRET
               optional: false
-        - name: REDIRECT_URI
+        - name: UNIXPENSE_GOOGLE_REDIRECT_URI
           valueFrom:
             secretKeyRef:
               name: unixpense-svc-googlecred
               key: REDIRECT_URI
               optional: false
-        - name: DB_HOST
+        - name: UNIXPENSE_MARIADB_HOST
           valueFrom:
             secretKeyRef:
               name: unixpense-svc-dbcred
               key: DB_HOST
               optional: false
-        - name: DB_PORT
+        - name: UNIXPENSE_MARIADB_PORT
           valueFrom:
             secretKeyRef:
               name: unixpense-svc-dbcred
               key: DB_PORT
               optional: false
-        - name: DB_USERNAME
+        - name: UNIXPENSE_MARIADB_USERNAME
           valueFrom:
             secretKeyRef:
               name: unixpense-svc-dbcred
               key: DB_USERNAME
               optional: false
-        - name: DB_PASSWORD
+        - name: UNIXPENSE_MARIADB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: unixpense-svc-dbcred
               key: DB_PASSWORD
+              optional: false
+        - name: UNIXPENSE_MARIADB_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: unixpense-svc-dbcred
+              key: DB_NAME
               optional: false

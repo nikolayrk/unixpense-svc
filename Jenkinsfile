@@ -67,7 +67,8 @@ pipeline {
                                 --from-literal=DB_HOST=${UNIXPENSE_MARIADB_HOST} \
                                 --from-literal=DB_PORT=${UNIXPENSE_MARIADB_PORT} \
                                 --from-literal=DB_USERNAME=${UNIXPENSE_MARIADB_USERNAME} \
-                                --from-literal=DB_PASSWORD=${UNIXPENSE_MARIADB_PASSWORD} | kubectl apply -f -
+                                --from-literal=DB_PASSWORD=${UNIXPENSE_MARIADB_PASSWORD} \
+                                --from-literal=DB_NAME=${UNIXPENSE_MARIADB_DATABASE} | kubectl apply -f -
                             '''.stripIndent().stripLeading()
                         }
                     }
