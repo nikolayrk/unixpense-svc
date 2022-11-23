@@ -87,7 +87,7 @@ pipeline {
                             sh '''
                             /kaniko/executor --context=dir://${WORKSPACE}/ \
                                              --dockerfile=Dockerfile \
-                                             --destination=${UNIXPENSE_DOCKER_REPO}:${BUILD_NUMBER} \
+                                             --destination=${UNIXPENSE_DOCKER_REPO}:${GIT_COMMIT} \
                                              --build-arg="PORT=${UNIXPENSE_PORT}"
                             '''
                         }
@@ -98,7 +98,7 @@ pipeline {
                         container('kubectl') {
                             withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                                 sh '''
-                                DEPLOYMENT_RESOURCE=$(sed s/BUILD_NUMBER/${BUILD_NUMBER}/ ${UNIXPENSE_DEPLOYMENT_PATH})
+                                DEPLOYMENT_RESOURCE=$(sed s/BUILD_NUMBER/${GIT_COMMIT}/ ${UNIXPENSE_DEPLOYMENT_PATH})
 
                                 DEPLOYMENT_RESOURCE=$(echo "${DEPLOYMENT_RESOURCE}" | sed s#DOCKER_REPO#${UNIXPENSE_DOCKER_REPO}#)
 
