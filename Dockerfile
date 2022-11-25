@@ -12,9 +12,9 @@ COPY src ./src
 
 RUN npm ci
 
-COPY . /
-
-RUN npm run build
+RUN npm run build && \
+    rm -rf ./src && \
+    rm tsconfig.json
 
 EXPOSE $PORT
 
