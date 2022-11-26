@@ -13,6 +13,7 @@ import PaymentDetailsBuilder from './builders/paymentDetailsBuilder';
 async function bootstrap() {
     dotenv.config();
     
+    const hostname = process.env.HOSTNAME;
     const port = process.env.UNIXPENSE_PORT;
     const clientId = process.env.UNIXPENSE_GOOGLE_CLIENT_ID;
     const clientSecret = process.env.UNIXPENSE_GOOGLE_CLIENT_SECRET;
@@ -64,7 +65,7 @@ async function bootstrap() {
             paymentDetailsRepository));
 
         app.listen(port, () => {
-            console.log(`[server]: Server is running at https://localhost:${port}`);
+            console.log(`[server]: Server is running at https://${hostname}:${port}`);
         });
     } catch (ex) {
         if (ex instanceof Error) {
