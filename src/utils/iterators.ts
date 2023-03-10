@@ -33,8 +33,8 @@ export async function* gmailMessageListItemIterator(gmailClient: GmailClient): A
     }
 }
 
-export async function * gmailNewMessageListItemIterator(gmailClient: GmailClient, transactionRepository: TransactionRepository): AsyncGenerator<gmail_v1.Schema$Message, any, unknown> {
-    for await (const messageListPage of gmailClient.getMessageListAsync()) {
+export async function * gmailNewMessageListItemIterator(gmailClient: GmailClient, transactionRepository: TransactionRepository, nextPageToken?: string | null): AsyncGenerator<gmail_v1.Schema$Message, any, unknown> {
+    for await (const messageListPage of gmailClient.getMessageListAsync(nextPageToken)) {
         const messageList = constructMessageList(messageListPage);
         const newMessages: Array<gmail_v1.Schema$Message> = new Array<gmail_v1.Schema$Message>;
 
@@ -61,7 +61,7 @@ export async function * gmailNewMessageListItemIterator(gmailClient: GmailClient
         const nextPageToken = messageListPage.nextPageToken;
 
         if (anyNewMessages && nextPageToken !== undefined) {
-            yield * gmailNewMessageListItemIterator(gmailClient, transactionRepository);
+            yield * gmailNewMessageListItemIterator(gmailClient, transactionRepository, nextPageToken);
         }
     }
 }
