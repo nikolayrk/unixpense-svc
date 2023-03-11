@@ -8,9 +8,10 @@ import base64UrlDecode from "../utils/base64UrlDecode";
 import EntryType from '../enums/entryType';
 import XRegExp from 'xregexp';
 import FailedToProcessTxnError from '../errors/failedToProcessTxnError';
-import transactionTypeByString from '../utils/transactionTypeByString';
+import transactionTypesByString from '../indexSignatures/transactionTypeByString';
 import TransactionType from '../enums/transactionType';
 import PaymentDetailsBuilder from './paymentDetailsBuilder';
+import { TRANSACTION_TYPES } from '../types/transactionTypeString';
 
 export default class TransactionBuilder {
     private readonly gmailClient: GmailClient;
@@ -126,7 +127,7 @@ export default class TransactionBuilder {
 
         const regex = XRegExp('(?:[^\\/])*[\\/]*((?=\\p{Lu})\\p{Cyrillic}+.*)');
 
-        const transactionTypeStr = txnData[11]
+        const transactionTypeParsed = txnData[11]
             .childNodes
             .map(n => 
                 regex.exec(n.rawText)
@@ -135,10 +136,14 @@ export default class TransactionBuilder {
            ?.filter(n => n !== undefined && n !== '')
            ?.[0];
 
-        const transactionTypeValid = transactionTypeStr !== undefined;
+        const transactionTypeByString = transactionTypeParsed as keyof typeof transactionTypesByString;
+
+        const transactionTypeValid = 
+            transactionTypeParsed !== undefined &&
+            TRANSACTION_TYPES.includes(transactionTypeByString);
 
         const transactionType = transactionTypeValid
-            ? transactionTypeByString[transactionTypeStr as keyof typeof transactionTypeByString]
+            ? transactionTypesByString[transactionTypeByString]
             : TransactionType.UNKNOWN;
 
         const transactionDetails = txnData.slice(11);
