@@ -1,6 +1,5 @@
 import { parse as htmlParse } from 'node-html-parser';
 import { parse as dateParse } from 'date-format-parse';
-import { gmail_v1 } from "googleapis";
 import PaymentDetails from "../models/paymentDetails";
 import Transaction from "../models/transaction";
 import EntryType from '../enums/entryType';
@@ -21,12 +20,8 @@ export default class TransactionFactory {
         this.paymentDetailsBuilder = paymentDetailsBuilder;
     }
 
-    public create(message: gmail_v1.Schema$Message, attachmentData: string): Transaction<PaymentDetails> {
-        console.log(`Processing transaction from message with ID ${message.id}`);
-
-        if (message.id === null || message.id === undefined) {
-            throw new Error(`Missing message ID`);
-        }
+    public create(messageId: string, attachmentData: string): Transaction<PaymentDetails> {
+        console.log(`Processing transaction from message with ID ${messageId}`);
 
         const txnData = htmlParse(attachmentData).
             childNodes[1].       // <html>
@@ -101,7 +96,7 @@ export default class TransactionFactory {
                 : TransactionFactory.emptyPaymentDetails;
 
             const transaction: Transaction<PaymentDetails> = {
-                messageId: message.id,
+                messageId: messageId,
                 date: date,
                 reference: reference,
                 valueDate: valueDate,
@@ -115,11 +110,11 @@ export default class TransactionFactory {
 
             return transaction;
         } catch(ex) {
-            if(ex instanceof Error) {
-                throw new Error(`Transaction reference ${reference}: ${ex.message}`);
-            }
+            const body = ex instanceof Error
+                ? ex.message
+                : ex;
 
-            throw new Error(`Transaction reference ${reference}: '${ex}'`);
+            throw new Error(`Transaction reference ${reference}: '${body}'`);
         }
     }
 }

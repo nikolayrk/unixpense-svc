@@ -4,7 +4,7 @@ import GmailClient from "../clients/gmailClient";
 import FailedToProcessTxnError from "../errors/failedToProcessTxnError";
 import Transaction from "../models/transaction";
 import PaymentDetails from "../models/paymentDetails";
-import { gmailMessageListItemIterator, messageItemIterator } from "../utils/iterators";
+import { gmailMessageIdsIterator, messageIdsIterator } from "../utils/iterators";
 
 export default function getTransactionsRouter(gmailClient: GmailClient, transactionBuilder: TransactionBuilder) {
     const router = express.Router();
@@ -15,12 +15,12 @@ export default function getTransactionsRouter(gmailClient: GmailClient, transact
         
         try {
             const iterator = messageIdQuery !== undefined
-                ? messageItemIterator(messageIdQuery)
-                : gmailMessageListItemIterator(gmailClient);
+                ? messageIdsIterator(messageIdQuery)
+                : gmailMessageIdsIterator(gmailClient);
 
-            for await (const messageItem of iterator) {
+            for await (const messageId of iterator) {
                 try {
-                    const transaction = await transactionBuilder.buildAsync(messageItem);
+                    const transaction = await transactionBuilder.buildAsync(messageId);
 
                     transactions.push(transaction);
                 } catch(ex) {

@@ -13,30 +13,30 @@ export default class TransactionBuilder {
         this.transactionFactory = transactionFactory;
     }
 
-    public async buildAsync(messageItem: gmail_v1.Schema$Message) {
-        const message = await this.constructMessageAsync(messageItem);
-
+    public async buildAsync(messageId: string) {
         try {
+            const message = await this.constructMessageAsync(messageId);
+
             const attachment = await this.constructAttachmentAsync(message);
 
             const decodedAttachment = this.decodeAttachment(attachment);
 
-            const transaction = this.transactionFactory.create(message, decodedAttachment);
+            const transaction = this.transactionFactory.create(messageId, decodedAttachment);
 
             return transaction;
         } catch (ex) {
-            if (ex instanceof Error) {
-                throw new FailedToProcessTxnError(`Failed to process transaction from message with ID ${message.id}: ${ex.stack}`);
-            }
+            const body = ex instanceof Error
+                ? ex.stack
+                : ex;
             
-            throw new FailedToProcessTxnError(`Failed to process transaction from message with ID ${message.id}: ${ex}`);
+            throw new FailedToProcessTxnError(`Failed to process transaction from message with ID ${messageId}: ${body}`);
         }
     }
 
-    private async constructMessageAsync(messageItem: gmail_v1.Schema$Message) {
-        console.log(`Requesting message ID ${messageItem.id}...`);
+    private async constructMessageAsync(messageId: string) {
+        console.log(`Requesting message ID ${messageId}...`);
 
-        const message = await this.gmailClient.getMessageAsync(messageItem);
+        const message = await this.gmailClient.getMessageAsync(messageId);
 
         console.log(`Received message with ID ${message.id}`);
 

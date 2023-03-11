@@ -25,11 +25,11 @@ export default class GmailClient {
         yield messageListResponse;
     }
     
-    public async getMessageAsync(messageItem: gmail_v1.Schema$Message) {
+    public async getMessageAsync(messageId: string) {
         const messageResponse: any = await exponentialBackoff(0,
             this.gmailApi.users.messages.get.bind(this.gmailApi), {
                 userId: 'me',
-                id: messageItem.id
+                id: messageId
             });
     
         const message: gmail_v1.Schema$Message = messageResponse.data;

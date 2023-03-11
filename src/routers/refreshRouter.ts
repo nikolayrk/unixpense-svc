@@ -7,7 +7,7 @@ import PaymentDetails from "../models/paymentDetails";
 import TransactionRepository from "../repositories/transactionRepository";
 import PaymentDetailsRepository from "../repositories/paymentDetailsRepository";
 import { Sequelize } from "sequelize-typescript";
-import { gmailNewMessageListItemIterator } from "../utils/iterators";
+import { gmailMessageIdsIterator } from "../utils/iterators";
 import addTransactionToDatabase from "../utils/addTransactionToDatabase";
 
 export default function refreshRouter(
@@ -24,19 +24,21 @@ export default function refreshRouter(
         let skippedTransactionsAmount = 0;
         
         try {
-            const newMessages = gmailNewMessageListItemIterator(gmailClient, transactionRepository);
+            const newMessages = gmailMessageIdsIterator(gmailClient);
 
-            for await (const messageItem of newMessages) {
+            for await (const messageId of newMessages) {
                 try {
-                    const transaction = await transactionBuilder.buildAsync(messageItem);
-
-                    if (await transactionRepository.tryFindAsync(transaction.messageId) !== null) {
-                        console.log(`${transaction.messageId} already exists in database. Skipping...`);
+                    const transactionExistsInDb = await transactionRepository.tryFindAsync(messageId) !== null;
+            
+                    if (transactionExistsInDb) {
+                        console.log(`Message with ID ${messageId} already exists. Skipping...`);
 
                         skippedTransactionsAmount++;
-
+            
                         continue;
                     }
+
+                    const transaction = await transactionBuilder.buildAsync(messageId);
 
                     await addTransactionToDatabase(transaction, transactionRepository, paymentDetailsRepository);
         
