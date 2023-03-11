@@ -6,15 +6,15 @@ import PaymentDetailsEntity from "./paymentDetails.base";
     timestamps: false
 })
 export default class CardOperationEntity extends PaymentDetailsEntity {
-    @AllowNull(false)
+    @AllowNull(true)
     @Column
     instrument!: string;
 
-    @AllowNull(false)
+    @AllowNull(true)
     @Column(DataType.DECIMAL(20, 2))
     sum!: string;
 
-    @AllowNull(false)
+    @AllowNull(true)
     @Column
     currency!: string;
 }

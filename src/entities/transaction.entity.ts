@@ -58,4 +58,12 @@ export default class TransactionEntity extends Model {
 
     @HasOne(() => StandardTransferEntity)
     standard_transfer!: StandardTransfer;
+
+    @AllowNull(true)
+    @Column
+    alias!: string;
+
+    @AllowNull(true)
+    @Column
+    category!: string;
 }

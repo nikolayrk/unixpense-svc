@@ -1,4 +1,4 @@
-import { AllowNull, Column, Model, Table } from "sequelize-typescript";
+import { AllowNull, Column, Table } from "sequelize-typescript";
 import PaymentDetailsEntity from "./paymentDetails.base";
 
 @Table({
