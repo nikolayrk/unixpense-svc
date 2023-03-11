@@ -11,9 +11,26 @@ import PaymentDetails from '../models/paymentDetails';
 import { TransactionTypeExtensions } from "../extensions/transactionTypeExtensions";
 
 export default class PaymentDetailsBuilder {
+    private readonly cardOperationFactory: CardOperationFactory;
+    private readonly crossBorderTransferFactory: CrossBorderTransferFactory;
+    private readonly standardFeeFactory: StandardFeeFactory;
+    private readonly standardTransferFactory: StandardTransferFactory;
+
+    public constructor(
+        cardOperationFactory: CardOperationFactory,
+        crossBorderTransferFactory: CrossBorderTransferFactory,
+        standardFeeFactory: StandardFeeFactory,
+        standardTransferFactory: StandardTransferFactory
+    ) {
+        this.cardOperationFactory = cardOperationFactory;
+        this.crossBorderTransferFactory = crossBorderTransferFactory;
+        this.standardFeeFactory = standardFeeFactory;
+        this.standardTransferFactory = standardTransferFactory;
+    }
+
     public tryBuild(transactionType: TransactionType, transactionDetailsNodes: Node[]) {
         try {
-            const paymentDetailsFactory = this.constructPaymentDetailsFactory(transactionType);
+            const paymentDetailsFactory = this.usePaymentDetailsFactoryByType(transactionType);
             const paymentDetails = paymentDetailsFactory.create(transactionDetailsNodes);
 
             return paymentDetails;
@@ -29,15 +46,15 @@ export default class PaymentDetailsBuilder {
         }
     }
 
-    private constructPaymentDetailsFactory(transactionType: TransactionType): PaymentDetailsFactory<PaymentDetails> {  
+    private usePaymentDetailsFactoryByType(transactionType: TransactionType): PaymentDetailsFactory<PaymentDetails> {  
         if (TransactionTypeExtensions.IsCardOperation(transactionType)) {
-            return new CardOperationFactory();
+            return this.cardOperationFactory;
         } else if (TransactionTypeExtensions.IsCrossBorderTransfer(transactionType)) {
-            return new CrossBorderTransferFactory();
+            return this.crossBorderTransferFactory;
         } else if (TransactionTypeExtensions.IsStandardFee(transactionType)) {
-            return new StandardFeeFactory();
+            return this.standardFeeFactory;
         } else if (TransactionTypeExtensions.IsStandardTransfer(transactionType)) {
-            return new StandardTransferFactory();
+            return this.standardTransferFactory;
         } else {
             throw new UnsupportedTxnError('Unsupported transaction type');
         }

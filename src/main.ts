@@ -10,6 +10,10 @@ import PaymentDetailsRepository from './repositories/paymentDetailsRepository';
 import refreshRouter from './routers/refreshRouter';
 import PaymentDetailsBuilder from './builders/paymentDetailsBuilder';
 import TransactionFactory from './factories/transactionFactory';
+import CardOperationFactory from './factories/cardOperationFactory';
+import CrossBorderTransferFactory from './factories/crossBorderTransferFactory';
+import StandardFeeFactory from './factories/standardFeeFactory';
+import StandardTransferFactory from './factories/standardTransferFactory';
 
 async function bootstrap() {
     dotenv.config();
@@ -47,7 +51,11 @@ async function bootstrap() {
     try {
         const googleApiAuth = new GoogleApiAuth(clientId, clientSecret, redirectUri);
         const gmailClient = new GmailClient(googleApiAuth.oauth2Client);
-        const paymentDetailsBuilder = new PaymentDetailsBuilder();
+        const cardOperationFactory = new CardOperationFactory();
+        const crossBorderTransferFactory = new CrossBorderTransferFactory();
+        const standardFeeFactory = new StandardFeeFactory();
+        const standardTransferFactory = new StandardTransferFactory();
+        const paymentDetailsBuilder = new PaymentDetailsBuilder(cardOperationFactory, crossBorderTransferFactory, standardFeeFactory, standardTransferFactory);
         const transactionFactory = new TransactionFactory(paymentDetailsBuilder);
         const transactionBuilder = new TransactionBuilder(gmailClient, transactionFactory);
         
