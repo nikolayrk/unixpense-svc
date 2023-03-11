@@ -13,15 +13,15 @@ export default class TransactionBuilder {
         this.transactionFactory = transactionFactory;
     }
 
-    public async buildAsync(messageId: string) {
+    public async tryBuildAsync(messageId: string) {
         try {
             const message = await this.constructMessageAsync(messageId);
 
-            const attachment = await this.constructAttachmentAsync(message);
+            const attachment = await this.tryConstructAttachmentAsync(message);
 
             const decodedAttachment = this.decodeAttachment(attachment);
 
-            const transaction = this.transactionFactory.create(messageId, decodedAttachment);
+            const transaction = this.transactionFactory.tryCreate(messageId, decodedAttachment);
 
             return transaction;
         } catch (ex) {
@@ -36,17 +36,17 @@ export default class TransactionBuilder {
     private async constructMessageAsync(messageId: string) {
         console.log(`Requesting message ID ${messageId}...`);
 
-        const message = await this.gmailClient.getMessageAsync(messageId);
+        const message = await this.gmailClient.fetchMessageAsync(messageId);
 
         console.log(`Received message with ID ${message.id}`);
 
         return message;
     }
 
-    private async constructAttachmentAsync(message: gmail_v1.Schema$Message) {
+    private async tryConstructAttachmentAsync(message: gmail_v1.Schema$Message) {
         console.log(`Requesting attachment from message with ID ${message.id}...`);
 
-        const attachment = await this.gmailClient.getAttachmentAsync(message);
+        const attachment = await this.gmailClient.tryFetchAttachmentAsync(message);
 
         if (attachment === null || attachment === undefined) {
             throw new Error(`Missing attachment`);

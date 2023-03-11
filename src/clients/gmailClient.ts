@@ -11,21 +11,29 @@ export default class GmailClient {
 
         this.gmailApi = gmailApi;
     }
-    
-    public async* getMessageListAsync(pageToken?: string | null) {
-        const response: any = await exponentialBackoff(0,
-            this.gmailApi.users.messages.list.bind(this.gmailApi), {
-                userId: 'me',
-                q: this.searchQuery,
-                pageToken: pageToken
-            });
 
-        const messageListResponse: gmail_v1.Schema$ListMessagesResponse = response.data;
-    
-        yield messageListResponse;
+    public async * tryGenerateMessageIdsAsync(pageToken?: string | null): AsyncGenerator<string, any, unknown> {
+        const messageList = await this.fetchMessageListAsync(pageToken);
+        const messages = this.tryGetMessagesFromList(messageList);
+
+        for (const messageIdx in messages) {
+            const messageItem = messages[messageIdx];
+
+            if (messageItem.id === null || messageItem.id === undefined) {
+                throw new Error('Empty message id');
+            }
+            
+            yield messageItem.id;
+        }
+
+        const nextPageToken = messageList.nextPageToken;
+
+        if (nextPageToken !== undefined) {
+            yield * this.tryGenerateMessageIdsAsync(nextPageToken);
+        }
     }
     
-    public async getMessageAsync(messageId: string) {
+    public async fetchMessageAsync(messageId: string) {
         const messageResponse: any = await exponentialBackoff(0,
             this.gmailApi.users.messages.get.bind(this.gmailApi), {
                 userId: 'me',
@@ -37,7 +45,7 @@ export default class GmailClient {
         return message;
     }
     
-    public async getAttachmentAsync(message: gmail_v1.Schema$Message) {
+    public async tryFetchAttachmentAsync(message: gmail_v1.Schema$Message) {
         const attachmentId = message.payload?.parts?.[1].body?.attachmentId;
 
         if (attachmentId === null || attachmentId === undefined) {
@@ -56,5 +64,33 @@ export default class GmailClient {
         const attachment = messagePartBody.data;
     
         return attachment;
+    }
+    
+    private async fetchMessageListAsync(pageToken?: string | null | undefined) {
+        const response: any = await exponentialBackoff(0,
+            this.gmailApi.users.messages.list.bind(this.gmailApi), {
+                userId: 'me',
+                q: this.searchQuery,
+                pageToken: pageToken
+            });
+
+        const messageList: gmail_v1.Schema$ListMessagesResponse = response.data;
+    
+        return messageList;
+    }
+    
+    private tryGetMessagesFromList(messageList: gmail_v1.Schema$ListMessagesResponse) {
+        const messages = messageList.messages;
+        const nextPageToken = messageList.nextPageToken;
+    
+        console.log(`Requesting message list${nextPageToken !== undefined ? ` with page token ${nextPageToken}` : ''}`);
+    
+        if (messages === undefined) {
+            throw new Error(`Failed to get message list`);
+        }
+    
+        console.log(`Received page of ${messages.length} messages`);
+    
+        return messages;
     }
 }

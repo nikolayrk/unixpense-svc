@@ -7,7 +7,6 @@ import PaymentDetails from "../models/paymentDetails";
 import TransactionRepository from "../repositories/transactionRepository";
 import PaymentDetailsRepository from "../repositories/paymentDetailsRepository";
 import { Sequelize } from "sequelize-typescript";
-import { gmailMessageIdsIterator } from "../utils/iterators";
 import addTransactionToDatabase from "../utils/addTransactionToDatabase";
 
 export default function refreshRouter(
@@ -24,9 +23,7 @@ export default function refreshRouter(
         let skippedTransactionsAmount = 0;
         
         try {
-            const newMessages = gmailMessageIdsIterator(gmailClient);
-
-            for await (const messageId of newMessages) {
+            for await (const messageId of gmailClient.tryGenerateMessageIdsAsync()) {
                 try {
                     const transactionExistsInDb = await transactionRepository.tryFindAsync(messageId) !== null;
             
@@ -38,7 +35,7 @@ export default function refreshRouter(
                         continue;
                     }
 
-                    const transaction = await transactionBuilder.buildAsync(messageId);
+                    const transaction = await transactionBuilder.tryBuildAsync(messageId);
 
                     await addTransactionToDatabase(transaction, transactionRepository, paymentDetailsRepository);
         
@@ -67,6 +64,8 @@ export default function refreshRouter(
 
                 return;
             }
+
+            console.log(ex);
 
             res.send(ex);
 

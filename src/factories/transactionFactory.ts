@@ -1,5 +1,5 @@
-import { parse as htmlParse } from 'node-html-parser';
-import { parse as dateParse } from 'date-format-parse';
+import { parse as htmlParse, Node } from 'node-html-parser';
+import { parse as dateParse} from 'date-format-parse';
 import PaymentDetails from "../models/paymentDetails";
 import Transaction from "../models/transaction";
 import EntryType from '../enums/entryType';
@@ -11,43 +11,95 @@ import PaymentDetailsBuilder from '../builders/paymentDetailsBuilder';
 
 export default class TransactionFactory {
     private readonly paymentDetailsBuilder: PaymentDetailsBuilder;
-    
-    private static readonly emptyPaymentDetails: PaymentDetails = {
-        beneficiary: ''
-    }
 
     constructor(paymentDetailsBuilder: PaymentDetailsBuilder) {
         this.paymentDetailsBuilder = paymentDetailsBuilder;
     }
 
-    public create(messageId: string, attachmentData: string): Transaction<PaymentDetails> {
+    public tryCreate(messageId: string, attachmentData: string): Transaction<PaymentDetails> {
         console.log(`Processing transaction from message with ID ${messageId}`);
+        
+        const transactionData = this.getTransactionData(attachmentData);
 
-        const txnData = htmlParse(attachmentData).
+        const date = this.getDate(transactionData);
+        const reference = this.getReference(transactionData);
+        const valueDate = this.getValueDate(transactionData);
+        const sum = this.getSum(transactionData);
+
+        try {
+            const entryType = this.tryGetEntryType(transactionData);
+            const transactionType = this.getTransactionType(transactionData);
+            const paymentDetails = this.tryGetPaymentDetails(transactionData, transactionType);
+
+            const transaction: Transaction<PaymentDetails> = {
+                messageId: messageId,
+                date: date,
+                reference: reference,
+                valueDate: valueDate,
+                sum: sum,
+                entryType: entryType,
+                type: transactionType,
+                paymentDetails: paymentDetails
+            }
+            
+            console.log(`Successfully processed transaction with reference ${transaction.reference}`);
+
+            return transaction;
+        } catch(ex) {
+            const body = ex instanceof Error
+                ? ex.message
+                : ex;
+
+            throw new Error(`Transaction reference ${reference}: ${body}`);
+        }
+    }
+
+    private getTransactionData(attachmentData: string) {
+        const transactionData = htmlParse(attachmentData).
             childNodes[1].       // <html>
             childNodes[3].       // <body>
             childNodes[12].      // <table>
             childNodes[5].       // <tr>
             childNodes;          // <td>[]
 
-        const date = dateParse(txnData[1]
+        return transactionData;
+    }
+
+    private getDate(transactionData: Node[]) {
+        const date = dateParse(transactionData[1]
             .childNodes[0]
             .rawText, 'DD.MM.YYYY HH:mm:ss');
 
-        const reference = txnData[3]
+        return date;
+    }
+
+    private getReference(transactionData: Node[]) {
+        const reference = transactionData[3]
             .childNodes[1]
             .childNodes[0]
             .rawText;
 
-        const valueDate = dateParse(txnData[5]
+        return reference;
+    }
+
+    private getValueDate(transactionData: Node[]) {
+        const valueDate = dateParse(transactionData[5]
             .childNodes[0]
             .rawText, 'DD.MM.YYYY');
 
-        const sum = txnData[7]
+        return valueDate;
+    }
+
+    private getSum(transactionData: Node[]) {
+        const sum = transactionData[7]
             .childNodes[0]
             .rawText;
 
-        const entryTypeStr = txnData[9]
+        return sum;
+    }
+
+    private tryGetEntryType(transactionData: Node[]) {
+        const entryTypeStr = transactionData[9]
             .childNodes[0]
             .rawText;
 
@@ -58,12 +110,16 @@ export default class TransactionFactory {
                 : EntryType.INVALID;
 
         if (entryType === EntryType.INVALID) {
-            throw new Error(`Transaction reference ${reference}: Unregonised entry type '${entryTypeStr}'`);
+            throw new Error(`Unregonised entry type '${entryTypeStr}'`);
         }
 
+        return entryType;
+    }
+
+    private getTransactionType(transactionData: Node[]) {
         const regex = XRegExp('(?:[^\\/])*[\\/]*((?=\\p{Lu})\\p{Cyrillic}+.*)');
 
-        const transactionTypeParsed = txnData[11]
+        const transactionTypeParsed = transactionData[11]
             .childNodes
             .map(n => 
                 regex.exec(n.rawText)
@@ -82,39 +138,26 @@ export default class TransactionFactory {
             ? transactionTypesByString[transactionTypeByString]
             : TransactionType.UNKNOWN;
 
-        const transactionDetails = txnData
+        return transactionType;
+    }
+
+    private tryGetPaymentDetails(transactionData: Node[], transactionType: TransactionType) {
+        const emptyPaymentDetails: PaymentDetails = {
+            beneficiary: ''
+        }
+
+        const paymentDetailsRaw = transactionData
             .slice(11)[0]
             .childNodes;
+        
+        const paymentDetails = this.paymentDetailsBuilder.tryBuild(transactionType, paymentDetailsRaw);
+        
+        const paymentDetailsValid = paymentDetails !== null;
 
-        try {
-            const paymentDetails = this.paymentDetailsBuilder.tryBuild(transactionType, transactionDetails);
-            
-            const paymentDetailsValid = paymentDetails !== null;
+        const finalPaymentDetails = paymentDetailsValid
+            ? paymentDetails
+            : emptyPaymentDetails;
 
-            const finalPaymentDetails = transactionTypeValid && paymentDetailsValid
-                ? paymentDetails
-                : TransactionFactory.emptyPaymentDetails;
-
-            const transaction: Transaction<PaymentDetails> = {
-                messageId: messageId,
-                date: date,
-                reference: reference,
-                valueDate: valueDate,
-                sum: sum,
-                entryType: entryType,
-                type: transactionType,
-                paymentDetails: finalPaymentDetails
-            }
-            
-            console.log(`Successfully processed transaction with reference ${transaction.reference}`);
-
-            return transaction;
-        } catch(ex) {
-            const body = ex instanceof Error
-                ? ex.message
-                : ex;
-
-            throw new Error(`Transaction reference ${reference}: '${body}'`);
-        }
+        return finalPaymentDetails;
     }
 }
