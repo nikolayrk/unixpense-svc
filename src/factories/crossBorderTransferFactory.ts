@@ -5,15 +5,14 @@ import PaymentDetailsProcessingError from "../errors/paymentDetailsProcessingErr
 import '../extensions/stringExtensions';
 
 export default class CrossBorderTransferFactory implements PaymentDetailsFactory<CrossBorderTransfer> {
-    public create(transactionDetails: Node[]): CrossBorderTransfer {
-        const paymentDetailsRaw = transactionDetails[0]
-            .childNodes
+    public create(transactionDetailsNodes: Node[]): CrossBorderTransfer {
+        const transactionDetailsRaw = transactionDetailsNodes
             .map(c => c.rawText.cleanTransactionDetails())
             .reverse()
             .join('')
 
         const regex = /(?:AZV-)?(\w[^,]+)/g;
-        const matches = [...paymentDetailsRaw.matchAll(regex)];
+        const matches = [...transactionDetailsRaw.matchAll(regex)];
 
         const paymentDetails = matches.map(m => m[1].trim());
 
@@ -22,7 +21,7 @@ export default class CrossBorderTransferFactory implements PaymentDetailsFactory
         const iban = paymentDetails[7];
 
         if (beneficiary === undefined || description === undefined || iban === undefined) {
-            throw new PaymentDetailsProcessingError(`Failed to execute regex on input '${paymentDetailsRaw}'`);
+            throw new PaymentDetailsProcessingError(`Failed to execute regex on input '${transactionDetailsRaw}'`);
         }
 
         const transaction: CrossBorderTransfer = {

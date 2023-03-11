@@ -4,22 +4,21 @@ import PaymentDetailsFactory from "../models/paymentDetailsFactory";
 import '../extensions/stringExtensions';
 
 export default class StandardTransferFactory implements PaymentDetailsFactory<StandardTransfer> {
-    public create(transactionDetails: Node[]): StandardTransfer {
-        const paymentDetails = transactionDetails[0]
-            .childNodes
+    public create(transactionDetailsNodes: Node[]): StandardTransfer {
+        const transactionDetailsRaw = transactionDetailsNodes
             .slice(1)
             .map(c => c.rawText)
             .join('')
             .cleanTransactionDetails();
 
-        const iban = transactionDetails[2]
+        const iban = transactionDetailsNodes[2]
             .childNodes[1]
             .childNodes[1]
             .childNodes[1]
             .childNodes[0]
             .rawText;
 
-        const beneficiary = transactionDetails[2]
+        const beneficiary = transactionDetailsNodes[2]
             .childNodes[1]
             .childNodes[3]
             .childNodes[1]
@@ -29,7 +28,7 @@ export default class StandardTransferFactory implements PaymentDetailsFactory<St
         const transaction: StandardTransfer = {
             beneficiary: beneficiary,
             iban: iban,
-            description: paymentDetails,
+            description: transactionDetailsRaw,
         };
 
         return transaction;

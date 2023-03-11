@@ -11,10 +11,10 @@ import PaymentDetails from '../models/paymentDetails';
 import { TransactionTypeExtensions } from "../extensions/transactionTypeExtensions";
 
 export default class PaymentDetailsBuilder {
-    public tryBuild(transactionType: TransactionType, transactionDetails: Node[]) {
+    public tryBuild(transactionType: TransactionType, transactionDetailsNodes: Node[]) {
         try {
             const paymentDetailsFactory = this.constructPaymentDetailsFactory(transactionType);
-            const paymentDetails = paymentDetailsFactory.create(transactionDetails);
+            const paymentDetails = paymentDetailsFactory.create(transactionDetailsNodes);
 
             return paymentDetails;
         } catch(ex) {

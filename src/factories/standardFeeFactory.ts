@@ -4,9 +4,8 @@ import StandardFee from "../models/standardFee";
 import '../extensions/stringExtensions';
 
 export default class StandardFeeFactory implements PaymentDetailsFactory<StandardFee> {
-    public create(transactionDetails: Node[]): StandardFee {
-        const paymentDetails = transactionDetails[0]
-            .childNodes
+    public create(transactionDetailsNodes: Node[]): StandardFee {
+        const transactionDetailsRaw = transactionDetailsNodes
             .slice(1)
             .map(c => c.rawText)
             .join('')
@@ -14,7 +13,7 @@ export default class StandardFeeFactory implements PaymentDetailsFactory<Standar
 
         const transaction: StandardFee = {
             beneficiary: 'UNICREDIT BULBANK',
-            description: paymentDetails,
+            description: transactionDetailsRaw,
         }
 
         return transaction;

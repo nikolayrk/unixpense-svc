@@ -4,9 +4,8 @@ import { Node } from 'node-html-parser';
 import PaymentDetailsProcessingError from "../errors/paymentDetailsProcessingError";
 
 export default class CardOperationFactory implements PaymentDetailsFactory<CardOperation> {
-    public create(transactionDetails: Node[]): CardOperation {
-        const transactionDetailsRaw = transactionDetails[0]
-            .childNodes
+    public create(transactionDetailsNodes: Node[]): CardOperation {
+        const transactionDetailsRaw = transactionDetailsNodes
             .slice(1)
             .map(c => c.rawText)
             .join('');

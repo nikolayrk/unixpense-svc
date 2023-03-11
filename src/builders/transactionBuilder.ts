@@ -146,7 +146,9 @@ export default class TransactionBuilder {
             ? transactionTypesByString[transactionTypeByString]
             : TransactionType.UNKNOWN;
 
-        const transactionDetails = txnData.slice(11);
+        const transactionDetails = txnData
+            .slice(11)[0]
+            .childNodes;
 
         try {
             const paymentDetails = this.paymentDetailsBuilder.tryBuild(transactionType, transactionDetails);
