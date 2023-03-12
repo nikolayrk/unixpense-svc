@@ -14,6 +14,7 @@ import CardOperationFactory from './factories/cardOperationFactory';
 import CrossBorderTransferFactory from './factories/crossBorderTransferFactory';
 import StandardFeeFactory from './factories/standardFeeFactory';
 import StandardTransferFactory from './factories/standardTransferFactory';
+import RefreshTokenRepository from './repositories/refreshTokenRepository';
 
 async function bootstrap() {
     dotenv.config();
@@ -49,7 +50,10 @@ async function bootstrap() {
     }
 
     try {
-        const googleApiAuth = new GoogleApiAuth(clientId, clientSecret, redirectUri);
+        const dbConnection = await createDatabaseConnection(dbHost, Number(dbPort), dbUsername, dbPassword, dbName);
+
+        const refreshTokenRepository = new RefreshTokenRepository();
+        const googleApiAuth = new GoogleApiAuth(clientId, clientSecret, redirectUri, refreshTokenRepository);
         const gmailClient = new GmailClient(googleApiAuth.oauth2Client);
         const cardOperationFactory = new CardOperationFactory();
         const crossBorderTransferFactory = new CrossBorderTransferFactory();
@@ -59,15 +63,14 @@ async function bootstrap() {
         const transactionFactory = new TransactionFactory(paymentDetailsBuilder);
         const transactionBuilder = new TransactionBuilder(gmailClient, transactionFactory);
         
-        const dbConnection = await createDatabaseConnection(dbHost, Number(dbPort), dbUsername, dbPassword, dbName);
         const transactionRepository = new TransactionRepository();
         const paymentDetailsRepository = new PaymentDetailsRepository();
 
         const app = express();
 
-        app.use('/oauthcallback', googleApiAuth.callback);
-        app.use(googleApiAuth.ensureAuthenticated, getTransactionsRouter(gmailClient, transactionBuilder));
-        app.use(googleApiAuth.ensureAuthenticated, refreshRouter(
+        app.use('/oauthcallback', googleApiAuth.callbackAsync);
+        app.use(googleApiAuth.ensureAuthenticatedAsync, getTransactionsRouter(gmailClient, transactionBuilder));
+        app.use(googleApiAuth.ensureAuthenticatedAsync, refreshRouter(
             gmailClient,
             transactionBuilder,
             dbConnection,
