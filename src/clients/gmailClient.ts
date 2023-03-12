@@ -1,13 +1,13 @@
 import { gmail_v1, google } from 'googleapis';
-import { OAuth2Client } from 'googleapis-common';
+import OAuth2ClientProvider from '../providers/oauth2ClientProvider';
 import exponentialBackoff from "../utils/exponentialBackoff";
 
 export default class GmailClient {
     private readonly gmailApi: gmail_v1.Gmail;
     private readonly searchQuery: string = 'from:pb@unicreditgroup.bg subject: "Dvizhenie po smetka"';
 
-    constructor(oauth2Client: OAuth2Client) {
-        const gmailApi = google.gmail({version: 'v1', auth: oauth2Client});
+    constructor(oauth2ClientProvider: OAuth2ClientProvider) {
+        const gmailApi = google.gmail({version: 'v1', auth: oauth2ClientProvider.oauth2Client});
 
         this.gmailApi = gmailApi;
     }

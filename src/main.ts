@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import GmailClient from './clients/gmailClient';
 import TransactionBuilder from './builders/transactionBuilder';
 import getTransactionsRouter from './routers/getTransactionsRouter';
-import GoogleApiAuth from './middleware/googleApiAuth';
 import TransactionRepository from './repositories/transactionRepository';
 import createDatabaseConnection from './utils/createDatabaseConnection';
 import PaymentDetailsRepository from './repositories/paymentDetailsRepository';
@@ -16,6 +15,7 @@ import StandardFeeFactory from './factories/standardFeeFactory';
 import StandardTransferFactory from './factories/standardTransferFactory';
 import RefreshTokenRepository from './repositories/refreshTokenRepository';
 import OAuth2ClientProvider from './providers/oauth2ClientProvider';
+import googleAuthMiddleware from './middleware/googleAuthMiddleware';
 
 async function bootstrap() {
     dotenv.config();
@@ -55,8 +55,7 @@ async function bootstrap() {
 
         const refreshTokenRepository = new RefreshTokenRepository();
         const oauth2ClientProvider = new OAuth2ClientProvider(clientId, clientSecret, redirectUri, refreshTokenRepository);
-        const googleApiAuth = new GoogleApiAuth(oauth2ClientProvider);
-        const gmailClient = new GmailClient(oauth2ClientProvider.oauth2Client);
+        const gmailClient = new GmailClient(oauth2ClientProvider);
         
         const cardOperationFactory = new CardOperationFactory();
         const crossBorderTransferFactory = new CrossBorderTransferFactory();
@@ -71,9 +70,10 @@ async function bootstrap() {
 
         const app = express();
 
-        app.use('/oauthcallback', googleApiAuth.callbackAsync);
-        app.use(googleApiAuth.ensureAuthenticatedAsync, getTransactionsRouter(gmailClient, transactionBuilder));
-        app.use(googleApiAuth.ensureAuthenticatedAsync, refreshRouter(
+        app.use(googleAuthMiddleware(oauth2ClientProvider));
+
+        app.use(getTransactionsRouter(gmailClient, transactionBuilder));
+        app.use(refreshRouter(
             gmailClient,
             transactionBuilder,
             dbConnection,
