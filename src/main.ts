@@ -15,6 +15,7 @@ import CrossBorderTransferFactory from './factories/crossBorderTransferFactory';
 import StandardFeeFactory from './factories/standardFeeFactory';
 import StandardTransferFactory from './factories/standardTransferFactory';
 import RefreshTokenRepository from './repositories/refreshTokenRepository';
+import OAuth2ClientProvider from './providers/oauth2ClientProvider';
 
 async function bootstrap() {
     dotenv.config();
@@ -53,8 +54,10 @@ async function bootstrap() {
         const dbConnection = await createDatabaseConnection(dbHost, Number(dbPort), dbUsername, dbPassword, dbName);
 
         const refreshTokenRepository = new RefreshTokenRepository();
-        const googleApiAuth = new GoogleApiAuth(clientId, clientSecret, redirectUri, refreshTokenRepository);
-        const gmailClient = new GmailClient(googleApiAuth.oauth2Client);
+        const oauth2ClientProvider = new OAuth2ClientProvider(clientId, clientSecret, redirectUri, refreshTokenRepository);
+        const googleApiAuth = new GoogleApiAuth(oauth2ClientProvider);
+        const gmailClient = new GmailClient(oauth2ClientProvider.oauth2Client);
+        
         const cardOperationFactory = new CardOperationFactory();
         const crossBorderTransferFactory = new CrossBorderTransferFactory();
         const standardFeeFactory = new StandardFeeFactory();

@@ -1,17 +1,17 @@
-import { col, Op } from "sequelize";
 import RefreshTokenEntity from "../entities/refreshToken.entity";
-import { Credentials } from 'google-auth-library';
 
 export default class RefreshTokenRepository {
-    public async createAsync(refreshToken: string) {
-        await RefreshTokenEntity.create({
-            token: refreshToken
+    public async createIfNotExistAsync(refreshToken: string) {
+        await RefreshTokenEntity.findOrCreate({
+            where: {
+                token: refreshToken
+            }
         });
 
         await RefreshTokenEntity.sync();
     }
 
-    public async getRefreshTokenOrNull() {
+    public async getRefreshTokenOrNullAsync() {
         const entity = await RefreshTokenEntity
             .findOne({
                 order: ['createdAt']
