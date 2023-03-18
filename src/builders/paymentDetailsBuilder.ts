@@ -28,10 +28,10 @@ export default class PaymentDetailsBuilder {
         this.standardTransferFactory = standardTransferFactory;
     }
 
-    public tryBuild(transactionType: TransactionType, transactionDetailsNodes: Node[]) {
+    public tryBuild(transactionType: TransactionType, transactionDetailsNodes: Node[], additionalTransactionDetailsNode?: Node) {
         try {
             const paymentDetailsFactory = this.usePaymentDetailsFactoryByType(transactionType);
-            const paymentDetails = paymentDetailsFactory.create(transactionDetailsNodes);
+            const paymentDetails = paymentDetailsFactory.create(transactionDetailsNodes, additionalTransactionDetailsNode);
 
             return paymentDetails;
         } catch(ex) {

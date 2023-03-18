@@ -10,6 +10,10 @@ import transactionTypesByString from '../indexSignatures/transactionTypeByString
 import PaymentDetailsBuilder from '../builders/paymentDetailsBuilder';
 
 export default class TransactionFactory {
+    private static readonly emptyPaymentDetails: PaymentDetails = {
+        beneficiary: ''
+    };
+
     private readonly paymentDetailsBuilder: PaymentDetailsBuilder;
 
     constructor(paymentDetailsBuilder: PaymentDetailsBuilder) {
@@ -142,21 +146,22 @@ export default class TransactionFactory {
     }
 
     private tryGetPaymentDetails(transactionData: Node[], transactionType: TransactionType) {
-        const emptyPaymentDetails: PaymentDetails = {
-            beneficiary: ''
-        }
-
-        const paymentDetailsRaw = transactionData
+        const transactionDetailsNodes = transactionData
             .slice(11)[0]
             .childNodes;
+
         
-        const paymentDetails = this.paymentDetailsBuilder.tryBuild(transactionType, paymentDetailsRaw);
+        const additionalTransactionDetailsNode = transactionData
+            .slice(11)[2]
+            .childNodes[1];
+        
+        const paymentDetails = this.paymentDetailsBuilder.tryBuild(transactionType, transactionDetailsNodes, additionalTransactionDetailsNode);
         
         const paymentDetailsValid = paymentDetails !== null;
 
         const finalPaymentDetails = paymentDetailsValid
             ? paymentDetails
-            : emptyPaymentDetails;
+            : TransactionFactory.emptyPaymentDetails;
 
         return finalPaymentDetails;
     }
