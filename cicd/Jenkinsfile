@@ -1,0 +1,64 @@
+def runBashFile(filePath) {
+    sh "chmod +x ${filePath} && ${filePath}"
+}
+
+pipeline {
+    agent any
+	environment {
+        UNIXPENSE_K8S_NAMESPACE = 'unixpense'
+	}
+    stages {
+        stage('Init') {
+            agent {
+                kubernetes {
+                    containerTemplate(name: 'kubectl',
+                        image: 'quay.io/clastix/kubectl:v1.24',
+                        command: 'cat',
+                        ttyEnabled: true)
+                }
+            }
+            steps {
+                container('kubectl') {
+                    withCredentials([usernameColonPassword(
+                        credentialsId: 'docker-regcred',
+                        variable: 'DOCKER_REGISTRY_CREDENTIALS')]) {
+                        withCredentials([file(
+                            credentialsId: 'kubeconfig',
+                            variable: 'KUBECONFIG')]) {
+                                runBashFile 'cicd/init.sh'
+                        }
+                    }
+                }
+            }
+        }
+        stage('Prepare Environment') {
+            agent {
+                kubernetes {
+                    yamlFile './cicd/AgentPod.yaml'
+                }
+            }
+            stages {
+                stage('Build') {
+                    steps {
+                        container('kaniko') {
+                            ansiColor('xterm') {
+                                runBashFile './cicd/build.sh'
+                            }
+                        }
+                    }
+                }
+                stage('Deploy') {
+                    steps {
+                        container('kubectl') {
+                            withCredentials([file(
+                                credentialsId: 'kubeconfig',
+                                variable: 'KUBECONFIG')]) {
+                                    runBashFile './cicd/deploy.sh'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
