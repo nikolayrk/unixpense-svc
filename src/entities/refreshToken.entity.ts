@@ -9,5 +9,11 @@ export default class RefreshTokenEntity extends Model {
     @AllowNull(false)
     @PrimaryKey
     @Column
-    token!: string;
+    client_token!: string;
+    
+    @Unique
+    @AllowNull(false)
+    @PrimaryKey
+    @Column
+    refresh_token!: string;
 }
