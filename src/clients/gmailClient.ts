@@ -1,6 +1,5 @@
 import { gmail_v1, google } from 'googleapis';
 import OAuth2ClientProvider from '../providers/oauth2ClientProvider';
-import exponentialBackoff from "../utils/exponentialBackoff";
 
 export default class GmailClient {
     private readonly gmailApi: gmail_v1.Gmail;
@@ -34,7 +33,7 @@ export default class GmailClient {
     }
     
     public async fetchMessageAsync(messageId: string) {
-        const messageResponse: any = await exponentialBackoff(0,
+        const messageResponse: any = await this.exponentialBackoff(0,
             this.gmailApi.users.messages.get.bind(this.gmailApi), {
                 userId: 'me',
                 id: messageId
@@ -52,7 +51,7 @@ export default class GmailClient {
             throw new Error(`No attachment ID found`);
         }
 
-        const attachmentResponse: any = await exponentialBackoff(0,
+        const attachmentResponse: any = await this.exponentialBackoff(0,
             this.gmailApi.users.messages.attachments.get.bind(this.gmailApi), {
                 userId: 'me',
                 messageId: message.id,
@@ -67,7 +66,7 @@ export default class GmailClient {
     }
     
     private async fetchMessageListAsync(pageToken?: string | null | undefined) {
-        const response: any = await exponentialBackoff(0,
+        const response: any = await this.exponentialBackoff(0,
             this.gmailApi.users.messages.list.bind(this.gmailApi), {
                 userId: 'me',
                 q: this.searchQuery,
@@ -77,6 +76,24 @@ export default class GmailClient {
         const messageList: gmail_v1.Schema$ListMessagesResponse = response.data;
     
         return messageList;
+    }
+
+    /**
+     * https://developers.google.com/gmail/api/guides/handle-errors#exponential-backoff
+     */
+    private async exponentialBackoff(depth: number = 0, fn: (...p: any[]) => any, ...params: any[]): Promise<any> {
+        const wait = (ms: number): Promise<NodeJS.Timeout> => new Promise((res) => setTimeout(res, ms));
+
+        try {
+            return await fn(...params);
+        } catch (e) {
+            if (depth > 7) {
+                throw e;
+            }
+            await wait(2 ** depth * 1000); // [1s ... 64s]
+
+            return this.exponentialBackoff(depth + 1, fn, ...params);
+        }
     }
     
     private tryGetMessagesFromList(messageList: gmail_v1.Schema$ListMessagesResponse) {
