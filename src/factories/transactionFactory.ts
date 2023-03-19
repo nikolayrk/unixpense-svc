@@ -6,7 +6,7 @@ import EntryType from '../enums/entryType';
 import XRegExp from 'xregexp';
 import { TRANSACTION_TYPES } from '../types/transactionTypeString';
 import TransactionType from '../enums/transactionType';
-import transactionTypesByString from '../indexSignatures/transactionTypeByString';
+import transactionTypesByString from '../types/transactionTypeByString';
 import PaymentDetailsBuilder from '../builders/paymentDetailsBuilder';
 
 export default class TransactionFactory {

@@ -1,5 +1,5 @@
 import TransactionType from '../enums/transactionType';
-import { TransactionTypeStringUnion } from '../types/transactionTypeString';
+import { TransactionTypeStringUnion } from './transactionTypeString';
 
 const transactionTypeByString: {
     [key in TransactionTypeStringUnion]: TransactionType;
