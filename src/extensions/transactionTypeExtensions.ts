@@ -1,8 +1,13 @@
+import { DataType } from 'sequelize-typescript';
 import TransactionType from '../enums/transactionType';
 
 export class TransactionTypeExtensions {
     public static ToString(transactionType: TransactionType) {
         return Object.keys(TransactionType)[Object.values(TransactionType).indexOf(transactionType)];
+    }
+
+    public static ToDataType() {
+        return DataType.ENUM(...Object.keys(TransactionType).filter(k => isNaN(Number(k))));
     }
 
     public static IsCardOperation(transactionType: TransactionType) {

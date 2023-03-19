@@ -1,6 +1,6 @@
 import { Table, Column, Model, PrimaryKey, DataType, Unique, AllowNull, IsDate, HasOne } from 'sequelize-typescript';
-import EntryType from '../enums/entryType';
-import TransactionType from '../enums/transactionType';
+import { EntryTypeExtensions } from '../extensions/entryTypeExtensions';
+import { TransactionTypeExtensions } from '../extensions/transactionTypeExtensions';
 import CardOperation from '../models/cardOperation';
 import CardOperationEntity from './cardOperation.entity';
 import CrossBorderTransfer from '../models/crossBorderTransfer';
@@ -40,11 +40,11 @@ export default class TransactionEntity extends Model {
     sum!: number;
 
     @AllowNull(false)
-    @Column(DataType.ENUM(...Object.keys(EntryType)))
+    @Column(EntryTypeExtensions.ToDataType())
     entry_type!: string;
 
     @AllowNull(false)
-    @Column(DataType.ENUM(...Object.keys(TransactionType)))
+    @Column(TransactionTypeExtensions.ToDataType())
     type!: string;
 
     @HasOne(() => CardOperationEntity)
