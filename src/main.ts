@@ -1,10 +1,11 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import mariadb from 'mariadb';
+import { Sequelize } from 'sequelize-typescript';
 import GmailClient from './clients/gmailClient';
 import TransactionBuilder from './builders/transactionBuilder';
 import getTransactionsRouter from './routers/getTransactionsRouter';
 import TransactionRepository from './repositories/transactionRepository';
-import createDatabaseConnection from './utils/createDatabaseConnection';
 import PaymentDetailsRepository from './repositories/paymentDetailsRepository';
 import refreshRouter from './routers/refreshRouter';
 import PaymentDetailsBuilder from './builders/paymentDetailsBuilder';
@@ -22,9 +23,6 @@ async function bootstrap() {
     
     const hostname = process.env.HOSTNAME;
     const port = process.env.UNIXPENSE_PORT;
-    const clientId = process.env.UNIXPENSE_GOOGLE_CLIENT_ID;
-    const clientSecret = process.env.UNIXPENSE_GOOGLE_CLIENT_SECRET;
-    const redirectUri = process.env.UNIXPENSE_GOOGLE_REDIRECT_URI;
 
     const dbHost = process.env.UNIXPENSE_MARIADB_HOST;
     const dbPort = process.env.UNIXPENSE_MARIADB_PORT;
@@ -32,14 +30,10 @@ async function bootstrap() {
     const dbPassword = process.env.UNIXPENSE_MARIADB_PASSWORD;
     const dbName = process.env.UNIXPENSE_MARIADB_DATABASE;
 
-    if (clientId === undefined || 
-        clientSecret === undefined || 
-        redirectUri === undefined) {
-        console.log(`Missing OAuth2 credentials. Exiting...`);
-
-        return;
-    }
-
+    const clientId = process.env.UNIXPENSE_GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.UNIXPENSE_GOOGLE_CLIENT_SECRET;
+    const redirectUri = process.env.UNIXPENSE_GOOGLE_REDIRECT_URI;
+    
     if (dbHost === undefined || 
         dbPort === undefined || 
         dbUsername === undefined || 
@@ -50,13 +44,98 @@ async function bootstrap() {
         return;
     }
 
-    try {
-        await createDatabaseConnection(dbHost, Number(dbPort), dbUsername, dbPassword, dbName);
+    const databaseConnection = await createDatabaseConnectionOrNullAsync();
 
-        const refreshTokenRepository = new RefreshTokenRepository();
-        const oauth2ClientProvider = new OAuth2ClientProvider(clientId, clientSecret, redirectUri, refreshTokenRepository);
-        const gmailClient = new GmailClient(oauth2ClientProvider);
+    if (databaseConnection === null) {
+        console.log('Failed to create a connection to the database. Exiting...');
+
+        return;
+    }
+
+    if (clientId === undefined || 
+        clientSecret === undefined || 
+        redirectUri === undefined) {
+        console.log(`Missing OAuth2 credentials. Exiting...`);
+
+        return;
+    }
+
+    try {
+        const oauth2ClientProvider = resolveOAuth2ClientProvider();
+        const gmailClient = resolveGmailClient(oauth2ClientProvider);
+        const transactionBuilder = resolveTransactionBuilder(gmailClient);
         
+        const app = express();
+
+        app.use(googleAuthMiddleware(oauth2ClientProvider));
+        app.use(getTransactionsRouter(gmailClient, transactionBuilder));
+        app.use(resolveRefreshRouter(gmailClient, transactionBuilder));
+
+        app.listen(port, () => {
+            console.log(`[server]: Server is running at https://${hostname}:${port}`);
+        });
+    } catch (ex) {
+        const body = ex instanceof Error
+            ? ex.stack
+            : ex;
+        
+        console.log(body);
+        console.log('');
+        console.log('Exiting...');
+        
+        await databaseConnection.close();
+    }
+    
+    async function createDatabaseConnectionOrNullAsync() {
+        await createDatabaseIfNotExistsAsync();
+
+        const connection = new Sequelize({
+            dialect: "mariadb",
+            host: dbHost,
+            port: Number(dbPort),
+            username: dbUsername,
+            password: dbPassword,
+            database: dbName,
+            logging: false,
+            models: [__dirname + '/entities/*.entity.{js,ts}'],
+        });
+
+        try {
+            await connection.authenticate();
+
+            return connection;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    async function createDatabaseIfNotExistsAsync() {
+        const pool = mariadb.createPool({
+            host: dbHost,
+            port: Number(dbPort),
+            user: dbUsername,
+            password: dbPassword,
+            connectionLimit: 5
+        });
+
+        const conn = await pool.getConnection();
+
+        await conn.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\`;`);
+
+        conn.release();
+    }
+
+    function resolveGmailClient(oauth2ClientProvider: OAuth2ClientProvider) {
+        return new GmailClient(oauth2ClientProvider);
+    }
+
+    function resolveOAuth2ClientProvider() {
+        const refreshTokenRepository = new RefreshTokenRepository();
+
+        return new OAuth2ClientProvider(clientId!, clientSecret!, redirectUri!, refreshTokenRepository);
+    }
+
+    function resolveTransactionBuilder(gmailClient: GmailClient) {
         const cardOperationFactory = new CardOperationFactory();
         const crossBorderTransferFactory = new CrossBorderTransferFactory();
         const standardFeeFactory = new StandardFeeFactory();
@@ -64,29 +143,15 @@ async function bootstrap() {
         const paymentDetailsBuilder = new PaymentDetailsBuilder(cardOperationFactory, crossBorderTransferFactory, standardFeeFactory, standardTransferFactory);
         const transactionFactory = new TransactionFactory(paymentDetailsBuilder);
         const transactionBuilder = new TransactionBuilder(gmailClient, transactionFactory);
-        
+
+        return transactionBuilder;
+    }
+
+    function resolveRefreshRouter(gmailClient: GmailClient, transactionBuilder: TransactionBuilder) {
         const transactionRepository = new TransactionRepository();
         const paymentDetailsRepository = new PaymentDetailsRepository();
 
-        const app = express();
-
-        app.use(googleAuthMiddleware(oauth2ClientProvider));
-
-        app.use(getTransactionsRouter(gmailClient, transactionBuilder));
-        app.use(refreshRouter(gmailClient, transactionBuilder, transactionRepository, paymentDetailsRepository));
-
-        app.listen(port, () => {
-            console.log(`[server]: Server is running at https://${hostname}:${port}`);
-        });
-    } catch (ex) {
-        if (ex instanceof Error) {
-            console.log(`Fatal Error: ${ex.stack}`);
-            console.log('Exiting...');
-
-            return;
-        }
-        
-        console.log(ex);
+        return refreshRouter(gmailClient, transactionBuilder, transactionRepository, paymentDetailsRepository);
     }
 }
    
