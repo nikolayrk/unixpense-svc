@@ -22,7 +22,7 @@ export default class TransactionRepository {
         });
     }
 
-    public async tryFindAsync(message_id: string) {
+    public async findOrNullAsync(message_id: string) {
         const foundTransaction = await TransactionEntity
             .findOne({
                 include: [

@@ -51,7 +51,7 @@ async function bootstrap() {
     }
 
     try {
-        const dbConnection = await createDatabaseConnection(dbHost, Number(dbPort), dbUsername, dbPassword, dbName);
+        await createDatabaseConnection(dbHost, Number(dbPort), dbUsername, dbPassword, dbName);
 
         const refreshTokenRepository = new RefreshTokenRepository();
         const oauth2ClientProvider = new OAuth2ClientProvider(clientId, clientSecret, redirectUri, refreshTokenRepository);
@@ -73,12 +73,7 @@ async function bootstrap() {
         app.use(googleAuthMiddleware(oauth2ClientProvider));
 
         app.use(getTransactionsRouter(gmailClient, transactionBuilder));
-        app.use(refreshRouter(
-            gmailClient,
-            transactionBuilder,
-            dbConnection,
-            transactionRepository,
-            paymentDetailsRepository));
+        app.use(refreshRouter(gmailClient, transactionBuilder, transactionRepository, paymentDetailsRepository));
 
         app.listen(port, () => {
             console.log(`[server]: Server is running at https://${hostname}:${port}`);
