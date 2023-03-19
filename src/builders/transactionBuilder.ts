@@ -1,6 +1,5 @@
 import { gmail_v1 } from "googleapis";
 import GmailClient from "../clients/gmailClient";
-import base64UrlDecode from "../utils/base64UrlDecode";
 import FailedToProcessTxnError from '../errors/failedToProcessTxnError';
 import TransactionFactory from "../factories/transactionFactory";
 
@@ -17,11 +16,11 @@ export default class TransactionBuilder {
         try {
             const message = await this.constructMessageAsync(messageId);
 
-            const attachment = await this.tryConstructAttachmentAsync(message);
+            const attachmentData = await this.tryConstructAttachmentDataAsync(message);
 
-            const decodedAttachment = this.decodeAttachment(attachment);
-
-            const transaction = this.transactionFactory.tryCreate(messageId, decodedAttachment);
+            const transaction = this.transactionFactory.tryCreate(messageId, attachmentData);
+            
+            console.log(`Successfully processed transaction with reference ${transaction.reference}`);
 
             return transaction;
         } catch (ex) {
@@ -43,27 +42,47 @@ export default class TransactionBuilder {
         return message;
     }
 
-    private async tryConstructAttachmentAsync(message: gmail_v1.Schema$Message) {
+    private async tryConstructAttachmentDataAsync(message: gmail_v1.Schema$Message) {
         console.log(`Requesting attachment from message with ID ${message.id}...`);
 
-        const attachment = await this.gmailClient.tryFetchAttachmentAsync(message);
+        const attachmentDataBase64 = await this.gmailClient.tryFetchAttachmentDataBase64OrNullAsync(message);
 
-        if (attachment === null || attachment === undefined) {
-            throw new Error(`Missing attachment`);
+        if (attachmentDataBase64 === null) {
+            throw new Error(`Empty attachment data`);
         }
 
         console.log(`Received attachment from message with ID ${message.id}`);
 
-        return attachment;
+        const decodedAttachmentData = this.decodeAttachmentData(attachmentDataBase64);
+
+        return decodedAttachmentData;
     }
 
-    private decodeAttachment(attachment: string) {
-        const urlDecoded = base64UrlDecode(attachment);
+    private decodeAttachmentData(attachmentDataBase64: string) {
+        const urlDecoded = this.base64UrlDecode(attachmentDataBase64);
     
         const base64Decoded = Buffer.from(urlDecoded, 'base64');
     
         const utf16Decoded = base64Decoded.toString('utf16le');
     
         return utf16Decoded;
+    }
+
+    private base64UrlDecode(input: string) {
+        // Replace non-url compatible chars with base64 standard chars
+        input = input
+            .replace(/-/g, '+')
+            .replace(/_/g, '/');
+    
+        // Pad out with standard base64 required padding characters
+        const pad = input.length % 4;
+        if (pad) {
+            if (pad === 1) {
+                throw new Error('InvalidLengthError: Input base64url string is the wrong length to determine padding');
+            }
+            input += new Array(5 - pad).join('=');
+        }
+    
+        return input;
     }
 }

@@ -45,8 +45,6 @@ export default class TransactionFactory {
                 type: transactionType,
                 paymentDetails: paymentDetails
             }
-            
-            console.log(`Successfully processed transaction with reference ${transaction.reference}`);
 
             return transaction;
         } catch(ex) {
