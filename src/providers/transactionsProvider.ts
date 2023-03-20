@@ -16,18 +16,6 @@ export default class TransactionsProvider {
     public async getTransactionsAsync(messageIdQuery?: string) {
         const transactions: Array<Transaction<PaymentDetails>> = new Array<Transaction<PaymentDetails>>;
 
-        for await (const transaction of this.generateTransactionOrNull(messageIdQuery)) {
-            if (transaction === null) {
-                continue;
-            }
-
-            transactions.push(transaction);
-        }
-
-        return transactions;
-    }
-
-    private async * generateTransactionOrNull(messageIdQuery?: string) {
         const iterator = messageIdQuery !== undefined
             ? this.generateMessageIdsFromQuery(messageIdQuery)
             : this.gmailClient.tryGenerateMessageIdsAsync();
@@ -37,13 +25,13 @@ export default class TransactionsProvider {
             const transaction = await this.getTransactionOrNullAsync(messageId);
 
             if (transaction === null) {
-                yield null;
-
                 continue;
             }
 
-            yield transaction;
+            transactions.push(transaction);
         }
+        
+        return transactions;
     }
 
     private * generateMessageIdsFromQuery(messageIdsQuery: string) {

@@ -132,8 +132,8 @@ export default class OAuth2ClientProvider {
     }
 
     private authenticate(credentials: Credentials) {
-        const hasAccessToken = credentials.access_token === null || credentials.access_token === undefined;
-        const hasRefreshToken = credentials.refresh_token === null || credentials.refresh_token === undefined;
+        const hasAccessToken = credentials.access_token !== null && credentials.access_token !== undefined;
+        const hasRefreshToken = credentials.refresh_token !== null && credentials.refresh_token !== undefined;
 
         if (!hasAccessToken && !hasRefreshToken) {
             console.log(`No access token or refresh token provided. Consent required`);
