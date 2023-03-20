@@ -1,7 +1,5 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import mariadb from 'mariadb';
-import { Sequelize } from 'sequelize-typescript';
 import GmailClient from './clients/gmailClient';
 import TransactionBuilder from './builders/transactionBuilder';
 import getTransactionsRouter from './routers/getTransactionsRouter';
@@ -18,6 +16,7 @@ import RefreshTokenRepository from './repositories/refreshTokenRepository';
 import OAuth2ClientProvider from './providers/oauth2ClientProvider';
 import googleAuthMiddleware from './middleware/googleAuthMiddleware';
 import TransactionsProvider from './providers/transactionsProvider';
+import DatabaseConnectionProvider from './providers/databaseConnectionProvider';
 
 async function bootstrap() {
     dotenv.config();
@@ -45,14 +44,6 @@ async function bootstrap() {
         return;
     }
 
-    const databaseConnection = await createDatabaseConnectionOrNullAsync();
-
-    if (databaseConnection === null) {
-        console.log('Failed to create a connection to the database. Exiting...');
-
-        return;
-    }
-
     if (clientId === undefined || 
         clientSecret === undefined || 
         redirectUri === undefined) {
@@ -60,6 +51,8 @@ async function bootstrap() {
 
         return;
     }
+
+    const databaseConnection = await tryGetDatabaseConnectionAsync();
 
     try {
         const oauth2ClientProvider = resolveOAuth2ClientProvider();
@@ -86,46 +79,12 @@ async function bootstrap() {
         
         await databaseConnection.close();
     }
-    
-    async function createDatabaseConnectionOrNullAsync() {
-        await createDatabaseIfNotExistsAsync();
 
-        const connection = new Sequelize({
-            dialect: "mariadb",
-            host: dbHost,
-            port: Number(dbPort),
-            username: dbUsername,
-            password: dbPassword,
-            database: dbName,
-            logging: false,
-            models: [__dirname + '/entities/*.entity.{js,ts}'],
-        });
+    async function tryGetDatabaseConnectionAsync() {
+        const databaseConnectionProvider = new DatabaseConnectionProvider(dbHost!, Number(dbPort), dbUsername!, dbPassword!, dbName!);
+        const connection = await databaseConnectionProvider.tryGetAsync();
 
-        try {
-            await connection.authenticate();
-
-            await connection.sync();
-
-            return connection;
-        } catch (error) {
-            return null;
-        }
-    }
-
-    async function createDatabaseIfNotExistsAsync() {
-        const pool = mariadb.createPool({
-            host: dbHost,
-            port: Number(dbPort),
-            user: dbUsername,
-            password: dbPassword,
-            connectionLimit: 5
-        });
-
-        const conn = await pool.getConnection();
-
-        await conn.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\`;`);
-
-        conn.release();
+        return connection;
     }
 
     function resolveOAuth2ClientProvider() {
