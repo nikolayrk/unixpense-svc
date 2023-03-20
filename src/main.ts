@@ -68,8 +68,9 @@ async function bootstrap() {
         const app = express();
 
         app.use(googleAuthMiddleware(oauth2ClientProvider));
+
         app.use(getTransactionsRouter(transactionsProvider));
-        app.use(resolveRefreshRouter(transactionsProvider));
+        app.use(refreshRouter(transactionsProvider));
 
         app.listen(port, () => {
             console.log(`[server]: Server is running at https://${hostname}:${port}`);
@@ -135,6 +136,7 @@ async function bootstrap() {
 
     function resolveTransactionsProvider(oauth2ClientProvider: OAuth2ClientProvider) {
         const gmailClient = new GmailClient(oauth2ClientProvider);
+
         const cardOperationFactory = new CardOperationFactory();
         const crossBorderTransferFactory = new CrossBorderTransferFactory();
         const standardFeeFactory = new StandardFeeFactory();
@@ -142,16 +144,13 @@ async function bootstrap() {
         const paymentDetailsBuilder = new PaymentDetailsBuilder(cardOperationFactory, crossBorderTransferFactory, standardFeeFactory, standardTransferFactory);
         const transactionFactory = new TransactionFactory(paymentDetailsBuilder);
         const transactionBuilder = new TransactionBuilder(gmailClient, transactionFactory);
-        const transactionsProvider = new TransactionsProvider(gmailClient, transactionBuilder);
 
-        return transactionsProvider;
-    }
-
-    function resolveRefreshRouter(transactionGeneratorProvider: TransactionsProvider) {
         const paymentDetailsRepository = new PaymentDetailsRepository();
         const transactionRepository = new TransactionRepository(paymentDetailsRepository);
+        
+        const transactionsProvider = new TransactionsProvider(gmailClient, transactionBuilder, transactionRepository);
 
-        return refreshRouter(transactionGeneratorProvider, transactionRepository);
+        return transactionsProvider;
     }
 }
    
