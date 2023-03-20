@@ -17,6 +17,7 @@ import StandardTransferFactory from './factories/standardTransferFactory';
 import RefreshTokenRepository from './repositories/refreshTokenRepository';
 import OAuth2ClientProvider from './providers/oauth2ClientProvider';
 import googleAuthMiddleware from './middleware/googleAuthMiddleware';
+import TransactionsProvider from './providers/transactionsProvider';
 
 async function bootstrap() {
     dotenv.config();
@@ -62,14 +63,13 @@ async function bootstrap() {
 
     try {
         const oauth2ClientProvider = resolveOAuth2ClientProvider();
-        const gmailClient = resolveGmailClient(oauth2ClientProvider);
-        const transactionBuilder = resolveTransactionBuilder(gmailClient);
+        const transactionsProvider = resolveTransactionsProvider(oauth2ClientProvider);
         
         const app = express();
 
         app.use(googleAuthMiddleware(oauth2ClientProvider));
-        app.use(getTransactionsRouter(gmailClient, transactionBuilder));
-        app.use(resolveRefreshRouter(gmailClient, transactionBuilder));
+        app.use(getTransactionsRouter(transactionsProvider));
+        app.use(resolveRefreshRouter(transactionsProvider));
 
         app.listen(port, () => {
             console.log(`[server]: Server is running at https://${hostname}:${port}`);
@@ -103,6 +103,8 @@ async function bootstrap() {
         try {
             await connection.authenticate();
 
+            await connection.sync();
+
             return connection;
         } catch (error) {
             return null;
@@ -125,17 +127,14 @@ async function bootstrap() {
         conn.release();
     }
 
-    function resolveGmailClient(oauth2ClientProvider: OAuth2ClientProvider) {
-        return new GmailClient(oauth2ClientProvider);
-    }
-
     function resolveOAuth2ClientProvider() {
         const refreshTokenRepository = new RefreshTokenRepository();
 
         return new OAuth2ClientProvider(clientId!, clientSecret!, redirectUri!, refreshTokenRepository);
     }
 
-    function resolveTransactionBuilder(gmailClient: GmailClient) {
+    function resolveTransactionsProvider(oauth2ClientProvider: OAuth2ClientProvider) {
+        const gmailClient = new GmailClient(oauth2ClientProvider);
         const cardOperationFactory = new CardOperationFactory();
         const crossBorderTransferFactory = new CrossBorderTransferFactory();
         const standardFeeFactory = new StandardFeeFactory();
@@ -143,15 +142,16 @@ async function bootstrap() {
         const paymentDetailsBuilder = new PaymentDetailsBuilder(cardOperationFactory, crossBorderTransferFactory, standardFeeFactory, standardTransferFactory);
         const transactionFactory = new TransactionFactory(paymentDetailsBuilder);
         const transactionBuilder = new TransactionBuilder(gmailClient, transactionFactory);
+        const transactionsProvider = new TransactionsProvider(gmailClient, transactionBuilder);
 
-        return transactionBuilder;
+        return transactionsProvider;
     }
 
-    function resolveRefreshRouter(gmailClient: GmailClient, transactionBuilder: TransactionBuilder) {
-        const transactionRepository = new TransactionRepository();
+    function resolveRefreshRouter(transactionGeneratorProvider: TransactionsProvider) {
         const paymentDetailsRepository = new PaymentDetailsRepository();
+        const transactionRepository = new TransactionRepository(paymentDetailsRepository);
 
-        return refreshRouter(gmailClient, transactionBuilder, transactionRepository, paymentDetailsRepository);
+        return refreshRouter(transactionGeneratorProvider, transactionRepository);
     }
 }
    

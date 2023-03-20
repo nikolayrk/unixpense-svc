@@ -8,8 +8,6 @@ export default class RefreshTokenRepository {
                 refresh_token: refreshToken
             }
         });
-
-        await RefreshTokenEntity.sync();
     }
 
     public async getRefreshTokenOrNullAsync(userIdToken: string) {

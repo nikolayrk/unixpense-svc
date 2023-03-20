@@ -1,11 +1,7 @@
 import express, { Request, Response } from "express";
-import TransactionBuilder from "../builders/transactionBuilder";
-import GmailClient from "../clients/gmailClient";
-import FailedToProcessTxnError from "../errors/failedToProcessTxnError";
-import Transaction from "../models/transaction";
-import PaymentDetails from "../models/paymentDetails";
+import TransactionsProvider from "../providers/transactionsProvider";
 
-export default function getTransactionsRouter(gmailClient: GmailClient, transactionBuilder: TransactionBuilder) {
+export default function getTransactionsRouter(transactionsProvider: TransactionsProvider) {
     const router = express.Router();
 
     router.use('/gettransactions', async (req: Request, res: Response) => {
@@ -13,7 +9,7 @@ export default function getTransactionsRouter(gmailClient: GmailClient, transact
         let response;
         
         try {
-            const transactions = await tryGetTransactionsAsync(messageIdQuery);
+            const transactions = await transactionsProvider.getTransactionsAsync(messageIdQuery);
 
             response = JSON.stringify(transactions, null, 2);
         } catch (ex) {
@@ -28,50 +24,4 @@ export default function getTransactionsRouter(gmailClient: GmailClient, transact
     });
 
     return router;
-
-    async function tryGetTransactionsAsync(messageIdQuery?: string) {
-        const transactions: Array<Transaction<PaymentDetails>> = new Array<Transaction<PaymentDetails>>;
-
-        const iterator = messageIdQuery !== undefined
-            ? generateMessageIdsFromQuery(messageIdQuery)
-            : gmailClient.tryGenerateMessageIdsAsync();
-
-        for await (const messageId of iterator) {
-            const transaction = await tryGetTransactionOrNullAsync(messageId);
-
-            if (transaction === null) {
-                continue;
-            }
-
-            transactions.push(transaction);
-        }
-
-        return transactions;
-    }
-
-    function * generateMessageIdsFromQuery(messageIdsQuery: string) {
-        const messageIds = messageIdsQuery.split(',');
-    
-        for (const idx in messageIds) {
-            const messageId = messageIds[idx];
-    
-            yield messageId;
-        }
-    }
-
-    async function tryGetTransactionOrNullAsync(messageId:string) {
-        try {
-            const transaction = await transactionBuilder.tryBuildAsync(messageId);
-
-            return transaction;
-        } catch(ex) {
-            if (ex instanceof FailedToProcessTxnError) {
-                console.log(ex.stack);
-
-                return null;
-            }
-
-            throw ex;
-        }
-    }
 }
