@@ -1,4 +1,4 @@
-import PaymentDetails from "./paymentDetails";
+import PaymentDetails from "../models/paymentDetails";
 import { Node } from 'node-html-parser';
 
 export default interface PaymentDetailsFactory<T extends PaymentDetails> {

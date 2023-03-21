@@ -1,5 +1,5 @@
 import { Node } from "node-html-parser";
-import PaymentDetailsFactory from "../models/paymentDetailsFactory";
+import PaymentDetailsFactory from "../contracts/paymentDetailsFactory";
 import CrossBorderTransfer from "../models/crossBorderTransfer";
 import PaymentDetailsProcessingError from "../errors/paymentDetailsProcessingError";
 import '../extensions/stringExtensions';

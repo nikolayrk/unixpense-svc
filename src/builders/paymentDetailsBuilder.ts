@@ -2,7 +2,7 @@ import { Node } from 'node-html-parser';
 import UnsupportedTxnError from '../errors/unsupportedTxnError';
 import PaymentDetailsProcessingError from '../errors/paymentDetailsProcessingError';
 import TransactionType from '../enums/transactionType';
-import PaymentDetailsFactory from '../models/paymentDetailsFactory';
+import PaymentDetailsFactory from '../contracts/paymentDetailsFactory';
 import CardOperationFactory from '../factories/cardOperationFactory';
 import CrossBorderTransferFactory from '../factories/crossBorderTransferFactory';
 import StandardFeeFactory from '../factories/standardFeeFactory';

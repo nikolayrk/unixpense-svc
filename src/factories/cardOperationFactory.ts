@@ -1,4 +1,4 @@
-import PaymentDetailsFactory from "../models/paymentDetailsFactory";
+import PaymentDetailsFactory from "../contracts/paymentDetailsFactory";
 import CardOperation from "../models/cardOperation";
 import { Node } from 'node-html-parser';
 import PaymentDetailsProcessingError from "../errors/paymentDetailsProcessingError";

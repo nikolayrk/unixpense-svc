@@ -1,6 +1,6 @@
 import { Node } from "node-html-parser";
 import StandardTransfer from "../models/standardTransfer";
-import PaymentDetailsFactory from "../models/paymentDetailsFactory";
+import PaymentDetailsFactory from "../contracts/paymentDetailsFactory";
 import '../extensions/stringExtensions';
 import PaymentDetailsProcessingError from "../errors/paymentDetailsProcessingError";
 

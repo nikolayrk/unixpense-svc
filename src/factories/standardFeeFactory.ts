@@ -1,5 +1,5 @@
 import { Node } from "node-html-parser";
-import PaymentDetailsFactory from "../models/paymentDetailsFactory";
+import PaymentDetailsFactory from "../contracts/paymentDetailsFactory";
 import StandardFee from "../models/standardFee";
 import '../extensions/stringExtensions';
 
