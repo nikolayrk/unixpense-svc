@@ -34,7 +34,7 @@ export default function googleOAuth2Middleware() {
             if (ex instanceof GaxiosError) {
                 const error = ex.response?.data.error as string;
 
-                console.log(`Axious error '${error}' encountered on request`);
+                console.log(`Axios error '${error}' encountered on request`);
                 
                 // Maybe a bit overkill...
                 for(const key in ex.response?.headers) {
