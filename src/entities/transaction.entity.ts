@@ -1,6 +1,7 @@
 import { Table, Column, Model, PrimaryKey, DataType, Unique, AllowNull, IsDate, HasOne, ForeignKey } from 'sequelize-typescript';
 import { EntryTypeExtensions } from '../extensions/entryTypeExtensions';
 import { TransactionTypeExtensions } from '../extensions/transactionTypeExtensions';
+import PaymentDetails from '../models/paymentDetails';
 import CardOperationEntity from './cardOperation.entity';
 import CrossBorderTransferEntity from './crossBorderTransfer.entity';
 import StandardFeeEntity from './standardFee.entity';
@@ -21,25 +22,25 @@ export default class TransactionEntity extends Model {
         as: 'card_operation',
         foreignKey: 'transaction_reference'
     })
-    card_operation!: CardOperationEntity;
+    card_operation!: PaymentDetails;
     
     @HasOne(() => CrossBorderTransferEntity, {
         as: 'cross_border_transfer',
         foreignKey: 'transaction_reference'
     })
-    cross_border_transfer!: CrossBorderTransferEntity;
+    cross_border_transfer!: PaymentDetails;
     
     @HasOne(() => StandardFeeEntity, {
         as: 'standard_fee',
         foreignKey: 'transaction_reference'
     })
-    standard_fee!: StandardFeeEntity;
+    standard_fee!: PaymentDetails;
     
     @HasOne(() => StandardTransferEntity, {
         as: 'standard_transfer',
         foreignKey: 'transaction_reference'
     })
-    standard_transfer!: StandardTransferEntity;
+    standard_transfer!: PaymentDetails;
 
     @Unique
     @AllowNull(false)
