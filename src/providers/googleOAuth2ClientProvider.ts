@@ -1,32 +1,41 @@
 import { google } from 'googleapis';
 import { OAuth2Client } from 'googleapis-common';
 import { Credentials } from 'google-auth-library';
-import RefreshTokenRepository from "../repositories/refreshTokenRepository";
 import jwt from 'jsonwebtoken';
+import { inject, injectable } from 'inversify';
+import { injectables } from "../types/injectables";
+import IRefreshTokenRepository from '../contracts/IRefreshTokenRepository';
 
-export default class OAuth2ClientProvider {
-    private readonly clientToken: string;
-    private readonly refreshTokenRepository: RefreshTokenRepository;
+@injectable()
+export default class GoogleOAuth2ClientProvider {
+    public get get() {
+        return this.oauth2Client;
+    }
+
     private readonly scopes = [
         'https://www.googleapis.com/auth/gmail.readonly'
       ];
 
-    private _oauth2Client: OAuth2Client;
+    private readonly oauth2Client: OAuth2Client;
 
-    get oauth2Client(): OAuth2Client {
-        return this._oauth2Client;
-    }
-
-    private set oauth2Client(value: OAuth2Client) {
-        this._oauth2Client = value;
-    }
+    private readonly getPersistedRefreshTokenAsync;
+    private readonly setPersistRefreshTokenAsync;
 
     private authenticated: boolean;
     private refreshToken?: string;
 
-    constructor(clientId: string, clientSecret: string, redirectUri: string, refreshTokenRepository: RefreshTokenRepository) {
-        this.clientToken = jwt.sign(clientId, clientSecret, { algorithm: 'HS256' });
-        this.refreshTokenRepository = refreshTokenRepository;
+    public constructor(
+        @inject(injectables.IRefreshTokenRepository) refreshTokenRepository: IRefreshTokenRepository
+    ) {
+        const clientId = process.env.UNIXPENSE_GOOGLE_CLIENT_ID;
+        const clientSecret = process.env.UNIXPENSE_GOOGLE_CLIENT_SECRET;
+        const redirectUri = process.env.UNIXPENSE_GOOGLE_REDIRECT_URI;
+
+        if (clientId === undefined || 
+            clientSecret === undefined || 
+            redirectUri === undefined) {
+            throw new Error(`Missing OAuth2 credentials`);
+        }
 
         const oauth2Client = new google.auth.OAuth2(
             clientId,
@@ -34,15 +43,27 @@ export default class OAuth2ClientProvider {
             redirectUri
         );
 
-        this._oauth2Client = oauth2Client;
-        this.authenticated = false;
+        this.oauth2Client = oauth2Client;
 
+        const clientToken = jwt.sign(clientId, clientSecret, { algorithm: 'HS256' });
+
+        this.getPersistedRefreshTokenAsync = () => refreshTokenRepository.getRefreshTokenOrNullAsync(clientToken);
+        this.setPersistRefreshTokenAsync = (refreshToken: string) => refreshTokenRepository.createIfNotExistAsync(clientToken, refreshToken);
+
+        this.authenticated = false;
+        
         oauth2Client.on('tokens', async (tokens) => {
             console.log(`Using credentials received via tokens event: ${JSON.stringify(tokens)}`);
 
             this.authenticateAndPersistAsync(tokens);
         });
     }
+
+    public get consentUrl() { return (() =>
+        this.oauth2Client.generateAuthUrl({
+            access_type: 'offline',
+            scope: this.scopes
+        }))()}; // lambda getters when :(
 
     public async checkAuthenticatedAsync() {
         if (this.authenticated) {
@@ -61,15 +82,6 @@ export default class OAuth2ClientProvider {
         console.log(`Using credentials received via authorization code: ${JSON.stringify(accessToken)}`);
 
         this.authenticateAndPersistAsync(accessToken);
-    }
-
-    public getConsentUrl() {
-        const url = this.oauth2Client.generateAuthUrl({
-            access_type: 'offline',
-            scope: this.scopes
-        });
-
-        return url;
     }
 
     private async authenticateAndPersistAsync(tokens: Credentials = {}) {
@@ -93,7 +105,9 @@ export default class OAuth2ClientProvider {
 
     private async getAndHydrateRefreshTokenOrNullAsync(receivedRefreshToken?: string | null) {
         if (receivedRefreshToken !== null && receivedRefreshToken !== undefined) {                       
-            await this.persistRefreshTokenAsync(receivedRefreshToken);
+            await this.setPersistRefreshTokenAsync(receivedRefreshToken);
+
+            console.log(`Received new refresh token`);
 
             this.storeRefreshToken(receivedRefreshToken);
         }
@@ -103,7 +117,7 @@ export default class OAuth2ClientProvider {
             : null;
 
         const persistedRefreshToken = storedRefreshToken === null
-            ? await this.getRefreshTokenOrNullAsync()
+            ? await this.getPersistedRefreshTokenAsync()
             : null;
 
         if (persistedRefreshToken !== null) {
@@ -120,15 +134,9 @@ export default class OAuth2ClientProvider {
     }
 
     private storeRefreshToken(refreshToken: string) {
+        console.log(`Using refresh token: ${refreshToken}`);
+
         this.refreshToken = refreshToken;
-    }
-
-    private async persistRefreshTokenAsync(refreshToken: string) {
-        await this.refreshTokenRepository.createIfNotExistAsync(this.clientToken, refreshToken);
-    }
-
-    private getRefreshTokenOrNullAsync() {
-        return this.refreshTokenRepository.getRefreshTokenOrNullAsync(this.clientToken)
     }
 
     private authenticate(credentials: Credentials) {
