@@ -4,19 +4,49 @@ import PaymentDetails from "../models/paymentDetails";
 import '../extensions/dateExtensions';
 import { EntryTypeExtensions } from "../extensions/entryTypeExtensions";
 import { TransactionTypeExtensions } from "../extensions/transactionTypeExtensions";
-import PaymentDetailsRepository from './paymentDetailsRepository';
-import TransactionType from '../enums/transactionType';
+import ITransactionRepository from '../contracts/ITransactionRepository';
+import { injectable } from 'inversify';
+import CardOperation from '../models/cardOperation';
+import CrossBorderTransfer from '../models/crossBorderTransfer';
+import StandardFee from '../models/standardFee';
+import StandardTransfer from '../models/standardTransfer';
 
-export default class TransactionRepository {
-    private readonly paymentDetailsRepository: PaymentDetailsRepository;
-
-    constructor(paymentDetailsRepository: PaymentDetailsRepository) {
-        this.paymentDetailsRepository = paymentDetailsRepository;
-    }
-
+@injectable()
+export default class TransactionRepository implements ITransactionRepository {
     public async createAsync(transaction: Transaction<PaymentDetails>) {
-        const [_, created] = await TransactionEntity.findOrCreate({
-            where: {
+        const constructCardOperation = (paymentDetails: CardOperation) => {
+            return {
+                beneficiary: paymentDetails.beneficiary,
+                currency: paymentDetails.currency,
+                instrument: paymentDetails.instrument,
+                sum: paymentDetails.sum
+            };
+        };
+        
+        const constructCrossBorderTransfer = (paymentDetails: CrossBorderTransfer) => {
+            return {
+                beneficiary: paymentDetails.beneficiary,
+                iban: paymentDetails.iban,
+                description: paymentDetails.description
+            };
+        };
+        
+        const constructStandardFee = (paymentDetails: StandardFee) => {
+            return {
+                beneficiary: paymentDetails.beneficiary,
+                description: paymentDetails.description
+            };
+        };
+        
+        const constructStandardTransfer = (paymentDetails: StandardTransfer) => {
+            return {
+                beneficiary: paymentDetails.beneficiary,
+                iban: paymentDetails.iban,
+                description: paymentDetails.description
+            };
+        };
+
+        await TransactionEntity.create({
                 message_id: transaction.messageId,
                 date: transaction.date.toSqlDate(),
                 reference: transaction.reference,
@@ -24,32 +54,40 @@ export default class TransactionRepository {
                 sum: transaction.sum,
                 entry_type: EntryTypeExtensions.ToString(transaction.entryType),
                 type: TransactionTypeExtensions.ToString(transaction.type),
-            }
+
+                ...TransactionTypeExtensions.IsCardOperation(transaction.type) && {
+                    card_operation: constructCardOperation(transaction.paymentDetails as CardOperation)
+                },
+                
+                ...TransactionTypeExtensions.IsCrossBorderTransfer(transaction.type) && {
+                    cross_border_transfer: constructCrossBorderTransfer(transaction.paymentDetails as CrossBorderTransfer)
+                },
+
+                ...TransactionTypeExtensions.IsStandardFee(transaction.type) && {
+                    standard_fee: constructStandardFee(transaction.paymentDetails as StandardFee)
+                },
+
+                ...TransactionTypeExtensions.IsStandardTransfer(transaction.type) && {
+                    standard_transfer: constructStandardTransfer(transaction.paymentDetails as StandardTransfer)
+                },
+        }, {
+            include: [
+                TransactionEntity.associations['card_operation'],
+                TransactionEntity.associations['cross_border_transfer'],
+                TransactionEntity.associations['standard_fee'],
+                TransactionEntity.associations['standard_transfer'],
+            ]
         });
-
-        if (!created) {
-            console.log(`Message with ID ${transaction.messageId} already exists. Skipping...`);
-            
-            return created;
-        }
-    
-        if (transaction.type !== TransactionType.UNKNOWN) {
-            await this.paymentDetailsRepository.createAsync(transaction.messageId, transaction.type, transaction.paymentDetails);
-        }
-        
-        console.log(`Successfully added transaction with reference ${transaction.reference} of type ${TransactionTypeExtensions.ToString(transaction.type)} to database`);
-
-        return created;
     }
 
-    public async findOrNullAsync(message_id: string) {
+    public async existsAsync(messageId: string) {
         const foundTransaction = await TransactionEntity
             .findOne({
                 where: {
-                    message_id: message_id
+                    message_id: messageId
                 }
             });
 
-        return foundTransaction;
+        return foundTransaction !== null;
     }
 }
