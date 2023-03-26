@@ -1,25 +1,34 @@
 import { gmail_v1, google } from 'googleapis';
-import OAuth2ClientProvider from '../providers/oauth2ClientProvider';
+import { inject, injectable } from 'inversify';
+import GoogleOAuth2ClientProvider from '../providers/googleOAuth2ClientProvider';
+import { injectables } from '../types/injectables';
 
-export default class GmailClient {
-    private readonly gmailApi: gmail_v1.Gmail;
+@injectable()
+export default class GmailApiClient {
+    private readonly gmail: gmail_v1.Gmail;
     private readonly searchQuery: string = 'from:pb@unicreditgroup.bg subject: "Dvizhenie po smetka"';
 
-    constructor(oauth2ClientProvider: OAuth2ClientProvider) {
-        const gmailApi = google.gmail({version: 'v1', auth: oauth2ClientProvider.oauth2Client});
-
-        this.gmailApi = gmailApi;
+    public constructor(
+        @inject(injectables.GoogleOAuth2ClientProvider) googleOAuth2ClientProvider: GoogleOAuth2ClientProvider
+    ) {
+        this.gmail = google.gmail({version: 'v1', auth: googleOAuth2ClientProvider.get});
     }
 
-    public async * tryGenerateMessageIdsAsync(pageToken?: string): AsyncGenerator<string, any, unknown> {
+    public async * tryGenerateMessageIdsAsync(pageToken?: string): AsyncGenerator<string, string | [], unknown> {
         const messageList = await this.fetchMessageListAsync(pageToken);
-        const messages = this.tryGetMessagesFromList(messageList);
+        const messages = this.getMessagesFromListOrNull(messageList);
+
+        if (messages === null) {
+            return [];
+        }
 
         for (const messageIdx in messages) {
             const messageItem = messages[messageIdx];
 
             if (messageItem.id === null || messageItem.id === undefined) {
-                throw new Error('Empty message id');
+                console.log('Empty message id. Skipping...');
+
+                continue;
             }
             
             yield messageItem.id;
@@ -30,11 +39,13 @@ export default class GmailClient {
         if (nextPageToken !== null) {
             yield * this.tryGenerateMessageIdsAsync(nextPageToken);
         }
+
+        return [];
     }
     
     public async fetchMessageAsync(messageId: string) {
         const messageResponse = await this.exponentialBackoff(0, async () =>
-            this.gmailApi.users.messages.get({
+            this.gmail.users.messages.get({
                 userId: 'me',
                 id: messageId
             }));
@@ -57,7 +68,7 @@ export default class GmailClient {
         }
 
         const response = await this.exponentialBackoff(0, async () => 
-            this.gmailApi.users.messages.attachments.get({
+            this.gmail.users.messages.attachments.get({
                 userId: 'me',
                 messageId: message.id as string,
                 id: attachmentId
@@ -75,7 +86,7 @@ export default class GmailClient {
     
     private async fetchMessageListAsync(pageToken?: string | undefined) {
         const response = await this.exponentialBackoff(0, async () =>
-            this.gmailApi.users.messages.list({
+            this.gmail.users.messages.list({
                 userId: 'me',
                 q: this.searchQuery,
                 pageToken: pageToken
@@ -90,11 +101,16 @@ export default class GmailClient {
      * https://developers.google.com/gmail/api/guides/handle-errors#exponential-backoff
      */
     private async exponentialBackoff<TResult>(depth: number = 0, fn: (...p: any[]) => TResult, ...params: any[]): Promise<TResult> {
-        const wait = (ms: number): Promise<NodeJS.Timeout> => new Promise((res) => setTimeout(res, ms));
+        const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
         try {
             return await fn(...params);
         } catch (e) {
+            if (e instanceof Error && e.message === 'invalid_grant') {
+                // TODO: Handle expired refresh tokens
+                throw e;
+            }
+
             if (depth > 7) {
                 throw e;
             }
@@ -104,14 +120,16 @@ export default class GmailClient {
         }
     }
     
-    private tryGetMessagesFromList(messageList: gmail_v1.Schema$ListMessagesResponse) {
+    private getMessagesFromListOrNull(messageList: gmail_v1.Schema$ListMessagesResponse) {
         const messages = messageList.messages;
         const nextPageToken = messageList.nextPageToken;
     
         console.log(`Requesting message list${nextPageToken !== undefined ? ` with page token ${nextPageToken}` : ''}`);
     
         if (messages === undefined) {
-            throw new Error(`Failed to get message list`);
+            console.log(`Failed to get message list`);
+
+            return null;
         }
     
         console.log(`Received page of ${messages.length} messages`);
