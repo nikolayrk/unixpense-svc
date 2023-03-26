@@ -1,22 +1,38 @@
 import express, { Request, Response } from "express";
-import TransactionsProvider from "../providers/transactionsProvider";
+import ITransactionProvider from "../contracts/ITransactionProvider";
+import { DependencyInjector } from "../dependencyInjector";
+import { injectables } from "../types/injectables";
 
-export default function refreshRouter(
-    transactionsProvider: TransactionsProvider) {
+export default function refreshRouter() {
     const router = express.Router();
 
+    const transactionProvider = DependencyInjector.Singleton.resolve<ITransactionProvider>(injectables.ITransactionProvider);
+    
     router.use('/refresh', async (_: Request, res: Response) => {
         let response;
 
         try {
-            const { newCount, skippedCount } = await transactionsProvider.refreshTransactionsAsync();
+            const newTransactions = [];
+            let skippedCount = 0;
+    
+            for await (const transaction of transactionProvider.generateSaveAsync()) {
+                if (transaction === null) {
+                    skippedCount++;
+    
+                    continue;
+                }
+    
+                newTransactions.push(transaction);
+            }
+            
+            const newCount = newTransactions.length;
 
             response = skippedCount > 0
                 ? `Added ${newCount} new transactions to database, skipped ${skippedCount}`
                 : `Added ${newCount} new transactions to database`
         } catch (ex) {
             response = ex instanceof Error
-                ? ex.stack
+                ? `${ex.message}\n\n${ex.stack}`
                 : ex;
         }
                 
