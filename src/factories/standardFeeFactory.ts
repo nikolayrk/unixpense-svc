@@ -1,10 +1,14 @@
 import { Node } from "node-html-parser";
-import PaymentDetailsFactory from "../contracts/paymentDetailsFactory";
+import { IPaymentDetailsFactory } from "../contracts/IPaymentDetailsFactory";
 import StandardFee from "../models/standardFee";
 import '../extensions/stringExtensions';
+import { injectable } from "inversify";
 
-export default class StandardFeeFactory implements PaymentDetailsFactory<StandardFee> {
-    public create(transactionDetailsNodes: Node[]): StandardFee {
+@injectable()
+export default class StandardFeeFactory implements IPaymentDetailsFactory<StandardFee> {
+    private readonly defaultFeeIssuer = 'UNICREDIT BULBANK';
+
+    public tryCreate(transactionReference: string, transactionDetailsNodes: Node[]): StandardFee {
         const transactionDetailsRaw = transactionDetailsNodes
             .slice(1)
             .map(c => c.rawText)
@@ -12,7 +16,7 @@ export default class StandardFeeFactory implements PaymentDetailsFactory<Standar
             .cleanTransactionDetails();
 
         const transaction: StandardFee = {
-            beneficiary: 'UNICREDIT BULBANK',
+            beneficiary: this.defaultFeeIssuer,
             description: transactionDetailsRaw,
         }
 

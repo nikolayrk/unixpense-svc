@@ -1,26 +1,27 @@
 import { Node } from 'node-html-parser';
 import UnsupportedTxnError from '../errors/unsupportedTxnError';
-import PaymentDetailsProcessingError from '../errors/paymentDetailsProcessingError';
 import TransactionType from '../enums/transactionType';
-import PaymentDetailsFactory from '../contracts/paymentDetailsFactory';
-import CardOperationFactory from '../factories/cardOperationFactory';
-import CrossBorderTransferFactory from '../factories/crossBorderTransferFactory';
-import StandardFeeFactory from '../factories/standardFeeFactory';
-import StandardTransferFactory from '../factories/standardTransferFactory';
+import { IPaymentDetailsFactory, ICardOperationFactory } from '../contracts/IPaymentDetailsFactory';
 import PaymentDetails from '../models/paymentDetails';
 import { TransactionTypeExtensions } from "../extensions/transactionTypeExtensions";
+import { inject, injectable } from 'inversify';
+import CrossBorderTransfer from '../models/crossBorderTransfer';
+import StandardFee from '../models/standardFee';
+import StandardTransfer from '../models/standardTransfer';
+import { injectables } from "../types/injectables";
 
+@injectable()
 export default class PaymentDetailsBuilder {
-    private readonly cardOperationFactory: CardOperationFactory;
-    private readonly crossBorderTransferFactory: CrossBorderTransferFactory;
-    private readonly standardFeeFactory: StandardFeeFactory;
-    private readonly standardTransferFactory: StandardTransferFactory;
+    private readonly cardOperationFactory;
+    private readonly crossBorderTransferFactory;
+    private readonly standardFeeFactory;
+    private readonly standardTransferFactory;
 
     public constructor(
-        cardOperationFactory: CardOperationFactory,
-        crossBorderTransferFactory: CrossBorderTransferFactory,
-        standardFeeFactory: StandardFeeFactory,
-        standardTransferFactory: StandardTransferFactory
+        @inject(injectables.ICardOperationFactory) cardOperationFactory: ICardOperationFactory,
+        @inject(injectables.ICrossBorderTransferFactory) crossBorderTransferFactory: IPaymentDetailsFactory<CrossBorderTransfer>,
+        @inject(injectables.IStandardFeeFactory) standardFeeFactory: IPaymentDetailsFactory<StandardFee>,
+        @inject(injectables.IStandardTransferFactory) standardTransferFactory: IPaymentDetailsFactory<StandardTransfer>
     ) {
         this.cardOperationFactory = cardOperationFactory;
         this.crossBorderTransferFactory = crossBorderTransferFactory;
@@ -28,25 +29,16 @@ export default class PaymentDetailsBuilder {
         this.standardTransferFactory = standardTransferFactory;
     }
 
-    public tryBuild(transactionType: TransactionType, transactionDetailsNodes: Node[], additionalTransactionDetailsNode?: Node) {
-        try {
-            const paymentDetailsFactory = this.usePaymentDetailsFactoryByType(transactionType);
-            const paymentDetails = paymentDetailsFactory.create(transactionDetailsNodes, additionalTransactionDetailsNode);
+    // throws UnsupportedTxnError, PaymentDetailsProcessingError
+    public tryBuild(transactionReference: string, transactionType: TransactionType, transactionDetailsNodes: Node[], additionalTransactionDetailsNode?: Node) {
+        const paymentDetailsFactory = this.tryUsePaymentDetailsFactoryByType(transactionType);
+        const paymentDetails = paymentDetailsFactory.tryCreate(transactionReference, transactionDetailsNodes, additionalTransactionDetailsNode);
 
-            return paymentDetails;
-        } catch(ex) {
-            if (ex instanceof UnsupportedTxnError ||
-                ex instanceof PaymentDetailsProcessingError) {
-                console.log(`Failed to construct payment details. Reason: ${ex.message}. Falling back to using empty payment details body...`);
-
-                return null;
-            }
-
-            throw ex;
-        }
+        return paymentDetails;
     }
 
-    private usePaymentDetailsFactoryByType(transactionType: TransactionType): PaymentDetailsFactory<PaymentDetails> {  
+    // throws UnsupportedTxnError
+    private tryUsePaymentDetailsFactoryByType(transactionType: TransactionType): IPaymentDetailsFactory<PaymentDetails> {  
         if (TransactionTypeExtensions.IsCardOperation(transactionType)) {
             return this.cardOperationFactory;
         } else if (TransactionTypeExtensions.IsCrossBorderTransfer(transactionType)) {
@@ -56,7 +48,7 @@ export default class PaymentDetailsBuilder {
         } else if (TransactionTypeExtensions.IsStandardTransfer(transactionType)) {
             return this.standardTransferFactory;
         } else {
-            throw new UnsupportedTxnError('Unsupported transaction type');
+            throw new UnsupportedTxnError(transactionType);
         }
     }
 }

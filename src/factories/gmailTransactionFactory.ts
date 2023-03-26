@@ -8,19 +8,27 @@ import { TRANSACTION_TYPES } from '../types/transactionTypeString';
 import TransactionType from '../enums/transactionType';
 import transactionTypesByString from '../types/transactionTypeByString';
 import PaymentDetailsBuilder from '../builders/paymentDetailsBuilder';
+import { inject, injectable } from 'inversify';
+import ITransactionFactory from '../contracts/ITransactionFactory';
+import UnsupportedTxnError from '../errors/unsupportedTxnError';
+import PaymentDetailsProcessingError from '../errors/paymentDetailsProcessingError';
+import { injectables } from "../types/injectables";
 
-export default class TransactionFactory {
+@injectable()
+export default class GmailTransactionFactory implements ITransactionFactory {
     private static readonly emptyPaymentDetails: PaymentDetails = {
         beneficiary: ''
     };
 
-    private readonly paymentDetailsBuilder: PaymentDetailsBuilder;
+    private readonly paymentDetailsBuilder;
 
-    constructor(paymentDetailsBuilder: PaymentDetailsBuilder) {
+    public constructor(
+        @inject(injectables.PaymentDetailsBuilder) paymentDetailsBuilder: PaymentDetailsBuilder
+    ) {
         this.paymentDetailsBuilder = paymentDetailsBuilder;
     }
 
-    public tryCreate(messageId: string, attachmentData: string): Transaction<PaymentDetails> {
+    public create(messageId: string, attachmentData: string): Transaction<PaymentDetails> {
         console.log(`Processing transaction from message with ID ${messageId}`);
         
         const transactionData = this.getTransactionData(attachmentData);
@@ -30,30 +38,22 @@ export default class TransactionFactory {
         const valueDate = this.getValueDate(transactionData);
         const sum = this.getSum(transactionData);
 
-        try {
-            const entryType = this.tryGetEntryType(transactionData);
-            const transactionType = this.getTransactionType(transactionData);
-            const paymentDetails = this.tryGetPaymentDetails(transactionData, transactionType);
+        const entryType = this.getEntryType(transactionData);
+        const transactionType = this.getTransactionType(transactionData);
+        const paymentDetails = this.getPaymentDetails(reference, transactionData, transactionType);
 
-            const transaction: Transaction<PaymentDetails> = {
-                messageId: messageId,
-                date: date,
-                reference: reference,
-                valueDate: valueDate,
-                sum: sum,
-                entryType: entryType,
-                type: transactionType,
-                paymentDetails: paymentDetails
-            }
-
-            return transaction;
-        } catch(ex) {
-            const body = ex instanceof Error
-                ? ex.message
-                : ex;
-
-            throw new Error(`Transaction reference ${reference}: ${body}`);
+        const transaction: Transaction<PaymentDetails> = {
+            messageId: messageId,
+            date: date,
+            reference: reference,
+            valueDate: valueDate,
+            sum: sum,
+            entryType: entryType,
+            type: transactionType,
+            paymentDetails: paymentDetails
         }
+
+        return transaction;
     }
 
     private getTransactionData(attachmentData: string) {
@@ -100,7 +100,7 @@ export default class TransactionFactory {
         return sum;
     }
 
-    private tryGetEntryType(transactionData: Node[]) {
+    private getEntryType(transactionData: Node[]) {
         const entryTypeStr = transactionData[9]
             .childNodes[0]
             .rawText;
@@ -112,7 +112,7 @@ export default class TransactionFactory {
                 : EntryType.INVALID;
 
         if (entryType === EntryType.INVALID) {
-            throw new Error(`Unregonised entry type '${entryTypeStr}'`);
+            console.log(`Unregonised entry type '${entryTypeStr}'`);
         }
 
         return entryType;
@@ -121,7 +121,7 @@ export default class TransactionFactory {
     private getTransactionType(transactionData: Node[]) {
         const regex = XRegExp('(?:[^\\/])*[\\/]*((?=\\p{Lu})\\p{Cyrillic}+.*)');
 
-        const transactionTypeParsed = transactionData[11]
+        const parsed = transactionData[11]
             .childNodes
             .map(n => 
                 regex.exec(n.rawText)
@@ -130,37 +130,43 @@ export default class TransactionFactory {
            ?.filter(n => n !== undefined && n !== '')
            ?.[0];
 
-        const transactionTypeByString = transactionTypeParsed as keyof typeof transactionTypesByString;
+        const typeByString = parsed as keyof typeof transactionTypesByString;
 
-        const transactionTypeValid = 
-            transactionTypeParsed !== undefined &&
-            TRANSACTION_TYPES.includes(transactionTypeByString);
+        const valid = 
+            parsed !== undefined &&
+            TRANSACTION_TYPES.includes(typeByString);
 
-        const transactionType = transactionTypeValid
-            ? transactionTypesByString[transactionTypeByString]
+        const transactionType = valid
+            ? transactionTypesByString[typeByString]
             : TransactionType.UNKNOWN;
 
         return transactionType;
     }
 
-    private tryGetPaymentDetails(transactionData: Node[], transactionType: TransactionType) {
-        const transactionDetailsNodes = transactionData
+    private getPaymentDetails(reference: string, transactionData: Node[], type: TransactionType) {
+        const detailsNodes = transactionData
             .slice(11)[0]
             .childNodes;
 
-        
-        const additionalTransactionDetailsNode = transactionData
+        const additionalDetailsNode = transactionData
             .slice(11)[2]
             .childNodes[1];
         
-        const paymentDetails = this.paymentDetailsBuilder.tryBuild(transactionType, transactionDetailsNodes, additionalTransactionDetailsNode);
+        try {
+            const paymentDetails = this.paymentDetailsBuilder.tryBuild(reference, type, detailsNodes, additionalDetailsNode);
         
-        const paymentDetailsValid = paymentDetails !== null;
+            return paymentDetails;
+        } catch(ex) {
+            if ((ex instanceof UnsupportedTxnError || ex instanceof PaymentDetailsProcessingError) === false) {
+                throw new PaymentDetailsProcessingError(reference, ex as string);
+            }
 
-        const finalPaymentDetails = paymentDetailsValid
-            ? paymentDetails
-            : TransactionFactory.emptyPaymentDetails;
+            const exception = ex as UnsupportedTxnError | PaymentDetailsProcessingError;
 
-        return finalPaymentDetails;
+            console.log(exception.message);
+            console.log('Falling back to using empty payment details body...');
+        }
+
+        return GmailTransactionFactory.emptyPaymentDetails;
     }
 }

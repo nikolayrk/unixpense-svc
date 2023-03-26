@@ -1,11 +1,13 @@
 import { Node } from "node-html-parser";
-import PaymentDetailsFactory from "../contracts/paymentDetailsFactory";
+import { IPaymentDetailsFactory } from "../contracts/IPaymentDetailsFactory";
 import CrossBorderTransfer from "../models/crossBorderTransfer";
 import PaymentDetailsProcessingError from "../errors/paymentDetailsProcessingError";
 import '../extensions/stringExtensions';
+import { injectable } from "inversify";
 
-export default class CrossBorderTransferFactory implements PaymentDetailsFactory<CrossBorderTransfer> {
-    public create(transactionDetailsNodes: Node[]): CrossBorderTransfer {
+@injectable()
+export default class CrossBorderTransferFactory implements IPaymentDetailsFactory<CrossBorderTransfer> {
+    public tryCreate(transactionReference: string, transactionDetailsNodes: Node[]): CrossBorderTransfer {
         const transactionDetailsRaw = transactionDetailsNodes
             .map(c => c.rawText.cleanTransactionDetails())
             .reverse()
@@ -21,7 +23,7 @@ export default class CrossBorderTransferFactory implements PaymentDetailsFactory
         const iban = paymentDetails[7];
 
         if (beneficiary === undefined || description === undefined || iban === undefined) {
-            throw new PaymentDetailsProcessingError(`Failed to execute regex on input '${transactionDetailsRaw}'`);
+            throw new PaymentDetailsProcessingError(transactionReference, `Failed to execute regex on input '${transactionDetailsRaw}'`);
         }
 
         const transaction: CrossBorderTransfer = {

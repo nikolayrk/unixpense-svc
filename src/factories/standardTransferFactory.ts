@@ -1,19 +1,20 @@
 import { Node } from "node-html-parser";
 import StandardTransfer from "../models/standardTransfer";
-import PaymentDetailsFactory from "../contracts/paymentDetailsFactory";
+import { IPaymentDetailsFactory } from "../contracts/IPaymentDetailsFactory";
 import '../extensions/stringExtensions';
 import PaymentDetailsProcessingError from "../errors/paymentDetailsProcessingError";
+import { injectable } from "inversify";
 
-export default class StandardTransferFactory implements PaymentDetailsFactory<StandardTransfer> {
-    public create(transactionDetailsNodes: Node[], additionalTransactionDetailsNode?: Node): StandardTransfer {
+@injectable()
+export default class StandardTransferFactory implements IPaymentDetailsFactory<StandardTransfer> {
+    public tryCreate(transactionReference: string, transactionDetailsNodes: Node[], additionalTransactionDetailsNode?: Node): StandardTransfer {
         const transactionDetailsRaw = transactionDetailsNodes
             .slice(1)
             .map(c => c.rawText)
-            .join('')
-            .cleanTransactionDetails();
+            .join('');
 
         if (additionalTransactionDetailsNode === undefined) {
-            throw new PaymentDetailsProcessingError(`Failed to read additional payment details`);
+            throw new PaymentDetailsProcessingError(transactionReference, `Failed to read additional payment details`);
         }
 
         const iban = additionalTransactionDetailsNode
@@ -28,12 +29,12 @@ export default class StandardTransferFactory implements PaymentDetailsFactory<St
             .childNodes[0]
            ?.rawText;
 
-        const transaction: StandardTransfer = {
+        const paymentDetails: StandardTransfer = {
             beneficiary: beneficiary,
             iban: iban,
             description: transactionDetailsRaw,
         };
 
-        return transaction;
+        return paymentDetails;
     }
 }
