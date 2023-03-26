@@ -1,5 +1,5 @@
 export default interface IRefreshTokenRepository {
-    createIfNotExistAsync(clientToken: string, refreshToken: string): Promise<boolean>;
+    createOrUpdateAsync(clientToken: string, refreshToken: string): Promise<void>;
 
     getRefreshTokenOrNullAsync(userIdToken: string): Promise<string | null>;
 }

@@ -1,7 +1,7 @@
 import { AllowNull, Column, Model, PrimaryKey, Table, Unique } from "sequelize-typescript";
 
 @Table({
-    tableName: "refresh_tokens",
+    modelName: "refresh_token",
     timestamps: true
 })
 export default class RefreshTokenEntity extends Model {
@@ -13,7 +13,6 @@ export default class RefreshTokenEntity extends Model {
     
     @Unique
     @AllowNull(false)
-    @PrimaryKey
     @Column
     refresh_token!: string;
 }

@@ -48,14 +48,14 @@ export default class GoogleOAuth2ClientProvider {
         const clientToken = jwt.sign(clientId, clientSecret, { algorithm: 'HS256' });
 
         this.getPersistedRefreshTokenAsync = () => refreshTokenRepository.getRefreshTokenOrNullAsync(clientToken);
-        this.setPersistRefreshTokenAsync = (refreshToken: string) => refreshTokenRepository.createIfNotExistAsync(clientToken, refreshToken);
+        this.setPersistRefreshTokenAsync = (refreshToken: string) => refreshTokenRepository.createOrUpdateAsync(clientToken, refreshToken);
 
         this.authenticated = false;
         
         oauth2Client.on('tokens', async (tokens) => {
-            console.log(`Using credentials received via tokens event: ${JSON.stringify(tokens)}`);
+            console.log(`Using credentials received via tokens event`);
 
-            this.authenticateAndPersistAsync(tokens);
+            await this.authenticateAndPersistAsync(tokens);
         });
     }
 
@@ -75,13 +75,21 @@ export default class GoogleOAuth2ClientProvider {
         return this.authenticated;
     }
 
-    public async authenticateWithCodeAsync(authorizationCode: string) {
+    // throws GaxiosError
+    public async tryAuthenticateWithCodeAsync(authorizationCode: string) {
+        const accessToken = await this.tryGetTokensFromCodeAsync(authorizationCode);
+
+        console.log(`Using credentials received via authorization code`);
+
+        this.authenticateAndPersistAsync(accessToken);
+    }
+
+    // throws GaxiosError
+    private async tryGetTokensFromCodeAsync(authorizationCode: string) {
         const tokenResponse = await this.oauth2Client.getToken(authorizationCode);
         const accessToken = tokenResponse.tokens;
 
-        console.log(`Using credentials received via authorization code: ${JSON.stringify(accessToken)}`);
-
-        this.authenticateAndPersistAsync(accessToken);
+        return accessToken;
     }
 
     private async authenticateAndPersistAsync(tokens: Credentials = {}) {
@@ -104,12 +112,12 @@ export default class GoogleOAuth2ClientProvider {
     }
 
     private async getAndHydrateRefreshTokenOrNullAsync(receivedRefreshToken?: string | null) {
-        if (receivedRefreshToken !== null && receivedRefreshToken !== undefined) {                       
+        if (receivedRefreshToken !== null && receivedRefreshToken !== undefined) {
+            console.log(`Received new refresh token`);                   
+
             await this.setPersistRefreshTokenAsync(receivedRefreshToken);
 
-            console.log(`Received new refresh token`);
-
-            this.storeRefreshToken(receivedRefreshToken);
+            this.setRefreshToken(receivedRefreshToken);
         }
 
         const storedRefreshToken = this.refreshToken !== undefined
@@ -121,7 +129,9 @@ export default class GoogleOAuth2ClientProvider {
             : null;
 
         if (persistedRefreshToken !== null) {
-            this.storeRefreshToken(persistedRefreshToken);
+            console.log(`Obtained persisted refresh token`);
+
+            this.setRefreshToken(persistedRefreshToken);
         }
             
         const finalRefreshToken = receivedRefreshToken !== null && receivedRefreshToken !== undefined
@@ -133,9 +143,7 @@ export default class GoogleOAuth2ClientProvider {
         return finalRefreshToken;
     }
 
-    private storeRefreshToken(refreshToken: string) {
-        console.log(`Using refresh token: ${refreshToken}`);
-
+    private setRefreshToken(refreshToken: string) {
         this.refreshToken = refreshToken;
     }
 
@@ -151,6 +159,8 @@ export default class GoogleOAuth2ClientProvider {
 
         this.oauth2Client.setCredentials(credentials);
 
-        this.authenticated = true;
+        if (hasAccessToken) {
+            this.authenticated = true;
+        }
     }
 }

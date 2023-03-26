@@ -32,7 +32,7 @@ export default function getTransactionsRouter() {
 
         res.type('text/plain')
            .status(200)
-           .send(response);
+           .end(response);
     });
 
     return router;

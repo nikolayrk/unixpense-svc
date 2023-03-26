@@ -4,15 +4,25 @@ import RefreshTokenEntity from "../entities/refreshToken.entity";
 
 @injectable()
 export default class RefreshTokenRepository implements IRefreshTokenRepository {
-    public async createIfNotExistAsync(clientToken: string, refreshToken: string) {
-        const [_, created] = await RefreshTokenEntity.findOrCreate({
-            where: {
+    public async createOrUpdateAsync(clientToken: string, refreshToken: string) {
+        const existingEntity = await RefreshTokenEntity.findByPk(clientToken);
+
+        if (existingEntity !== null) {
+            await RefreshTokenEntity.create({
                 client_token: clientToken,
                 refresh_token: refreshToken
-            }
-        });
+            });
 
-        return created;
+            return;
+        }
+
+        await RefreshTokenEntity.update({
+                refresh_token: refreshToken
+            }, {
+                where: {
+                    client_token: clientToken
+                }
+            });
     }
 
     public async getRefreshTokenOrNullAsync(userIdToken: string) {

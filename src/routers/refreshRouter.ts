@@ -40,7 +40,7 @@ export default function refreshRouter() {
 
         res.type('text/plain')
            .status(200)
-           .send(response);
+           .end(response);
     });
 
     return router;
