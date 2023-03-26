@@ -6,46 +6,10 @@ import { EntryTypeExtensions } from "../extensions/entryTypeExtensions";
 import { TransactionTypeExtensions } from "../extensions/transactionTypeExtensions";
 import ITransactionRepository from '../contracts/ITransactionRepository';
 import { injectable } from 'inversify';
-import CardOperation from '../models/cardOperation';
-import CrossBorderTransfer from '../models/crossBorderTransfer';
-import StandardFee from '../models/standardFee';
-import StandardTransfer from '../models/standardTransfer';
 
 @injectable()
 export default class TransactionRepository implements ITransactionRepository {
     public async createAsync(transaction: Transaction<PaymentDetails>) {
-        const constructCardOperation = (paymentDetails: CardOperation) => {
-            return {
-                beneficiary: paymentDetails.beneficiary,
-                currency: paymentDetails.currency,
-                instrument: paymentDetails.instrument,
-                sum: paymentDetails.sum
-            };
-        };
-        
-        const constructCrossBorderTransfer = (paymentDetails: CrossBorderTransfer) => {
-            return {
-                beneficiary: paymentDetails.beneficiary,
-                iban: paymentDetails.iban,
-                description: paymentDetails.description
-            };
-        };
-        
-        const constructStandardFee = (paymentDetails: StandardFee) => {
-            return {
-                beneficiary: paymentDetails.beneficiary,
-                description: paymentDetails.description
-            };
-        };
-        
-        const constructStandardTransfer = (paymentDetails: StandardTransfer) => {
-            return {
-                beneficiary: paymentDetails.beneficiary,
-                iban: paymentDetails.iban,
-                description: paymentDetails.description
-            };
-        };
-
         await TransactionEntity.create({
                 message_id: transaction.messageId,
                 date: transaction.date.toSqlDate(),
@@ -56,19 +20,19 @@ export default class TransactionRepository implements ITransactionRepository {
                 type: TransactionTypeExtensions.ToString(transaction.type),
 
                 ...TransactionTypeExtensions.IsCardOperation(transaction.type) && {
-                    card_operation: constructCardOperation(transaction.paymentDetails as CardOperation)
+                    card_operation: transaction.paymentDetails
                 },
                 
                 ...TransactionTypeExtensions.IsCrossBorderTransfer(transaction.type) && {
-                    cross_border_transfer: constructCrossBorderTransfer(transaction.paymentDetails as CrossBorderTransfer)
+                    cross_border_transfer: transaction.paymentDetails
                 },
 
                 ...TransactionTypeExtensions.IsStandardFee(transaction.type) && {
-                    standard_fee: constructStandardFee(transaction.paymentDetails as StandardFee)
+                    standard_fee: transaction.paymentDetails
                 },
 
                 ...TransactionTypeExtensions.IsStandardTransfer(transaction.type) && {
-                    standard_transfer: constructStandardTransfer(transaction.paymentDetails as StandardTransfer)
+                    standard_transfer: transaction.paymentDetails
                 },
         }, {
             include: [
