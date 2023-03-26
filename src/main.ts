@@ -6,10 +6,10 @@ import getTransactionsRouter from './routers/getTransactionsRouter';
 import refreshRouter from './routers/refreshRouter';
 
 async function bootstrap() {
-    const env = dotenv.config();
+    dotenv.config();
 
-    const hostname = env.parsed?.HOSTNAME;
-    const port = env.parsed?.UNIXPENSE_PORT;
+    const hostname = process.env?.HOSTNAME;
+    const port = process.env?.UNIXPENSE_PORT;
 
     if (hostname === undefined || port === undefined) {
         return;
