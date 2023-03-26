@@ -19,7 +19,14 @@ spec:
         runAsUser: 1000
       containers:
       - name: app
-        image: DOCKER_REPO:BUILD_NUMBER # Populated from environmental variables via Jenkins Job
+        image: DOCKER_REPO:BUILD_NUMBER # Populated in deploy.sh
+        resources:
+          requests:
+            cpu: 150m
+            memory: 150Mi
+          limits:
+            cpu: 350m
+            memory: 350Mi
         envFrom:
         - configMapRef:
             name: unixpense-svc-config

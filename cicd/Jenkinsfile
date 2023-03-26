@@ -34,7 +34,7 @@ pipeline {
         stage('Prepare Environment') {
             agent {
                 kubernetes {
-                    yamlFile './cicd/AgentPod.yaml'
+                    yamlFile './cicd/agentPod.yaml'
                 }
             }
             stages {
