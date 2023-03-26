@@ -1,11 +1,14 @@
 import { AllowNull, Column, Table } from "sequelize-typescript";
-import PaymentDetailsEntity from "./paymentDetails.base";
+import PaymentDetailsEntityBase from "./paymentDetails.entity.base";
 
 @Table({
-    tableName: "standard_transfers",
-    timestamps: false
+    modelName: "standard_transfer",
+    timestamps: false,
+    indexes: [{
+        fields: ['transaction_reference']
+    }]
 })
-export default class StandardTransferEntity extends PaymentDetailsEntity {
+export default class StandardTransferEntity extends PaymentDetailsEntityBase {
     @AllowNull(false)
     @Column
     iban!: string;

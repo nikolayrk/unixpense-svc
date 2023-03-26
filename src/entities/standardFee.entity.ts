@@ -1,11 +1,14 @@
 import { AllowNull, Column, Table } from "sequelize-typescript";
-import PaymentDetailsEntity from "./paymentDetails.base";
+import PaymentDetailsEntityBase from "./paymentDetails.entity.base";
 
 @Table({
-    tableName: "standard_fees",
-    timestamps: false
+    modelName: "standard_fee",
+    timestamps: false,
+    indexes: [{
+        fields: ['transaction_reference']
+    }]
 })
-export default class StandardFeeEntity extends PaymentDetailsEntity {
+export default class StandardFeeEntity extends PaymentDetailsEntityBase {
     @AllowNull(false)
     @Column
     description!: string;
