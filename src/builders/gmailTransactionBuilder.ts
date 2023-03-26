@@ -1,14 +1,21 @@
 import { gmail_v1 } from "googleapis";
-import GmailClient from "../clients/gmailClient";
+import { inject, injectable } from "inversify";
+import GmailApiClient from "../clients/gmailApiClient";
+import ITransactionBuilder from "../contracts/ITransactionBuilder";
+import ITransactionFactory from "../contracts/ITransactionFactory";
 import FailedToProcessTxnError from '../errors/failedToProcessTxnError';
-import TransactionFactory from "../factories/transactionFactory";
+import { injectables } from "../types/injectables";
 
-export default class TransactionBuilder {
-    private readonly gmailClient: GmailClient;
-    private readonly transactionFactory: TransactionFactory;
+@injectable()
+export default class GmailTransactionBuilder implements ITransactionBuilder {
+    private readonly gmailApiClient: GmailApiClient;
+    private readonly transactionFactory: ITransactionFactory;
 
-    constructor(gmailClient: GmailClient, transactionFactory: TransactionFactory) {
-        this.gmailClient = gmailClient;
+    public constructor(
+        @inject(injectables.GmailApiClient) gmailApiClient: GmailApiClient,
+        @inject(injectables.ITransactionFactory) transactionFactory: ITransactionFactory
+    ) {
+        this.gmailApiClient = gmailApiClient;
         this.transactionFactory = transactionFactory;
     }
 
@@ -18,24 +25,24 @@ export default class TransactionBuilder {
 
             const attachmentData = await this.tryConstructAttachmentDataAsync(message);
 
-            const transaction = this.transactionFactory.tryCreate(messageId, attachmentData);
+            const transaction = this.transactionFactory.create(messageId, attachmentData);
             
             console.log(`Successfully processed transaction with reference ${transaction.reference}`);
 
             return transaction;
-        } catch (ex) {
-            const body = ex instanceof Error
-                ? ex.stack
-                : ex;
-            
-            throw new FailedToProcessTxnError(`Failed to process transaction from message with ID ${messageId}: ${body}`);
+        } catch (ex) {            
+            const message = ex instanceof Error
+                ? ex.message
+                : ex as string;
+
+            throw new FailedToProcessTxnError(messageId, message);
         }
     }
 
     private async constructMessageAsync(messageId: string) {
         console.log(`Requesting message ID ${messageId}...`);
 
-        const message = await this.gmailClient.fetchMessageAsync(messageId);
+        const message = await this.gmailApiClient.fetchMessageAsync(messageId);
 
         console.log(`Received message with ID ${message.id}`);
 
@@ -45,10 +52,10 @@ export default class TransactionBuilder {
     private async tryConstructAttachmentDataAsync(message: gmail_v1.Schema$Message) {
         console.log(`Requesting attachment from message with ID ${message.id}...`);
 
-        const attachmentDataBase64 = await this.gmailClient.tryFetchAttachmentDataBase64OrNullAsync(message);
+        const attachmentDataBase64 = await this.gmailApiClient.tryFetchAttachmentDataBase64OrNullAsync(message);
 
         if (attachmentDataBase64 === null) {
-            throw new Error(`Empty attachment data`);
+            throw new FailedToProcessTxnError(message.id as string, `Empty attachment data`);
         }
 
         console.log(`Received attachment from message with ID ${message.id}`);
