@@ -1,13 +1,18 @@
+import { injectable } from "inversify";
+import IRefreshTokenRepository from "../contracts/IRefreshTokenRepository";
 import RefreshTokenEntity from "../entities/refreshToken.entity";
 
-export default class RefreshTokenRepository {
+@injectable()
+export default class RefreshTokenRepository implements IRefreshTokenRepository {
     public async createIfNotExistAsync(clientToken: string, refreshToken: string) {
-        await RefreshTokenEntity.findOrCreate({
+        const [_, created] = await RefreshTokenEntity.findOrCreate({
             where: {
                 client_token: clientToken,
                 refresh_token: refreshToken
             }
         });
+
+        return created;
     }
 
     public async getRefreshTokenOrNullAsync(userIdToken: string) {
