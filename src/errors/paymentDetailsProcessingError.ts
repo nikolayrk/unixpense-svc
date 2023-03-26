@@ -1,6 +1,8 @@
 export default class PaymentDetailsProcessingError extends Error {
-    constructor(message: string) {
-        super(message);
+    constructor(transactionReference: string, message: string) {
+        const fullMessage = `Failed to process payment details of transaction with reference ${transactionReference}: ${message}`
+            
+        super(fullMessage);
 
         this.name = "PaymentDetailsProcessingError";
     }

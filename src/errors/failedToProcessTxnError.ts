@@ -1,6 +1,8 @@
 export default class FailedToProcessTxnError extends Error {
-    constructor(message: string) {
-        super(message);
+    constructor(messageId: string, message: string) {
+        const fullMessage = `Failed to process transaction from message with ID ${messageId}: ${message}`;
+
+        super(fullMessage);
 
         this.name = "FailedToProcessTxnError";
     }
