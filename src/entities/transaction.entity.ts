@@ -1,4 +1,4 @@
-import { Table, Column, Model, PrimaryKey, DataType, Unique, AllowNull, IsDate, HasOne, ForeignKey } from 'sequelize-typescript';
+import { Table, Column, Model, PrimaryKey, DataType, Unique, AllowNull, IsDate, HasOne } from 'sequelize-typescript';
 import { EntryTypeExtensions } from '../extensions/entryTypeExtensions';
 import { TransactionTypeExtensions } from '../extensions/transactionTypeExtensions';
 import PaymentDetails from '../models/paymentDetails';

@@ -8,13 +8,19 @@ COPY package*.json ./
 
 COPY tsconfig.json ./
 
+COPY .eslintrc.js ./
+
+COPY .eslintignore ./
+
 COPY src ./src
 
-RUN npm ci
-
-RUN npm run build && \
-    rm -rf ./src && \
-    rm tsconfig.json
+RUN npm ci && \
+    npm run lint && \
+    npm run build && \
+    rm -rf ./src \
+            tsconfig.json \
+            .eslintrc.js \
+            .eslintignore
 
 EXPOSE $PORT
 

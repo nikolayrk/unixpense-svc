@@ -1,7 +1,5 @@
 import { Sequelize } from "sequelize-typescript";
 import mariadb from 'mariadb';
-import RefreshTokenEntity from "./entities/refreshToken.entity";
-import CardOperationEntity from "./entities/cardOperation.entity";
 
 export default class DatabaseConnection {
     private static singleton?: DatabaseConnection;

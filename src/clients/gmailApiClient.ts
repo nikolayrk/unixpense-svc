@@ -9,7 +9,7 @@ export default class GmailApiClient {
     private readonly searchQuery: string = 'from:pb@unicreditgroup.bg subject: "Dvizhenie po smetka"';
     private readonly maxExponentialBackoffDepth: number = 7;
 
-    private exponentialBackoffDepth: number = 0;
+    private exponentialBackoffDepth = 0;
 
     public constructor(
         @inject(injectables.GoogleOAuth2ClientProvider) googleOAuth2ClientProvider: GoogleOAuth2ClientProvider

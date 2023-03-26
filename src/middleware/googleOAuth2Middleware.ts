@@ -43,8 +43,7 @@ export default function googleOAuth2Middleware() {
                     res.setHeader(key, value);
                 }
 
-                res.type(ex.config.responseType!)
-                   .status(ex.response?.status!)
+                res.status(ex.response?.status ?? 400)
                    .end();
 
                 return null;

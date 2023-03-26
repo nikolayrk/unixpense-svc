@@ -10,10 +10,10 @@ export interface IPaymentDetailsFactory<T extends PaymentDetails> {
     tryCreate(transactionReference: string, transactionDetailsNodes: Node[], additionalTransactionDetailsNode?: Node): T;
 }
 
-export interface ICardOperationFactory extends IPaymentDetailsFactory<CardOperation> { }
+export type ICardOperationFactory = IPaymentDetailsFactory<CardOperation>
 
-export interface ICrossBorderTransferFactory extends IPaymentDetailsFactory<CrossBorderTransfer> { }
+export type ICrossBorderTransferFactory = IPaymentDetailsFactory<CrossBorderTransfer>
 
-export interface IStandardFeeFactory extends IPaymentDetailsFactory<StandardFee> { }
+export type IStandardFeeFactory = IPaymentDetailsFactory<StandardFee>
 
-export interface IStandardTransferFactory extends IPaymentDetailsFactory<StandardTransfer> { }
+export type IStandardTransferFactory = IPaymentDetailsFactory<StandardTransfer>

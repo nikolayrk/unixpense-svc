@@ -5,7 +5,7 @@
   "main": "dist/main.js",
   "scripts": {
     "dev": "npx ts-node src/main.ts",
-    "lint": "eslint . --fix",
+    "lint": "eslint \"./src/*\" --fix",
     "build": "tsc -p .",
     "start": "node dist/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"

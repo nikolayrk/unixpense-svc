@@ -63,7 +63,7 @@ export default class GoogleOAuth2ClientProvider {
         this.oauth2Client.generateAuthUrl({
             access_type: 'offline',
             scope: this.scopes
-        }))()}; // lambda getters when :(
+        }))()} // lambda getters when :(
 
     public async checkAuthenticatedAsync() {
         if (this.authenticated) {

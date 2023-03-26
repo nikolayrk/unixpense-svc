@@ -4,8 +4,16 @@ module.exports = {
       ecmaVersion: "latest",
       sourceType: "module",
     },
-    extends: ["plugin:@typescript-eslint/recommended"],
-    env: {
-      node: true,
-    },
+    overrides: [
+      {
+        files: ["*.ts"],
+        extends: ["plugin:@typescript-eslint/recommended"],
+        env: {
+          node: true,
+        },
+        rules: {
+          "@typescript-eslint/no-empty-function": "off"
+        }
+      }
+    ]
   };
