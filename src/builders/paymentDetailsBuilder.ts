@@ -9,22 +9,35 @@ import CrossBorderTransfer from '../models/crossBorderTransfer';
 import StandardFee from '../models/standardFee';
 import StandardTransfer from '../models/standardTransfer';
 import { injectables } from "../types/injectables";
+import DeskWithdrawal from '../models/deskWithdrawal';
 
 @injectable()
 export default class PaymentDetailsBuilder {
     private readonly cardOperationFactory;
     private readonly crossBorderTransferFactory;
+    private readonly deskWithdrawalFactory;
     private readonly standardFeeFactory;
     private readonly standardTransferFactory;
 
     public constructor(
-        @inject(injectables.ICardOperationFactory) cardOperationFactory: ICardOperationFactory,
-        @inject(injectables.ICrossBorderTransferFactory) crossBorderTransferFactory: IPaymentDetailsFactory<CrossBorderTransfer>,
-        @inject(injectables.IStandardFeeFactory) standardFeeFactory: IPaymentDetailsFactory<StandardFee>,
-        @inject(injectables.IStandardTransferFactory) standardTransferFactory: IPaymentDetailsFactory<StandardTransfer>
+        @inject(injectables.ICardOperationFactory)
+        cardOperationFactory: ICardOperationFactory,
+
+        @inject(injectables.ICrossBorderTransferFactory)
+        crossBorderTransferFactory: IPaymentDetailsFactory<CrossBorderTransfer>,
+
+        @inject(injectables.IDeskWithdrawalFactory)
+        deskWithdrawalFactory: IPaymentDetailsFactory<DeskWithdrawal>,
+
+        @inject(injectables.IStandardFeeFactory)
+        standardFeeFactory: IPaymentDetailsFactory<StandardFee>,
+
+        @inject(injectables.IStandardTransferFactory)
+        standardTransferFactory: IPaymentDetailsFactory<StandardTransfer>
     ) {
         this.cardOperationFactory = cardOperationFactory;
         this.crossBorderTransferFactory = crossBorderTransferFactory;
+        this.deskWithdrawalFactory = deskWithdrawalFactory;
         this.standardFeeFactory = standardFeeFactory;
         this.standardTransferFactory = standardTransferFactory;
     }
@@ -43,6 +56,8 @@ export default class PaymentDetailsBuilder {
             return this.cardOperationFactory;
         } else if (TransactionTypeExtensions.IsCrossBorderTransfer(transactionType)) {
             return this.crossBorderTransferFactory;
+        } else if (TransactionTypeExtensions.IsDeskWithdrawal(transactionType)) {
+            return this.deskWithdrawalFactory;
         } else if (TransactionTypeExtensions.IsStandardFee(transactionType)) {
             return this.standardFeeFactory;
         } else if (TransactionTypeExtensions.IsStandardTransfer(transactionType)) {

@@ -26,6 +26,10 @@ export default class TransactionRepository implements ITransactionRepository {
                 ...TransactionTypeExtensions.IsCrossBorderTransfer(transaction.type) && {
                     cross_border_transfer: transaction.paymentDetails
                 },
+                
+                ...TransactionTypeExtensions.IsDeskWithdrawal(transaction.type) && {
+                    desk_withdrawal: transaction.paymentDetails
+                },
 
                 ...TransactionTypeExtensions.IsStandardFee(transaction.type) && {
                     standard_fee: transaction.paymentDetails
@@ -38,6 +42,7 @@ export default class TransactionRepository implements ITransactionRepository {
             include: [
                 TransactionEntity.associations['card_operation'],
                 TransactionEntity.associations['cross_border_transfer'],
+                TransactionEntity.associations['desk_withdrawal'],
                 TransactionEntity.associations['standard_fee'],
                 TransactionEntity.associations['standard_transfer'],
             ]

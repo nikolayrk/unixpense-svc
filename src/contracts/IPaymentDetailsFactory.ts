@@ -4,6 +4,7 @@ import CardOperation from "../models/cardOperation";
 import CrossBorderTransfer from "../models/crossBorderTransfer";
 import StandardFee from "../models/standardFee";
 import StandardTransfer from "../models/standardTransfer";
+import DeskWithdrawal from "../models/deskWithdrawal";
 
 export interface IPaymentDetailsFactory<T extends PaymentDetails> {
     // throws PaymentDetailsProcessingError
@@ -13,6 +14,8 @@ export interface IPaymentDetailsFactory<T extends PaymentDetails> {
 export type ICardOperationFactory = IPaymentDetailsFactory<CardOperation>
 
 export type ICrossBorderTransferFactory = IPaymentDetailsFactory<CrossBorderTransfer>
+
+export type IDeskWithdrawalFactory = IPaymentDetailsFactory<DeskWithdrawal>
 
 export type IStandardFeeFactory = IPaymentDetailsFactory<StandardFee>
 

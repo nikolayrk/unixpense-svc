@@ -7,6 +7,7 @@ export const injectables = {
 
     ICardOperationFactory: Symbol.for('ICardOperationFactory'),
     ICrossBorderTransferFactory: Symbol.for('ICrossBorderTransferFactory'),
+    IDeskWithdrawalFactory: Symbol.for('IDeskWithdrawalFactory'),
     IStandardFeeFactory: Symbol.for('IStandardFeeFactory'),
     IStandardTransferFactory: Symbol.for('IStandardTransferFactory'),
     PaymentDetailsBuilder: Symbol.for('PaymentDetailsBuilder'),

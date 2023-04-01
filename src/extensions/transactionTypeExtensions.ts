@@ -26,6 +26,14 @@ export class TransactionTypeExtensions {
         return false;
     }
 
+    public static IsDeskWithdrawal(transactionType: TransactionType) {
+        if (transactionType === TransactionType.DESK_WITHDRAWAL) {
+            return true;
+        }
+
+        return false;
+    }
+
     public static IsStandardFee(transactionType: TransactionType) {
         switch (transactionType) {
             case TransactionType.PERIODIC_FEE:
@@ -34,7 +42,6 @@ export class TransactionTypeExtensions {
             case TransactionType.CROSS_BORDER_TRANSFER_FEE:
             case TransactionType.INTERNAL_TRANSFER_FEE:
             case TransactionType.WITHDRAWAL_FEE:
-            case TransactionType.DESK_WITHDRAWAL_FEE:
                 return true;
             default:
                 return false;

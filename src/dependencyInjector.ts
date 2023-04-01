@@ -19,10 +19,12 @@ import ITransactionFactory from './contracts/ITransactionFactory';
 import {
     ICardOperationFactory,
     ICrossBorderTransferFactory,
+    IDeskWithdrawalFactory,
     IStandardFeeFactory,
     IStandardTransferFactory
 } from './contracts/IPaymentDetailsFactory';
 import { injectables } from './types/injectables';
+import DeskWithdrawalFactory from './factories/deskWIthdrawalFactory';
 
 export class DependencyInjector {
     private static singleton: DependencyInjector;
@@ -42,6 +44,7 @@ export class DependencyInjector {
         
         container.bind<ICardOperationFactory>(injectables.ICardOperationFactory).to(CardOperationFactory);
         container.bind<ICrossBorderTransferFactory>(injectables.ICrossBorderTransferFactory).to(CrossBorderTransferFactory);
+        container.bind<IDeskWithdrawalFactory>(injectables.IDeskWithdrawalFactory).to(DeskWithdrawalFactory);
         container.bind<IStandardFeeFactory>(injectables.IStandardFeeFactory).to(StandardFeeFactory);
         container.bind<IStandardTransferFactory>(injectables.IStandardTransferFactory).to(StandardTransferFactory);
         container.bind<PaymentDetailsBuilder>(injectables.PaymentDetailsBuilder).to(PaymentDetailsBuilder)
