@@ -1,8 +1,9 @@
 import PaymentDetails from "../models/paymentDetails";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { injectables } from "../types/injectables";
 import PaymentDetailsFactory from "../factories/paymentDetailsFactory";
 
+@injectable()
 export abstract class AbstractPaymentDetailsStrategy<T extends PaymentDetails> {
     protected readonly paymentDetailsFactory;
 

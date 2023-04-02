@@ -1,10 +1,11 @@
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import GmailApiClient from "../clients/gmailApiClient";
 import ITransactionDataProvider from "../../../contracts/ITransactionDataProvider";
 import ITransactionSourceProvider from "../../../contracts/ITransactionSourceProvider";
 import GmailMessageData from "../models/gmailMessageData";
 import { injectables } from "../../../types/injectables";
 
+@injectable()
 export default class GmailTransactionSourceProvider implements ITransactionSourceProvider {
     private readonly gmailApiClient;
     private readonly transactionDataProvider;
