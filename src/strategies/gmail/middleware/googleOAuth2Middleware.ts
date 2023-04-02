@@ -1,8 +1,8 @@
 import express, { Request, Response, NextFunction } from "express";
 import { GaxiosError } from 'gaxios';
-import { DependencyInjector } from "../dependencyInjector";
+import { DependencyInjector } from "../../../dependencyInjector";
 import GoogleOAuth2ClientProvider from "../providers/googleOAuth2ClientProvider";
-import { injectables } from "../types/injectables";
+import { injectables } from "../../../types/injectables";
 
 export default function googleOAuth2Middleware() {
     const router = express.Router();
@@ -18,7 +18,7 @@ export default function googleOAuth2Middleware() {
             return;
         }
 
-        const code = req.query.code;
+        const code = String(req.query.code);
     
         if (code === undefined) {
             response = 'No authorization code provided';
@@ -27,18 +27,18 @@ export default function googleOAuth2Middleware() {
         }
     
         try {
-            await googleOAuth2ClientProvider.tryAuthenticateWithCodeAsync(code as string);
+            await googleOAuth2ClientProvider.tryAuthenticateWithCodeAsync(code);
 
             response = 'Authorized successfully';
         } catch(ex) {
             if (ex instanceof GaxiosError) {
-                const error = ex.response?.data.error as string;
+                const error = String(ex.response?.data.error);
 
                 console.log(`Axios error '${error}' encountered on request`);
                 
                 // Maybe a bit overkill...
                 for(const key in ex.response?.headers) {
-                    const value = ex.response?.headers[key] as string;
+                    const value = String(ex.response?.headers[key]);
 
                     res.setHeader(key, value);
                 }

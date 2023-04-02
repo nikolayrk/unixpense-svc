@@ -4,11 +4,10 @@ import PaymentDetails from "../models/paymentDetails";
 import '../extensions/dateExtensions';
 import { EntryTypeExtensions } from "../extensions/entryTypeExtensions";
 import { TransactionTypeExtensions } from "../extensions/transactionTypeExtensions";
-import ITransactionRepository from '../contracts/ITransactionRepository';
 import { injectable } from 'inversify';
 
 @injectable()
-export default class TransactionRepository implements ITransactionRepository {
+export default class TransactionRepository {
     public async createAsync(transaction: Transaction<PaymentDetails>) {
         await TransactionEntity.create({
                 id: transaction.id,

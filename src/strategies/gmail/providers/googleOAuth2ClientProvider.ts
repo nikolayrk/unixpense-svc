@@ -3,8 +3,8 @@ import { OAuth2Client } from 'googleapis-common';
 import { Credentials } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 import { inject, injectable } from 'inversify';
-import { injectables } from "../types/injectables";
-import IRefreshTokenRepository from '../contracts/IRefreshTokenRepository';
+import { injectables } from "../../../types/injectables";
+import RefreshTokenRepository from '../repositories/refreshTokenRepository';
 
 @injectable()
 export default class GoogleOAuth2ClientProvider {
@@ -25,7 +25,8 @@ export default class GoogleOAuth2ClientProvider {
     private refreshToken?: string;
 
     public constructor(
-        @inject(injectables.IRefreshTokenRepository) refreshTokenRepository: IRefreshTokenRepository
+        @inject(injectables.RefreshTokenRepository)
+        refreshTokenRepository: RefreshTokenRepository
     ) {
         const clientId = process.env.UNIXPENSE_GOOGLE_CLIENT_ID;
         const clientSecret = process.env.UNIXPENSE_GOOGLE_CLIENT_SECRET;
@@ -159,8 +160,8 @@ export default class GoogleOAuth2ClientProvider {
 
         this.oauth2Client.setCredentials(credentials);
 
-        if (hasAccessToken) {
-            this.authenticated = true;
-        }
+        // TODO: experiment to promise->settimeout 1-2s if we have a refresh token to allow for the 'tokens' event to run
+
+        this.authenticated = hasAccessToken; // || this.authenticated;
     }
 }

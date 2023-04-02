@@ -1,10 +1,10 @@
 import { inject, injectable } from "inversify";
-import ITransactionRepository from "../contracts/ITransactionRepository";
 import ITransactionSourceProvider from "../contracts/ITransactionSourceProvider";
 import { TransactionTypeExtensions } from "../extensions/transactionTypeExtensions";
 import TransactionFactory from "../factories/transactionFactory";
 import PaymentDetails from "../models/paymentDetails";
 import Transaction from "../models/transaction";
+import TransactionRepository from "../repositories/transactionRepository";
 import { injectables } from "../types/injectables";
 import PaymentDetailsContext from "./paymentDetailsContext";
 
@@ -25,8 +25,8 @@ export default class TransactionContext {
         @inject(injectables.TransactionFactory)
         transactionFactory: TransactionFactory,
 
-        @inject(injectables.ITransactionRepository)
-        transactionRepository: ITransactionRepository,
+        @inject(injectables.TransactionRepository)
+        transactionRepository: TransactionRepository,
     ) {
         this.transactionSourceProvider = transactionSourceProvider;
         this.paymentDetailsContext = paymentDetailsContext;
@@ -92,7 +92,7 @@ export default class TransactionContext {
         try {
             const transactionData = await this.transactionSourceProvider.getTransactionDataAsync(transactionId);
 
-            const paymentDetails = this.paymentDetailsContext.get(
+            const paymentDetails = this.paymentDetailsContext.tryGet(
                 transactionData.reference,
                 transactionData.transactionType,
                 transactionData.paymentDetailsRaw,

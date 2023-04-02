@@ -1,5 +1,5 @@
-import StandardTransfer from "../models/standardTransfer";
-import { AbstractPaymentDetailsStrategy } from "./abstractPaymentDetailsStrategy";
+import StandardTransfer from "../../models/standardTransfer";
+import { AbstractPaymentDetailsStrategy } from "../abstractPaymentDetailsStrategy";
 import '../extensions/stringExtensions';
 import { injectable } from "inversify";
 

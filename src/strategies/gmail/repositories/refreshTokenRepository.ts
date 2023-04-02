@@ -1,9 +1,8 @@
 import { injectable } from "inversify";
-import IRefreshTokenRepository from "../contracts/IRefreshTokenRepository";
 import RefreshTokenEntity from "../entities/refreshToken.entity";
 
 @injectable()
-export default class RefreshTokenRepository implements IRefreshTokenRepository {
+export default class RefreshTokenRepository {
     public async createOrUpdateAsync(clientToken: string, refreshToken: string) {
         const existingEntity = await RefreshTokenEntity.findByPk(clientToken);
 

@@ -44,7 +44,7 @@ export default class DatabaseConnection {
             password: password,
             database: database,
             logging: false,
-            models: [__dirname + '/entities/*.entity.{js,ts}'],
+            models: [__dirname + '/**/entities/*.entity.{js,ts}'],
         });
 
         await connection.authenticate(); // Throws on failure

@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import DatabaseConnection from './databaseConnection';
-import googleOAuth2Middleware from './middleware/googleOAuth2Middleware';
+import googleOAuth2Middleware from './strategies/gmail/middleware/googleOAuth2Middleware';
 import getTransactionsRouter from './routers/getTransactionsRouter';
 import refreshRouter from './routers/refreshRouter';
 

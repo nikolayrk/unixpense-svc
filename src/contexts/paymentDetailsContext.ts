@@ -44,7 +44,7 @@ export default class PaymentDetailsContext {
     }
 
     // throws UnsupportedTxnError, PaymentDetailsProcessingError
-    public get(reference: string, transactionType: TransactionType, paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null) {
+    public tryGet(reference: string, transactionType: TransactionType, paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null) {
         try {
             const paymentDetailsStrategy = this.tryGetStrategyByType(transactionType);
             const paymentDetails = paymentDetailsStrategy.tryCreate(reference, paymentDetailsRaw, additionalDetailsRawOrNull);
