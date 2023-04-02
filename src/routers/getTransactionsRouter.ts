@@ -1,26 +1,26 @@
 import express, { Request, Response } from "express";
-import ITransactionProvider from "../contracts/ITransactionProvider";
+import TransactionContext from "../contexts/transactionContext";
 import { DependencyInjector } from "../dependencyInjector";
 import { injectables } from "../types/injectables";
 
 export default function getTransactionsRouter() {
     const router = express.Router();
 
-    const transactionProvider = DependencyInjector.Singleton.resolve<ITransactionProvider>(injectables.ITransactionProvider);
+    const transactionContext = DependencyInjector.Singleton.resolve<TransactionContext>(injectables.TransactionContext);
 
     router.use('/gettransactions', async (req: Request, res: Response) => {
-        const messageIdQuery = req.query.messageId?.toString();
+        const transactionIdsQuery = req.query.transactionId?.toString();
         let response;
         
         try {
             const transactions = [];
 
-            for await (const transaction of transactionProvider.generateAsync(messageIdQuery)) {
-                if (transaction === null) {
+            for await (const transactionOrNull of transactionContext.generateAsync(transactionIdsQuery)) {
+                if (transactionOrNull === null) {
                     continue;
                 }
 
-                transactions.push(transaction);
+                transactions.push(transactionOrNull);
             }
 
             response = JSON.stringify(transactions, null, 2);

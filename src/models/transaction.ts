@@ -3,7 +3,7 @@ import TransactionType from "../enums/transactionType";
 import PaymentDetails from "./paymentDetails";
 
 export default interface Transaction<T extends PaymentDetails> {
-    messageId: string;
+    id: string;
     date: Date;
     reference: string;
     valueDate: Date;

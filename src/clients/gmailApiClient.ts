@@ -1,5 +1,6 @@
 import { gmail_v1, google } from 'googleapis';
 import { inject, injectable } from 'inversify';
+import GmailMessageData from '../models/gmailMessageData';
 import GoogleOAuth2ClientProvider from '../providers/googleOAuth2ClientProvider';
 import { injectables } from '../types/injectables';
 
@@ -12,18 +13,15 @@ export default class GmailApiClient {
     private exponentialBackoffDepth = 0;
 
     public constructor(
-        @inject(injectables.GoogleOAuth2ClientProvider) googleOAuth2ClientProvider: GoogleOAuth2ClientProvider
+        @inject(injectables.GoogleOAuth2ClientProvider)
+        googleOAuth2ClientProvider: GoogleOAuth2ClientProvider
     ) {
         this.gmail = google.gmail({version: 'v1', auth: googleOAuth2ClientProvider.get});
     }
 
-    public async * tryGenerateMessageIdsAsync(pageToken?: string): AsyncGenerator<string, string | [], unknown> {
+    public async * generateMessageIdsAsync(pageToken?: string): AsyncGenerator<string, [], undefined> {
         const messageList = await this.fetchMessageListAsync(pageToken);
-        const messages = this.getMessagesFromListOrNull(messageList);
-
-        if (messages === null) {
-            return [];
-        }
+        const messages = this.getMessagesFromList(messageList);
 
         for (const messageIdx in messages) {
             const messageItem = messages[messageIdx];
@@ -40,13 +38,13 @@ export default class GmailApiClient {
         const nextPageToken = messageList.nextPageToken;
 
         if (nextPageToken !== null) {
-            yield * this.tryGenerateMessageIdsAsync(nextPageToken);
+            yield * this.generateMessageIdsAsync(nextPageToken);
         }
 
         return [];
     }
     
-    public async fetchMessageAsync(messageId: string) {
+    public async fetchMessageDataAsync(messageId: string) {
         const messageResponse = await this.makeApiCallAsync(async () =>
             this.gmail.users.messages.get({
                 userId: 'me',
@@ -54,35 +52,22 @@ export default class GmailApiClient {
             }));
     
         const message = messageResponse.data;
+
+        const messageData = this.constructMessageData(message);
     
-        return message;
+        return messageData;
     }
     
-    public async tryFetchAttachmentDataBase64OrNullAsync(message: gmail_v1.Schema$Message) {
-        const attachmentId = message
-            .payload
-           ?.parts
-           ?.[1]
-           ?.body
-           ?.attachmentId;
-
-        if (attachmentId === null || attachmentId === undefined) {
-            throw new Error(`No attachment ID found`);
-        }
-
+    public async fetchAttachmentDataBase64Async(messageData: GmailMessageData) {
         const response = await this.makeApiCallAsync(async () => 
             this.gmail.users.messages.attachments.get({
                 userId: 'me',
-                messageId: message.id as string,
-                id: attachmentId
+                messageId: messageData.messageId,
+                id: messageData.attachmentId
             }));
 
         const messagePartBody = response.data;
-        const attachmentDataBase64 = messagePartBody.data;
-
-        if (attachmentDataBase64 === undefined) {
-            throw new Error(`No attachment data found`);
-        }
+        const attachmentDataBase64 = String(messagePartBody.data);
     
         return attachmentDataBase64;
     }
@@ -100,7 +85,7 @@ export default class GmailApiClient {
         return messageList;
     }
     
-    private getMessagesFromListOrNull(messageList: gmail_v1.Schema$ListMessagesResponse) {
+    private getMessagesFromList(messageList: gmail_v1.Schema$ListMessagesResponse) {
         const messages = messageList.messages;
         const nextPageToken = messageList.nextPageToken;
     
@@ -109,12 +94,24 @@ export default class GmailApiClient {
         if (messages === undefined) {
             console.log(`Failed to get message list`);
 
-            return null;
+            return [];
         }
     
         console.log(`Received page of ${messages.length} messages`);
     
         return messages;
+    }
+
+    private constructMessageData(message: gmail_v1.Schema$Message) {
+        return {
+            messageId: String(message.id),
+            attachmentId: String(message
+                .payload
+               ?.parts
+               ?.[1]
+               ?.body
+               ?.attachmentId)
+        } as GmailMessageData
     }
 
     private async makeApiCallAsync<T>(apiCall: () => T): Promise<T> {

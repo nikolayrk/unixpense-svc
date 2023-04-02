@@ -1,15 +1,12 @@
-import { Node } from "node-html-parser";
-import { IPaymentDetailsFactory } from "../contracts/IPaymentDetailsFactory";
+import { AbstractPaymentDetailsStrategy } from "./abstractPaymentDetailsStrategy";
 import CrossBorderTransfer from "../models/crossBorderTransfer";
 import PaymentDetailsProcessingError from "../errors/paymentDetailsProcessingError";
-import '../extensions/stringExtensions';
 import { injectable } from "inversify";
 
 @injectable()
-export default class CrossBorderTransferFactory implements IPaymentDetailsFactory<CrossBorderTransfer> {
-    public tryCreate(transactionReference: string, transactionDetailsNodes: Node[]): CrossBorderTransfer {
-        const transactionDetailsRaw = transactionDetailsNodes
-            .map(c => c.rawText.cleanTransactionDetails())
+export default class GmailCrossBorderTransferStrategy extends AbstractPaymentDetailsStrategy<CrossBorderTransfer> {
+    public tryCreate(transactionReference: string, paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null): CrossBorderTransfer {
+        const transactionDetailsRaw = paymentDetailsRaw
             .reverse()
             .join('')
 
@@ -26,12 +23,6 @@ export default class CrossBorderTransferFactory implements IPaymentDetailsFactor
             throw new PaymentDetailsProcessingError(transactionReference, `Failed to execute regex on input '${transactionDetailsRaw}'`);
         }
 
-        const transaction: CrossBorderTransfer = {
-            beneficiary: beneficiary,
-            iban: iban,
-            description: description
-        }
-
-        return transaction;
+        return this.paymentDetailsFactory.crossBorderTransfer(beneficiary, iban, description);
     }
 }

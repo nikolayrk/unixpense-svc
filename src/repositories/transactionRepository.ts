@@ -11,7 +11,7 @@ import { injectable } from 'inversify';
 export default class TransactionRepository implements ITransactionRepository {
     public async createAsync(transaction: Transaction<PaymentDetails>) {
         await TransactionEntity.create({
-                message_id: transaction.messageId,
+                id: transaction.id,
                 date: transaction.date.toSqlDate(),
                 reference: transaction.reference,
                 value_date: transaction.valueDate.toSqlDate(),
@@ -49,11 +49,11 @@ export default class TransactionRepository implements ITransactionRepository {
         });
     }
 
-    public async existsAsync(messageId: string) {
+    public async existsAsync(transactionId: string) {
         const foundTransaction = await TransactionEntity
             .findOne({
                 where: {
-                    message_id: messageId
+                    id: transactionId
                 }
             });
 

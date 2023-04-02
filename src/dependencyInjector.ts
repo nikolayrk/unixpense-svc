@@ -1,30 +1,31 @@
 import { Container, interfaces } from 'inversify';
 import IRefreshTokenRepository from './contracts/IRefreshTokenRepository';
-import PaymentDetailsBuilder from './builders/paymentDetailsBuilder';
-import GmailTransactionBuilder from './builders/gmailTransactionBuilder';
 import GmailApiClient from './clients/gmailApiClient';
-import ITransactionProvider from './contracts/ITransactionProvider';
-import CardOperationFactory from './factories/cardOperationFactory';
-import CrossBorderTransferFactory from './factories/crossBorderTransferFactory';
-import StandardFeeFactory from './factories/standardFeeFactory';
-import StandardTransferFactory from './factories/standardTransferFactory';
-import GmailTransactionFactory from './factories/gmailTransactionFactory';
+import GmailCardOperationStrategy from './strategies/gmailCardOperationStrategy';
 import RefreshTokenRepository from './repositories/refreshTokenRepository';
 import GoogleOAuth2ClientProvider from './providers/googleOAuth2ClientProvider';
-import GmailTransactionProvider from './providers/gmailTransactionProvider';
+import TransactionContext from './contexts/transactionContext';
 import TransactionRepository from './repositories/transactionRepository';
 import ITransactionRepository from './contracts/ITransactionRepository';
-import ITransactionBuilder from './contracts/ITransactionBuilder';
-import ITransactionFactory from './contracts/ITransactionFactory';
 import {
-    ICardOperationFactory,
-    ICrossBorderTransferFactory,
-    IDeskWithdrawalFactory,
-    IStandardFeeFactory,
-    IStandardTransferFactory
-} from './contracts/IPaymentDetailsFactory';
+    ICardOperationStrategy,
+    ICrossBorderTransferStrategy,
+    IDeskWithdrawalStrategy,
+    IStandardFeeStrategy,
+    IStandardTransferStrategy
+} from "./types/paymentDetailsStrategies";
 import { injectables } from './types/injectables';
-import DeskWithdrawalFactory from './factories/deskWIthdrawalFactory';
+import TransactionFactory from './factories/transactionFactory';
+import GmailStandardTransferStrategy from './strategies/gmailStandardTransferStrategy';
+import GmailStandardFeeStrategy from './strategies/gmailStandardFeeStrategy';
+import GmailDeskWithdrawalStrategy from './strategies/gmailDeskWIthdrawalStrategy';
+import GmailCrossBorderTransferStrategy from './strategies/gmailCrossBorderTransferStrategy';
+import ITransactionDataProvider from './contracts/ITransactionDataProvider';
+import GmailTransactionDataProvider from './providers/gmailTransactionDataProvider';
+import PaymentDetailsFactory from './factories/paymentDetailsFactory';
+import PaymentDetailsContext from './contexts/paymentDetailsContext';
+import ITransactionSourceProvider from './contracts/ITransactionSourceProvider';
+import GmailTransactionSourceProvider from './providers/gmailTransactionSourceProvider';
 
 export class DependencyInjector {
     private static singleton: DependencyInjector;
@@ -37,22 +38,25 @@ export class DependencyInjector {
         this.container = container;
         
         container.bind<IRefreshTokenRepository>(injectables.IRefreshTokenRepository).to(RefreshTokenRepository);
+        container.bind<ITransactionRepository>(injectables.ITransactionRepository).to(TransactionRepository);
+
+        container.bind<PaymentDetailsFactory>(injectables.PaymentDetailsFactory).to(PaymentDetailsFactory);
+        container.bind<TransactionFactory>(injectables.TransactionFactory).to(TransactionFactory);
         
         container.bind<GoogleOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProvider).to(GoogleOAuth2ClientProvider).inSingletonScope();
         
-        container.bind<GmailApiClient>(injectables.GmailApiClient).to(GmailApiClient).inSingletonScope();
-        
-        container.bind<ICardOperationFactory>(injectables.ICardOperationFactory).to(CardOperationFactory);
-        container.bind<ICrossBorderTransferFactory>(injectables.ICrossBorderTransferFactory).to(CrossBorderTransferFactory);
-        container.bind<IDeskWithdrawalFactory>(injectables.IDeskWithdrawalFactory).to(DeskWithdrawalFactory);
-        container.bind<IStandardFeeFactory>(injectables.IStandardFeeFactory).to(StandardFeeFactory);
-        container.bind<IStandardTransferFactory>(injectables.IStandardTransferFactory).to(StandardTransferFactory);
-        container.bind<PaymentDetailsBuilder>(injectables.PaymentDetailsBuilder).to(PaymentDetailsBuilder)
+        container.bind<ICardOperationStrategy>(injectables.ICardOperationStrategy).to(GmailCardOperationStrategy);
+        container.bind<ICrossBorderTransferStrategy>(injectables.ICrossBorderTransferStrategy).to(GmailCrossBorderTransferStrategy);
+        container.bind<IDeskWithdrawalStrategy>(injectables.IDeskWithdrawalStrategy).to(GmailDeskWithdrawalStrategy);
+        container.bind<IStandardFeeStrategy>(injectables.IStandardFeeStrategy).to(GmailStandardFeeStrategy);
+        container.bind<IStandardTransferStrategy>(injectables.IStandardTransferStrategy).to(GmailStandardTransferStrategy);
+        container.bind<PaymentDetailsContext>(injectables.PaymentDetailsContext).to(PaymentDetailsContext);
 
-        container.bind<ITransactionFactory>(injectables.ITransactionFactory).to(GmailTransactionFactory);
-        container.bind<ITransactionBuilder>(injectables.ITransactionBuilder).to(GmailTransactionBuilder);
-        container.bind<ITransactionRepository>(injectables.ITransactionRepository).to(TransactionRepository);
-        container.bind<ITransactionProvider>(injectables.ITransactionProvider).to(GmailTransactionProvider);
+        container.bind<GmailApiClient>(injectables.GmailApiClient).to(GmailApiClient).inSingletonScope();
+        container.bind<ITransactionDataProvider>(injectables.ITransactionDataProvider).to(GmailTransactionDataProvider);
+        container.bind<ITransactionSourceProvider>(injectables.ITransactionSourceProvider).to(GmailTransactionSourceProvider);
+
+        container.bind<TransactionContext>(injectables.TransactionContext).to(TransactionContext);
     }
 
     public static get Singleton() {

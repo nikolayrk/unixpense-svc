@@ -1,12 +1,12 @@
 import express, { Request, Response } from "express";
-import ITransactionProvider from "../contracts/ITransactionProvider";
+import TransactionContext from "../contexts/transactionContext";
 import { DependencyInjector } from "../dependencyInjector";
 import { injectables } from "../types/injectables";
 
 export default function refreshRouter() {
     const router = express.Router();
 
-    const transactionProvider = DependencyInjector.Singleton.resolve<ITransactionProvider>(injectables.ITransactionProvider);
+    const transactionContext = DependencyInjector.Singleton.resolve<TransactionContext>(injectables.TransactionContext);
     
     router.use('/refresh', async (_: Request, res: Response) => {
         let response;
@@ -15,7 +15,7 @@ export default function refreshRouter() {
             const newTransactions = [];
             let skippedCount = 0;
     
-            for await (const transaction of transactionProvider.generateSaveAsync()) {
+            for await (const transaction of transactionContext.generateSaveAsync()) {
                 if (transaction === null) {
                     skippedCount++;
     

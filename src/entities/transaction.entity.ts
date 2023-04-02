@@ -12,7 +12,7 @@ import StandardTransferEntity from './standardTransfer.entity';
     modelName: "transaction",
     timestamps: false,
     indexes: [{
-        fields: ['message_id']
+        fields: ['id']
     }, {
         fields: ['reference', 'type'],
         unique: true
@@ -52,7 +52,7 @@ export default class TransactionEntity extends Model {
     @Unique
     @AllowNull(false)
     @Column
-    message_id!: string;
+    id!: string;
 
     @IsDate
     @AllowNull(false)

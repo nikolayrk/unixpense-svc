@@ -1,23 +1,20 @@
-import { IPaymentDetailsFactory } from "../contracts/IPaymentDetailsFactory";
+import { AbstractPaymentDetailsStrategy } from "./abstractPaymentDetailsStrategy";
 import CardOperation from "../models/cardOperation";
-import { Node } from 'node-html-parser';
 import PaymentDetailsProcessingError from "../errors/paymentDetailsProcessingError";
 import { injectable } from "inversify";
 
 @injectable()
-export default class CardOperationFactory implements IPaymentDetailsFactory<CardOperation> {
-    public tryCreate(transactionReference: string, transactionDetailsNodes: Node[]): CardOperation {
-        const transactionDetailsRaw = transactionDetailsNodes
-            .slice(1)
-            .map(c => c.rawText)
+export default class GmailCardOperationStrategy extends AbstractPaymentDetailsStrategy<CardOperation> {
+    public tryCreate(transactionReference: string, paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null): CardOperation {
+        const raw = paymentDetailsRaw
             .join('');
 
         const regex = /^(?<instrument>[^\d]+)\s(?<sum>[^\s]+)\s(?<currency>\w*)[,]?\sавт.код:(?:[^\s,-]*)[\s]*[-]?[,]?[\s]?(?<merchant>[^\/]+(?<! ))/;
 
-        const regexResult = regex.exec(transactionDetailsRaw);
+        const regexResult = regex.exec(raw);
 
         if (regexResult === null) {
-            throw new PaymentDetailsProcessingError(transactionReference, `Failed to execute regex on input '${transactionDetailsRaw}'`);
+            throw new PaymentDetailsProcessingError(transactionReference, `Failed to execute regex on input '${raw}'`);
         }
 
         const instrument = regexResult.groups?.instrument;
@@ -29,13 +26,6 @@ export default class CardOperationFactory implements IPaymentDetailsFactory<Card
             throw new PaymentDetailsProcessingError(transactionReference, `Failed to read regex capture group`);
         }
 
-        const paymentDetails: CardOperation = {
-            instrument: instrument,
-            sum: sum,
-            currency: currency,
-            beneficiary: merchant
-        }
-
-        return paymentDetails;
+        return this.paymentDetailsFactory.cardOperation(merchant, instrument, sum, currency);
     }
 }
