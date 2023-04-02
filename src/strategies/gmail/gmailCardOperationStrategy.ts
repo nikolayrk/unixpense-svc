@@ -5,7 +5,7 @@ import { injectable } from "inversify";
 
 @injectable()
 export default class GmailCardOperationStrategy extends AbstractPaymentDetailsStrategy<CardOperation> {
-    public tryCreate(transactionReference: string, paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null): CardOperation {
+    public tryCreate(transactionReference: string, paymentDetailsRaw: string[], additionalDetailsRaw: string[]): CardOperation {
         const raw = paymentDetailsRaw
             .join('');
 

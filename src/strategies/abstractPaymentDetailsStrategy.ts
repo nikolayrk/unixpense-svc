@@ -15,6 +15,6 @@ export abstract class AbstractPaymentDetailsStrategy<T extends PaymentDetails> {
     }
 
     // throws PaymentDetailsProcessingError
-    abstract tryCreate(transactionReference: string, paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null): T;
+    abstract tryCreate(transactionReference: string, paymentDetailsRaw: string[], additionalDetailsRaw: string[]): T;
 }
 

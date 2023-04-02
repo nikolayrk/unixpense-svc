@@ -9,5 +9,5 @@ export default interface TransactionData {
     entryType: EntryType,
     transactionType: TransactionType,
     paymentDetailsRaw: string[],
-    additionalDetailsRawOrNull: string[] | null
+    additionalDetailsRaw: string[]
 }

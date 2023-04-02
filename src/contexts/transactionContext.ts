@@ -96,7 +96,7 @@ export default class TransactionContext {
                 transactionData.reference,
                 transactionData.transactionType,
                 transactionData.paymentDetailsRaw,
-                transactionData.additionalDetailsRawOrNull);
+                transactionData.additionalDetailsRaw);
 
             const transaction = this.transactionFactory.create(transactionId, transactionData, paymentDetails);
             

@@ -32,7 +32,7 @@ export default class GmailTransactionDataProvider implements ITransactionDataPro
             entryType,
             transactionType,
             paymentDetailsRaw,
-            additionalDetailsRawOrNull: additionalDetailsRaw
+            additionalDetailsRaw: additionalDetailsRaw
         };
 
         return transactionData;
@@ -140,7 +140,7 @@ export default class GmailTransactionDataProvider implements ITransactionDataPro
             ?.map(e => e.rawText.split('\n'))
             ?.flat()
             ?.map(e => e.trim())
-            ?.filter(e => e != '') ?? null;
+            ?.filter(e => e != '') ?? [];
 
         return additionalDetails;
     }
