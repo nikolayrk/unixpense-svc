@@ -108,8 +108,6 @@ export default class GmailTransactionDataProvider implements ITransactionDataPro
 
         const typeRegex = new RegExp(`([ ]?[\/]?(${TRANSACTION_TYPES.join('|')})[ ]?)`);
 
-        dataRaw.forEach(e => console.log(JSON.stringify(typeRegex.exec(e))));
-
         const found = dataRaw
             .map(e => typeRegex.exec(e)?.[2])
             .flat()?.[0] ?? null;
