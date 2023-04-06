@@ -1,4 +1,5 @@
 import { inject, injectable } from "inversify";
+import ITransactionDataProvider from "../contracts/ITransactionDataProvider";
 import ITransactionSourceProvider from "../contracts/ITransactionSourceProvider";
 import { TransactionTypeExtensions } from "../extensions/transactionTypeExtensions";
 import TransactionFactory from "../factories/transactionFactory";
@@ -11,6 +12,7 @@ import PaymentDetailsContext from "./paymentDetailsContext";
 @injectable()
 export default class TransactionContext {
     private readonly transactionSourceProvider;
+    private readonly transactionDataProvider;
     private readonly paymentDetailsContext;
     private readonly transactionFactory;
     private readonly transactionRepository;
@@ -18,6 +20,9 @@ export default class TransactionContext {
     public constructor(
         @inject(injectables.ITransactionSourceProvider)
         transactionSourceProvider: ITransactionSourceProvider,
+
+        @inject(injectables.ITransactionDataProvider)
+        transactionDataProvider: ITransactionDataProvider,
 
         @inject(injectables.PaymentDetailsContext)
         paymentDetailsContext: PaymentDetailsContext,
@@ -29,6 +34,7 @@ export default class TransactionContext {
         transactionRepository: TransactionRepository,
     ) {
         this.transactionSourceProvider = transactionSourceProvider;
+        this.transactionDataProvider = transactionDataProvider;
         this.paymentDetailsContext = paymentDetailsContext;
         this.transactionFactory = transactionFactory;
         this.transactionRepository = transactionRepository;
@@ -76,13 +82,11 @@ export default class TransactionContext {
             : this.transactionSourceProvider.generateTransactionIdsAsync();
     }
 
-    private * generateTransactionIdsFromQuery(transactionIdsQuery: string) {
+    private async * generateTransactionIdsFromQuery(transactionIdsQuery: string) {
         const transactionIds = transactionIdsQuery.split(',');
     
-        for (const idx in transactionIds) {
-            const transactionId = transactionIds[idx];
-    
-            yield transactionId;
+        for await (const transactionId of transactionIds) {
+            yield * transactionId;
         }
     }
 
@@ -90,7 +94,9 @@ export default class TransactionContext {
         console.log(`Processing transaction with ID ${transactionId}`);
 
         try {
-            const transactionData = await this.transactionSourceProvider.getTransactionDataAsync(transactionId);
+            const transactionSource = await this.transactionSourceProvider.getAsync(transactionId);
+
+            const transactionData = this.transactionDataProvider.get(transactionSource);
 
             const paymentDetails = this.paymentDetailsContext.tryGet(
                 transactionData.reference,

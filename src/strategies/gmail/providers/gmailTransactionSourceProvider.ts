@@ -1,6 +1,5 @@
 import { inject, injectable } from "inversify";
 import GmailApiClient from "../clients/gmailApiClient";
-import ITransactionDataProvider from "../../../contracts/ITransactionDataProvider";
 import ITransactionSourceProvider from "../../../contracts/ITransactionSourceProvider";
 import GmailMessageData from "../models/gmailMessageData";
 import { injectables } from "../../../types/injectables";
@@ -8,31 +7,24 @@ import { injectables } from "../../../types/injectables";
 @injectable()
 export default class GmailTransactionSourceProvider implements ITransactionSourceProvider {
     private readonly gmailApiClient;
-    private readonly transactionDataProvider;
 
     public constructor(
         @inject(injectables.GmailApiClient)
-        gmailApiClient: GmailApiClient,
-
-        @inject(injectables.ITransactionDataProvider)
-        transactionDataProvider: ITransactionDataProvider
+        gmailApiClient: GmailApiClient
     ) {
         this.gmailApiClient = gmailApiClient;
-        this.transactionDataProvider = transactionDataProvider;
     }
 
     public generateTransactionIdsAsync() {
         return this.gmailApiClient.generateMessageIdsAsync();
     }
     
-    public async getTransactionDataAsync(transactionId: string) {
+    public async getAsync(transactionId: string) {
         const messageData = await this.getGmailMessageDataAsync(transactionId);
 
         const attachmentData = await this.getAttachmentDataAsync(messageData);
-
-        const transactionData = this.transactionDataProvider.get(attachmentData);
         
-        return transactionData;
+        return attachmentData;
     }
 
     private async getGmailMessageDataAsync(transactionId: string) {

@@ -43,7 +43,7 @@ export default class PaymentDetailsContext {
         this.standardTransferStrategy = standardTransferStrategy;
     }
 
-    // throws UnsupportedTxnError, PaymentDetailsProcessingError
+    // throws PaymentDetailsProcessingError
     public tryGet(reference: string, transactionType: TransactionType, paymentDetailsRaw: string[], additionalDetailsRaw: string[]) {
         try {
             const paymentDetailsStrategy = this.tryGetStrategyByType(transactionType);
