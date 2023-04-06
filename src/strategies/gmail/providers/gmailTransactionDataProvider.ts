@@ -5,7 +5,7 @@ import { TRANSACTION_TYPES } from '../../../types/transactionTypeString';
 import transactionTypesByString from '../../../types/transactionTypeByString';
 import { injectable } from 'inversify';
 import ITransactionDataProvider from '../../../contracts/ITransactionDataProvider';
-import TransactionData from '../../../models/transactionData';
+import { TransactionData } from '../../../models/transactionData';
 import TransactionType from '../../../enums/transactionType';
 
 @injectable()
