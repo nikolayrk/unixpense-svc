@@ -17,9 +17,7 @@ COPY src ./src
 RUN npm ci && \
     npm run lint && \
     npm run build && \
-    mv ./dist/* ./ && \
     rm -rf  ./src \
-            ./dist \
             tsconfig.json \
             .eslintrc.js \
             .eslintignore
