@@ -7,7 +7,6 @@ import { injectable } from "inversify";
 export default class GmailCrossBorderTransferStrategy extends AbstractPaymentDetailsStrategy<CrossBorderTransfer> {
     public tryCreate(transactionReference: string, paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null): CrossBorderTransfer {
         const transactionDetailsRaw = paymentDetailsRaw
-            .reverse()
             .join('')
 
         const regex = /(?:AZV-)?(\w[^,]+)/g;

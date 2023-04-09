@@ -101,10 +101,51 @@ export default class GmailTransactionDataProvider implements ITransactionDataPro
     }
 
     private parseTransactionType(transactionData: Node[]) {
+        const maxDataLineLength = 100;
+        const dataElementCount = transactionData[11].childNodes.length;
+        let dataRawCount = 0;
         const dataRaw = transactionData[11]
             .childNodes
-            .map(e => e.rawText.trim())
-            .filter(e => e != '');
+            .reduce((accumulator, current, i) => {
+                const currentString = current.toString();
+
+                // Treat <br> variants as linebreaks
+                if (currentString === '<br>' || currentString === '<br />') {
+                    return accumulator;
+                }
+
+                // Don't treat <wbr> as a linebreak
+                if (dataRawCount > 0 && accumulator[dataRawCount-1] === '<wbr>') {
+                    accumulator.pop(); // pop the <wbr>
+
+                    const last = accumulator.pop(); // pop and collect the element preceeding <wbr>
+                    const updated = last?.concat(currentString) // combine the last element with the current one
+
+                    accumulator.push(updated ?? currentString); // push either the concatenated elements, or only the current one
+
+                    return accumulator;
+                }
+
+                // Don't add <wbr> if it's the last element (meaning it won't be removed by the previous clause)
+                if (i == dataElementCount && currentString === '<wbr>') {
+                    return accumulator;
+                }
+
+                // If the current element is longer than the maximum data line length, append the last element to it
+                if (dataRawCount > 0 && currentString.length >= maxDataLineLength) {
+                    const last = accumulator.pop() ?? ''; // pop and colect the last element
+                    const updated = currentString.concat(last); // combine the current element with the last one
+
+                    accumulator.push(updated);
+
+                    return accumulator;
+                }
+
+                accumulator.push(currentString);
+                dataRawCount++;
+
+                return accumulator;
+            }, [] as string[]);
 
         const typeRegex = new RegExp(`([ ]?[\/]?(${TRANSACTION_TYPES.join('|')})[ ]?)`);
 
