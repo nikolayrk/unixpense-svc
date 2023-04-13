@@ -6,6 +6,7 @@ import { injectables } from '../../../types/injectables';
 
 @injectable()
 export default class GmailApiClient {
+    private readonly googleOAuth2ClientProvider: GoogleOAuth2ClientProvider;
     private readonly gmail: gmail_v1.Gmail;
     private readonly searchQuery: string = 'from:pb@unicreditgroup.bg subject: "Dvizhenie po smetka"';
     private readonly maxExponentialBackoffDepth: number = 7;
@@ -16,18 +17,16 @@ export default class GmailApiClient {
         @inject(injectables.GoogleOAuth2ClientProvider)
         googleOAuth2ClientProvider: GoogleOAuth2ClientProvider
     ) {
-        this.gmail = google.gmail({version: 'v1', auth: googleOAuth2ClientProvider.get});
+        this.googleOAuth2ClientProvider = googleOAuth2ClientProvider;
+        this.gmail = google.gmail({version: 'v1', auth: this.googleOAuth2ClientProvider.client});
     }
 
     public async * generateMessageIdsAsync(pageToken?: string): AsyncGenerator<string, [], undefined> {
-        const messageList = await this.fetchMessageListAsync(pageToken);
-        const messages = this.getMessagesFromList(messageList);
+        const { messages, nextPageToken } = await this.fetchMessagesAsync(pageToken);
 
-        for (const messageIdx in messages) {
-            const messageItem = messages[messageIdx];
-
+        for (const messageItem of messages) {
             if (messageItem.id === null || messageItem.id === undefined) {
-                console.log('Empty message id. Skipping...');
+                this.googleOAuth2ClientProvider.logWarning('Empty message id. Skipping...', { messageItem: JSON.stringify(messageItem) });
 
                 continue;
             }
@@ -35,9 +34,7 @@ export default class GmailApiClient {
             yield messageItem.id;
         }
 
-        const nextPageToken = messageList.nextPageToken;
-
-        if (nextPageToken !== null) {
+        if (nextPageToken !== null && nextPageToken !== undefined) {
             yield * this.generateMessageIdsAsync(nextPageToken);
         }
 
@@ -72,7 +69,9 @@ export default class GmailApiClient {
         return attachmentDataBase64;
     }
     
-    private async fetchMessageListAsync(pageToken?: string | undefined) {
+    private async fetchMessagesAsync(pageToken?: string | undefined) {
+        this.googleOAuth2ClientProvider.logEvent(`Requesting messages...`);
+
         const response = await this.makeApiCallAsync(async () =>
             this.gmail.users.messages.list({
                 userId: 'me',
@@ -81,25 +80,18 @@ export default class GmailApiClient {
             }));
 
         const messageList = response.data;
-    
-        return messageList;
-    }
-    
-    private getMessagesFromList(messageList: gmail_v1.Schema$ListMessagesResponse) {
         const messages = messageList.messages;
         const nextPageToken = messageList.nextPageToken;
     
-        console.log(`Requesting message list${nextPageToken !== undefined ? ` with page token ${nextPageToken}` : ''}`);
-    
         if (messages === undefined) {
-            console.log(`Failed to get message list`);
+            this.googleOAuth2ClientProvider.logWarning(`Failed to get messages`);
 
-            return [];
+            return { messages: [], nextPageToken: null };
         }
     
-        console.log(`Received page of ${messages.length} messages`);
+        this.googleOAuth2ClientProvider.logEvent(`Received ${messages.length} messages`);
     
-        return messages;
+        return { messages, nextPageToken };
     }
 
     private constructMessageData(message: gmail_v1.Schema$Message) {
@@ -120,9 +112,9 @@ export default class GmailApiClient {
         try {
             result = await apiCall();
         } catch(ex) {
+            this.googleOAuth2ClientProvider.logWarning(`Gmail API call failed. Reattempting after ${this.exponentialBackoffDepth ** 2}s...`);
+            
             result = await this.tryExponentialBackoffAsync(ex, () => this.makeApiCallAsync(apiCall));
-
-            return result;
         }
 
         return result;
