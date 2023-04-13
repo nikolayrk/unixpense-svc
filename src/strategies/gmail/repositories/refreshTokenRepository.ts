@@ -6,7 +6,7 @@ export default class RefreshTokenRepository {
     public async createOrUpdateAsync(clientToken: string, refreshToken: string) {
         const existingEntity = await RefreshTokenEntity.findByPk(clientToken);
 
-        if (existingEntity !== null) {
+        if (existingEntity === null) {
             await RefreshTokenEntity.create({
                 client_token: clientToken,
                 refresh_token: refreshToken
