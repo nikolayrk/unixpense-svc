@@ -13,7 +13,7 @@ export const standardFeeTestCases: PaymentDetailsTestCase<StandardFee>[] = [
             additionalDetailsRaw: []
         },
         expectedPaymentDetails: {
-            beneficiary: 'UNICREDIT BULBANK',
+            recipient: 'UNICREDIT BULBANK',
             description: '',
         }
     },
@@ -27,7 +27,7 @@ export const standardFeeTestCases: PaymentDetailsTestCase<StandardFee>[] = [
             additionalDetailsRaw: []
         },
         expectedPaymentDetails: {
-            beneficiary: 'UNICREDIT BULBANK',
+            recipient: 'UNICREDIT BULBANK',
             description: '',
         }
     },
@@ -41,7 +41,7 @@ export const standardFeeTestCases: PaymentDetailsTestCase<StandardFee>[] = [
             additionalDetailsRaw: []
         },
         expectedPaymentDetails: {
-            beneficiary: 'UNICREDIT BULBANK',
+            recipient: 'UNICREDIT BULBANK',
             description: '',
         }
     },
@@ -55,7 +55,7 @@ export const standardFeeTestCases: PaymentDetailsTestCase<StandardFee>[] = [
             additionalDetailsRaw: []
         },
         expectedPaymentDetails: {
-            beneficiary: 'UNICREDIT BULBANK',
+            recipient: 'UNICREDIT BULBANK',
             description: 'AZV-Commission  for GPP transaction Ref.: 2283100163',
         }
     },
@@ -69,7 +69,7 @@ export const standardFeeTestCases: PaymentDetailsTestCase<StandardFee>[] = [
             additionalDetailsRaw: []
         },
         expectedPaymentDetails: {
-            beneficiary: 'UNICREDIT BULBANK',
+            recipient: 'UNICREDIT BULBANK',
             description: '',
         }
     },
@@ -83,7 +83,7 @@ export const standardFeeTestCases: PaymentDetailsTestCase<StandardFee>[] = [
             additionalDetailsRaw: []
         },
         expectedPaymentDetails: {
-            beneficiary: 'UNICREDIT BULBANK',
+            recipient: 'UNICREDIT BULBANK',
             description: 'ТЕГЛ.НА КАСА',
         }
     },

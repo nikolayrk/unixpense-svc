@@ -62,6 +62,7 @@ export default class TransactionRepository {
                 ]
             });
         } catch(ex) {
+            // Wrap the passed db error and strip db transaction data, as not to log sensitive information
             if (ex instanceof ValidationError || ex instanceof DatabaseError) {
                 throw new RepositoryError(ex);
             }

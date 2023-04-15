@@ -81,12 +81,4 @@ export default class TransactionEntity extends Model {
     @AllowNull(false)
     @Column(TransactionTypeExtensions.ToDataType())
     type!: string;
-
-    @AllowNull(true)
-    @Column
-    alias!: string;
-
-    @AllowNull(true)
-    @Column
-    category!: string;
 }

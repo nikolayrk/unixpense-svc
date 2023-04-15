@@ -22,7 +22,7 @@ export const cardOperationTestCases: PaymentDetailsTestCase<CardOperation>[] = [
             additionalDetailsRaw: [ '4591TATB0' ],
         },
         expectedPaymentDetails: {
-            beneficiary: 'GLOBAL RETAIL HOLDING EOO',
+            recipient: 'GLOBAL RETAIL HOLDING EOO',
             instrument: 'ПОС',
             sum: '4.48',
             currency: 'BGN'
@@ -50,7 +50,7 @@ export const cardOperationTestCases: PaymentDetailsTestCase<CardOperation>[] = [
             additionalDetailsRaw: [ '4591TATB0' ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'EATALYS',
+            recipient: 'EATALYS',
             instrument: 'Плащане /импринтер/',
             sum: '4.92',
             currency: 'BGN'

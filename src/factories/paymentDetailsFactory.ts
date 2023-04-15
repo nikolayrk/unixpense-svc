@@ -39,10 +39,10 @@ export default class PaymentDetailsFactory {
         } as StandardFee;
     }
 
-    public standardTransfer(beneficiary: string, iban: string, description: string) {
+    public standardTransfer(beneficiary: string, recipientIban: string, description: string) {
         return {
-            beneficiary: beneficiary,
-            iban: iban,
+            recipient: beneficiary,
+            recipientIban: recipientIban,
             description: description
         } as StandardTransfer;
     }

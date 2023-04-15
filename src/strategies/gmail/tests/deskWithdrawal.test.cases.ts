@@ -25,7 +25,7 @@ export const deskWithdrawalTestCases: PaymentDetailsTestCase<DeskWithdrawal>[] =
           additionalDetailsRaw: [ '501149563' ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'ИВАН ИВАНОВ ИВАНОВ',
+            recipient: 'ИВАН ИВАНОВ ИВАНОВ',
             description: 'ТЕГЛ.НА КАСА',
             additionalDetails: '501149563'
         }

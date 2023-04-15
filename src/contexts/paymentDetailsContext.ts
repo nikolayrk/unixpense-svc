@@ -11,7 +11,7 @@ import ILogger from "../contracts/ILogger";
 @injectable()
 export default class PaymentDetailsContext {
     private static readonly defaultPaymentDetails: PaymentDetails = {
-        beneficiary: '<N/A>'
+        recipient: '<N/A>'
     };
     
     private readonly logger;

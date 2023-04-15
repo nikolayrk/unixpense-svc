@@ -17,5 +17,5 @@ export default abstract class PaymentDetailsEntityBase extends Model {
 
     @AllowNull(false)
     @Column
-    beneficiary!: string;
+    recipient!: string;
 }
