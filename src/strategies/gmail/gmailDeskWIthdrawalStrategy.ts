@@ -4,7 +4,7 @@ import DeskWithdrawal from "../../models/deskWithdrawal";
 
 @injectable()
 export default class GmailDeskWithdrawalStrategy extends AbstractPaymentDetailsStrategy<DeskWithdrawal> {
-    public tryCreate(paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null): DeskWithdrawal {
+    public tryCreate(paymentDetailsRaw: string[], additionalDetailsRaw: string[]): DeskWithdrawal {
         const description = paymentDetailsRaw[0];
 
         const beneficiary = paymentDetailsRaw[1].replace(`${description} `, '');

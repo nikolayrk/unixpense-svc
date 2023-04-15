@@ -3,6 +3,141 @@ import StandardTransfer from "../../../models/standardTransfer";
 import { PaymentDetailsTestCase } from "./types/paymentDetailsTestCase";
 
 export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>[] = [
+  {   testName: 'INTEREST_PAYMENT', // Credit
+      attachmentDataBody: `
+        <td nowrap="" align="left">Плащане на лихва<br><br>Плащане на лихва 70001234567820 BGN .25<br></td>
+        <td align="center">
+        <table>
+            <tbody><tr>
+                <td align="right" nowrap="">NA</td>
+            </tr>
+            <tr>
+                <td align="right" nowrap="">UNICREDIT BULBANK</td>
+            </tr>
+        </tbody></table>
+        </td>`,
+      expectedTransactionDataBody: {
+          transactionType: TransactionType.INTEREST_PAYMENT,
+          paymentDetailsRaw: [ '70001234567820 BGN .25' ],
+          additionalDetailsRaw: [
+            'NA',
+            'UNICREDIT BULBANK'
+          ]
+      },
+      expectedPaymentDetails: {
+          recipient: 'UNICREDIT BULBANK',
+          recipientIban: 'NA',
+          description: '70001234567820 BGN .25',
+      }
+  },
+  {   testName: 'INTEREST_TAX', // Debit
+      attachmentDataBody: `
+          <td nowrap="" align="left">Удържане на данък в/у лихва<br><br>Удържане на данък в/у лихва 70001234567820 BGN .02<br></td>
+          <td align="center">
+            <table width="100%">
+              <tbody><tr>
+                <td align="right" nowrap="">NA</td>
+              </tr>
+              <tr>
+                <td align="right" nowrap="">UNICREDIT BULBANK</td>
+              </tr>
+            </tbody></table>
+          </td>`,
+      expectedTransactionDataBody: {
+          transactionType: TransactionType.INTEREST_TAX,
+          paymentDetailsRaw: [ '70001234567820 BGN .02' ],
+          additionalDetailsRaw: [
+              'NA',
+              'UNICREDIT BULBANK'
+          ]
+      },
+      expectedPaymentDetails: {
+          recipient: 'UNICREDIT BULBANK',
+          recipientIban: 'NA',
+          description: '70001234567820 BGN .02'
+      }
+  },
+  {   testName: 'PRINCIPAL_REPAYMENT', // Debit
+      attachmentDataBody: `
+          <td nowrap="" align="left">Погасяване на главница<br><br>Погасяване на главница 70001234567820 BGN 1234.56<br></td>
+          <td align="center">
+            <table width="100%">
+              <tbody><tr>
+                <td align="right" nowrap="">NA</td>
+              </tr>
+              <tr>
+                <td align="right" nowrap="">UNICREDIT BULBANK</td>
+              </tr>
+            </tbody></table>
+          </td>`,
+      expectedTransactionDataBody: {
+          transactionType: TransactionType.PRINCIPAL_REPAYMENT,
+          paymentDetailsRaw: [ '70001234567820 BGN 1234.56' ],
+          additionalDetailsRaw: [
+              'NA',
+              'UNICREDIT BULBANK'
+          ]
+      },
+      expectedPaymentDetails: {
+          recipient: 'UNICREDIT BULBANK',
+          recipientIban: 'NA',
+          description: '70001234567820 BGN 1234.56'
+      }
+  },
+  {   testName: 'INSURANCE_PREMIUM', // Debit
+      attachmentDataBody: `
+          <td nowrap="" align="left">Застрахователна премия<br><br>Застрахователна премия 70001234567820 BGN 1.23<br></td>
+          <td align="center">
+            <table width="100%">
+              <tbody><tr>
+                <td align="right" nowrap="">NA</td>
+              </tr>
+              <tr>
+                <td align="right" nowrap="">UNICREDIT BULBANK</td>
+              </tr>
+            </tbody></table>
+          </td>`,
+      expectedTransactionDataBody: {
+          transactionType: TransactionType.INSURANCE_PREMIUM,
+          paymentDetailsRaw: [ '70001234567820 BGN 1.23' ],
+          additionalDetailsRaw: [
+              'NA',
+              'UNICREDIT BULBANK'
+          ]
+      },
+      expectedPaymentDetails: {
+          recipient: 'UNICREDIT BULBANK',
+          recipientIban: 'NA',
+          description: '70001234567820 BGN 1.23'
+      }
+  },
+  {   testName: 'INTEREST_REPAYMENT', // Debit
+      attachmentDataBody: `
+          <td nowrap="" align="left">Погасяв.на л-ва за редовна главница<br><br>Погасяв.на л-ва за редовна главница 70001234567820 BGN 4.56<br></td>
+          <td align="center">
+            <table width="100%">
+              <tbody><tr>
+                <td align="right" nowrap="">NA</td>
+              </tr>
+              <tr>
+                <td align="right" nowrap="">UNICREDIT BULBANK</td>
+              </tr>
+            </tbody></table>
+          </td>`,
+      expectedTransactionDataBody: {
+          transactionType: TransactionType.INTEREST_REPAYMENT,
+          paymentDetailsRaw: [ '70001234567820 BGN 4.56' ],
+          additionalDetailsRaw: [
+              'NA',
+              'UNICREDIT BULBANK'
+          ]
+      },
+      expectedPaymentDetails: {
+          recipient: 'UNICREDIT BULBANK',
+          recipientIban: 'NA',
+          description: '70001234567820 BGN 4.56'
+      }
+  },
     {   testName: 'INTERNAL_TRANSFER > Вътрешно банков превод Payroll', // Credit
         attachmentDataBody: `
             <td nowrap="" align="left">Вътрешно банков превод Payroll<br><br>Example description<br></td>
@@ -109,141 +244,6 @@ export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>
             recipient: 'Example account name',
             recipientIban: 'BG81UNCR70001234567820',
             description: 'Задължения на Иван Иванов към дата: 1.12.2022 г.'
-        }
-    },
-    {   testName: 'INTEREST_PAYMENT', // Credit
-        attachmentDataBody: `
-          <td nowrap="" align="left">Плащане на лихва<br><br>Плащане на лихва 70001234567820 BGN .25<br></td>
-          <td align="center">
-          <table>
-              <tbody><tr>
-                  <td align="right" nowrap="">NA</td>
-              </tr>
-              <tr>
-                  <td align="right" nowrap="">UNICREDIT BULBANK</td>
-              </tr>
-          </tbody></table>
-          </td>`,
-        expectedTransactionDataBody: {
-            transactionType: TransactionType.INTEREST_PAYMENT,
-            paymentDetailsRaw: [ '70001234567820 BGN .25' ],
-            additionalDetailsRaw: [
-              'NA',
-              'UNICREDIT BULBANK'
-            ]
-        },
-        expectedPaymentDetails: {
-            recipient: 'UNICREDIT BULBANK',
-            recipientIban: 'NA',
-            description: '70001234567820 BGN .25',
-        }
-    },
-    {   testName: 'INTEREST_TAX', // Debit
-        attachmentDataBody: `
-            <td nowrap="" align="left">Удържане на данък в/у лихва<br><br>Удържане на данък в/у лихва 70001234567820 BGN .02<br></td>
-            <td align="center">
-              <table width="100%">
-                <tbody><tr>
-                  <td align="right" nowrap="">NA</td>
-                </tr>
-                <tr>
-                  <td align="right" nowrap="">UNICREDIT BULBANK</td>
-                </tr>
-              </tbody></table>
-            </td>`,
-        expectedTransactionDataBody: {
-            transactionType: TransactionType.INTEREST_TAX,
-            paymentDetailsRaw: [ '70001234567820 BGN .02' ],
-            additionalDetailsRaw: [
-                'NA',
-                'UNICREDIT BULBANK'
-            ]
-        },
-        expectedPaymentDetails: {
-            recipient: 'UNICREDIT BULBANK',
-            recipientIban: 'NA',
-            description: '70001234567820 BGN .02'
-        }
-    },
-    {   testName: 'PRINCIPAL_REPAYMENT', // Debit
-        attachmentDataBody: `
-            <td nowrap="" align="left">Погасяване на главница<br><br>Погасяване на главница 70001234567820 BGN 1234.56<br></td>
-            <td align="center">
-              <table width="100%">
-                <tbody><tr>
-                  <td align="right" nowrap="">NA</td>
-                </tr>
-                <tr>
-                  <td align="right" nowrap="">UNICREDIT BULBANK</td>
-                </tr>
-              </tbody></table>
-            </td>`,
-        expectedTransactionDataBody: {
-            transactionType: TransactionType.PRINCIPAL_REPAYMENT,
-            paymentDetailsRaw: [ '70001234567820 BGN 1234.56' ],
-            additionalDetailsRaw: [
-                'NA',
-                'UNICREDIT BULBANK'
-            ]
-        },
-        expectedPaymentDetails: {
-            recipient: 'UNICREDIT BULBANK',
-            recipientIban: 'NA',
-            description: '70001234567820 BGN 1234.56'
-        }
-    },
-    {   testName: 'INSURANCE_PREMIUM', // Debit
-        attachmentDataBody: `
-            <td nowrap="" align="left">Застрахователна премия<br><br>Застрахователна премия 70001234567820 BGN 1.23<br></td>
-            <td align="center">
-              <table width="100%">
-                <tbody><tr>
-                  <td align="right" nowrap="">NA</td>
-                </tr>
-                <tr>
-                  <td align="right" nowrap="">UNICREDIT BULBANK</td>
-                </tr>
-              </tbody></table>
-            </td>`,
-        expectedTransactionDataBody: {
-            transactionType: TransactionType.INSURANCE_PREMIUM,
-            paymentDetailsRaw: [ '70001234567820 BGN 1.23' ],
-            additionalDetailsRaw: [
-                'NA',
-                'UNICREDIT BULBANK'
-            ]
-        },
-        expectedPaymentDetails: {
-            recipient: 'UNICREDIT BULBANK',
-            recipientIban: 'NA',
-            description: '70001234567820 BGN 1.23'
-        }
-    },
-    {   testName: 'INTEREST_REPAYMENT', // Debit
-        attachmentDataBody: `
-            <td nowrap="" align="left">Погасяв.на л-ва за редовна главница<br><br>Погасяв.на л-ва за редовна главница 70001234567820 BGN 4.56<br></td>
-            <td align="center">
-              <table width="100%">
-                <tbody><tr>
-                  <td align="right" nowrap="">NA</td>
-                </tr>
-                <tr>
-                  <td align="right" nowrap="">UNICREDIT BULBANK</td>
-                </tr>
-              </tbody></table>
-            </td>`,
-        expectedTransactionDataBody: {
-            transactionType: TransactionType.INTEREST_REPAYMENT,
-            paymentDetailsRaw: [ '70001234567820 BGN 4.56' ],
-            additionalDetailsRaw: [
-                'NA',
-                'UNICREDIT BULBANK'
-            ]
-        },
-        expectedPaymentDetails: {
-            recipient: 'UNICREDIT BULBANK',
-            recipientIban: 'NA',
-            description: '70001234567820 BGN 4.56'
         }
     },
     {   testName: 'INTERBANK_TRANSFER', // Debit

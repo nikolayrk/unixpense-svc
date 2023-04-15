@@ -5,7 +5,7 @@ import { TransactionTypeExtensions } from "../extensions/transactionTypeExtensio
 import PaymentDetails from "../models/paymentDetails";
 import { AbstractPaymentDetailsStrategy } from "../strategies/abstractPaymentDetailsStrategy";
 import { injectables } from "../types/injectables";
-import { ICardOperationStrategy, ICrossBorderTransferStrategy, IDeskWithdrawalStrategy, IStandardFeeStrategy, IStandardTransferStrategy } from "../types/paymentDetailsStrategies";
+import { ICardOperationStrategy, ICrossBorderTransferFeeStrategy, ICrossBorderTransferStrategy, IDeskWithdrawalStrategy, IStandardFeeStrategy, IStandardTransferStrategy } from "../types/paymentDetailsStrategies";
 import ILogger from "../contracts/ILogger";
 import PaymentDetailsFactory from "../factories/paymentDetailsFactory";
 
@@ -14,6 +14,7 @@ export default class PaymentDetailsContext {
     private readonly logger;
     private readonly cardOperationStrategy;
     private readonly crossBorderTransferStrategy;
+    private readonly crossBorderTransferFeeStrategy;
     private readonly deskWithdrawalStrategy;
     private readonly standardFeeStrategy;
     private readonly standardTransferStrategy;
@@ -28,6 +29,9 @@ export default class PaymentDetailsContext {
         @inject(injectables.ICrossBorderTransferStrategy)
         crossBorderTransferStrategy: ICrossBorderTransferStrategy,
 
+        @inject(injectables.ICrossBorderTransferFeeStrategy)
+        crossBorderTransferFeeStrategy: ICrossBorderTransferFeeStrategy,
+
         @inject(injectables.IDeskWithdrawalStrategy)
         deskWithdrawalStrategy: IDeskWithdrawalStrategy,
 
@@ -40,6 +44,7 @@ export default class PaymentDetailsContext {
         this.logger = logger;
         this.cardOperationStrategy = cardOperationStrategy;
         this.crossBorderTransferStrategy = crossBorderTransferStrategy;
+        this.crossBorderTransferFeeStrategy = crossBorderTransferFeeStrategy;
         this.deskWithdrawalStrategy = deskWithdrawalStrategy;
         this.standardFeeStrategy = standardFeeStrategy;
         this.standardTransferStrategy = standardTransferStrategy;
@@ -72,6 +77,8 @@ export default class PaymentDetailsContext {
             return this.cardOperationStrategy;
         } else if (TransactionTypeExtensions.IsCrossBorderTransfer(transactionType)) {
             return this.crossBorderTransferStrategy;
+        } else if (TransactionTypeExtensions.IsCrossBorderTransferFee(transactionType)) {
+            return this.crossBorderTransferFeeStrategy;
         } else if (TransactionTypeExtensions.IsDeskWithdrawal(transactionType)) {
             return this.deskWithdrawalStrategy;
         } else if (TransactionTypeExtensions.IsStandardFee(transactionType)) {

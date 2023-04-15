@@ -9,8 +9,9 @@ export default class PaymentDetailsFactory {
         recipient: '<N/A>'
     };
 
-    private readonly defaultIban = 'N/A';
-    private readonly defaultDescription = 'N/A';
+    private static readonly defaultFeeRecipient = 'UNICREDIT BULBANK';
+    private static readonly defaultIban = 'N/A';
+    private static readonly defaultDescription = 'N/A';
     
     public cardOperation(merchant: string, instrument: string, sum: string, currency: string) {
         return {
@@ -21,23 +22,27 @@ export default class PaymentDetailsFactory {
         } as CardOperation;
     }
 
-    public standardTransfer(beneficiary: string, recipientIban: string, description: string) {
+    public standardTransfer(recipient: string, recipientIban: string, description: string) {
         return {
-            recipient: beneficiary,
+            recipient: recipient,
             recipientIban: recipientIban,
             description: description
         } as StandardTransfer;
     }
 
-    public crossBorderTransfer(beneficiary: string, iban: string, description: string) {
-        return this.standardTransfer(beneficiary, iban, description);
+    public crossBorderTransfer(recipient: string, iban: string, description: string) {
+        return this.standardTransfer(recipient, iban, description);
     }
 
-    public deskWithdrawal(beneficiary: string, description: string) {
-        return this.standardTransfer(beneficiary, this.defaultIban, description);
+    public crossBorderTransferFee(description: string) {
+        return this.standardTransfer(PaymentDetailsFactory.defaultFeeRecipient, PaymentDetailsFactory.defaultIban, description);
     }
 
-    public standardFee(beneficiary: string, description: string | null) {
-        return this.standardTransfer(beneficiary, this.defaultIban, description ?? this.defaultDescription);
+    public deskWithdrawal(recipient: string, description: string) {
+        return this.standardTransfer(recipient, PaymentDetailsFactory.defaultIban, description);
+    }
+
+    public standardFee(description: string | null) {
+        return this.standardTransfer(PaymentDetailsFactory.defaultFeeRecipient, PaymentDetailsFactory.defaultIban, description ?? PaymentDetailsFactory.defaultDescription);
     }
 }

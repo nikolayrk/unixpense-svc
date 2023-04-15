@@ -7,6 +7,7 @@ import TransactionContext from './contexts/transactionContext';
 import TransactionRepository from './repositories/transactionRepository';
 import {
     ICardOperationStrategy,
+    ICrossBorderTransferFeeStrategy,
     ICrossBorderTransferStrategy,
     IDeskWithdrawalStrategy,
     IStandardFeeStrategy,
@@ -26,6 +27,7 @@ import ITransactionSourceProvider from './contracts/ITransactionSourceProvider';
 import GmailTransactionSourceProvider from './strategies/gmail/providers/gmailTransactionSourceProvider';
 import ILogger from './contracts/ILogger';
 import WinstonLokiLogger from './winstonLokiLogger';
+import GmailCrossBorderTransferFeeStrategy from './strategies/gmail/gmailCrossBorderTransferFeeStrategy';
 
 export class DependencyInjector {
     private static singleton: DependencyInjector;
@@ -48,6 +50,7 @@ export class DependencyInjector {
         // Gmail-related services
         container.bind<ICardOperationStrategy>(injectables.ICardOperationStrategy).to(GmailCardOperationStrategy);
         container.bind<ICrossBorderTransferStrategy>(injectables.ICrossBorderTransferStrategy).to(GmailCrossBorderTransferStrategy);
+        container.bind<ICrossBorderTransferFeeStrategy>(injectables.ICrossBorderTransferFeeStrategy).to(GmailCrossBorderTransferFeeStrategy);
         container.bind<IDeskWithdrawalStrategy>(injectables.IDeskWithdrawalStrategy).to(GmailDeskWithdrawalStrategy);
         container.bind<IStandardFeeStrategy>(injectables.IStandardFeeStrategy).to(GmailStandardFeeStrategy);
         container.bind<IStandardTransferStrategy>(injectables.IStandardTransferStrategy).to(GmailStandardTransferStrategy);

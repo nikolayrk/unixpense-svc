@@ -4,10 +4,13 @@ import StandardFee from "../models/standardFee";
 import StandardTransfer from "../models/standardTransfer";
 import DeskWithdrawal from "../models/deskWithdrawal";
 import { AbstractPaymentDetailsStrategy } from "../strategies/abstractPaymentDetailsStrategy";
+import CrossBorderTransferFee from "../models/crossBorderTransferFee";
 
 export type ICardOperationStrategy = AbstractPaymentDetailsStrategy<CardOperation>;
 
 export type ICrossBorderTransferStrategy = AbstractPaymentDetailsStrategy<CrossBorderTransfer>;
+
+export type ICrossBorderTransferFeeStrategy = AbstractPaymentDetailsStrategy<CrossBorderTransferFee>;
 
 export type IDeskWithdrawalStrategy = AbstractPaymentDetailsStrategy<DeskWithdrawal>;
 

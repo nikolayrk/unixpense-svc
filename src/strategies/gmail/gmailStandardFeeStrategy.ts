@@ -4,13 +4,11 @@ import { injectable } from "inversify";
 
 @injectable()
 export default class GmailStandardFeeStrategy extends AbstractPaymentDetailsStrategy<StandardFee> {
-    private readonly defaultFeeIssuer = 'UNICREDIT BULBANK';
-
-    public tryCreate(paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null): StandardFee {
+    public tryCreate(paymentDetailsRaw: string[], additionalDetailsRaw: string[]): StandardFee {
         const description = paymentDetailsRaw.length > 0
             ? paymentDetailsRaw.join('')
             : null;
 
-        return this.paymentDetailsFactory.standardFee(this.defaultFeeIssuer, description);
+        return this.paymentDetailsFactory.standardFee(description);
     }
 }

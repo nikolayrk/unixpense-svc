@@ -10,6 +10,7 @@ export const injectables = {
     // Gmail-related services
     ICardOperationStrategy: Symbol.for('ICardOperationStrategy'),
     ICrossBorderTransferStrategy: Symbol.for('ICrossBorderTransferStrategy'),
+    ICrossBorderTransferFeeStrategy: Symbol.for('ICrossBorderTransferFeeStrategy'),
     IDeskWithdrawalStrategy: Symbol.for('IDeskWithdrawalStrategy'),
     IStandardFeeStrategy: Symbol.for('IStandardFeeStrategy'),
     IStandardTransferStrategy: Symbol.for('IStandardTransferStrategy'),

@@ -11,27 +11,19 @@ export class TransactionTypeExtensions {
     }
 
     public static IsCardOperation(transactionType: TransactionType) {
-        if (transactionType === TransactionType.CARD_OPERATION) {
-            return true;
-        }
-
-        return false;
+        return transactionType === TransactionType.CARD_OPERATION;
     }
 
     public static IsCrossBorderTransfer(transactionType: TransactionType) {
-        if (transactionType === TransactionType.CROSS_BORDER_TRANSFER) {
-            return true;
-        }
+        return transactionType === TransactionType.CROSS_BORDER_TRANSFER
+    }
 
-        return false;
+    public static IsCrossBorderTransferFee(transactionType: TransactionType) {
+        return transactionType === TransactionType.CROSS_BORDER_TRANSFER_FEE;
     }
 
     public static IsDeskWithdrawal(transactionType: TransactionType) {
-        if (transactionType === TransactionType.DESK_WITHDRAWAL) {
-            return true;
-        }
-
-        return false;
+        return transactionType === TransactionType.DESK_WITHDRAWAL;
     }
 
     public static IsStandardFee(transactionType: TransactionType) {
