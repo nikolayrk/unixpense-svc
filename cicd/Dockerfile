@@ -2,6 +2,8 @@ FROM node:current-alpine3.16
 
 ARG PORT
 
+ENV NODE_ENV=production
+
 WORKDIR /usr/src/app
 
 COPY package*.json ./

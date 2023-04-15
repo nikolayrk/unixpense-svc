@@ -1,5 +1,6 @@
 export const injectables = {
     // Core services
+    ILogger: Symbol.for('ILogger'),
     PaymentDetailsFactory: Symbol.for('PaymentDetailsFactory'),
     PaymentDetailsContext: Symbol.for('PaymentDetailsContext'),
     TransactionFactory: Symbol.for('TransactionFactory'),

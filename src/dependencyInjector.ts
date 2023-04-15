@@ -24,6 +24,8 @@ import PaymentDetailsFactory from './factories/paymentDetailsFactory';
 import PaymentDetailsContext from './contexts/paymentDetailsContext';
 import ITransactionSourceProvider from './contracts/ITransactionSourceProvider';
 import GmailTransactionSourceProvider from './strategies/gmail/providers/gmailTransactionSourceProvider';
+import ILogger from './contracts/ILogger';
+import WinstonLokiLogger from './winstonLokiLogger';
 
 export class DependencyInjector {
     private static singleton: DependencyInjector;
@@ -36,6 +38,7 @@ export class DependencyInjector {
         this.container = container;
 
         // Core services
+        container.bind<ILogger>(injectables.ILogger).to(WinstonLokiLogger).inSingletonScope();
         container.bind<PaymentDetailsFactory>(injectables.PaymentDetailsFactory).to(PaymentDetailsFactory);
         container.bind<PaymentDetailsContext>(injectables.PaymentDetailsContext).to(PaymentDetailsContext);
         container.bind<TransactionFactory>(injectables.TransactionFactory).to(TransactionFactory);
