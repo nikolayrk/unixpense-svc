@@ -30,11 +30,11 @@ async function bootstrap() {
 
         logger.error(err);
         
-        process.exit(1);
+        process.exitCode = 1;
     });
 
-    process.on('exit', (code) => {
-        logger.log(`Service exited`, { code: code });
+    process.on('beforeExit', (exitCode) => {
+        logger.log(`Service exited`, { exitCode: exitCode });
       });
 
     await DatabaseConnection.Singleton.tryConnectAsync();
@@ -46,7 +46,7 @@ async function bootstrap() {
     app.use(transactionsRouter());
 
     app.listen(port, () => {
-        logger.log(`Server is running at http://${hostname}:${port}`);
+        logger.log(`Server is running`, { hostname: hostname, port: port });
     });
 }
    
