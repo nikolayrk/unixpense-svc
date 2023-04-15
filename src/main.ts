@@ -2,8 +2,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import DatabaseConnection from './databaseConnection';
 import googleOAuth2Middleware from './strategies/gmail/middleware/googleOAuth2Middleware';
-import getTransactionsRouter from './routers/getTransactionsRouter';
-import refreshRouter from './routers/refreshRouter';
+import transactionsRouter from './routers/transactionsRouter';
 import { DependencyInjector } from './dependencyInjector';
 import ILogger from './contracts/ILogger';
 import { injectables } from './types/injectables';
@@ -34,8 +33,7 @@ async function bootstrap() {
 
     app.use(googleOAuth2Middleware());
 
-    app.use(getTransactionsRouter());
-    app.use(refreshRouter());
+    app.use(transactionsRouter());
 
     app.listen(port, async () => {
         logger.log(`Server is running at http://${hostname}:${port}`);

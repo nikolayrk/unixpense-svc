@@ -48,7 +48,7 @@ export default class TransactionContext {
     }
 
     public async * generateAsync(transactionIdsQuery?: string) {
-        this.logger.log(`Generating transaction IDs...`, { query: transactionIdsQuery });
+        this.logger.log(`Generating transaction IDs...`, transactionIdsQuery !== undefined ? { query: transactionIdsQuery } : {});
         
         for await (const transactionId of this.generateTransactionIdsAsync(transactionIdsQuery)) {
             const transaction = await this.getTransactionOrNullAsync(transactionId);
@@ -59,8 +59,8 @@ export default class TransactionContext {
         return [];
     }
 
-    public async * generateSaveAsync() {
-        this.logger.log(`Generating new transaction IDs...`);
+    public async * generateSaveAsync(transactionIdsQuery?: string) {
+        this.logger.log(`Generating new transaction IDs...`, transactionIdsQuery ? { query: transactionIdsQuery } : {});
         
         for await (const transactionId of this.generateTransactionIdsAsync()) {
             if (await this.transactionExistsAsync(transactionId)) {
