@@ -36,28 +36,25 @@ export default class TransactionRepository {
                     ...TransactionTypeExtensions.IsCardOperation(transaction.type) && {
                         card_operation: transaction.paymentDetails
                     },
+
+                    ...TransactionTypeExtensions.IsStandardTransfer(transaction.type) && {
+                        standard_transfer: transaction.paymentDetails
+                    },
                     
                     ...TransactionTypeExtensions.IsCrossBorderTransfer(transaction.type) && {
-                        cross_border_transfer: transaction.paymentDetails
+                        standard_transfer: transaction.paymentDetails
                     },
                     
                     ...TransactionTypeExtensions.IsDeskWithdrawal(transaction.type) && {
-                        desk_withdrawal: transaction.paymentDetails
+                        standard_transfer: transaction.paymentDetails
                     },
 
                     ...TransactionTypeExtensions.IsStandardFee(transaction.type) && {
-                        standard_fee: transaction.paymentDetails
-                    },
-
-                    ...TransactionTypeExtensions.IsStandardTransfer(transaction.type) && {
                         standard_transfer: transaction.paymentDetails
                     },
             }, {
                 include: [
                     TransactionEntity.associations['card_operation'],
-                    TransactionEntity.associations['cross_border_transfer'],
-                    TransactionEntity.associations['desk_withdrawal'],
-                    TransactionEntity.associations['standard_fee'],
                     TransactionEntity.associations['standard_transfer'],
                 ]
             });

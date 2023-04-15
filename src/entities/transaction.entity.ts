@@ -3,9 +3,6 @@ import { EntryTypeExtensions } from '../extensions/entryTypeExtensions';
 import { TransactionTypeExtensions } from '../extensions/transactionTypeExtensions';
 import PaymentDetails from '../models/paymentDetails';
 import CardOperationEntity from './cardOperation.entity';
-import CrossBorderTransferEntity from './crossBorderTransfer.entity';
-import DeskWithdrawalEntity from './deskWithdrawal.entity';
-import StandardFeeEntity from './standardFee.entity';
 import StandardTransferEntity from './standardTransfer.entity';
 
 @Table({
@@ -24,24 +21,6 @@ export default class TransactionEntity extends Model {
         foreignKey: 'transaction_reference'
     })
     card_operation!: PaymentDetails;
-    
-    @HasOne(() => CrossBorderTransferEntity, {
-        as: 'cross_border_transfer',
-        foreignKey: 'transaction_reference'
-    })
-    cross_border_transfer!: PaymentDetails;
-    
-    @HasOne(() => DeskWithdrawalEntity, {
-        as: 'desk_withdrawal',
-        foreignKey: 'transaction_reference'
-    })
-    desk_withdrawal!: PaymentDetails;
-    
-    @HasOne(() => StandardFeeEntity, {
-        as: 'standard_fee',
-        foreignKey: 'transaction_reference'
-    })
-    standard_fee!: PaymentDetails;
     
     @HasOne(() => StandardTransferEntity, {
         as: 'standard_transfer',
