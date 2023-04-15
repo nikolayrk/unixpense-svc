@@ -19,6 +19,12 @@ async function bootstrap() {
 
     const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
 
+    logger.log(`Service started`, {
+        platform: process.platform,
+        arch: process.arch,
+        pid: process.pid
+    });
+
     process.on('uncaughtExceptionMonitor', async function(this: ILogger, err: Error) {
         await DatabaseConnection.Singleton.closeAsync();
 
@@ -26,6 +32,10 @@ async function bootstrap() {
         
         process.exit(1);
     });
+
+    process.on('exit', (code) => {
+        logger.log(`Service exited`, { code: code });
+      });
 
     await DatabaseConnection.Singleton.tryConnectAsync();
 
@@ -35,7 +45,7 @@ async function bootstrap() {
 
     app.use(transactionsRouter());
 
-    app.listen(port, async () => {
+    app.listen(port, () => {
         logger.log(`Server is running at http://${hostname}:${port}`);
     });
 }
