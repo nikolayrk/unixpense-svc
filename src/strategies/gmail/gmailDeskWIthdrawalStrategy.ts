@@ -7,8 +7,7 @@ export default class GmailDeskWithdrawalStrategy extends AbstractPaymentDetailsS
     public tryCreate(paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null): DeskWithdrawal {
         const description = paymentDetailsRaw[0];
 
-        const beneficiary = paymentDetailsRaw[1]
-            .replace(`${description} `, '');
+        const beneficiary = paymentDetailsRaw[1].replace(`${description} `, '');
 
         return this.paymentDetailsFactory.deskWithdrawal(beneficiary, description);
     }

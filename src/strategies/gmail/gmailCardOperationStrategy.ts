@@ -6,8 +6,7 @@ import { injectable } from "inversify";
 @injectable()
 export default class GmailCardOperationStrategy extends AbstractPaymentDetailsStrategy<CardOperation> {
     public tryCreate(paymentDetailsRaw: string[], additionalDetailsRaw: string[]): CardOperation {
-        const raw = paymentDetailsRaw
-            .join('');
+        const raw = paymentDetailsRaw.join('');
 
         const regex = /^(?<instrument>[^\d]+)\s(?<sum>[^\s]+)\s(?<currency>\w*)[,]?\sавт.код:(?:[^\s,-]*)[\s]*[-]?[,]?[\s]?(?<merchant>[^\/]+(?<! ))/;
 

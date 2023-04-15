@@ -7,8 +7,7 @@ export default class GmailStandardTransferStrategy extends AbstractPaymentDetail
     public tryCreate(paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null): StandardTransfer {
         const beneficiary = additionalDetailsRawOrNull?.[1] ?? '';
         const iban = additionalDetailsRawOrNull?.[0] ?? '';
-        const description = paymentDetailsRaw
-            .join('\n');
+        const description = paymentDetailsRaw.join('\n');
 
         return this.paymentDetailsFactory.standardTransfer(beneficiary, iban, description);
     }
