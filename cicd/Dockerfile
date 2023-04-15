@@ -1,9 +1,5 @@
 FROM node:current-alpine3.16
 
-ARG PORT
-
-ENV NODE_ENV=production
-
 WORKDIR /usr/src/app
 
 COPY package*.json ./
@@ -12,10 +8,15 @@ COPY tsconfig.json ./
 
 COPY src ./src
 
-RUN npm ci && \
-    npm run build && \
+RUN npm ci
+
+ARG NODE_ENV
+
+RUN npm run build && \
     rm -rf  ./src \
             tsconfig.json
+
+ARG PORT
 
 EXPOSE $PORT
 
