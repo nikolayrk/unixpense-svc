@@ -5,7 +5,7 @@ import { injectable } from "inversify";
 
 @injectable()
 export default class GmailCardOperationStrategy extends AbstractPaymentDetailsStrategy<CardOperation> {
-    public tryCreate(transactionReference: string, paymentDetailsRaw: string[], additionalDetailsRaw: string[]): CardOperation {
+    public tryCreate(paymentDetailsRaw: string[], additionalDetailsRaw: string[]): CardOperation {
         const raw = paymentDetailsRaw
             .join('');
 
@@ -14,7 +14,7 @@ export default class GmailCardOperationStrategy extends AbstractPaymentDetailsSt
         const regexResult = regex.exec(raw);
 
         if (regexResult === null) {
-            throw new PaymentDetailsProcessingError(transactionReference, `Failed to execute regex on input '${raw}'`);
+            throw new PaymentDetailsProcessingError(`Failed to execute regex on input '${raw}'`);
         }
 
         const instrument = regexResult.groups?.instrument;
@@ -23,7 +23,7 @@ export default class GmailCardOperationStrategy extends AbstractPaymentDetailsSt
         const merchant = regexResult.groups?.merchant;
 
         if (instrument === undefined || sum === undefined || currency === undefined || merchant === undefined) {
-            throw new PaymentDetailsProcessingError(transactionReference, `Failed to read regex capture group`);
+            throw new PaymentDetailsProcessingError(`Failed to read regex capture group`);
         }
 
         return this.paymentDetailsFactory.cardOperation(merchant, instrument, sum, currency);

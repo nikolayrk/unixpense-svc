@@ -8,9 +8,12 @@ import Transaction from "../models/transaction";
 import TransactionRepository from "../repositories/transactionRepository";
 import { injectables } from "../types/injectables";
 import PaymentDetailsContext from "./paymentDetailsContext";
+import ILogger from "../contracts/ILogger";
+import RepositoryError from "../errors/repositoryError";
 
 @injectable()
 export default class TransactionContext {
+    private readonly logger;
     private readonly transactionSourceProvider;
     private readonly transactionDataProvider;
     private readonly paymentDetailsContext;
@@ -18,6 +21,9 @@ export default class TransactionContext {
     private readonly transactionRepository;
 
     public constructor(
+        @inject(injectables.ILogger)
+        logger: ILogger,
+
         @inject(injectables.ITransactionSourceProvider)
         transactionSourceProvider: ITransactionSourceProvider,
 
@@ -33,6 +39,7 @@ export default class TransactionContext {
         @inject(injectables.TransactionRepository)
         transactionRepository: TransactionRepository,
     ) {
+        this.logger = logger;
         this.transactionSourceProvider = transactionSourceProvider;
         this.transactionDataProvider = transactionDataProvider;
         this.paymentDetailsContext = paymentDetailsContext;
@@ -41,6 +48,8 @@ export default class TransactionContext {
     }
 
     public async * generateAsync(transactionIdsQuery?: string) {
+        this.logger.log(`Generating transaction IDs...`, { query: transactionIdsQuery });
+        
         for await (const transactionId of this.generateTransactionIdsAsync(transactionIdsQuery)) {
             const transaction = await this.getTransactionOrNullAsync(transactionId);
 
@@ -51,9 +60,11 @@ export default class TransactionContext {
     }
 
     public async * generateSaveAsync() {
+        this.logger.log(`Generating new transaction IDs...`);
+        
         for await (const transactionId of this.generateTransactionIdsAsync()) {
             if (await this.transactionExistsAsync(transactionId)) {
-                console.log(`Transaction from message ID ${transactionId} already exists`);
+                this.logger.warn(`Transaction already exists`, { transactionId: transactionId });
 
                 yield null;
                 
@@ -68,9 +79,11 @@ export default class TransactionContext {
                 continue;
             }
 
-            await this.addTransactionAsync(transaction);
+            const result = await this.addTransactionAsync(transaction);
 
-            yield transaction;
+            yield result
+                ? transaction
+                : null;
         }
 
         return [];
@@ -78,27 +91,31 @@ export default class TransactionContext {
 
     private generateTransactionIdsAsync(transactionIdsQuery?: string) {
         return transactionIdsQuery !== undefined
-            ? this.generateTransactionIdsFromQuery(transactionIdsQuery)
+            ? this.generateTransactionIdsFromQueryAsync(transactionIdsQuery)
             : this.transactionSourceProvider.generateTransactionIdsAsync();
     }
 
-    private async * generateTransactionIdsFromQuery(transactionIdsQuery: string) {
+    private async * generateTransactionIdsFromQueryAsync(transactionIdsQuery: string) {
         const transactionIds = transactionIdsQuery.split(',');
-    
-        for await (const transactionId of transactionIds) {
-            yield * transactionId;
+
+        for (const i in transactionIds) {
+            const transactionId = transactionIds[i];
+
+            yield transactionId;
         }
+
+        return [];
     }
 
     private async getTransactionOrNullAsync(transactionId: string) {
-        console.log(`Processing transaction with ID ${transactionId}`);
+        this.logger.log(`Processing transaction...`, { transactionId: transactionId });
 
         try {
             const transactionSource = await this.transactionSourceProvider.getAsync(transactionId);
 
             const transactionData = this.transactionDataProvider.get(transactionSource);
 
-            const paymentDetails = this.paymentDetailsContext.tryGet(
+            const paymentDetails = this.paymentDetailsContext.resolve(
                 transactionData.reference,
                 transactionData.transactionType,
                 transactionData.paymentDetailsRaw,
@@ -106,17 +123,15 @@ export default class TransactionContext {
 
             const transaction = this.transactionFactory.create(transactionId, transactionData, paymentDetails);
             
-            console.log(`Successfully processed transaction with reference ${transaction.reference}`);
+            this.logger.log(`Successfully processed transaction`, { transactionId: transactionId });
 
             return transaction;
         } catch(ex) {
-            if (ex instanceof Error) {
-                console.log(`${ex.message}\n\n${ex.stack}`);
+            const error = ex as Error;
 
-                return null;
-            }
+            this.logger.error(error, { transactionId: transactionId });
 
-            throw ex;
+            return null;
         }
     }
 
@@ -125,10 +140,36 @@ export default class TransactionContext {
     }
 
     private async addTransactionAsync(transaction: Transaction<PaymentDetails>) {
-        console.log(`Adding transaction with message ID ${transaction.id} of type ${TransactionTypeExtensions.ToString(transaction.type)} to database`);
+        const transactionTypeString = TransactionTypeExtensions.ToString(transaction.type);
 
-        await this.transactionRepository.createAsync(transaction);
+        this.logger.log(`Adding transaction to database...`, {
+            transactionId: transaction.id,
+            transactionReference: transaction.reference,
+            transactionType: transactionTypeString
+        });
+
+        try {
+            await this.transactionRepository.tryCreateAsync(transaction);
+        } catch(ex) {
+            if (ex instanceof RepositoryError) {
+                this.logger.error(ex, {
+                    transactionId: transaction.id,
+                    transactionReference: transaction.reference,
+                    transactionType: transactionTypeString
+                });
+
+                return false;
+            }
+
+            throw ex;
+        }
         
-        console.log(`Successfully added transaction with message ID ${transaction.id}`);
+        this.logger.log(`Successfully added transaction to database`, {
+            transactionId: transaction.id,
+            transactionReference: transaction.reference,
+            transactionType: transactionTypeString
+        });
+
+        return true;
     }
 }

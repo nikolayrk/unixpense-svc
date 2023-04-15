@@ -1,12 +1,12 @@
 import { inject, injectable } from "inversify";
 import TransactionType from "../enums/transactionType";
-import PaymentDetailsProcessingError from "../errors/paymentDetailsProcessingError";
 import UnsupportedTxnError from "../errors/unsupportedTxnError";
 import { TransactionTypeExtensions } from "../extensions/transactionTypeExtensions";
 import PaymentDetails from "../models/paymentDetails";
 import { AbstractPaymentDetailsStrategy } from "../strategies/abstractPaymentDetailsStrategy";
 import { injectables } from "../types/injectables";
 import { ICardOperationStrategy, ICrossBorderTransferStrategy, IDeskWithdrawalStrategy, IStandardFeeStrategy, IStandardTransferStrategy } from "../types/paymentDetailsStrategies";
+import ILogger from "../contracts/ILogger";
 
 @injectable()
 export default class PaymentDetailsContext {
@@ -14,6 +14,7 @@ export default class PaymentDetailsContext {
         beneficiary: '<N/A>'
     };
     
+    private readonly logger;
     private readonly cardOperationStrategy;
     private readonly crossBorderTransferStrategy;
     private readonly deskWithdrawalStrategy;
@@ -21,6 +22,9 @@ export default class PaymentDetailsContext {
     private readonly standardTransferStrategy;
 
     public constructor(
+        @inject(injectables.ILogger)
+        logger: ILogger,
+
         @inject(injectables.ICardOperationStrategy)
         cardOperationStrategy: ICardOperationStrategy,
 
@@ -36,6 +40,7 @@ export default class PaymentDetailsContext {
         @inject(injectables.IStandardTransferStrategy)
         standardTransferStrategy: IStandardTransferStrategy
     ) {
+        this.logger = logger;
         this.cardOperationStrategy = cardOperationStrategy;
         this.crossBorderTransferStrategy = crossBorderTransferStrategy;
         this.deskWithdrawalStrategy = deskWithdrawalStrategy;
@@ -43,24 +48,23 @@ export default class PaymentDetailsContext {
         this.standardTransferStrategy = standardTransferStrategy;
     }
 
-    // throws PaymentDetailsProcessingError
-    public tryGet(reference: string, transactionType: TransactionType, paymentDetailsRaw: string[], additionalDetailsRaw: string[]) {
+    public resolve(reference: string, transactionType: TransactionType, paymentDetailsRaw: string[], additionalDetailsRaw: string[]) {
         try {
             const paymentDetailsStrategy = this.tryGetStrategyByType(transactionType);
-            const paymentDetails = paymentDetailsStrategy.tryCreate(reference, paymentDetailsRaw, additionalDetailsRaw);
+            const paymentDetails = paymentDetailsStrategy.tryCreate(paymentDetailsRaw, additionalDetailsRaw);
         
             return paymentDetails;
         } catch(ex) {
-            if ((ex instanceof UnsupportedTxnError || ex instanceof PaymentDetailsProcessingError) === false) {
-                throw new PaymentDetailsProcessingError(reference, String(ex), (ex as Error)?.stack);
-            }
-
-            const exception = ex as UnsupportedTxnError | PaymentDetailsProcessingError;
-
-            console.log(exception.message);
-            console.log('Falling back to using default payment details body...');
+            const error = ex as Error;
+            
+            this.logger.error(error, { transactionReference: reference });
         }
 
+        this.logger.log(`Falling back to using default payment details body...`, {
+            transactionReference: reference,
+            transactionType: transactionType
+        }
+        );
         return PaymentDetailsContext.defaultPaymentDetails;
     }
     

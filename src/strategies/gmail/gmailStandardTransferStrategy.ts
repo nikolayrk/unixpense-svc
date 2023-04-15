@@ -4,7 +4,7 @@ import { injectable } from "inversify";
 
 @injectable()
 export default class GmailStandardTransferStrategy extends AbstractPaymentDetailsStrategy<StandardTransfer> {
-    public tryCreate(transactionReference: string, paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null): StandardTransfer {
+    public tryCreate(paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null): StandardTransfer {
         const beneficiary = additionalDetailsRawOrNull?.[1] ?? '';
         const iban = additionalDetailsRawOrNull?.[0] ?? '';
         const description = paymentDetailsRaw

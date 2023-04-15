@@ -2,10 +2,12 @@ import express, { Request, Response } from "express";
 import TransactionContext from "../contexts/transactionContext";
 import { DependencyInjector } from "../dependencyInjector";
 import { injectables } from "../types/injectables";
+import ILogger from "../contracts/ILogger";
 
 export default function refreshRouter() {
     const router = express.Router();
 
+    const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
     const transactionContext = DependencyInjector.Singleton.resolve<TransactionContext>(injectables.TransactionContext);
     
     router.use('/refresh', async (_: Request, res: Response) => {
@@ -30,13 +32,15 @@ export default function refreshRouter() {
             response = skippedCount > 0
                 ? `Added ${newCount} new transactions to database, skipped ${skippedCount}`
                 : `Added ${newCount} new transactions to database`
+
+            logger.log(response);
         } catch (ex) {
-            response = ex instanceof Error
-                ? `${ex.message}\n\n${ex.stack}`
-                : ex;
+            const error = ex as Error;
+
+            logger.error(error);
+            
+            response = `${error.message}\n\n${error.stack}`;
         }
-                
-        console.log(response);
 
         res.type('text/plain')
            .status(200)

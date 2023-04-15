@@ -6,7 +6,7 @@ import { injectable } from "inversify";
 export default class GmailStandardFeeStrategy extends AbstractPaymentDetailsStrategy<StandardFee> {
     private readonly defaultFeeIssuer = 'UNICREDIT BULBANK';
 
-    public tryCreate(transactionReference: string, paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null): StandardFee {
+    public tryCreate(paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null): StandardFee {
         const description = paymentDetailsRaw
             .join('');
 

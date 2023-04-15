@@ -4,6 +4,9 @@ import DatabaseConnection from './databaseConnection';
 import googleOAuth2Middleware from './strategies/gmail/middleware/googleOAuth2Middleware';
 import getTransactionsRouter from './routers/getTransactionsRouter';
 import refreshRouter from './routers/refreshRouter';
+import { DependencyInjector } from './dependencyInjector';
+import ILogger from './contracts/ILogger';
+import { injectables } from './types/injectables';
 
 async function bootstrap() {
     dotenv.config();
@@ -15,35 +18,28 @@ async function bootstrap() {
         return;
     }
 
-    try {
-        await DatabaseConnection.Singleton.tryConnectAsync();
+    const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
 
-        const app = express();
-
-        app.use(googleOAuth2Middleware());
-
-        app.use(getTransactionsRouter());
-        app.use(refreshRouter());
-
-        app.listen(port, () => {
-            console.log(`Server is running at http://${hostname}:${port}`);
-        });
-    } catch (ex) {
-        const body = ex instanceof Error
-            ? `${ex.message}\n\n${ex.stack}`
-            : ex;
-        
-        console.log('Unhandled server error:');
-        console.log(body);
-        console.log('');
-        console.log('Closing database connection...');
-
+    process.on('uncaughtExceptionMonitor', async function(this: ILogger, err: Error) {
         await DatabaseConnection.Singleton.closeAsync();
 
-        console.log('Exiting...');
-
+        logger.error(err);
+        
         process.exit(1);
-    }
+    });
+
+    await DatabaseConnection.Singleton.tryConnectAsync();
+
+    const app = express();
+
+    app.use(googleOAuth2Middleware());
+
+    app.use(getTransactionsRouter());
+    app.use(refreshRouter());
+
+    app.listen(port, async () => {
+        logger.log(`Server is running at http://${hostname}:${port}`);
+    });
 }
    
 bootstrap();

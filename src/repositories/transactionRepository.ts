@@ -4,48 +4,70 @@ import PaymentDetails from "../models/paymentDetails";
 import '../extensions/dateExtensions';
 import { EntryTypeExtensions } from "../extensions/entryTypeExtensions";
 import { TransactionTypeExtensions } from "../extensions/transactionTypeExtensions";
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
+import { DatabaseError, ValidationError } from 'sequelize';
+import { injectables } from '../types/injectables';
+import ILogger from '../contracts/ILogger';
+import RepositoryError from '../errors/repositoryError';
 
 @injectable()
 export default class TransactionRepository {
-    public async createAsync(transaction: Transaction<PaymentDetails>) {
-        await TransactionEntity.create({
-                id: transaction.id,
-                date: transaction.date.toSqlDate(),
-                reference: transaction.reference,
-                value_date: transaction.valueDate.toSqlDate(),
-                sum: transaction.sum,
-                entry_type: EntryTypeExtensions.ToString(transaction.entryType),
-                type: TransactionTypeExtensions.ToString(transaction.type),
+    private readonly logger;
 
-                ...TransactionTypeExtensions.IsCardOperation(transaction.type) && {
-                    card_operation: transaction.paymentDetails
-                },
-                
-                ...TransactionTypeExtensions.IsCrossBorderTransfer(transaction.type) && {
-                    cross_border_transfer: transaction.paymentDetails
-                },
-                
-                ...TransactionTypeExtensions.IsDeskWithdrawal(transaction.type) && {
-                    desk_withdrawal: transaction.paymentDetails
-                },
+    public constructor(
+        @inject(injectables.ILogger)
+        logger: ILogger
+    ) {
+        this.logger = logger;
+    }
 
-                ...TransactionTypeExtensions.IsStandardFee(transaction.type) && {
-                    standard_fee: transaction.paymentDetails
-                },
+    // throws RepositoryError
+    public async tryCreateAsync(transaction: Transaction<PaymentDetails>) {
+        try {
+            await TransactionEntity.create({
+                    id: transaction.id,
+                    date: transaction.date.toSqlDate(),
+                    reference: transaction.reference,
+                    value_date: transaction.valueDate.toSqlDate(),
+                    sum: transaction.sum,
+                    entry_type: EntryTypeExtensions.ToString(transaction.entryType),
+                    type: TransactionTypeExtensions.ToString(transaction.type),
 
-                ...TransactionTypeExtensions.IsStandardTransfer(transaction.type) && {
-                    standard_transfer: transaction.paymentDetails
-                },
-        }, {
-            include: [
-                TransactionEntity.associations['card_operation'],
-                TransactionEntity.associations['cross_border_transfer'],
-                TransactionEntity.associations['desk_withdrawal'],
-                TransactionEntity.associations['standard_fee'],
-                TransactionEntity.associations['standard_transfer'],
-            ]
-        });
+                    ...TransactionTypeExtensions.IsCardOperation(transaction.type) && {
+                        card_operation: transaction.paymentDetails
+                    },
+                    
+                    ...TransactionTypeExtensions.IsCrossBorderTransfer(transaction.type) && {
+                        cross_border_transfer: transaction.paymentDetails
+                    },
+                    
+                    ...TransactionTypeExtensions.IsDeskWithdrawal(transaction.type) && {
+                        desk_withdrawal: transaction.paymentDetails
+                    },
+
+                    ...TransactionTypeExtensions.IsStandardFee(transaction.type) && {
+                        standard_fee: transaction.paymentDetails
+                    },
+
+                    ...TransactionTypeExtensions.IsStandardTransfer(transaction.type) && {
+                        standard_transfer: transaction.paymentDetails
+                    },
+            }, {
+                include: [
+                    TransactionEntity.associations['card_operation'],
+                    TransactionEntity.associations['cross_border_transfer'],
+                    TransactionEntity.associations['desk_withdrawal'],
+                    TransactionEntity.associations['standard_fee'],
+                    TransactionEntity.associations['standard_transfer'],
+                ]
+            });
+        } catch(ex) {
+            if (ex instanceof ValidationError || ex instanceof DatabaseError) {
+                throw new RepositoryError(ex);
+            }
+
+            throw ex;
+        }
     }
 
     public async existsAsync(transactionId: string) {

@@ -3,13 +3,24 @@ import { parse as dateParse} from 'date-format-parse';
 import EntryType from '../../../enums/entryType';
 import { TRANSACTION_TYPES } from '../../../types/transactionTypeString';
 import transactionTypesByString from '../../../types/transactionTypeByString';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import ITransactionDataProvider from '../../../contracts/ITransactionDataProvider';
 import { TransactionData } from '../../../models/transactionData';
 import TransactionType from '../../../enums/transactionType';
+import ILogger from '../../../contracts/ILogger';
+import { injectables } from '../../../types/injectables';
 
 @injectable()
 export default class GmailTransactionDataProvider implements ITransactionDataProvider {
+    private readonly logger: ILogger;
+
+    public constructor(
+        @inject(injectables.ILogger)
+        logger: ILogger
+    ) {
+        this.logger = logger;
+    }
+
     public get(transactionDataRaw: string) {
         const transactionDataHtml = this.parseTransactionDataHtml(transactionDataRaw);
 
@@ -17,11 +28,11 @@ export default class GmailTransactionDataProvider implements ITransactionDataPro
         const reference = this.parseReference(transactionDataHtml);
         const valueDate = this.parseValueDate(transactionDataHtml);
         const sum = this.parseSum(transactionDataHtml);
-        const entryType = this.parseEntryType(transactionDataHtml);
+        const entryType = this.parseEntryType(transactionDataHtml, reference);
         const {
             transactionType,
             paymentDetailsRaw
-        } = this.parseTransactionType(transactionDataHtml);
+        } = this.parseTransactionType(transactionDataHtml, reference);
         const additionalDetailsRaw = this.parseAdditionalDetails(transactionDataHtml);
 
         const transactionData: TransactionData = {
@@ -82,7 +93,7 @@ export default class GmailTransactionDataProvider implements ITransactionDataPro
         return sum;
     }
 
-    private parseEntryType(transactionData: Node[]) {
+    private parseEntryType(transactionData: Node[], transactionReference: string) {
         const entryTypeStr = transactionData[9]
             .childNodes[0]
             .rawText;
@@ -94,13 +105,13 @@ export default class GmailTransactionDataProvider implements ITransactionDataPro
                 : EntryType.INVALID;
 
         if (entryType === EntryType.INVALID) {
-            console.log(`Unregonised entry type '${entryTypeStr}'`);
+            this.logger.warn(`Unregonised entry type '${entryTypeStr}'`, { transactionReference: transactionReference });
         }
 
         return entryType;
     }
 
-    private parseTransactionType(transactionData: Node[]) {
+    private parseTransactionType(transactionData: Node[], transactionReference: string) {
         const maxDataLineLength = 100;
         const dataElementCount = transactionData[11].childNodes.length;
         let dataRawCount = 0;
@@ -162,6 +173,10 @@ export default class GmailTransactionDataProvider implements ITransactionDataPro
         const transactionType = valid
             ? transactionTypesByString[typeByString]
             : TransactionType.UNKNOWN;
+
+        if (transactionType === TransactionType.UNKNOWN) {
+            this.logger.warn(`Unknown transaction type '${found}'`, { transactionReference: transactionReference });
+        }
 
         const paymentDetailsRaw = dataRaw
             .map(e => e.replace(typeRegex, ''))

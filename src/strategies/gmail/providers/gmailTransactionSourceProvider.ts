@@ -3,15 +3,21 @@ import GmailApiClient from "../clients/gmailApiClient";
 import ITransactionSourceProvider from "../../../contracts/ITransactionSourceProvider";
 import GmailMessageData from "../models/gmailMessageData";
 import { injectables } from "../../../types/injectables";
+import ILogger from "../../../contracts/ILogger";
 
 @injectable()
 export default class GmailTransactionSourceProvider implements ITransactionSourceProvider {
+    private readonly logger;
     private readonly gmailApiClient;
 
     public constructor(
+        @inject(injectables.ILogger)
+        logger: ILogger,
+
         @inject(injectables.GmailApiClient)
         gmailApiClient: GmailApiClient
     ) {
+        this.logger = logger;
         this.gmailApiClient = gmailApiClient;
     }
 
@@ -28,21 +34,21 @@ export default class GmailTransactionSourceProvider implements ITransactionSourc
     }
 
     private async getGmailMessageDataAsync(transactionId: string) {
-        console.log(`Requesting transaction with ID ${transactionId}...`);
+        this.logger.log(`Fetching Gmail message...`, { transactionId: transactionId });
 
         const gmailMessageData = await this.gmailApiClient.fetchMessageDataAsync(transactionId);
 
-        console.log(`Received transaction with ID ${transactionId}`);
+        this.logger.log(`Received Gmail message`, { transactionId: transactionId });
 
         return gmailMessageData;
     }
 
     private async getAttachmentDataAsync(messageData: GmailMessageData) {
-        console.log(`Requesting attachment from message with ID ${messageData.messageId}...`);
+        this.logger.log(`Fetching attachment...`, { transactionId: messageData.messageId });
 
         const attachmentDataBase64 = await this.gmailApiClient.fetchAttachmentDataBase64Async(messageData);
 
-        console.log(`Received attachment from message with ID ${messageData.messageId}`);
+        this.logger.log(`Received attachment`, { transactionId: messageData.messageId });
 
         const attachmentData = this.decodeAttachmentData(attachmentDataBase64);
 

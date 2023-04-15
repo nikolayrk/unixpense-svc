@@ -13,11 +13,11 @@ export default function describePaymentDetailsTests<T extends PaymentDetails>(
   const paymentDetailsContext = DependencyInjector.Singleton.resolve<PaymentDetailsContext>(injectables.PaymentDetailsContext);
 
   const createPaymentDetails = (paymentDetailsTestCase: PaymentDetailsTestCase<T>) =>
-    paymentDetailsContext.tryGet(
-          paymentDetailsTestCase.testName,
-          paymentDetailsTestCase.expectedTransactionDataBody.transactionType,
-          paymentDetailsTestCase.expectedTransactionDataBody.paymentDetailsRaw,
-          paymentDetailsTestCase.expectedTransactionDataBody.additionalDetailsRaw);
+    paymentDetailsContext.resolve(
+      paymentDetailsTestCase.testName,
+      paymentDetailsTestCase.expectedTransactionDataBody.transactionType,
+      paymentDetailsTestCase.expectedTransactionDataBody.paymentDetailsRaw,
+      paymentDetailsTestCase.expectedTransactionDataBody.additionalDetailsRaw);
 
   const newPaymentDetailsTestCase = (paymentDetailsTestCase: PaymentDetailsTestCase<T>) =>
       test(paymentDetailsTestCase.testName, () =>

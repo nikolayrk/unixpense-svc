@@ -5,7 +5,7 @@ import { injectable } from "inversify";
 
 @injectable()
 export default class GmailCrossBorderTransferStrategy extends AbstractPaymentDetailsStrategy<CrossBorderTransfer> {
-    public tryCreate(transactionReference: string, paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null): CrossBorderTransfer {
+    public tryCreate(paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null): CrossBorderTransfer {
         const transactionDetailsRaw = paymentDetailsRaw
             .join('')
 
@@ -19,7 +19,7 @@ export default class GmailCrossBorderTransferStrategy extends AbstractPaymentDet
         const iban = paymentDetails[7];
 
         if (beneficiary === undefined || description === undefined || iban === undefined) {
-            throw new PaymentDetailsProcessingError(transactionReference, `Failed to execute regex on input '${transactionDetailsRaw}'`);
+            throw new PaymentDetailsProcessingError(`Failed to execute regex on input '${transactionDetailsRaw}'`);
         }
 
         return this.paymentDetailsFactory.crossBorderTransfer(beneficiary, iban, description);
