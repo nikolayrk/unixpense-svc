@@ -1,6 +1,5 @@
-import PaymentDetails from "./paymentDetails";
+import StandardTransfer from "./standardTransfer";
 
-export default interface CrossBorderTransfer extends PaymentDetails {
-    iban: string;
-    description: string;
-}
+type CrossBorderTransfer = StandardTransfer;
+
+export default CrossBorderTransfer;

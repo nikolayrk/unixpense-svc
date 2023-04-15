@@ -13,9 +13,9 @@ export const crossBorderTransferTestCases: PaymentDetailsTestCase<CrossBorderTra
             additionalDetailsRaw: []
         },
         expectedPaymentDetails: {
-            beneficiary: 'Treehouse Distribution',
-            iban: 'NL48BUNQ4950396806',
-            description: 'T-535685'
+            recipient: 'Treehouse Distribution',
+            recipientIban: 'NL48BUNQ4950396806',
+            description: 'Ord.Ref: NOTPROVIDED, HEDG, T-535685, GPP Ref.: 2243120123'
         }
     },
 ];

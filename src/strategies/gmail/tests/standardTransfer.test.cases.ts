@@ -3,6 +3,33 @@ import StandardTransfer from "../../../models/standardTransfer";
 import { PaymentDetailsTestCase } from "./types/paymentDetailsTestCase";
 
 export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>[] = [
+    {   testName: 'DESK_WITHDRAWAL',
+        attachmentDataBody: `
+            <td nowrap="nowrap" align="left"><br />ТЕГЛ.НА КАСА /Теглене на пари на каса от клнт с-к<br />ТЕГЛ.НА КАСА ИВАН ИВАНОВ ИВАНОВ<br /></td>
+            <td align="center">
+              <table width="100%">
+                <tr>
+                  <td align="right" nowrap="nowrap">501149563</td>
+                </tr>
+                <tr>
+                  <td align="right" nowrap="nowrap"></td>
+                </tr>
+              </table>
+            </td>`,
+        expectedTransactionDataBody: {
+          transactionType: TransactionType.DESK_WITHDRAWAL,
+          paymentDetailsRaw: [
+            'ТЕГЛ.НА КАСА',
+            'ТЕГЛ.НА КАСА ИВАН ИВАНОВ ИВАНОВ'
+          ],
+          additionalDetailsRaw: [ '501149563' ]
+        },
+        expectedPaymentDetails: {
+            recipient: 'ИВАН ИВАНОВ ИВАНОВ',
+            recipientIban: 'N/A',
+            description: 'ТЕГЛ.НА КАСА'
+        }
+    },
     {   testName: 'INTERNAL_TRANSFER > Вътрешно банков превод Payroll', // Credit
         attachmentDataBody: `
             <td nowrap="" align="left">Вътрешно банков превод Payroll<br><br>Example description<br></td>
@@ -25,8 +52,8 @@ export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>
             ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'Example account name',
-            iban: 'BG69UNCR70001512345693',
+            recipient: 'Example account name',
+            recipientIban: 'BG69UNCR70001512345693',
             description: 'Example description',
         }
     },
@@ -52,8 +79,8 @@ export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>
             ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'ИВАН ИВАНОВ ИВАНОВ',
-            iban: 'BG52UNCR70001234567892',
+            recipient: 'ИВАН ИВАНОВ ИВАНОВ',
+            recipientIban: 'BG52UNCR70001234567892',
             description: 'savings transfer'
         }
     },
@@ -79,8 +106,8 @@ export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>
             ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'ИВАН ИВАНОВ ИВАНОВ',
-            iban: 'BG52UNCR70001234567892',
+            recipient: 'ИВАН ИВАНОВ ИВАНОВ',
+            recipientIban: 'BG52UNCR70001234567892',
             description: ''
         }
     },
@@ -106,8 +133,8 @@ export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>
             ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'Example account name',
-            iban: 'BG81UNCR70001234567820',
+            recipient: 'Example account name',
+            recipientIban: 'BG81UNCR70001234567820',
             description: 'Задължения на Иван Иванов към дата: 1.12.2022 г.'
         }
     },
@@ -133,8 +160,8 @@ export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>
             ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'UNICREDIT BULBANK',
-            iban: 'NA',
+            recipient: 'UNICREDIT BULBANK',
+            recipientIban: 'NA',
             description: '70001234567820 BGN .25',
         }
     },
@@ -160,8 +187,8 @@ export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>
             ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'UNICREDIT BULBANK',
-            iban: 'NA',
+            recipient: 'UNICREDIT BULBANK',
+            recipientIban: 'NA',
             description: '70001234567820 BGN .02'
         }
     },
@@ -187,8 +214,8 @@ export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>
             ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'UNICREDIT BULBANK',
-            iban: 'NA',
+            recipient: 'UNICREDIT BULBANK',
+            recipientIban: 'NA',
             description: '70001234567820 BGN 1234.56'
         }
     },
@@ -214,8 +241,8 @@ export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>
             ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'UNICREDIT BULBANK',
-            iban: 'NA',
+            recipient: 'UNICREDIT BULBANK',
+            recipientIban: 'NA',
             description: '70001234567820 BGN 1.23'
         }
     },
@@ -241,8 +268,8 @@ export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>
             ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'UNICREDIT BULBANK',
-            iban: 'NA',
+            recipient: 'UNICREDIT BULBANK',
+            recipientIban: 'NA',
             description: '70001234567820 BGN 4.56'
         }
     },
@@ -270,8 +297,8 @@ export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>
             ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'Example account name',
-            iban: 'BG87ESPY40041234567810',
+            recipient: 'Example account name',
+            recipientIban: 'BG87ESPY40041234567810',
             description: 'Example description'
         }
     },
@@ -297,8 +324,8 @@ export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>
             ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'ЧЕЗ ЕЛЕКТРО БЪЛГАРИЯ АД',
-            iban: 'BG81UNCR763044444CEZEL',
+            recipient: 'ЧЕЗ ЕЛЕКТРО БЪЛГАРИЯ АД',
+            recipientIban: 'BG81UNCR763044444CEZEL',
             description: 'ЧЕЗ единични плащания 310123456795 271234596/09.04.2020/09.04.2020'
         }
     },
@@ -324,8 +351,8 @@ export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>
             ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'УНИКРЕДИТ БУЛБАНК СВЕТА НЕДЕЛЯ',
-            iban: 'BG29UNCR76301005587757',
+            recipient: 'УНИКРЕДИТ БУЛБАНК СВЕТА НЕДЕЛЯ',
+            recipientIban: 'BG29UNCR76301005587757',
             description: 'Софийска Вода АД аб.номер 1001234588,2000123493',
         }
     },
@@ -353,8 +380,8 @@ export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>
             ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'ЧЕЗ ЕЛЕКТРО БЪЛГАРИЯ АД',
-            iban: 'BG81UNCR763044444CEZEL',
+            recipient: 'ЧЕЗ ЕЛЕКТРО БЪЛГАРИЯ АД',
+            recipientIban: 'BG81UNCR763044444CEZEL',
             description: 'ЧЕЗ единични плащания 310123456795 271234596/09.07.2021/09.07.2021'
         }
     },
@@ -380,8 +407,8 @@ export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>
             ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'ABOUT YOU SE . CO. KG',
-            iban: 'BG95INGB91451000000815',
+            recipient: 'ABOUT YOU SE . CO. KG',
+            recipientIban: 'BG95INGB91451000000815',
             description: 'BGCOD RETURN 213123442 .'
         }
     },
@@ -407,8 +434,8 @@ export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>
             ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'Example account name',
-            iban: 'BG69UNCR70001512345693',
+            recipient: 'Example account name',
+            recipientIban: 'BG69UNCR70001512345693',
             description: 'Example description',
         }
     },
@@ -434,8 +461,8 @@ export const standardTransferTestCases: PaymentDetailsTestCase<StandardTransfer>
             ]
         },
         expectedPaymentDetails: {
-            beneficiary: 'ИВАН ИВАНОВ ИВАНОВ',
-            iban: 'BG60SOMB91301024910104',
+            recipient: 'ИВАН ИВАНОВ ИВАНОВ',
+            recipientIban: 'BG60SOMB91301024910104',
             description: 'Винетен стикер - СА1234KK',
         }
     },

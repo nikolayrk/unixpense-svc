@@ -1,6 +1,5 @@
 import { injectable } from "inversify";
 import CardOperation from "../models/cardOperation";
-import CrossBorderTransfer from "../models/crossBorderTransfer";
 import DeskWithdrawal from "../models/deskWithdrawal";
 import StandardFee from "../models/standardFee";
 import StandardTransfer from "../models/standardTransfer";
@@ -9,24 +8,16 @@ import StandardTransfer from "../models/standardTransfer";
 export default class PaymentDetailsFactory {
     public cardOperation(merchant: string, instrument: string, sum: string, currency: string) {
         return {
-            beneficiary: merchant,
+            recipient: merchant,
             instrument: instrument,
             sum: sum,
             currency: currency
         } as CardOperation;
     }
 
-    public crossBorderTransfer(beneficiary: string, iban: string, description: string) {
-        return {
-            beneficiary: beneficiary,
-            iban: iban,
-            description: description
-        } as CrossBorderTransfer;
-    }
-
     public deskWithdrawal(beneficiary: string, description: string, additionalDetails: string) {
         return {
-            beneficiary: beneficiary,
+            recipient: beneficiary,
             description: description,
             additionalDetails: additionalDetails
         } as DeskWithdrawal;
@@ -34,7 +25,7 @@ export default class PaymentDetailsFactory {
 
     public standardFee(beneficiary: string, description: string) {
         return {
-            beneficiary: beneficiary,
+            recipient: beneficiary,
             description: description
         } as StandardFee;
     }
@@ -45,5 +36,9 @@ export default class PaymentDetailsFactory {
             recipientIban: recipientIban,
             description: description
         } as StandardTransfer;
+    }
+
+    public crossBorderTransfer(beneficiary: string, iban: string, description: string) {
+        return this.standardTransfer(beneficiary, iban, description);
     }
 }
