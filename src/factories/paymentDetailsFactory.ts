@@ -1,6 +1,5 @@
 import { injectable } from "inversify";
 import CardOperation from "../models/cardOperation";
-import StandardFee from "../models/standardFee";
 import StandardTransfer from "../models/standardTransfer";
 import PaymentDetails from "../models/paymentDetails";
 
@@ -11,6 +10,7 @@ export default class PaymentDetailsFactory {
     };
 
     private readonly defaultIban = 'N/A';
+    private readonly defaultDescription = 'N/A';
     
     public cardOperation(merchant: string, instrument: string, sum: string, currency: string) {
         return {
@@ -19,13 +19,6 @@ export default class PaymentDetailsFactory {
             sum: sum,
             currency: currency
         } as CardOperation;
-    }
-
-    public standardFee(beneficiary: string, description: string) {
-        return {
-            recipient: beneficiary,
-            description: description
-        } as StandardFee;
     }
 
     public standardTransfer(beneficiary: string, recipientIban: string, description: string) {
@@ -42,5 +35,9 @@ export default class PaymentDetailsFactory {
 
     public deskWithdrawal(beneficiary: string, description: string) {
         return this.standardTransfer(beneficiary, this.defaultIban, description);
+    }
+
+    public standardFee(beneficiary: string, description: string | null) {
+        return this.standardTransfer(beneficiary, this.defaultIban, description ?? this.defaultDescription);
     }
 }

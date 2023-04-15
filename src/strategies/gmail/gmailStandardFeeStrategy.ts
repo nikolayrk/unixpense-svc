@@ -7,8 +7,9 @@ export default class GmailStandardFeeStrategy extends AbstractPaymentDetailsStra
     private readonly defaultFeeIssuer = 'UNICREDIT BULBANK';
 
     public tryCreate(paymentDetailsRaw: string[], additionalDetailsRawOrNull: string[] | null): StandardFee {
-        const description = paymentDetailsRaw
-            .join('');
+        const description = paymentDetailsRaw.length > 0
+            ? paymentDetailsRaw.join('')
+            : null;
 
         return this.paymentDetailsFactory.standardFee(this.defaultFeeIssuer, description);
     }

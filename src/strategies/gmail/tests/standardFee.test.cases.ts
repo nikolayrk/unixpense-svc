@@ -14,7 +14,8 @@ export const standardFeeTestCases: PaymentDetailsTestCase<StandardFee>[] = [
         },
         expectedPaymentDetails: {
             recipient: 'UNICREDIT BULBANK',
-            description: '',
+            recipientIban: 'N/A',
+            description: 'N/A',
         }
     },
     {   testName: 'INTERBANK_TRANSFER_FEE',
@@ -28,7 +29,8 @@ export const standardFeeTestCases: PaymentDetailsTestCase<StandardFee>[] = [
         },
         expectedPaymentDetails: {
             recipient: 'UNICREDIT BULBANK',
-            description: '',
+            recipientIban: 'N/A',
+            description: 'N/A',
         }
     },
     {   testName: 'TRANSFER_FEE',
@@ -42,7 +44,8 @@ export const standardFeeTestCases: PaymentDetailsTestCase<StandardFee>[] = [
         },
         expectedPaymentDetails: {
             recipient: 'UNICREDIT BULBANK',
-            description: '',
+            recipientIban: 'N/A',
+            description: 'N/A',
         }
     },
     {   testName: 'CROSS_BORDER_TRANSFER_FEE',
@@ -56,6 +59,7 @@ export const standardFeeTestCases: PaymentDetailsTestCase<StandardFee>[] = [
         },
         expectedPaymentDetails: {
             recipient: 'UNICREDIT BULBANK',
+            recipientIban: 'N/A',
             description: 'AZV-Commission  for GPP transaction Ref.: 2283100163',
         }
     },
@@ -70,7 +74,8 @@ export const standardFeeTestCases: PaymentDetailsTestCase<StandardFee>[] = [
         },
         expectedPaymentDetails: {
             recipient: 'UNICREDIT BULBANK',
-            description: '',
+            recipientIban: 'N/A',
+            description: 'N/A',
         }
     },
     {   testName: 'WITHDRAWAL_FEE',
@@ -84,6 +89,7 @@ export const standardFeeTestCases: PaymentDetailsTestCase<StandardFee>[] = [
         },
         expectedPaymentDetails: {
             recipient: 'UNICREDIT BULBANK',
+            recipientIban: 'N/A',
             description: 'ТЕГЛ.НА КАСА',
         }
     },

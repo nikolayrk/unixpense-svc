@@ -1,5 +1,5 @@
-import PaymentDetails from "./paymentDetails";
+import StandardTransfer from "./standardTransfer";
 
-export default interface StandardFee extends PaymentDetails {
-    description: string;
-}
+type StandardFee = StandardTransfer;
+
+export default StandardFee;
