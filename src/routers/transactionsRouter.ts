@@ -27,6 +27,10 @@ export default function transactionsRouter() {
                 let skippedCount = 0;
 
                 for await (const transactionOrNull of transactionGenerator) {
+                    if (hasLast && transactions.length + skippedCount >= last) {
+                        break;
+                    }
+
                     if (transactionOrNull === null) {
                         skippedCount++;
         
@@ -34,10 +38,6 @@ export default function transactionsRouter() {
                     }
 
                     transactions.push(transactionOrNull);
-
-                    if (hasLast && transactions.length >= last) {
-                        break;
-                    }
                 }
                 
                 const count = transactions.length;
