@@ -1,6 +1,6 @@
 import describeTransactionDataTests from "./utils/describeTransactionData";
 import cardOperationTestCases from './cardOperation.test.cases';
-import crossBorderTransferTestCases from './crossBorderTransfertest.cases';
+import crossBorderTransferTestCases from './crossBorderTransfer.test.cases';
 import deskWithdrawalTestCases from './deskWithdrawal.test.cases';
 import standardFeeTestCases from './standardFee.test.cases';
 import standardTransferTestCases from './standardTransfer.test.cases';

@@ -1,6 +1,5 @@
-import PaymentDetails from "./paymentDetails";
+import StandardTransfer from "./standardTransfer";
 
-export default interface DeskWithdrawal extends PaymentDetails {
-    description: string;
-    additionalDetails: string;
-}
+type DeskWithdrawal = StandardTransfer;
+
+export default DeskWithdrawal;

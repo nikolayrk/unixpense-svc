@@ -26,8 +26,8 @@ export const deskWithdrawalTestCases: PaymentDetailsTestCase<DeskWithdrawal>[] =
         },
         expectedPaymentDetails: {
             recipient: 'ИВАН ИВАНОВ ИВАНОВ',
-            description: 'ТЕГЛ.НА КАСА',
-            additionalDetails: '501149563'
+            recipientIban: 'N/A',
+            description: 'ТЕГЛ.НА КАСА'
         }
     },
 ];

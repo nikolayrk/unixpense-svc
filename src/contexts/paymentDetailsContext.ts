@@ -7,13 +7,10 @@ import { AbstractPaymentDetailsStrategy } from "../strategies/abstractPaymentDet
 import { injectables } from "../types/injectables";
 import { ICardOperationStrategy, ICrossBorderTransferStrategy, IDeskWithdrawalStrategy, IStandardFeeStrategy, IStandardTransferStrategy } from "../types/paymentDetailsStrategies";
 import ILogger from "../contracts/ILogger";
+import PaymentDetailsFactory from "../factories/paymentDetailsFactory";
 
 @injectable()
 export default class PaymentDetailsContext {
-    private static readonly defaultPaymentDetails: PaymentDetails = {
-        recipient: '<N/A>'
-    };
-    
     private readonly logger;
     private readonly cardOperationStrategy;
     private readonly crossBorderTransferStrategy;
@@ -60,12 +57,13 @@ export default class PaymentDetailsContext {
             this.logger.error(error, { transactionReference: reference });
         }
 
-        this.logger.log(`Falling back to using default payment details body...`, {
-            transactionReference: reference,
-            transactionType: transactionType
-        }
+            this.logger.log(`Falling back to using default payment details body...`, {
+                transactionReference: reference,
+                transactionType: transactionType
+            }
         );
-        return PaymentDetailsContext.defaultPaymentDetails;
+        
+        return PaymentDetailsFactory.default;
     }
     
     // throws UnsupportedTxnError

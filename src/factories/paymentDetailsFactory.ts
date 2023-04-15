@@ -1,11 +1,17 @@
 import { injectable } from "inversify";
 import CardOperation from "../models/cardOperation";
-import DeskWithdrawal from "../models/deskWithdrawal";
 import StandardFee from "../models/standardFee";
 import StandardTransfer from "../models/standardTransfer";
+import PaymentDetails from "../models/paymentDetails";
 
 @injectable()
 export default class PaymentDetailsFactory {
+    public static readonly default: PaymentDetails = {
+        recipient: '<N/A>'
+    };
+
+    private readonly defaultIban = 'N/A';
+    
     public cardOperation(merchant: string, instrument: string, sum: string, currency: string) {
         return {
             recipient: merchant,
@@ -13,14 +19,6 @@ export default class PaymentDetailsFactory {
             sum: sum,
             currency: currency
         } as CardOperation;
-    }
-
-    public deskWithdrawal(beneficiary: string, description: string, additionalDetails: string) {
-        return {
-            recipient: beneficiary,
-            description: description,
-            additionalDetails: additionalDetails
-        } as DeskWithdrawal;
     }
 
     public standardFee(beneficiary: string, description: string) {
@@ -40,5 +38,9 @@ export default class PaymentDetailsFactory {
 
     public crossBorderTransfer(beneficiary: string, iban: string, description: string) {
         return this.standardTransfer(beneficiary, iban, description);
+    }
+
+    public deskWithdrawal(beneficiary: string, description: string) {
+        return this.standardTransfer(beneficiary, this.defaultIban, description);
     }
 }
