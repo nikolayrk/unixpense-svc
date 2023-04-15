@@ -19,6 +19,8 @@ kubectl create namespace ${UNIXPENSE_K8S_NAMESPACE} \
 kubectl create configmap unixpense-svc-config \
     --dry-run=client -o yaml \
     --namespace=${UNIXPENSE_K8S_NAMESPACE} \
+    --from-literal=NODE_ENV=${NODE_ENV} \
+    --from-literal=LOG_LEVEL=${LOG_LEVEL} \
     --from-literal=UNIXPENSE_PORT=${UNIXPENSE_PORT} \
     --from-literal=UNIXPENSE_LOKI_HOST=${UNIXPENSE_LOKI_HOST} | kubectl apply -f -
 
