@@ -4,8 +4,7 @@ import PaymentDetails from "../../shared/models/paymentDetails";
 import '../../shared/extensions/dateExtensions';
 import { EntryTypeExtensions } from "../../shared/extensions/entryTypeExtensions";
 import { TransactionTypeExtensions } from "../../shared/extensions/transactionTypeExtensions";
-import { inject, injectable } from 'inversify';
-import { DatabaseError, ValidationError } from 'sequelize';
+import { injectable } from 'inversify';
 import RepositoryError from '../../shared/errors/repositoryError';
 
 @injectable()
@@ -48,8 +47,8 @@ export default class TransactionRepository {
                 ]
             });
         } catch(ex) {
-            // Wrap the passed db error and strip db transaction data, as not to log sensitive information
-            if (ex instanceof ValidationError || ex instanceof DatabaseError) {
+            // Wrap all thrown db errors and strip of possible sensitive information
+            if (ex instanceof Error) {
                 throw new RepositoryError(ex);
             }
 
