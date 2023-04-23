@@ -5,7 +5,7 @@ import { TransactionTypeExtensions } from "../../extensions/transactionTypeExten
 import TransactionFactory from "../factories/transactionFactory";
 import PaymentDetails from "../../models/paymentDetails";
 import Transaction from "../../models/transaction";
-import TransactionRepository from "../../repositories/transactionRepository";
+import TransactionRepository from "../../database/repositories/transactionRepository";
 import { injectables } from "../../types/injectables";
 import PaymentDetailsContext from "./paymentDetailsContext";
 import ILogger from "../contracts/ILogger";

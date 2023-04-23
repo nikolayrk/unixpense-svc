@@ -1,12 +1,12 @@
-import Transaction from '../models/transaction';
+import Transaction from '../../models/transaction';
 import TransactionEntity from '../entities/transaction.entity';
-import PaymentDetails from "../models/paymentDetails";
-import '../extensions/dateExtensions';
-import { EntryTypeExtensions } from "../extensions/entryTypeExtensions";
-import { TransactionTypeExtensions } from "../extensions/transactionTypeExtensions";
+import PaymentDetails from "../../models/paymentDetails";
+import '../../extensions/dateExtensions';
+import { EntryTypeExtensions } from "../../extensions/entryTypeExtensions";
+import { TransactionTypeExtensions } from "../../extensions/transactionTypeExtensions";
 import { inject, injectable } from 'inversify';
 import { DatabaseError, ValidationError } from 'sequelize';
-import RepositoryError from '../errors/repositoryError';
+import RepositoryError from '../../errors/repositoryError';
 
 @injectable()
 export default class TransactionRepository {

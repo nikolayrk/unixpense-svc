@@ -1,7 +1,7 @@
 import { Table, Column, Model, PrimaryKey, DataType, Unique, AllowNull, IsDate, HasOne } from 'sequelize-typescript';
-import { EntryTypeExtensions } from '../extensions/entryTypeExtensions';
-import { TransactionTypeExtensions } from '../extensions/transactionTypeExtensions';
-import PaymentDetails from '../models/paymentDetails';
+import { EntryTypeExtensions } from '../../extensions/entryTypeExtensions';
+import { TransactionTypeExtensions } from '../../extensions/transactionTypeExtensions';
+import PaymentDetails from '../../models/paymentDetails';
 import CardOperationEntity from './cardOperation.entity';
 import StandardTransferEntity from './standardTransfer.entity';
 

@@ -4,7 +4,7 @@ import GmailCardOperationStrategy from './services/strategies/gmail/gmailCardOpe
 import RefreshTokenRepository from './services/strategies/gmail/repositories/refreshTokenRepository';
 import GoogleOAuth2ClientProvider from './services/strategies/gmail/providers/googleOAuth2ClientProvider';
 import TransactionContext from './services/contexts/transactionContext';
-import TransactionRepository from './repositories/transactionRepository';
+import TransactionRepository from './database/repositories/transactionRepository';
 import {
     ICardOperationStrategy,
     ICrossBorderTransferFeeStrategy,

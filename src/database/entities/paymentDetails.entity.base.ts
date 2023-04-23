@@ -2,10 +2,7 @@ import { AllowNull, BelongsTo, Column, ForeignKey, Model, PrimaryKey, Unique } f
 import TransactionEntity from "./transaction.entity";
 
 export default abstract class PaymentDetailsEntityBase extends Model {
-    @BelongsTo(() => TransactionEntity, {
-        as: 'card_operation',
-        foreignKey: 'transaction_reference'
-    })
+    @BelongsTo(() => TransactionEntity, { foreignKey: 'transaction_reference' })
     transaction!: TransactionEntity;
 
     @PrimaryKey
