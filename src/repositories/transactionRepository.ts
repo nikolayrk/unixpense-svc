@@ -6,21 +6,10 @@ import { EntryTypeExtensions } from "../extensions/entryTypeExtensions";
 import { TransactionTypeExtensions } from "../extensions/transactionTypeExtensions";
 import { inject, injectable } from 'inversify';
 import { DatabaseError, ValidationError } from 'sequelize';
-import { injectables } from '../types/injectables';
-import ILogger from '../contracts/ILogger';
 import RepositoryError from '../errors/repositoryError';
 
 @injectable()
 export default class TransactionRepository {
-    private readonly logger;
-
-    public constructor(
-        @inject(injectables.ILogger)
-        logger: ILogger
-    ) {
-        this.logger = logger;
-    }
-
     // throws RepositoryError
     public async tryCreateAsync(transaction: Transaction<PaymentDetails>) {
         try {

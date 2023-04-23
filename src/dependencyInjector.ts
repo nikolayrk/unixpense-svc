@@ -1,9 +1,9 @@
 import { Container, interfaces } from 'inversify';
-import GmailApiClient from './strategies/gmail/clients/gmailApiClient';
-import GmailCardOperationStrategy from './strategies/gmail/gmailCardOperationStrategy';
-import RefreshTokenRepository from './strategies/gmail/repositories/refreshTokenRepository';
-import GoogleOAuth2ClientProvider from './strategies/gmail/providers/googleOAuth2ClientProvider';
-import TransactionContext from './contexts/transactionContext';
+import GmailApiClient from './services/strategies/gmail/clients/gmailApiClient';
+import GmailCardOperationStrategy from './services/strategies/gmail/gmailCardOperationStrategy';
+import RefreshTokenRepository from './services/strategies/gmail/repositories/refreshTokenRepository';
+import GoogleOAuth2ClientProvider from './services/strategies/gmail/providers/googleOAuth2ClientProvider';
+import TransactionContext from './services/contexts/transactionContext';
 import TransactionRepository from './repositories/transactionRepository';
 import {
     ICardOperationStrategy,
@@ -14,20 +14,20 @@ import {
     IStandardTransferStrategy
 } from "./types/paymentDetailsStrategies";
 import { injectables } from './types/injectables';
-import TransactionFactory from './factories/transactionFactory';
-import GmailStandardTransferStrategy from './strategies/gmail/gmailStandardTransferStrategy';
-import GmailStandardFeeStrategy from './strategies/gmail/gmailStandardFeeStrategy';
-import GmailDeskWithdrawalStrategy from './strategies/gmail/gmailDeskWIthdrawalStrategy';
-import GmailCrossBorderTransferStrategy from './strategies/gmail/gmailCrossBorderTransferStrategy';
-import ITransactionDataProvider from './contracts/ITransactionDataProvider';
-import GmailTransactionDataProvider from './strategies/gmail/providers/gmailTransactionDataProvider';
-import PaymentDetailsFactory from './factories/paymentDetailsFactory';
-import PaymentDetailsContext from './contexts/paymentDetailsContext';
-import ITransactionSourceProvider from './contracts/ITransactionSourceProvider';
-import GmailTransactionSourceProvider from './strategies/gmail/providers/gmailTransactionSourceProvider';
-import ILogger from './contracts/ILogger';
-import WinstonLokiLogger from './winstonLokiLogger';
-import GmailCrossBorderTransferFeeStrategy from './strategies/gmail/gmailCrossBorderTransferFeeStrategy';
+import TransactionFactory from './services/factories/transactionFactory';
+import GmailStandardTransferStrategy from './services/strategies/gmail/gmailStandardTransferStrategy';
+import GmailStandardFeeStrategy from './services/strategies/gmail/gmailStandardFeeStrategy';
+import GmailDeskWithdrawalStrategy from './services/strategies/gmail/gmailDeskWIthdrawalStrategy';
+import GmailCrossBorderTransferStrategy from './services/strategies/gmail/gmailCrossBorderTransferStrategy';
+import ITransactionDataProvider from './services/contracts/ITransactionDataProvider';
+import GmailTransactionDataProvider from './services/strategies/gmail/providers/gmailTransactionDataProvider';
+import PaymentDetailsFactory from './services/factories/paymentDetailsFactory';
+import PaymentDetailsContext from './services/contexts/paymentDetailsContext';
+import ITransactionSourceProvider from './services/contracts/ITransactionSourceProvider';
+import GmailTransactionSourceProvider from './services/strategies/gmail/providers/gmailTransactionSourceProvider';
+import ILogger from './services/contracts/ILogger';
+import WinstonLokiLogger from './services/loggers/winstonLokiLogger';
+import GmailCrossBorderTransferFeeStrategy from './services/strategies/gmail/gmailCrossBorderTransferFeeStrategy';
 
 export class DependencyInjector {
     private static singleton: DependencyInjector;
