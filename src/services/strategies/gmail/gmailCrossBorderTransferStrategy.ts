@@ -1,9 +1,7 @@
 import { AbstractPaymentDetailsStrategy } from "../abstractPaymentDetailsStrategy";
 import CrossBorderTransfer from "../../../shared/models/crossBorderTransfer";
 import PaymentDetailsProcessingError from "../../../shared/errors/paymentDetailsProcessingError";
-import { injectable } from "inversify";
 
-@injectable()
 export default class GmailCrossBorderTransferStrategy extends AbstractPaymentDetailsStrategy<CrossBorderTransfer> {
     public tryCreate(paymentDetailsRaw: string[], additionalDetailsRaw: string[]): CrossBorderTransfer {
         const transactionDetailsRaw = paymentDetailsRaw.join('')

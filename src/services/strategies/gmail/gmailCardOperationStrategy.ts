@@ -1,9 +1,7 @@
 import { AbstractPaymentDetailsStrategy } from "../abstractPaymentDetailsStrategy";
 import CardOperation from "../../../shared/models/cardOperation";
 import PaymentDetailsProcessingError from "../../../shared/errors/paymentDetailsProcessingError";
-import { injectable } from "inversify";
 
-@injectable()
 export default class GmailCardOperationStrategy extends AbstractPaymentDetailsStrategy<CardOperation> {
     public tryCreate(paymentDetailsRaw: string[], additionalDetailsRaw: string[]): CardOperation {
         const raw = paymentDetailsRaw.join('');

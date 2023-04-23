@@ -1,8 +1,6 @@
 import StandardTransfer from "../../../shared/models/standardTransfer";
 import { AbstractPaymentDetailsStrategy } from "../abstractPaymentDetailsStrategy";
-import { injectable } from "inversify";
 
-@injectable()
 export default class GmailStandardTransferStrategy extends AbstractPaymentDetailsStrategy<StandardTransfer> {
     public tryCreate(paymentDetailsRaw: string[], additionalDetailsRaw: string[]): StandardTransfer {
         const beneficiary = additionalDetailsRaw?.[1] ?? '';
