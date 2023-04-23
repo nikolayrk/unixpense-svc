@@ -1,8 +1,8 @@
 import { Container, interfaces } from 'inversify';
-import GmailApiClient from './services/strategies/gmail/clients/gmailApiClient';
+import GmailApiClient from './services/clients/gmailApiClient';
 import GmailCardOperationStrategy from './services/strategies/gmail/gmailCardOperationStrategy';
-import RefreshTokenRepository from './services/strategies/gmail/repositories/refreshTokenRepository';
-import GoogleOAuth2ClientProvider from './services/strategies/gmail/providers/googleOAuth2ClientProvider';
+import RefreshTokenRepository from './database/repositories/refreshTokenRepository';
+import GoogleOAuth2ClientProvider from './services/providers/googleOAuth2ClientProvider';
 import TransactionContext from './services/contexts/transactionContext';
 import TransactionRepository from './database/repositories/transactionRepository';
 import {

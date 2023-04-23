@@ -1,6 +1,6 @@
 import { parse as dateParse } from 'date-format-parse';
-import EntryType from '../../../../enums/entryType';
-import { TransactionDataTestCase } from './types/transactionDataTestCase';
+import EntryType from '../../../../shared/enums/entryType';
+import { TransactionDataTestCase } from '../types/transactionDataTestCase';
 
 const transactionDataTestCases: TransactionDataTestCase[] = [
   {   testName: 'Normal header',

@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import TransactionContext from "../services/contexts/transactionContext";
-import { injectables } from "../shared/types/injectables";
-import ILogger from "../services/contracts/ILogger";
-import { DependencyInjector } from "../dependencyInjector";
+import TransactionContext from "../../services/contexts/transactionContext";
+import { injectables } from "../../shared/types/injectables";
+import ILogger from "../../services/contracts/ILogger";
+import { DependencyInjector } from "../../dependencyInjector";
 
 const get = async (req: Request, res: Response) => {
     const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);

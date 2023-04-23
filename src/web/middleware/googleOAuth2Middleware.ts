@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
-import { DependencyInjector } from "../../../../dependencyInjector";
-import GoogleOAuth2ClientProvider from "../providers/googleOAuth2ClientProvider";
-import { injectables } from "../../../../shared/types/injectables";
+import { DependencyInjector } from "../../dependencyInjector";
+import GoogleOAuth2ClientProvider from "../../services/providers/googleOAuth2ClientProvider";
+import { injectables } from "../../shared/types/injectables";
 
 const router = express.Router();
 

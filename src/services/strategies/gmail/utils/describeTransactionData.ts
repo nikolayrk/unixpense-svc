@@ -1,11 +1,11 @@
 import { describe, expect, test } from '@jest/globals';
-import PaymentDetails from "../../../../../shared/models/paymentDetails";
-import { TransactionData, TransactionDataBody, TransactionDataHead } from '../../../../../shared/models/transactionData';
-import GmailTransactionDataProvider from '../../providers/gmailTransactionDataProvider';
+import PaymentDetails from "../../../../shared/models/paymentDetails";
+import { TransactionData, TransactionDataBody, TransactionDataHead } from '../../../../shared/models/transactionData';
 import { PaymentDetailsTestCase } from '../types/paymentDetailsTestCase';
 import { TransactionDataTestCase } from '../types/transactionDataTestCase';
-import { DependencyInjector } from '../../../../../dependencyInjector';
-import { injectables } from '../../../../../shared/types/injectables';
+import { DependencyInjector } from '../../../../dependencyInjector';
+import { injectables } from '../../../../shared/types/injectables';
+import ITransactionDataProvider from '../../../contracts/ITransactionDataProvider';
 
 export default function describeTransactionDataTests<T extends PaymentDetails>(
   name: string,
@@ -95,7 +95,7 @@ export default function describeTransactionDataTests<T extends PaymentDetails>(
           </body>
           </html>` as const;
 
-  const transactionDataProvider = DependencyInjector.Singleton.resolve<GmailTransactionDataProvider>(injectables.ITransactionDataProvider);
+  const transactionDataProvider = DependencyInjector.Singleton.resolve<ITransactionDataProvider>(injectables.ITransactionDataProvider);
 
   const transactionDataFromAttachmentData = (includePadding: boolean, attachmentDataHead: string, attachmentDataBody: string) =>
     transactionDataProvider.get(

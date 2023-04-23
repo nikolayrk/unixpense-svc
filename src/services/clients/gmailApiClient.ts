@@ -1,8 +1,8 @@
 import { gmail_v1, google } from 'googleapis';
 import { inject, injectable } from 'inversify';
-import GmailMessageData from '../models/gmailMessageData';
+import GmailMessageData from '../strategies/gmail/models/gmailMessageData';
 import GoogleOAuth2ClientProvider from '../providers/googleOAuth2ClientProvider';
-import { injectables } from '../../../../shared/types/injectables';
+import { injectables } from '../../shared/types/injectables';
 
 @injectable()
 export default class GmailApiClient {

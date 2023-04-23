@@ -2,11 +2,11 @@ import dotenv from 'dotenv'
 dotenv.config();
 import express from 'express';
 import DatabaseConnection from './databaseConnection';
-import { router as googleOAuth2Middleware } from './services/strategies/gmail/middleware/googleOAuth2Middleware';
+import { router as googleOAuth2Middleware } from './web/middleware/googleOAuth2Middleware';
 import { DependencyInjector } from './dependencyInjector';
 import ILogger from './services/contracts/ILogger';
 import { injectables } from './shared/types/injectables';
-import { router as transactionsRouter } from './routes/transactionsRoutes';
+import { router as transactionsRouter } from './web/routes/transactionsRoutes';
 
 async function bootstrap() {
     const hostname = process.env?.HOSTNAME;

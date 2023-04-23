@@ -4,9 +4,9 @@ import { OAuth2Client } from 'googleapis-common';
 import { Credentials } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 import { inject, injectable } from 'inversify';
-import { injectables } from "../../../../shared/types/injectables";
-import RefreshTokenRepository from '../repositories/refreshTokenRepository';
-import ILogger from '../../../contracts/ILogger';
+import { injectables } from "../../shared/types/injectables";
+import RefreshTokenRepository from '../../database/repositories/refreshTokenRepository';
+import ILogger from '../contracts/ILogger';
 
 @injectable()
 export default class GoogleOAuth2ClientProvider {
