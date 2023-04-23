@@ -1,5 +1,5 @@
-import CrossBorderTransferFee from "../../../models/crossBorderTransferFee";
-import StandardTransfer from "../../../models/standardTransfer";
+import CrossBorderTransferFee from "../../../shared/models/crossBorderTransferFee";
+import StandardTransfer from "../../../shared/models/standardTransfer";
 import { AbstractPaymentDetailsStrategy } from "../abstractPaymentDetailsStrategy";
 
 export default class GmailCrossBorderTransferFeeStrategy extends AbstractPaymentDetailsStrategy<CrossBorderTransferFee> {

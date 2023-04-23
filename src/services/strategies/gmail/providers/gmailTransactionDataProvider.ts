@@ -1,14 +1,14 @@
 import { parse as htmlParse, Node } from 'node-html-parser';
 import { parse as dateParse} from 'date-format-parse';
-import EntryType from '../../../../enums/entryType';
-import { TRANSACTION_TYPES } from '../../../../types/transactionTypeString';
-import transactionTypesByString from '../../../../types/transactionTypeByString';
+import EntryType from '../../../../shared/enums/entryType';
+import { TRANSACTION_TYPES } from '../../../../shared/types/transactionTypeString';
+import transactionTypesByString from '../../../../shared/types/transactionTypeByString';
 import { inject, injectable } from 'inversify';
 import ITransactionDataProvider from '../../../contracts/ITransactionDataProvider';
-import { TransactionData } from '../../../../models/transactionData';
-import TransactionType from '../../../../enums/transactionType';
+import { TransactionData } from '../../../../shared/models/transactionData';
+import TransactionType from '../../../../shared/enums/transactionType';
 import ILogger from '../../../contracts/ILogger';
-import { injectables } from '../../../../types/injectables';
+import { injectables } from '../../../../shared/types/injectables';
 
 @injectable()
 export default class GmailTransactionDataProvider implements ITransactionDataProvider {

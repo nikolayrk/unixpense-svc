@@ -4,7 +4,7 @@ import { OAuth2Client } from 'googleapis-common';
 import { Credentials } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 import { inject, injectable } from 'inversify';
-import { injectables } from "../../../../types/injectables";
+import { injectables } from "../../../../shared/types/injectables";
 import RefreshTokenRepository from '../repositories/refreshTokenRepository';
 import ILogger from '../../../contracts/ILogger';
 

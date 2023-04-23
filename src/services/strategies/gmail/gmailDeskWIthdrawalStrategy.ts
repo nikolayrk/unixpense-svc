@@ -1,6 +1,6 @@
 import { AbstractPaymentDetailsStrategy } from "../abstractPaymentDetailsStrategy";
 import { injectable } from "inversify";
-import DeskWithdrawal from "../../../models/deskWithdrawal";
+import DeskWithdrawal from "../../../shared/models/deskWithdrawal";
 
 @injectable()
 export default class GmailDeskWithdrawalStrategy extends AbstractPaymentDetailsStrategy<DeskWithdrawal> {

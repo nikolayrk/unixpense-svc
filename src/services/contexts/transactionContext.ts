@@ -1,15 +1,15 @@
 import { inject, injectable } from "inversify";
 import ITransactionDataProvider from "../contracts/ITransactionDataProvider";
 import ITransactionSourceProvider from "../contracts/ITransactionSourceProvider";
-import { TransactionTypeExtensions } from "../../extensions/transactionTypeExtensions";
+import { TransactionTypeExtensions } from "../../shared/extensions/transactionTypeExtensions";
 import TransactionFactory from "../factories/transactionFactory";
-import PaymentDetails from "../../models/paymentDetails";
-import Transaction from "../../models/transaction";
+import PaymentDetails from "../../shared/models/paymentDetails";
+import Transaction from "../../shared/models/transaction";
 import TransactionRepository from "../../database/repositories/transactionRepository";
-import { injectables } from "../../types/injectables";
+import { injectables } from "../../shared/types/injectables";
 import PaymentDetailsContext from "./paymentDetailsContext";
 import ILogger from "../contracts/ILogger";
-import RepositoryError from "../../errors/repositoryError";
+import RepositoryError from "../../shared/errors/repositoryError";
 
 @injectable()
 export default class TransactionContext {

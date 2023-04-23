@@ -1,11 +1,16 @@
 import { inject, injectable } from "inversify";
-import TransactionType from "../../enums/transactionType";
-import UnsupportedTxnError from "../../errors/unsupportedTxnError";
-import { TransactionTypeExtensions } from "../../extensions/transactionTypeExtensions";
-import PaymentDetails from "../../models/paymentDetails";
+import TransactionType from "../../shared/enums/transactionType";
+import UnsupportedTxnError from "../../shared/errors/unsupportedTxnError";
+import { TransactionTypeExtensions } from "../../shared/extensions/transactionTypeExtensions";
+import PaymentDetails from "../../shared/models/paymentDetails";
 import { AbstractPaymentDetailsStrategy } from "../strategies/abstractPaymentDetailsStrategy";
-import { injectables } from "../../types/injectables";
-import { ICardOperationStrategy, ICrossBorderTransferFeeStrategy, ICrossBorderTransferStrategy, IDeskWithdrawalStrategy, IStandardFeeStrategy, IStandardTransferStrategy } from "../../types/paymentDetailsStrategies";
+import { injectables } from "../../shared/types/injectables";
+import { ICardOperationStrategy,
+    ICrossBorderTransferFeeStrategy,
+    ICrossBorderTransferStrategy,
+    IDeskWithdrawalStrategy,
+    IStandardFeeStrategy,
+    IStandardTransferStrategy } from "../../shared/types/paymentDetailsStrategies";
 import ILogger from "../contracts/ILogger";
 import PaymentDetailsFactory from "../factories/paymentDetailsFactory";
 

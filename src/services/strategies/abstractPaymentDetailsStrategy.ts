@@ -1,6 +1,6 @@
-import PaymentDetails from "../../models/paymentDetails";
+import PaymentDetails from "../../shared/models/paymentDetails";
 import { inject, injectable } from "inversify";
-import { injectables } from "../../types/injectables";
+import { injectables } from "../../shared/types/injectables";
 import PaymentDetailsFactory from "../factories/paymentDetailsFactory";
 
 @injectable()

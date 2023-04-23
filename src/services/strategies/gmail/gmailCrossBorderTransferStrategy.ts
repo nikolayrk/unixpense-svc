@@ -1,6 +1,6 @@
 import { AbstractPaymentDetailsStrategy } from "../abstractPaymentDetailsStrategy";
-import CrossBorderTransfer from "../../../models/crossBorderTransfer";
-import PaymentDetailsProcessingError from "../../../errors/paymentDetailsProcessingError";
+import CrossBorderTransfer from "../../../shared/models/crossBorderTransfer";
+import PaymentDetailsProcessingError from "../../../shared/errors/paymentDetailsProcessingError";
 import { injectable } from "inversify";
 
 @injectable()

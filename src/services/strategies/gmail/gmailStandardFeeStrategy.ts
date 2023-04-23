@@ -1,5 +1,5 @@
 import { AbstractPaymentDetailsStrategy } from "../abstractPaymentDetailsStrategy";
-import StandardFee from "../../../models/standardFee";
+import StandardFee from "../../../shared/models/standardFee";
 import { injectable } from "inversify";
 
 @injectable()

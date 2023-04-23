@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
-import PaymentDetails from "../../models/paymentDetails";
-import Transaction from "../../models/transaction";
-import { TransactionData } from "../../models/transactionData";
+import PaymentDetails from "../../shared/models/paymentDetails";
+import Transaction from "../../shared/models/transaction";
+import { TransactionData } from "../../shared/models/transactionData";
 
 @injectable()
 export default class TransactionFactory {

@@ -1,10 +1,10 @@
 import {describe, expect, test} from '@jest/globals';
-import PaymentDetails from "../../../../../models/paymentDetails";
+import PaymentDetails from "../../../../../shared/models/paymentDetails";
 import { PaymentDetailsTestCase } from '../types/paymentDetailsTestCase';
 import { TransactionDataTestCase } from '../types/transactionDataTestCase';
 import PaymentDetailsContext from '../../../../contexts/paymentDetailsContext';
 import { DependencyInjector } from '../../../../../dependencyInjector';
-import { injectables } from '../../../../../types/injectables';
+import { injectables } from '../../../../../shared/types/injectables';
 
 export default function describePaymentDetailsTests<T extends PaymentDetails>(
   name: string,

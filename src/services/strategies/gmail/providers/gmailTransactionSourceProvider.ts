@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 import GmailApiClient from "../clients/gmailApiClient";
 import ITransactionSourceProvider from "../../../contracts/ITransactionSourceProvider";
 import GmailMessageData from "../models/gmailMessageData";
-import { injectables } from "../../../../types/injectables";
+import { injectables } from "../../../../shared/types/injectables";
 import ILogger from "../../../contracts/ILogger";
 
 @injectable()

@@ -1,4 +1,4 @@
-import StandardTransfer from "../../../models/standardTransfer";
+import StandardTransfer from "../../../shared/models/standardTransfer";
 import { AbstractPaymentDetailsStrategy } from "../abstractPaymentDetailsStrategy";
 import { injectable } from "inversify";
 

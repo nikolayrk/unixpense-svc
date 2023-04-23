@@ -12,8 +12,8 @@ import {
     IDeskWithdrawalStrategy,
     IStandardFeeStrategy,
     IStandardTransferStrategy
-} from "./types/paymentDetailsStrategies";
-import { injectables } from './types/injectables';
+} from "./shared/types/paymentDetailsStrategies";
+import { injectables } from './shared/types/injectables';
 import TransactionFactory from './services/factories/transactionFactory';
 import GmailStandardTransferStrategy from './services/strategies/gmail/gmailStandardTransferStrategy';
 import GmailStandardFeeStrategy from './services/strategies/gmail/gmailStandardFeeStrategy';
