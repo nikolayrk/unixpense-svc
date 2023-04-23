@@ -1,7 +1,7 @@
 import Transaction from '../../shared/models/transaction';
 import TransactionEntity from '../entities/transaction.entity';
 import PaymentDetails from "../../shared/models/paymentDetails";
-import '../../extensions/dateExtensions';
+import '../../shared/extensions/dateExtensions';
 import { EntryTypeExtensions } from "../../shared/extensions/entryTypeExtensions";
 import { TransactionTypeExtensions } from "../../shared/extensions/transactionTypeExtensions";
 import { inject, injectable } from 'inversify';
