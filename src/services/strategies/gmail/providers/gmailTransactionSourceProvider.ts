@@ -4,21 +4,25 @@ import ITransactionSourceProvider from "../../../contracts/ITransactionSourcePro
 import GmailMessageData from "../models/gmailMessageData";
 import { injectables } from "../../../../shared/types/injectables";
 import ILogger from "../../../contracts/ILogger";
+import GoogleOAuth2Identifiers from "../../../../shared/models/googleOAuth2Identifiers";
+import { DependencyInjector } from "../../../../dependencyInjector";
+import IUsesGoogleOAuth2 from "../../../contracts/IUsesGoogleOAuth2";
 
 @injectable()
-export default class GmailTransactionSourceProvider implements ITransactionSourceProvider {
+export default class GmailTransactionSourceProvider implements ITransactionSourceProvider, IUsesGoogleOAuth2 {
     private readonly logger;
-    private readonly gmailApiClient;
+    private gmailApiClient: GmailApiClient;
 
     public constructor(
         @inject(injectables.ILogger)
-        logger: ILogger,
-
-        @inject(injectables.GmailApiClient)
-        gmailApiClient: GmailApiClient
+        logger: ILogger
     ) {
         this.logger = logger;
-        this.gmailApiClient = gmailApiClient;
+        this.gmailApiClient = null!;
+    }
+
+    public async useAsync(credentials: GoogleOAuth2Identifiers) {
+        this.gmailApiClient = await DependencyInjector.Singleton.generateServiceAsync(injectables.GmailApiClientGenerator, credentials);
     }
 
     public generateTransactionIdsAsync() {

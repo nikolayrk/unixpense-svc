@@ -2,42 +2,86 @@ import express, { Request, Response, NextFunction } from "express";
 import { DependencyInjector } from "../../dependencyInjector";
 import GoogleOAuth2ClientProvider from "../../services/providers/googleOAuth2ClientProvider";
 import { injectables } from "../../shared/types/injectables";
+import GoogleOAuth2IdentifierRepository from "../../database/repositories/googleOAuth2IdentifierRepository";
+import GoogleOAuth2IdentifiersFactory from "../../services/factories/googleOAuth2IdentifiersFactory";
 
-const router = express.Router();
-
-const googleOAuth2ClientProvider = DependencyInjector.Singleton.resolve<GoogleOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProvider);
-
-router.use('/oauthcallback', async (req: Request, res: Response) => {
-    const response = await (async () => {
-        if (googleOAuth2ClientProvider.isAuthenticated) {
-            return 'Already authorized';
-        }
-
-        const code = String(req.query.code);
+const redirect = async (req: Request, res: Response) => {
+    const { client_id, client_secret, redirect_uri, code } = req.body;
     
-        if (code === undefined) {
-            return 'No authorization code provided';
-        }
-    
-        await googleOAuth2ClientProvider.authenticateWithCodeAsync(code);
-
-        return 'Authorization code processed. Please retry your request';
-    })();
-
-    res.type('text/plain')
-        .status(200)
-        .end(response);
-});
-
-router.use(async (_: Request, res: Response, next: NextFunction) => {
-    if (googleOAuth2ClientProvider.isAuthenticated) {
-        next();
+    if(client_id === undefined || client_secret === undefined || redirect_uri === undefined) {
+        res
+            .status(403)
+            .json({ error: "No credentials provided" })
+            .end();
 
         return;
     }
 
-    res.redirect(googleOAuth2ClientProvider.consentUrl);
-    res.end();
-});
+    if(code === undefined) {
+        res
+            .status(400)
+            .json({ error: "No authorization code provided" })
+            .end();
 
-export { router };
+        return;
+    }
+
+    const googleOAuth2IdentifierFactory = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory);
+    
+    const identifiers = googleOAuth2IdentifierFactory.create(String(client_id), String(client_secret), String(redirect_uri));
+
+    const googleOAuth2ClientProvider = await DependencyInjector.Singleton.generateServiceAsync<GoogleOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProviderGenerator, identifiers);
+    
+    try {
+        const tokens = await googleOAuth2ClientProvider.tryAuthorizeWithCodeAsync(String(code));
+
+        res
+            .status(200)
+            .json({ access_token: tokens?.access_token })
+            .end();
+    } catch(ex) {
+        const error = ex as Error;
+        
+        googleOAuth2ClientProvider.logError(error, { clientId: identifiers.clientId });
+
+        res
+            .status(503)
+            .json({ error: error.message ?? ex })
+            .end();
+    }
+};
+
+const protect = async (req: Request, res: Response, next: NextFunction) => {
+    const authHeader = req.get('Authorization');
+
+    if (authHeader === undefined) {
+        res
+            .status(403)
+            .json({ error: "Missing authorization header" })
+            .end();
+
+        return;
+    }
+
+    const accessToken = authHeader.replace('Bearer ', '');
+    const tokenRepository = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifierRepository>(injectables.GoogleOAuth2IdentifierRepository);
+    const persistedIdentifiers = await tokenRepository.getOrNullAsync({ access_token: accessToken });
+
+    if (persistedIdentifiers === null) {
+        res
+            .status(403)
+            .json({ error: "Unauthorized" })
+            .end();
+
+        return;
+    }
+
+    res.locals.googleOAuth2Identifiers = persistedIdentifiers;
+
+    next();
+};
+
+export {
+    redirect,
+    protect,
+}

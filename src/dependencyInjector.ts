@@ -1,8 +1,5 @@
 import { Container, interfaces } from 'inversify';
-import GmailApiClient from './services/clients/gmailApiClient';
 import GmailCardOperationStrategy from './services/strategies/gmail/gmailCardOperationStrategy';
-import RefreshTokenRepository from './database/repositories/refreshTokenRepository';
-import GoogleOAuth2ClientProvider from './services/providers/googleOAuth2ClientProvider';
 import TransactionContext from './services/contexts/transactionContext';
 import TransactionRepository from './database/repositories/transactionRepository';
 import {
@@ -28,6 +25,12 @@ import GmailTransactionSourceProvider from './services/strategies/gmail/provider
 import ILogger from './services/contracts/ILogger';
 import WinstonLokiLogger from './services/loggers/winstonLokiLogger';
 import GmailCrossBorderTransferFeeStrategy from './services/strategies/gmail/gmailCrossBorderTransferFeeStrategy';
+import GoogleOAuth2Identifiers from './shared/models/googleOAuth2Identifiers';
+import IUsesGoogleOAuth2 from './services/contracts/IUsesGoogleOAuth2';
+import GoogleOAuth2IdentifierRepository from './database/repositories/googleOAuth2IdentifierRepository';
+import GoogleOAuth2ClientProvider from './services/providers/googleOAuth2ClientProvider';
+import GmailApiClient from './services/clients/gmailApiClient';
+import GoogleOAuth2IdentifiersFactory from './services/factories/googleOAuth2IdentifiersFactory';
 
 export class DependencyInjector {
     private static singleton: DependencyInjector;
@@ -39,26 +42,20 @@ export class DependencyInjector {
 
         this.container = container;
 
-        // Core services
         container.bind<ILogger>(injectables.ILogger).to(WinstonLokiLogger).inSingletonScope();
         container.bind<PaymentDetailsFactory>(injectables.PaymentDetailsFactory).to(PaymentDetailsFactory);
-        container.bind<PaymentDetailsContext>(injectables.PaymentDetailsContext).to(PaymentDetailsContext);
-        container.bind<TransactionFactory>(injectables.TransactionFactory).to(TransactionFactory);
-        container.bind<TransactionRepository>(injectables.TransactionRepository).to(TransactionRepository);
-        container.bind<TransactionContext>(injectables.TransactionContext).to(TransactionContext);
-        
-        // Gmail-related services
         container.bind<ICardOperationStrategy>(injectables.ICardOperationStrategy).to(GmailCardOperationStrategy);
         container.bind<ICrossBorderTransferStrategy>(injectables.ICrossBorderTransferStrategy).to(GmailCrossBorderTransferStrategy);
         container.bind<ICrossBorderTransferFeeStrategy>(injectables.ICrossBorderTransferFeeStrategy).to(GmailCrossBorderTransferFeeStrategy);
         container.bind<IDeskWithdrawalStrategy>(injectables.IDeskWithdrawalStrategy).to(GmailDeskWithdrawalStrategy);
         container.bind<IStandardFeeStrategy>(injectables.IStandardFeeStrategy).to(GmailStandardFeeStrategy);
         container.bind<IStandardTransferStrategy>(injectables.IStandardTransferStrategy).to(GmailStandardTransferStrategy);
-        container.bind<RefreshTokenRepository>(injectables.RefreshTokenRepository).to(RefreshTokenRepository);
-        container.bind<GoogleOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProvider).to(GoogleOAuth2ClientProvider).inSingletonScope();
-        container.bind<GmailApiClient>(injectables.GmailApiClient).to(GmailApiClient).inSingletonScope();
+        container.bind<PaymentDetailsContext>(injectables.PaymentDetailsContext).to(PaymentDetailsContext);
+        container.bind<TransactionFactory>(injectables.TransactionFactory).to(TransactionFactory);
+        container.bind<TransactionRepository>(injectables.TransactionRepository).to(TransactionRepository);
         container.bind<ITransactionDataProvider>(injectables.ITransactionDataProvider).to(GmailTransactionDataProvider);
         container.bind<ITransactionSourceProvider>(injectables.ITransactionSourceProvider).to(GmailTransactionSourceProvider);
+        container.bind<TransactionContext>(injectables.TransactionContext).to(TransactionContext);
     }
 
     public static get Singleton() {
@@ -72,4 +69,38 @@ export class DependencyInjector {
     public resolve<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>) {
         return this.container.get<T>(serviceIdentifier);
     }
+
+    public async generateServiceAsync<T>(
+        providerIdentifier: interfaces.ServiceIdentifier<interfaces.Provider<T>>,
+        ...args: any[]) {
+        const provider = this.container.get<interfaces.Provider<T>>(providerIdentifier);
+
+        return await provider(...args) as T;
+    }
+
+    public registerGoogleServices() {
+        this.container.bind<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory).to(GoogleOAuth2IdentifiersFactory);
+        this.container.bind<GoogleOAuth2IdentifierRepository>(injectables.GoogleOAuth2IdentifierRepository).to(GoogleOAuth2IdentifierRepository);
+        this.container.bind<GoogleOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProvider).to(GoogleOAuth2ClientProvider);
+        this.container.bind<GmailApiClient>(injectables.GmailApiClient).to(GmailApiClient);
+
+        this.registerGoogleServiceGenerator(injectables.GoogleOAuth2ClientProviderGenerator, injectables.GoogleOAuth2ClientProvider);
+        this.registerGoogleServiceGenerator(injectables.GmailApiClientGenerator, injectables.GmailApiClient);
+        this.registerGoogleServiceGenerator(injectables.GmailTransactionSourceProviderGenerator, injectables.ITransactionSourceProvider);
+        this.registerGoogleServiceGenerator(injectables.TransactionContextGenerator, injectables.TransactionContext);
+    }
+
+    private registerGoogleServiceGenerator = <T extends IUsesGoogleOAuth2>(
+        generatorIdentifier: interfaces.ServiceIdentifier<interfaces.Provider<T>>,
+        serviceIdentifier: interfaces.ServiceIdentifier<T>) => 
+            this.container.bind<interfaces.Provider<T>>(generatorIdentifier)
+                .toProvider((context) => {
+                    return async (identifiers: GoogleOAuth2Identifiers) => {
+                        const service = context.container.get<T>(serviceIdentifier);
+        
+                        await service.useAsync(identifiers);
+        
+                        return service;
+                    }
+                });
 }

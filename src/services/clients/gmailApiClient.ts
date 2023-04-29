@@ -1,23 +1,31 @@
 import { gmail_v1, google } from 'googleapis';
-import { inject, injectable } from 'inversify';
+import { injectable } from 'inversify';
 import GmailMessageData from '../strategies/gmail/models/gmailMessageData';
 import GoogleOAuth2ClientProvider from '../providers/googleOAuth2ClientProvider';
 import { injectables } from '../../shared/types/injectables';
+import GoogleOAuth2Identifiers from '../../shared/models/googleOAuth2Identifiers';
+import { DependencyInjector } from '../../dependencyInjector';
+import IUsesGoogleOAuth2 from '../contracts/IUsesGoogleOAuth2';
 
 @injectable()
-export default class GmailApiClient {
-    private readonly googleOAuth2ClientProvider: GoogleOAuth2ClientProvider;
-    private readonly gmail: gmail_v1.Gmail;
+export default class GmailApiClient implements IUsesGoogleOAuth2 {
+    public credentials: GoogleOAuth2Identifiers;
+
+    private googleOAuth2ClientProvider: GoogleOAuth2ClientProvider;
+    private gmail: gmail_v1.Gmail;
+    private exponentialBackoffDepth = 0;
+
     private readonly searchQuery: string = 'from:pb@unicreditgroup.bg subject: "Dvizhenie po smetka"';
     private readonly maxExponentialBackoffDepth: number = 7;
 
-    private exponentialBackoffDepth = 0;
+    public constructor() {
+        this.credentials = null!;
+        this.googleOAuth2ClientProvider = null!;
+        this.gmail = null!;
+    }
 
-    public constructor(
-        @inject(injectables.GoogleOAuth2ClientProvider)
-        googleOAuth2ClientProvider: GoogleOAuth2ClientProvider
-    ) {
-        this.googleOAuth2ClientProvider = googleOAuth2ClientProvider;
+    public async useAsync(credentials: GoogleOAuth2Identifiers) {
+        this.googleOAuth2ClientProvider = await DependencyInjector.Singleton.generateServiceAsync(injectables.GoogleOAuth2ClientProviderGenerator, credentials);
         this.gmail = google.gmail({version: 'v1', auth: this.googleOAuth2ClientProvider.client});
     }
 
@@ -112,7 +120,7 @@ export default class GmailApiClient {
         try {
             result = await apiCall();
         } catch(ex) {
-            this.googleOAuth2ClientProvider.logWarning(`Gmail API call failed. Reattempting after ${this.exponentialBackoffDepth ** 2}s...`);
+            this.googleOAuth2ClientProvider.logWarning(`Gmail API call failed (${(ex as Error).message ?? ex}). Reattempting after ${this.exponentialBackoffDepth ** 2}s...`);
             
             result = await this.tryExponentialBackoffAsync(ex, () => this.makeApiCallAsync(apiCall));
         }
@@ -121,13 +129,13 @@ export default class GmailApiClient {
     }
 
     private async tryExponentialBackoffAsync<T>(ex: unknown, operation: () => T): Promise<T> {
-        if (this.exponentialBackoffDepth++ > this.maxExponentialBackoffDepth) {
+        if (this.exponentialBackoffDepth > this.maxExponentialBackoffDepth) {
             this.exponentialBackoffDepth = 0;
 
             throw ex;
         }
         
-        await new Promise(res => setTimeout(res, 2 ** this.exponentialBackoffDepth * 1000));
+        await new Promise(res => setTimeout(res, 2 ** this.exponentialBackoffDepth++ * 1000));
 
         const result = await operation();
 

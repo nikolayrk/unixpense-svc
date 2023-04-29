@@ -1,12 +1,15 @@
 import { Request, Response } from "express";
 import TransactionContext from "../../services/contexts/transactionContext";
 import { injectables } from "../../shared/types/injectables";
-import ILogger from "../../services/contracts/ILogger";
 import { DependencyInjector } from "../../dependencyInjector";
+import GoogleOAuth2Identifiers from "../../shared/models/googleOAuth2Identifiers";
+import ILogger from "../../services/contracts/ILogger";
 
 const get = async (req: Request, res: Response) => {
+    const identifiers = res.locals.googleOAuth2Identifiers as GoogleOAuth2Identifiers;
+
     const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
-    const transactionContext = DependencyInjector.Singleton.resolve<TransactionContext>(injectables.TransactionContext);
+    const transactionContext = await DependencyInjector.Singleton.generateServiceAsync<TransactionContext>(injectables.TransactionContextGenerator, identifiers);
 
     const { last, ids, save } = req.query;
     
@@ -16,10 +19,11 @@ const get = async (req: Request, res: Response) => {
     const idsValue = ids === undefined ? undefined : String(ids);
     const saveValue = /^true$/i.test(save?.toString() ?? '');
 
-    if (last !== undefined && (hasLast == false || lastValue < 1)) {
+    if (hasLast == false || lastValue < 1) {
         res
             .status(400)
-            .end(`Invalid value for 'last' parameter`);
+            .json({ error: "Invalid value for 'last' parameter" })
+            .end();
 
         return;
     }
@@ -68,14 +72,15 @@ const get = async (req: Request, res: Response) => {
         if (saveValue === false) {
             // Dump if we didn't explicitly request a save
             res
+                .status(200)
                 .json(processedTransactions)
                 .end();
         } else {
             // Inform of amount processed & skipped, if a save was requested
             res
-                .type('text/plain')
                 .status(200)
-                .end(response);
+                .json({ message: response })
+                .end();
         }
     } catch (ex) {
         const error = ex as Error;
@@ -84,7 +89,8 @@ const get = async (req: Request, res: Response) => {
 
         res
             .status(500)
-            .end(error.message ?? ex);
+            .json({ error: error.message ?? ex })
+            .end();
     }
 }
 

@@ -10,22 +10,23 @@ import { injectables } from "../../shared/types/injectables";
 import PaymentDetailsContext from "./paymentDetailsContext";
 import ILogger from "../contracts/ILogger";
 import RepositoryError from "../../shared/errors/repositoryError";
+import IUsesGoogleOAuth2 from "../contracts/IUsesGoogleOAuth2";
+import GoogleOAuth2Identifiers from "../../shared/models/googleOAuth2Identifiers";
+import { DependencyInjector } from "../../dependencyInjector";
 
 @injectable()
-export default class TransactionContext {
+export default class TransactionContext implements IUsesGoogleOAuth2 {
     private readonly logger;
-    private readonly transactionSourceProvider;
     private readonly transactionDataProvider;
     private readonly paymentDetailsContext;
     private readonly transactionFactory;
     private readonly transactionRepository;
 
+    private transactionSourceProvider: ITransactionSourceProvider;
+
     public constructor(
         @inject(injectables.ILogger)
         logger: ILogger,
-
-        @inject(injectables.ITransactionSourceProvider)
-        transactionSourceProvider: ITransactionSourceProvider,
 
         @inject(injectables.ITransactionDataProvider)
         transactionDataProvider: ITransactionDataProvider,
@@ -40,11 +41,15 @@ export default class TransactionContext {
         transactionRepository: TransactionRepository,
     ) {
         this.logger = logger;
-        this.transactionSourceProvider = transactionSourceProvider;
         this.transactionDataProvider = transactionDataProvider;
         this.paymentDetailsContext = paymentDetailsContext;
         this.transactionFactory = transactionFactory;
         this.transactionRepository = transactionRepository;
+        this.transactionSourceProvider = null!;
+    }
+
+    public async useAsync(credentials: GoogleOAuth2Identifiers) {
+        this.transactionSourceProvider = await DependencyInjector.Singleton.generateServiceAsync(injectables.GmailTransactionSourceProviderGenerator, credentials);
     }
 
     public async * generateAsync(transactionIdsQuery?: string) {
