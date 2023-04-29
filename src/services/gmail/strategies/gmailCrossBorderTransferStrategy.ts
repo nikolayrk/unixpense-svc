@@ -1,4 +1,4 @@
-import { AbstractPaymentDetailsStrategy } from "../abstractPaymentDetailsStrategy";
+import { AbstractPaymentDetailsStrategy } from "../../strategies/abstractPaymentDetailsStrategy";
 import CrossBorderTransfer from "../../../shared/models/crossBorderTransfer";
 import PaymentDetailsProcessingError from "../../../shared/errors/paymentDetailsProcessingError";
 

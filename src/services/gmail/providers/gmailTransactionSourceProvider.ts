@@ -1,12 +1,12 @@
 import { inject, injectable } from "inversify";
-import GmailApiClient from "../../../clients/gmailApiClient";
-import ITransactionSourceProvider from "../../../contracts/ITransactionSourceProvider";
 import GmailMessageData from "../models/gmailMessageData";
-import { injectables } from "../../../../shared/types/injectables";
-import ILogger from "../../../contracts/ILogger";
-import GoogleOAuth2Identifiers from "../../../../shared/models/googleOAuth2Identifiers";
-import { DependencyInjector } from "../../../../dependencyInjector";
-import IUsesGoogleOAuth2 from "../../../contracts/IUsesGoogleOAuth2";
+import ITransactionSourceProvider from "../../contracts/ITransactionSourceProvider";
+import IUsesGoogleOAuth2 from "../contracts/IUsesGoogleOAuth2";
+import GmailApiClient from "../clients/gmailApiClient";
+import { injectables } from "../../../shared/types/injectables";
+import ILogger from "../../contracts/ILogger";
+import GoogleOAuth2Identifiers from "../models/googleOAuth2Identifiers";
+import { DependencyInjector } from "../../../dependencyInjector";
 
 @injectable()
 export default class GmailTransactionSourceProvider implements ITransactionSourceProvider, IUsesGoogleOAuth2 {

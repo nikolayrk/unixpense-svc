@@ -1,10 +1,10 @@
 import { gmail_v1, google } from 'googleapis';
 import { injectable } from 'inversify';
-import GmailMessageData from '../strategies/gmail/models/gmailMessageData';
+import GmailMessageData from '../models/gmailMessageData';
 import GoogleOAuth2ClientProvider from '../providers/googleOAuth2ClientProvider';
-import { injectables } from '../../shared/types/injectables';
-import GoogleOAuth2Identifiers from '../../shared/models/googleOAuth2Identifiers';
-import { DependencyInjector } from '../../dependencyInjector';
+import { injectables } from '../../../shared/types/injectables';
+import GoogleOAuth2Identifiers from '../models/googleOAuth2Identifiers';
+import { DependencyInjector } from '../../../dependencyInjector';
 import IUsesGoogleOAuth2 from '../contracts/IUsesGoogleOAuth2';
 
 @injectable()

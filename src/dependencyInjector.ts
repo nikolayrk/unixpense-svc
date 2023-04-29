@@ -1,6 +1,6 @@
 import { Container, interfaces } from 'inversify';
-import GmailCardOperationStrategy from './services/strategies/gmail/gmailCardOperationStrategy';
-import TransactionContext from './services/contexts/transactionContext';
+import GmailCardOperationStrategy from './services/gmail/strategies/gmailCardOperationStrategy';
+import GmailTransactionProvider from './services/gmail/providers/gmailTransactionProvider';
 import TransactionRepository from './database/repositories/transactionRepository';
 import {
     ICardOperationStrategy,
@@ -12,25 +12,26 @@ import {
 } from "./shared/types/paymentDetailsStrategies";
 import { injectables } from './shared/types/injectables';
 import TransactionFactory from './services/factories/transactionFactory';
-import GmailStandardTransferStrategy from './services/strategies/gmail/gmailStandardTransferStrategy';
-import GmailStandardFeeStrategy from './services/strategies/gmail/gmailStandardFeeStrategy';
-import GmailDeskWithdrawalStrategy from './services/strategies/gmail/gmailDeskWIthdrawalStrategy';
-import GmailCrossBorderTransferStrategy from './services/strategies/gmail/gmailCrossBorderTransferStrategy';
+import GmailStandardTransferStrategy from './services/gmail/strategies/gmailStandardTransferStrategy';
+import GmailStandardFeeStrategy from './services/gmail/strategies/gmailStandardFeeStrategy';
+import GmailDeskWithdrawalStrategy from './services/gmail/strategies/gmailDeskWIthdrawalStrategy';
+import GmailCrossBorderTransferStrategy from './services/gmail/strategies/gmailCrossBorderTransferStrategy';
 import ITransactionDataProvider from './services/contracts/ITransactionDataProvider';
-import GmailTransactionDataProvider from './services/strategies/gmail/providers/gmailTransactionDataProvider';
+import GmailTransactionDataProvider from './services/gmail/providers/gmailTransactionDataProvider';
 import PaymentDetailsFactory from './services/factories/paymentDetailsFactory';
 import PaymentDetailsContext from './services/contexts/paymentDetailsContext';
 import ITransactionSourceProvider from './services/contracts/ITransactionSourceProvider';
-import GmailTransactionSourceProvider from './services/strategies/gmail/providers/gmailTransactionSourceProvider';
+import GmailTransactionSourceProvider from './services/gmail/providers/gmailTransactionSourceProvider';
 import ILogger from './services/contracts/ILogger';
 import WinstonLokiLogger from './services/loggers/winstonLokiLogger';
-import GmailCrossBorderTransferFeeStrategy from './services/strategies/gmail/gmailCrossBorderTransferFeeStrategy';
-import GoogleOAuth2Identifiers from './shared/models/googleOAuth2Identifiers';
-import IUsesGoogleOAuth2 from './services/contracts/IUsesGoogleOAuth2';
-import GoogleOAuth2IdentifierRepository from './database/repositories/googleOAuth2IdentifierRepository';
-import GoogleOAuth2ClientProvider from './services/providers/googleOAuth2ClientProvider';
-import GmailApiClient from './services/clients/gmailApiClient';
-import GoogleOAuth2IdentifiersFactory from './services/factories/googleOAuth2IdentifiersFactory';
+import GmailCrossBorderTransferFeeStrategy from './services/gmail/strategies/gmailCrossBorderTransferFeeStrategy';
+import GoogleOAuth2Identifiers from './services/gmail/models/googleOAuth2Identifiers';
+import IUsesGoogleOAuth2 from './services/gmail/contracts/IUsesGoogleOAuth2';
+import GoogleOAuth2IdentifierRepository from './services/gmail/repositories/googleOAuth2IdentifierRepository';
+import GoogleOAuth2ClientProvider from './services/gmail/providers/googleOAuth2ClientProvider';
+import GmailApiClient from './services/gmail/clients/gmailApiClient';
+import GoogleOAuth2IdentifiersFactory from './services/gmail/factories/googleOAuth2IdentifiersFactory';
+import ITransactionProvider from './services/contracts/ITransactionProvider';
 
 export class DependencyInjector {
     private static singleton: DependencyInjector;
@@ -44,18 +45,9 @@ export class DependencyInjector {
 
         container.bind<ILogger>(injectables.ILogger).to(WinstonLokiLogger).inSingletonScope();
         container.bind<PaymentDetailsFactory>(injectables.PaymentDetailsFactory).to(PaymentDetailsFactory);
-        container.bind<ICardOperationStrategy>(injectables.ICardOperationStrategy).to(GmailCardOperationStrategy);
-        container.bind<ICrossBorderTransferStrategy>(injectables.ICrossBorderTransferStrategy).to(GmailCrossBorderTransferStrategy);
-        container.bind<ICrossBorderTransferFeeStrategy>(injectables.ICrossBorderTransferFeeStrategy).to(GmailCrossBorderTransferFeeStrategy);
-        container.bind<IDeskWithdrawalStrategy>(injectables.IDeskWithdrawalStrategy).to(GmailDeskWithdrawalStrategy);
-        container.bind<IStandardFeeStrategy>(injectables.IStandardFeeStrategy).to(GmailStandardFeeStrategy);
-        container.bind<IStandardTransferStrategy>(injectables.IStandardTransferStrategy).to(GmailStandardTransferStrategy);
         container.bind<PaymentDetailsContext>(injectables.PaymentDetailsContext).to(PaymentDetailsContext);
         container.bind<TransactionFactory>(injectables.TransactionFactory).to(TransactionFactory);
         container.bind<TransactionRepository>(injectables.TransactionRepository).to(TransactionRepository);
-        container.bind<ITransactionDataProvider>(injectables.ITransactionDataProvider).to(GmailTransactionDataProvider);
-        container.bind<ITransactionSourceProvider>(injectables.ITransactionSourceProvider).to(GmailTransactionSourceProvider);
-        container.bind<TransactionContext>(injectables.TransactionContext).to(TransactionContext);
     }
 
     public static get Singleton() {
@@ -78,16 +70,25 @@ export class DependencyInjector {
         return await provider(...args) as T;
     }
 
-    public registerGoogleServices() {
+    public registerGmailServices() {
         this.container.bind<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory).to(GoogleOAuth2IdentifiersFactory);
         this.container.bind<GoogleOAuth2IdentifierRepository>(injectables.GoogleOAuth2IdentifierRepository).to(GoogleOAuth2IdentifierRepository);
         this.container.bind<GoogleOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProvider).to(GoogleOAuth2ClientProvider);
         this.container.bind<GmailApiClient>(injectables.GmailApiClient).to(GmailApiClient);
+        this.container.bind<ICardOperationStrategy>(injectables.ICardOperationStrategy).to(GmailCardOperationStrategy);
+        this.container.bind<ICrossBorderTransferStrategy>(injectables.ICrossBorderTransferStrategy).to(GmailCrossBorderTransferStrategy);
+        this.container.bind<ICrossBorderTransferFeeStrategy>(injectables.ICrossBorderTransferFeeStrategy).to(GmailCrossBorderTransferFeeStrategy);
+        this.container.bind<IDeskWithdrawalStrategy>(injectables.IDeskWithdrawalStrategy).to(GmailDeskWithdrawalStrategy);
+        this.container.bind<IStandardFeeStrategy>(injectables.IStandardFeeStrategy).to(GmailStandardFeeStrategy);
+        this.container.bind<IStandardTransferStrategy>(injectables.IStandardTransferStrategy).to(GmailStandardTransferStrategy);
+        this.container.bind<ITransactionDataProvider>(injectables.ITransactionDataProvider).to(GmailTransactionDataProvider);
+        this.container.bind<ITransactionSourceProvider>(injectables.ITransactionSourceProvider).to(GmailTransactionSourceProvider);
+        this.container.bind<ITransactionProvider>(injectables.ITransactionProvider).to(GmailTransactionProvider);
 
         this.registerGoogleServiceGenerator(injectables.GoogleOAuth2ClientProviderGenerator, injectables.GoogleOAuth2ClientProvider);
         this.registerGoogleServiceGenerator(injectables.GmailApiClientGenerator, injectables.GmailApiClient);
         this.registerGoogleServiceGenerator(injectables.GmailTransactionSourceProviderGenerator, injectables.ITransactionSourceProvider);
-        this.registerGoogleServiceGenerator(injectables.TransactionContextGenerator, injectables.TransactionContext);
+        this.registerGoogleServiceGenerator(injectables.GmailTransactionProviderGenerator, injectables.ITransactionProvider);
     }
 
     private registerGoogleServiceGenerator = <T extends IUsesGoogleOAuth2>(

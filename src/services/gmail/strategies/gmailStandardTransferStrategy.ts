@@ -1,5 +1,5 @@
 import StandardTransfer from "../../../shared/models/standardTransfer";
-import { AbstractPaymentDetailsStrategy } from "../abstractPaymentDetailsStrategy";
+import { AbstractPaymentDetailsStrategy } from "../../strategies/abstractPaymentDetailsStrategy";
 
 export default class GmailStandardTransferStrategy extends AbstractPaymentDetailsStrategy<StandardTransfer> {
     public tryCreate(paymentDetailsRaw: string[], additionalDetailsRaw: string[]): StandardTransfer {

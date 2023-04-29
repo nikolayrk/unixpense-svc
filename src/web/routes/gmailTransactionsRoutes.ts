@@ -4,7 +4,7 @@ import * as gmailTransactionsController from "../controllers/gmailTransactionsCo
 import { DependencyInjector } from "../../dependencyInjector";
 import bodyParser from "body-parser";
 
-DependencyInjector.Singleton.registerGoogleServices();
+DependencyInjector.Singleton.registerGmailServices();
 
 const router = express.Router();
 

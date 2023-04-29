@@ -1,9 +1,9 @@
 import { inject, injectable } from "inversify";
 import GoogleOAuth2IdentifierEntity from "../entities/googleOAuth2Identifer.entity";
-import RepositoryError from "../../shared/errors/repositoryError";
-import GoogleOAuth2Identifiers from "../../shared/models/googleOAuth2Identifiers";
-import GoogleOAuth2IdentifiersFactory from "../../services/factories/googleOAuth2IdentifiersFactory";
-import { injectables } from "../../shared/types/injectables";
+import RepositoryError from "../../../shared/errors/repositoryError";
+import GoogleOAuth2Identifiers from "../models/googleOAuth2Identifiers";
+import GoogleOAuth2IdentifiersFactory from "../factories/googleOAuth2IdentifiersFactory";
+import { injectables } from "../../../shared/types/injectables";
 
 @injectable()
 export default class GoogleOAuth2IdentifierRepository {

@@ -1,9 +1,9 @@
 import express, { Request, Response, NextFunction } from "express";
 import { DependencyInjector } from "../../dependencyInjector";
-import GoogleOAuth2ClientProvider from "../../services/providers/googleOAuth2ClientProvider";
+import GoogleOAuth2ClientProvider from "../../services/gmail/providers/googleOAuth2ClientProvider";
 import { injectables } from "../../shared/types/injectables";
-import GoogleOAuth2IdentifierRepository from "../../database/repositories/googleOAuth2IdentifierRepository";
-import GoogleOAuth2IdentifiersFactory from "../../services/factories/googleOAuth2IdentifiersFactory";
+import GoogleOAuth2IdentifierRepository from "../../services/gmail/repositories/googleOAuth2IdentifierRepository";
+import GoogleOAuth2IdentifiersFactory from "../../services/gmail/factories/googleOAuth2IdentifiersFactory";
 
 const redirect = async (req: Request, res: Response) => {
     const { client_id, client_secret, redirect_uri, code } = req.body;
@@ -64,8 +64,8 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const accessToken = authHeader.replace('Bearer ', '');
-    const tokenRepository = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifierRepository>(injectables.GoogleOAuth2IdentifierRepository);
-    const persistedIdentifiers = await tokenRepository.getOrNullAsync({ access_token: accessToken });
+    const googleOAuth2IdentifierRepository = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifierRepository>(injectables.GoogleOAuth2IdentifierRepository);
+    const persistedIdentifiers = await googleOAuth2IdentifierRepository.getOrNullAsync({ access_token: accessToken });
 
     if (persistedIdentifiers === null) {
         res

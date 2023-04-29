@@ -1,4 +1,4 @@
-import { AbstractPaymentDetailsStrategy } from "../abstractPaymentDetailsStrategy";
+import { AbstractPaymentDetailsStrategy } from "../../strategies/abstractPaymentDetailsStrategy";
 import StandardFee from "../../../shared/models/standardFee";
 
 export default class GmailStandardFeeStrategy extends AbstractPaymentDetailsStrategy<StandardFee> {

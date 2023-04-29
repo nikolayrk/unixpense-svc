@@ -1,7 +1,7 @@
 import { AllowNull, Column, DataType, Model, PrimaryKey, Table, Unique } from "sequelize-typescript";
 
 @Table({
-    modelName: "googleOAuth2Identifier",
+    modelName: "google_oauth2_identifier",
     timestamps: true,
     indexes: [{
         fields: ['client_id']

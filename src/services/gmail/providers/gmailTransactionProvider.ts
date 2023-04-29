@@ -1,21 +1,22 @@
 import { inject, injectable } from "inversify";
-import ITransactionDataProvider from "../contracts/ITransactionDataProvider";
-import ITransactionSourceProvider from "../contracts/ITransactionSourceProvider";
-import { TransactionTypeExtensions } from "../../shared/extensions/transactionTypeExtensions";
-import TransactionFactory from "../factories/transactionFactory";
-import PaymentDetails from "../../shared/models/paymentDetails";
-import Transaction from "../../shared/models/transaction";
-import TransactionRepository from "../../database/repositories/transactionRepository";
-import { injectables } from "../../shared/types/injectables";
-import PaymentDetailsContext from "./paymentDetailsContext";
-import ILogger from "../contracts/ILogger";
-import RepositoryError from "../../shared/errors/repositoryError";
+import ITransactionDataProvider from "../../contracts/ITransactionDataProvider";
+import ITransactionSourceProvider from "../../contracts/ITransactionSourceProvider";
+import { TransactionTypeExtensions } from "../../../shared/extensions/transactionTypeExtensions";
+import TransactionFactory from "../../factories/transactionFactory";
+import PaymentDetails from "../../../shared/models/paymentDetails";
+import Transaction from "../../../shared/models/transaction";
+import TransactionRepository from "../../../database/repositories/transactionRepository";
+import { injectables } from "../../../shared/types/injectables";
+import PaymentDetailsContext from "../../contexts/paymentDetailsContext";
+import ILogger from "../../contracts/ILogger";
+import RepositoryError from "../../../shared/errors/repositoryError";
 import IUsesGoogleOAuth2 from "../contracts/IUsesGoogleOAuth2";
-import GoogleOAuth2Identifiers from "../../shared/models/googleOAuth2Identifiers";
-import { DependencyInjector } from "../../dependencyInjector";
+import GoogleOAuth2Identifiers from "../models/googleOAuth2Identifiers";
+import { DependencyInjector } from "../../../dependencyInjector";
+import ITransactionProvider from "../../contracts/ITransactionProvider";
 
 @injectable()
-export default class TransactionContext implements IUsesGoogleOAuth2 {
+export default class GmailTransactionProvider implements ITransactionProvider, IUsesGoogleOAuth2 {
     private readonly logger;
     private readonly transactionDataProvider;
     private readonly paymentDetailsContext;

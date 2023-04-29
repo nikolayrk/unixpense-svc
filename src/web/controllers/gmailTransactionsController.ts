@@ -1,15 +1,15 @@
 import { Request, Response } from "express";
-import TransactionContext from "../../services/contexts/transactionContext";
+import GmailTransactionProvider from "../../services/gmail/providers/gmailTransactionProvider";
 import { injectables } from "../../shared/types/injectables";
 import { DependencyInjector } from "../../dependencyInjector";
-import GoogleOAuth2Identifiers from "../../shared/models/googleOAuth2Identifiers";
+import GoogleOAuth2Identifiers from "../../services/gmail/models/googleOAuth2Identifiers";
 import ILogger from "../../services/contracts/ILogger";
 
 const get = async (req: Request, res: Response) => {
     const identifiers = res.locals.googleOAuth2Identifiers as GoogleOAuth2Identifiers;
 
     const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
-    const transactionContext = await DependencyInjector.Singleton.generateServiceAsync<TransactionContext>(injectables.TransactionContextGenerator, identifiers);
+    const gmailTransactionProvider = await DependencyInjector.Singleton.generateServiceAsync<GmailTransactionProvider>(injectables.GmailTransactionProviderGenerator, identifiers);
 
     const { last, ids, save } = req.query;
     
@@ -30,8 +30,8 @@ const get = async (req: Request, res: Response) => {
 
     const processTransactionsAsync = async () => {
         const transactionGenerator = saveValue
-            ? transactionContext.generateSaveAsync(idsValue)
-            : transactionContext.generateAsync(idsValue);
+            ? gmailTransactionProvider.generateSaveAsync(idsValue)
+            : gmailTransactionProvider.generateAsync(idsValue);
 
         const processedTransactions = [];
         let skippedCount = 0;

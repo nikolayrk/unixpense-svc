@@ -3,10 +3,10 @@ import { GaxiosError } from 'gaxios';
 import { OAuth2Client } from 'googleapis-common';
 import { Credentials } from 'google-auth-library';
 import { inject, injectable } from 'inversify';
-import { injectables } from "../../shared/types/injectables";
-import GoogleOAuth2IdentifierRepository from '../../database/repositories/googleOAuth2IdentifierRepository';
-import ILogger from '../contracts/ILogger';
-import GoogleOAuth2Identifiers from '../../shared/models/googleOAuth2Identifiers';
+import { injectables } from "../../../shared/types/injectables";
+import GoogleOAuth2IdentifierRepository from '../repositories/googleOAuth2IdentifierRepository';
+import ILogger from '../../contracts/ILogger';
+import GoogleOAuth2Identifiers from '../models/googleOAuth2Identifiers';
 import IUsesGoogleOAuth2 from '../contracts/IUsesGoogleOAuth2';
 
 @injectable()

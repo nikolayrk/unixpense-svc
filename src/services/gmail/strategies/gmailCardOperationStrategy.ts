@@ -1,4 +1,4 @@
-import { AbstractPaymentDetailsStrategy } from "../abstractPaymentDetailsStrategy";
+import { AbstractPaymentDetailsStrategy } from "../../strategies/abstractPaymentDetailsStrategy";
 import CardOperation from "../../../shared/models/cardOperation";
 import PaymentDetailsProcessingError from "../../../shared/errors/paymentDetailsProcessingError";
 

@@ -1,4 +1,4 @@
-import { TransactionDataHead } from '../../../../shared/models/transactionData';
+import { TransactionDataHead } from '../../../shared/models/transactionData';
 
 export type TransactionDataTestCase = {
   testName: string;
