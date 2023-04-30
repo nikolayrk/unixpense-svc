@@ -1,15 +1,17 @@
 import {describe, expect, test} from '@jest/globals';
-import PaymentDetails from "../../../shared/models/paymentDetails";
-import { PaymentDetailsTestCase } from '../types/paymentDetailsTestCase';
+import PaymentDetails from "../../shared/models/paymentDetails";
+import { PaymentDetailsTestCase } from '../../shared/types/paymentDetailsTestCase';
 import { TransactionDataTestCase } from '../types/transactionDataTestCase';
-import PaymentDetailsContext from '../../contexts/paymentDetailsContext';
-import { DependencyInjector } from '../../../dependencyInjector';
-import { injectables } from '../../../shared/types/injectables';
+import PaymentDetailsContext from '../../services/contexts/paymentDetailsContext';
+import { DependencyInjector } from '../../dependencyInjector';
+import { injectables } from '../../shared/types/injectables';
 
 export default function describePaymentDetailsTests<T extends PaymentDetails>(
   name: string,
   transactionDataTestCases: TransactionDataTestCase[],
   paymentDetailsTestCases: PaymentDetailsTestCase<T>[]) {
+  DependencyInjector.Singleton.registerGmailServices();
+
   const paymentDetailsContext = DependencyInjector.Singleton.resolve<PaymentDetailsContext>(injectables.PaymentDetailsContext);
 
   const createPaymentDetails = (paymentDetailsTestCase: PaymentDetailsTestCase<T>) =>

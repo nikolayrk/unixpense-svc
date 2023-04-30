@@ -1,9 +1,9 @@
-import TransactionType from "../../../../shared/enums/transactionType";
-import CrossBorderTransferFee from "../../../../shared/models/crossBorderTransferFee";
-import { PaymentDetailsTestCase } from "../types/paymentDetailsTestCase";
-import describePaymentDetailsTests from "../utils/describePaymentDetails";
-import describeTransactionDataTests from "../utils/describeTransactionData";
-import transactionDataTestCases from "./transactionData.test.cases";
+import TransactionType from "../../../shared/enums/transactionType";
+import CrossBorderTransferFee from "../../../shared/models/crossBorderTransferFee";
+import { PaymentDetailsTestCase } from "../../../shared/types/paymentDetailsTestCase";
+import describePaymentDetailsTests from "../../../shared/utils/describePaymentDetails";
+import describeTransactionDataTests from "../../../shared/utils/describeTransactionData";
+import transactionDataTestCases from "./gmailTransactionData.test.cases";
 
 const crossBorderTransferFeeTestCases: PaymentDetailsTestCase<CrossBorderTransferFee>[] = [
     {   testName: 'CROSS_BORDER_TRANSFER_FEE',

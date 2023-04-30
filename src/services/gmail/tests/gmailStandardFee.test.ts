@@ -1,9 +1,9 @@
-import TransactionType from "../../../../shared/enums/transactionType";
-import StandardFee from "../../../../shared/models/standardFee";
-import { PaymentDetailsTestCase } from "../types/paymentDetailsTestCase";
-import describePaymentDetailsTests from "../utils/describePaymentDetails";
-import describeTransactionDataTests from "../utils/describeTransactionData";
-import transactionDataTestCases from "./transactionData.test.cases";
+import TransactionType from "../../../shared/enums/transactionType";
+import StandardFee from "../../../shared/models/standardFee";
+import { PaymentDetailsTestCase } from "../../../shared/types/paymentDetailsTestCase";
+import describePaymentDetailsTests from "../../../shared/utils/describePaymentDetails";
+import describeTransactionDataTests from "../../../shared/utils/describeTransactionData";
+import transactionDataTestCases from "./gmailTransactionData.test.cases";
 
 const standardFeeTestCases: PaymentDetailsTestCase<StandardFee>[] = [
     {   testName: 'PERIODIC_FEE',
