@@ -1,6 +1,7 @@
 import express from "express";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from 'swagger-ui-express';
+import { swaggerComponents as gmailTransactionsComponents } from "./gmailTransactionsRoutes";
 
 const router = express.Router();
 
@@ -13,20 +14,7 @@ const options = {
         version: '1.0.0',
       },
       components: {
-        securitySchemes: {
-          Google: {
-            type: 'oauth2',
-            flows: {
-              authorizationCode: {
-                authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth?access_type=offline',
-                tokenUrl: `${process.env.UNIXPENSE_URI}/api/transactions/gmail/oauthcallback`,
-                scopes: {
-                  'https://www.googleapis.com/auth/gmail.readonly': 'Read-only access to Gmail message data',
-                }
-              }
-            }
-          }
-        }
+        ...gmailTransactionsComponents
       }
     },
     apis: [ './src/web/routes/*.{js,ts}' ],

@@ -3,6 +3,7 @@ import * as googleOAuth2Middleware from '../middleware/googleOAuth2Middleware';
 import * as gmailTransactionsController from "../controllers/gmailTransactionsController";
 import { DependencyInjector } from "../../dependencyInjector";
 import bodyParser from "body-parser";
+import swaggerJSDoc from "swagger-jsdoc";
 
 DependencyInjector.Singleton.registerGmailServices();
 
@@ -11,6 +12,23 @@ const router = express.Router();
 router.use(bodyParser.urlencoded({ extended: true }));
 
 router.use('/oauthcallback', googleOAuth2Middleware.redirect);
+
+const swaggerComponents: swaggerJSDoc.Components = {
+    securitySchemes: {
+        Google: {
+            type: 'oauth2',
+            flows: {
+                authorizationCode: {
+                    authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth?access_type=offline',
+                    tokenUrl: `${process.env.UNIXPENSE_URI}/api/transactions/gmail/oauthcallback`,
+                    scopes: {
+                        'https://www.googleapis.com/auth/gmail.readonly': 'Read-only access to Gmail message data',
+                    }
+                }
+            }
+        }
+    }
+};
 
 /**
  * @swagger
@@ -49,4 +67,4 @@ router.use('/oauthcallback', googleOAuth2Middleware.redirect);
  */
 router.route('/get').get(googleOAuth2Middleware.protect, gmailTransactionsController.get);
 
-export { router };
+export { router, swaggerComponents };
