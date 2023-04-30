@@ -2,12 +2,12 @@
   "name": "unixpense-svc",
   "version": "1.0.0",
   "description": "An automated expense tracker for UniCredit Bulbank users",
-  "main": "dist/main.js",
+  "main": "main.js",
   "scripts": {
     "dev": "npx ts-node src/main.ts",
     "lint": "eslint \"./src/*\" --fix",
     "build": "tsc -p .",
-    "start": "node dist/main.js",
+    "start": "node main.js",
     "test": "jest --noStackTrace --ci",
     "clean": "tsc --build --clean"
   },

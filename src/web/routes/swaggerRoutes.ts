@@ -17,7 +17,7 @@ const options = {
         ...gmailTransactionsComponents
       }
     },
-    apis: [ './src/web/routes/*.{js,ts}' ],
+    apis: [ './**/web/routes/*.{js,ts}' ],
   };
 
 const swaggerSpec = swaggerJSDoc(options);
