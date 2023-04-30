@@ -20,7 +20,9 @@ const swaggerComponents: swaggerJSDoc.Components = {
             flows: {
                 authorizationCode: {
                     authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth?access_type=offline',
-                    tokenUrl: `${process.env.UNIXPENSE_URI}/api/transactions/gmail/oauthcallback`,
+                    tokenUrl: `${process.env.NODE_ENV === 'production'
+                        ? 'https://'
+                        : 'http://'}${process.env.UNIXPENSE_URI}/api/transactions/gmail/oauthcallback`,
                     scopes: {
                         'https://www.googleapis.com/auth/gmail.readonly': 'Read-only access to Gmail message data',
                     }

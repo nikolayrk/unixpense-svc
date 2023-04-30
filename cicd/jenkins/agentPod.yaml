@@ -34,7 +34,7 @@ spec:
   volumes:
   - name: kaniko-secret
     secret:
-      secretName: unixpense-svc-regcred
+      secretName: dockerconfig
       items:
       - key: .dockerconfigjson
         path: config.json

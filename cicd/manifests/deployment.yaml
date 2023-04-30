@@ -18,8 +18,8 @@ spec:
       securityContext:
         runAsUser: 1000
       containers:
-      - name: app
-        image: DOCKER_REPO:BUILD_NUMBER # Populated in deploy.sh
+      - name: unixpense-svc
+        image: nikolayrk/unixpense-svc:latest
         resources:
           requests:
             cpu: 150m
@@ -31,8 +31,6 @@ spec:
         - configMapRef:
             name: unixpense-svc-config
         - secretRef:
-            name: unixpense-svc-regcred
-        - secretRef:
-            name: unixpense-svc-googlecred
-        - secretRef:
-            name: unixpense-svc-dbcred
+            name: mariadb-cred
+        - configMapRef:
+            name: mariadb-config

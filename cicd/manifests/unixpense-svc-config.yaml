@@ -1,0 +1,11 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: unixpense-svc-config
+  namespace: unixpense
+data:
+  PORT: '$PORT'
+  NODE_ENV: $NODE_ENV
+  LOG_LEVEL: $LOG_LEVEL
+  UNIXPENSE_URI: $UNIXPENSE_URI
+  LOKI_HOST: $LOKI_HOST
