@@ -69,7 +69,7 @@ jobs:
         uses: swdotcom/update-and-apply-kubernetes-configs@v1
         with:
           k8-config-file-paths: |
-            cicd/manifests/unixpense-svc-config.yaml
+            cicd/manifests/config.yaml
             cicd/manifests/mariadb-config.yaml
           replacement-method: defined
         env:
