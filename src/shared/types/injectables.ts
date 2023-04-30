@@ -6,11 +6,7 @@ export const injectables = {
     TransactionFactory: Symbol.for('TransactionFactory'),
     TransactionRepository: Symbol.for('TransactionRepository'),
 
-    // Gmail Services
-    GoogleOAuth2IdentifiersFactory: Symbol.for('GoogleOAuth2IdentifiersFactory'),
-    GoogleOAuth2IdentifierRepository: Symbol.for('GoogleOAuth2IdentifierRepository'),
-    GoogleOAuth2ClientProvider: Symbol.for('GoogleOAuth2ClientProvider'),
-    GmailApiClient: Symbol.for('GmailApiClient'),
+    // Contextual Services
     ICardOperationStrategy: Symbol.for('ICardOperationStrategy'),
     ICrossBorderTransferStrategy: Symbol.for('ICrossBorderTransferStrategy'),
     ICrossBorderTransferFeeStrategy: Symbol.for('ICrossBorderTransferFeeStrategy'),
@@ -20,6 +16,12 @@ export const injectables = {
     ITransactionDataProvider: Symbol.for('ITransactionDataProvider'),
     ITransactionSourceProvider: Symbol.for('ITransactionSourceProvider'),
     ITransactionProvider: Symbol.for('ITransactionProvider'),
+
+    // Gmail Services
+    GoogleOAuth2IdentifiersFactory: Symbol.for('GoogleOAuth2IdentifiersFactory'),
+    GoogleOAuth2IdentifierRepository: Symbol.for('GoogleOAuth2IdentifierRepository'),
+    GoogleOAuth2ClientProvider: Symbol.for('GoogleOAuth2ClientProvider'),
+    GmailApiClient: Symbol.for('GmailApiClient'),
 
     // Google OAuth2 Service Generators (Providers)
     GoogleOAuth2ClientProviderGenerator: Symbol.for('GoogleOAuth2ClientProviderGenerator'),

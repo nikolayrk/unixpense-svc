@@ -31,6 +31,7 @@ import GoogleOAuth2IdentifierRepository from './services/gmail/repositories/goog
 import GoogleOAuth2ClientProvider from './services/gmail/providers/googleOAuth2ClientProvider';
 import GmailApiClient from './services/gmail/clients/gmailApiClient';
 import GoogleOAuth2IdentifiersFactory from './services/gmail/factories/googleOAuth2IdentifiersFactory';
+import ServiceContexts from './shared/enums/serviceContexts';
 import ITransactionProvider from './services/contracts/ITransactionProvider';
 
 export class DependencyInjector {
@@ -71,24 +72,36 @@ export class DependencyInjector {
     }
 
     public registerGmailServices() {
+        this.registerServicesByContext(ServiceContexts.GMAIL);
+
         this.container.bind<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory).to(GoogleOAuth2IdentifiersFactory);
         this.container.bind<GoogleOAuth2IdentifierRepository>(injectables.GoogleOAuth2IdentifierRepository).to(GoogleOAuth2IdentifierRepository);
         this.container.bind<GoogleOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProvider).to(GoogleOAuth2ClientProvider);
         this.container.bind<GmailApiClient>(injectables.GmailApiClient).to(GmailApiClient);
-        this.container.bind<ICardOperationStrategy>(injectables.ICardOperationStrategy).to(GmailCardOperationStrategy);
-        this.container.bind<ICrossBorderTransferStrategy>(injectables.ICrossBorderTransferStrategy).to(GmailCrossBorderTransferStrategy);
-        this.container.bind<ICrossBorderTransferFeeStrategy>(injectables.ICrossBorderTransferFeeStrategy).to(GmailCrossBorderTransferFeeStrategy);
-        this.container.bind<IDeskWithdrawalStrategy>(injectables.IDeskWithdrawalStrategy).to(GmailDeskWithdrawalStrategy);
-        this.container.bind<IStandardFeeStrategy>(injectables.IStandardFeeStrategy).to(GmailStandardFeeStrategy);
-        this.container.bind<IStandardTransferStrategy>(injectables.IStandardTransferStrategy).to(GmailStandardTransferStrategy);
-        this.container.bind<ITransactionDataProvider>(injectables.ITransactionDataProvider).to(GmailTransactionDataProvider);
-        this.container.bind<ITransactionSourceProvider>(injectables.ITransactionSourceProvider).to(GmailTransactionSourceProvider);
-        this.container.bind<ITransactionProvider>(injectables.ITransactionProvider).to(GmailTransactionProvider);
 
         this.registerGoogleServiceGenerator(injectables.GoogleOAuth2ClientProviderGenerator, injectables.GoogleOAuth2ClientProvider);
         this.registerGoogleServiceGenerator(injectables.GmailApiClientGenerator, injectables.GmailApiClient);
         this.registerGoogleServiceGenerator(injectables.GmailTransactionSourceProviderGenerator, injectables.ITransactionSourceProvider);
         this.registerGoogleServiceGenerator(injectables.GmailTransactionProviderGenerator, injectables.ITransactionProvider);
+    }
+
+    private registerServicesByContext(context: ServiceContexts) {
+        switch(context) {
+            case ServiceContexts.GMAIL:
+                this.container.bind<ICardOperationStrategy>(injectables.ICardOperationStrategy).to(GmailCardOperationStrategy);
+                this.container.bind<ICrossBorderTransferStrategy>(injectables.ICrossBorderTransferStrategy).to(GmailCrossBorderTransferStrategy);
+                this.container.bind<ICrossBorderTransferFeeStrategy>(injectables.ICrossBorderTransferFeeStrategy).to(GmailCrossBorderTransferFeeStrategy);
+                this.container.bind<IDeskWithdrawalStrategy>(injectables.IDeskWithdrawalStrategy).to(GmailDeskWithdrawalStrategy);
+                this.container.bind<IStandardFeeStrategy>(injectables.IStandardFeeStrategy).to(GmailStandardFeeStrategy);
+                this.container.bind<IStandardTransferStrategy>(injectables.IStandardTransferStrategy).to(GmailStandardTransferStrategy);
+                this.container.bind<ITransactionDataProvider>(injectables.ITransactionDataProvider).to(GmailTransactionDataProvider);
+                this.container.bind<ITransactionSourceProvider>(injectables.ITransactionSourceProvider).to(GmailTransactionSourceProvider);
+                this.container.bind<ITransactionProvider>(injectables.ITransactionProvider).to(GmailTransactionProvider);
+
+                break;
+            default:
+                throw new Error(`Unrecognised service context '${context}'`);
+        }
     }
 
     private registerGoogleServiceGenerator = <T extends IUsesGoogleOAuth2>(

@@ -34,6 +34,8 @@ const swaggerComponents: swaggerJSDoc.Components = {
  * @swagger
  * /api/transactions/gmail/get:
  *   get:
+ *     tags:
+ *       - Gmail
  *     description: Fetch and optionally persist formatted transaction data from Gmail
  *     security:
  *       - Google:
