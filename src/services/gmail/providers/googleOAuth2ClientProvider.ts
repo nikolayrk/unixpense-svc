@@ -122,7 +122,8 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
     private async tryUsePersistedRefreshTokenOrNullAsync(tokens: Credentials) {
         const { refresh_token, ...rest } = tokens;
 
-        if ((refresh_token === null || refresh_token === undefined) && this.identifiers.refreshToken === null) {
+        if ((refresh_token === null || refresh_token === undefined) &&
+            (this.identifiers.refreshToken === null || this.identifiers.refreshToken === undefined)) {
             throw new Error(`No refresh token was received from an authorization request, nor was a previously persisted one found. To force a refresh token to be sent on next auth, navigate to https://myaccount.google.com/permissions and under 'Third-party apps with account access', find 'Unixpense Tracker' then click 'Remove Access'`);
         }
 

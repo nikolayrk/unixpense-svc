@@ -50,7 +50,7 @@ export default class GoogleOAuth2IdentifierRepository {
         await GoogleOAuth2IdentifierEntity.update({
                 access_token: identifiers.accessToken,
 
-                ...(identifiers.refreshToken !== undefined) && {
+                ...(identifiers.refreshToken !== null && identifiers.refreshToken !== undefined) && {
                     refresh_token: identifiers.refreshToken
                 },
             }, {
