@@ -20,11 +20,11 @@ export default class DatabaseConnection {
             return this.connection;
         }
 
-        const host = process.env.UNIXPENSE_MARIADB_HOST;
-        const port = process.env.UNIXPENSE_MARIADB_PORT;
-        const username = process.env.UNIXPENSE_MARIADB_USERNAME;
-        const password = process.env.UNIXPENSE_MARIADB_PASSWORD;
-        const database = process.env.UNIXPENSE_MARIADB_DATABASE;
+        const host = process.env.MARIADB_HOST;
+        const port = process.env.MARIADB_PORT;
+        const username = process.env.MARIADB_USERNAME;
+        const password = process.env.MARIADB_PASSWORD;
+        const database = process.env.MARIADB_DATABASE;
 
         if (host === undefined || 
             port === undefined || 
