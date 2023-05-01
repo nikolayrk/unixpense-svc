@@ -37,17 +37,7 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
     }
 
     public async useAsync(identifiers: GoogleOAuth2Identifiers) {
-        const persistedIdentifiers = identifiers.accessToken !== undefined
-            ? await this.googleOAuth2IdentifierRepository.getOrNullAsync({ access_token: identifiers.accessToken })
-            : null;
-
-        this.identifiers = {
-            clientId: identifiers.clientId ?? persistedIdentifiers?.clientId,
-            clientSecret: identifiers.clientSecret ?? persistedIdentifiers?.clientSecret,
-            redirectUri: identifiers.redirectUri ?? persistedIdentifiers?.redirectUri,
-            accessToken: identifiers.accessToken ?? persistedIdentifiers?.accessToken,
-            refreshToken: identifiers.refreshToken ?? persistedIdentifiers?.refreshToken,
-        }
+        this.identifiers = identifiers;
         
         this.oauth2Client = new google.auth
             .OAuth2(this.identifiers.clientId, this.identifiers.clientSecret, this.identifiers.redirectUri)
@@ -55,9 +45,9 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
                 this.logEvent(`Received new OAuth2 Client tokens`);
 
                 try {
-                    const tokensWithPersistedRefreshTokenOrNull = await this.tryUsePersistedRefreshTokenOrNullAsync(tokens);
+                    const tokensWithRefreshToken = await this.tryUsePersistedRefreshTokenAsync(tokens);
 
-                    this.authorizeWithTokens(tokensWithPersistedRefreshTokenOrNull ?? tokens);
+                    this.authorizeWithTokens(tokensWithRefreshToken);
                 } catch(ex) {
                     const error = ex as Error;
 
@@ -119,7 +109,7 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
     }
 
     // throws Error
-    private async tryUsePersistedRefreshTokenOrNullAsync(tokens: Credentials) {
+    private async tryUsePersistedRefreshTokenAsync(tokens: Credentials) {
         const { refresh_token, ...rest } = tokens;
 
         if ((refresh_token === null || refresh_token === undefined) &&

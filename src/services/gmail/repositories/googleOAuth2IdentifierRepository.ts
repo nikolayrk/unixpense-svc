@@ -29,11 +29,8 @@ export default class GoogleOAuth2IdentifierRepository {
                     client_id: identifiers.clientId,
                     client_secret: identifiers.clientSecret,
                     redirect_uri: identifiers.redirectUri,
-
-                    ...(identifiers.accessToken !== undefined && identifiers.refreshToken !== undefined) && {
-                        access_token: identifiers.accessToken,
-                        refresh_token: identifiers.refreshToken,
-                    }
+                    access_token: identifiers.accessToken,
+                    refresh_token: identifiers.refreshToken,
                 });
 
                 return;
@@ -60,11 +57,11 @@ export default class GoogleOAuth2IdentifierRepository {
             });
     }
 
-    public async getOrNullAsync(index: { client_id?: string, access_token?: string | null }) {
+    public async getOrNullAsync(clientId: string) {
         const entity = await GoogleOAuth2IdentifierEntity
             .findOne({
                 where: {
-                    ...index
+                    client_id: clientId
                 }
             });
 

@@ -46,10 +46,14 @@ const swaggerComponents: swaggerJSDoc.Components = {
  *     produces:
  *       - application/json
  *     parameters:
+ *       - name: clientId
+ *         in: header
+ *         required: true
+ *         type: string
  *       - name: last
  *         in: query
  *         required: false
- *         type: string
+ *         type: integer
  *       - name: ids
  *         in: query
  *         required: false
@@ -57,7 +61,7 @@ const swaggerComponents: swaggerJSDoc.Components = {
  *       - name: save
  *         in: query
  *         required: false
- *         type: bool
+ *         type: boolean
  *     responses:
  *       200:
  *         description: Transaction data result

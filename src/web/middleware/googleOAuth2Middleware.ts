@@ -37,7 +37,7 @@ const redirect = async (req: Request, res: Response) => {
 
         res
             .status(200)
-            .json({ access_token: tokens?.access_token })
+            .json(tokens)
             .end();
     } catch(ex) {
         const error = ex as Error;
@@ -53,6 +53,7 @@ const redirect = async (req: Request, res: Response) => {
 
 const protect = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.get('Authorization');
+    const clientId = req.get('ClientId');
 
     if (authHeader === undefined) {
         res
@@ -63,9 +64,17 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
         return;
     }
 
-    const accessToken = authHeader.replace('Bearer ', '');
+    if (clientId === undefined) {
+        res
+            .status(403)
+            .json({ error: "Missing client ID header" })
+            .end();
+
+        return;
+    }
+
     const googleOAuth2IdentifierRepository = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifierRepository>(injectables.GoogleOAuth2IdentifierRepository);
-    const persistedIdentifiers = await googleOAuth2IdentifierRepository.getOrNullAsync({ access_token: accessToken });
+    const persistedIdentifiers = await googleOAuth2IdentifierRepository.getOrNullAsync(clientId);
 
     if (persistedIdentifiers === null) {
         res
@@ -75,8 +84,15 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
 
         return;
     }
+    
+    const receivedAccessToken = authHeader.replace('Bearer ', '');
+    const { accessToken, ...rest } = persistedIdentifiers;
 
-    res.locals.googleOAuth2Identifiers = persistedIdentifiers;
+    res.locals.googleOAuth2Identifiers = {
+        accessToken: receivedAccessToken,
+
+        ...rest
+    };
 
     next();
 };

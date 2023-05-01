@@ -5,8 +5,6 @@ import { AllowNull, Column, DataType, Model, PrimaryKey, Table, Unique } from "s
     timestamps: true,
     indexes: [{
         fields: ['client_id']
-    }, {
-        fields: ['access_token']
     }]
 })
 export default class GoogleOAuth2IdentifierEntity extends Model {
@@ -27,12 +25,12 @@ export default class GoogleOAuth2IdentifierEntity extends Model {
     redirect_uri!: string;
     
     @Unique
-    @AllowNull(true)
+    @AllowNull(false)
     @Column(DataType.STRING)
     access_token!: string;
     
     @Unique
-    @AllowNull(true)
+    @AllowNull(false)
     @Column(DataType.STRING)
     refresh_token!: string;
 }
