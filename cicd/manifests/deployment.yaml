@@ -13,8 +13,8 @@ spec:
   strategy:
       type: RollingUpdate
       rollingUpdate:
-         maxSurge: 0
-         maxUnavailable: 1
+         maxSurge: 2
+         maxUnavailable: 0
   template:
     metadata:
       labels:
@@ -36,21 +36,22 @@ spec:
           httpGet:
             path: /healthz
             port: $PORT
+          initialDelaySeconds: 120
+          periodSeconds: 5
           failureThreshold: 30
-          periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /readyz
             port: $PORT
-          initialDelaySeconds: 10
+          initialDelaySeconds: 120
           periodSeconds: 10
         livenessProbe:
           httpGet:
             path: /alivez
             port: $PORT
-          initialDelaySeconds: 10
+          initialDelaySeconds: 120
           periodSeconds: 10
-          failureThreshold: 10
+          failureThreshold: 3
         ports:
         - containerPort: $PORT
         envFrom:
