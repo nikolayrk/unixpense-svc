@@ -78,6 +78,7 @@ jobs:
           NODE_ENV: ${{ vars.NODE_ENV }}
           LOG_LEVEL: ${{ vars.LOG_LEVEL }}
           UNIXPENSE_URI: ${{ vars.UNIXPENSE_URI }}
+          UNIXPENSE_URI_PREFIX: ${{ vars.UNIXPENSE_URI_PREFIX }}
           LOKI_HOST: ${{ vars.LOKI_HOST }}
           MARIADB_HOST: ${{ vars.MARIADB_HOST }}
           MARIADB_PORT: ${{ vars.MARIADB_PORT }}

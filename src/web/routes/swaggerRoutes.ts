@@ -8,7 +8,7 @@ const router = express.Router();
 const options = {
     definition: {
       openapi: '3.0.0',
-      basePath: "/api",
+      basePath: `${process.env.UNIXPENSE_URI_PREFIX ?? ''}/api`,
       info: {
         title: 'Unixpense Tracker API',
         version: '1.0.0',
