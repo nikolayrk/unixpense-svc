@@ -22,6 +22,7 @@ jobs:
 
   build:
     name: Build
+    if: github.ref == 'refs/heads/develop'
     needs: pre-build
     runs-on: ubuntu-latest
 
