@@ -24,7 +24,7 @@ spec:
         runAsUser: 1000
       containers:
       - name: unixpense-svc
-        image: nikolayrk/unixpense-svc:latest
+        image: nikolayrk/unixpense-svc:$latest
         resources:
           requests:
             cpu: 150m
@@ -32,6 +32,27 @@ spec:
           limits:
             cpu: 350m
             memory: 350Mi
+        startupProbe:
+          httpGet:
+            path: /healthz
+            port: $PORT
+          failureThreshold: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: $PORT
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /alivez
+            port: $PORT
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          failureThreshold: 10
+        ports:
+        - containerPort: $PORT
         envFrom:
         - configMapRef:
             name: unixpense-svc-config

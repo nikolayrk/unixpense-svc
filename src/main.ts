@@ -7,6 +7,7 @@ import ILogger from './services/contracts/ILogger';
 import { injectables } from './shared/types/injectables';
 import { router as gmailTransactionsRouter } from './web/routes/gmailTransactionsRoutes';
 import { router as swaggerRouter } from './web/routes/swaggerRoutes';
+import { router as kubernetesProbesRouter } from './web/routes/kubernetesProbesRoutes';
 
 async function bootstrap() {
     const hostname = process.env?.HOSTNAME;
@@ -20,26 +21,17 @@ async function bootstrap() {
         pid: process.pid
     });
 
-    process.on('uncaughtExceptionMonitor', async function(this: ILogger, err: Error) {
-        await DatabaseConnection.Singleton.closeAsync();
-
-        logger.error(err);
-        
-        process.exitCode = 1;
-    });
-
-    process.on('beforeExit', (exitCode) => {
-        logger.log(`Service exited`, { exitCode: exitCode });
-
-        // TODO: await Loki transport flush
-        });
+    const app = express();
 
     await DatabaseConnection.Singleton.tryConnectAsync();
 
-    const app = express();
+    // Kubernetes Startup, Readiness and Liveness Probes
+    app.use(kubernetesProbesRouter);
 
+    // Swagger
     app.use('/swagger', swaggerRouter);
 
+    // Gmail Transactions Routes
     app.use('/api/transactions/gmail', gmailTransactionsRouter);
 
     app.listen(port, () => {

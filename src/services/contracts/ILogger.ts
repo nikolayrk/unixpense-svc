@@ -4,4 +4,6 @@ export default interface ILogger {
     error(error: Error, labels?: {}): void;
 
     warn(message: string, labels?: {}): void;
+
+    beforeExit(): Promise<void>;
 }

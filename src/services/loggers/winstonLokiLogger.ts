@@ -6,6 +6,7 @@ import { injectable } from 'inversify';
 @injectable()
 export default class WinstonLokiLogger implements ILogger {
     private readonly logger: winston.Logger;
+    private readonly lokiTransport?: LokiTransport;
     
     public constructor() {
         this.logger = createLogger({
@@ -36,9 +37,10 @@ export default class WinstonLokiLogger implements ILogger {
                 ? process.env.LOKI_HOST !== undefined
                     // Production env w/ Loki
                     ? [ new winston.transports.Console({ format: winston.format.uncolorize() }),
-                        new LokiTransport({
+                        this.lokiTransport = new LokiTransport({
                             host: process.env.LOKI_HOST,
                             batching: false,
+                            gracefulShutdown: true,
                             format: winston.format.printf((info => 'stack' in info
                                 ? `${info.message}\n${info.stack}`
                                 : `${info.message}`))
@@ -60,5 +62,11 @@ export default class WinstonLokiLogger implements ILogger {
 
     public error(error: Error, labels?: Record<string, unknown>) {
         this.logger.log('error', { message: error, labels: labels });
+    }
+
+    public async beforeExit() {
+        await this.lokiTransport?.flush();
+        
+        this.logger.end();
     }
 }

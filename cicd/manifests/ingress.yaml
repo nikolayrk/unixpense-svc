@@ -12,7 +12,7 @@ spec:
   - host: $UNIXPENSE_URI
     http:
       paths:
-      - path: /unixpense($|/)(.*) # https://stackoverflow.com/a/59786485
+      - path: $UNIXPENSE_URI_PREFIX($|/)(.*) # https://stackoverflow.com/a/59786485
         pathType: Prefix
         backend:
           service:

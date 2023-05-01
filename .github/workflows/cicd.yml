@@ -109,22 +109,25 @@ jobs:
               "GOOGLE_OAUTH2_REDIRECT_URI": "${{ secrets.GOOGLE_OAUTH2_REDIRECT_URI }}"
             }
 
-      - name: Deploy to Kubernetes Cluster
-        uses: Azure/k8s-deploy@v4.9
-        with:
-          namespace: unixpense
-          manifests: |
-            cicd/manifests/deployment.yaml
-          images: |
-            ${{ vars.DOCKER_REPO }}:${{ github.sha }}
+      # - name: Deploy to Kubernetes Cluster
+      #   uses: Azure/k8s-deploy@v4.9
+      #   with:
+      #     namespace: unixpense
+      #     manifests: |
+      #       cicd/manifests/deployment.yaml
+      #     images: |
+      #       ${{ vars.DOCKER_REPO }}:${{ github.sha }}
           
-      - name: Create Kubernetes Resources
+      - name: Deploy to Kubernetes Cluster
         uses: swdotcom/update-and-apply-kubernetes-configs@v1
         with:
           k8-config-file-paths: |
+            cicd/manifests/deployment.yaml
             cicd/manifests/service.yaml
             cicd/manifests/ingress.yaml
           replacement-method: defined
         env:
           PORT: ${{ vars.PORT }}
+          latest: ${{ github.sha }}
           UNIXPENSE_URI: ${{ vars.UNIXPENSE_URI }}
+          UNIXPENSE_URI_PREFIX: ${{ vars.UNIXPENSE_URI_PREFIX }}
