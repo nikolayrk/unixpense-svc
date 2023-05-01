@@ -13,9 +13,7 @@ RUN npm ci
 ARG NODE_ENV
 
 RUN npm run build && \
-    mv ./dist/* ./ && \
     rm -rf  ./src \
-            ./dist \
             tsconfig.json
 
 ARG PORT
