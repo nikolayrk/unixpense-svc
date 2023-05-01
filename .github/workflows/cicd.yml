@@ -71,7 +71,6 @@ jobs:
         with:
           k8-config-file-paths: |
             cicd/manifests/config.yaml
-            cicd/manifests/mariadb-config.yaml
           replacement-method: defined
         env:
           PORT: ${{ vars.PORT }}
@@ -80,20 +79,20 @@ jobs:
           UNIXPENSE_URI: ${{ vars.UNIXPENSE_URI }}
           UNIXPENSE_URI_PREFIX: ${{ vars.UNIXPENSE_URI_PREFIX }}
           LOKI_HOST: ${{ vars.LOKI_HOST }}
-          MARIADB_HOST: ${{ vars.MARIADB_HOST }}
-          MARIADB_PORT: ${{ vars.MARIADB_PORT }}
-          MARIADB_DATABASE: ${{ vars.MARIADB_DATABASE }}
 
       - name: Create MariaDb Credentials Kubernetes Secret
         uses: Azure/k8s-create-secret@v4
         with:
           namespace: 'unixpense'
           secret-type: 'generic'
-          secret-name: mariadb-cred
+          secret-name: mariadb-secret
           string-data: |
               {
-                "MARIADB_USERNAME": "${{ secrets.MARIADB_USERNAME }}",
-                "MARIADB_PASSWORD": "${{ secrets.MARIADB_PASSWORD }}"
+                "MARIADB_USER": "${{ secrets.MARIADB_USER }}",
+                "MARIADB_PASSWORD": "${{ secrets.MARIADB_PASSWORD }}",
+                "MARIADB_DATABASE": "${{ vars.MARIADB_DATABASE }}",
+                "MARIADB_VOLUME_STORAGE_CLASS_NAME": "${{ vars.MARIADB_VOLUME_STORAGE_CLASS_NAME }}",
+                "MARIADB_RANDOM_ROOT_PASSWORD": "yes"
               }
 
       - name: Create Google OAuth2 Kubernetes Secret
@@ -122,6 +121,7 @@ jobs:
         uses: swdotcom/update-and-apply-kubernetes-configs@v1
         with:
           k8-config-file-paths: |
+            cicd/manifests/mariadb-pvc.yaml
             cicd/manifests/deployment.yaml
             cicd/manifests/service.yaml
             cicd/manifests/ingress.yaml
@@ -131,3 +131,4 @@ jobs:
           latest: ${{ github.sha }}
           UNIXPENSE_URI: ${{ vars.UNIXPENSE_URI }}
           UNIXPENSE_URI_PREFIX: ${{ vars.UNIXPENSE_URI_PREFIX }}
+          MARIADB_VOLUME_STORAGE_CLASS_NAME: ${{ vars.MARIADB_VOLUME_STORAGE_CLASS_NAME }}

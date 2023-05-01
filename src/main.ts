@@ -1,18 +1,16 @@
 import dotenv from 'dotenv'
 dotenv.config();
+import "reflect-metadata"
 import express from 'express';
-import DatabaseConnection from './databaseConnection';
 import { DependencyInjector } from './dependencyInjector';
 import ILogger from './services/contracts/ILogger';
 import { injectables } from './shared/types/injectables';
 import { router as gmailTransactionsRouter } from './web/routes/gmailTransactionsRoutes';
 import { router as swaggerRouter } from './web/routes/swaggerRoutes';
 import { router as kubernetesProbesRouter } from './web/routes/kubernetesProbesRoutes';
+import { Sequelize } from 'sequelize-typescript';
 
 async function bootstrap() {
-    const hostname = process.env?.HOSTNAME;
-    const port = process.env?.PORT;
-
     const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
 
     logger.log(`Service started`, {
@@ -21,9 +19,71 @@ async function bootstrap() {
         pid: process.pid
     });
 
-    const app = express();
+    const signalHandlerAsync = async (signal: string) => {
+        const error = new Error(`${signal} received. Exiting...`);
+    
+        await gracefulShutdownAsync(error);
+    };
+    
+    const gracefulShutdownAsync = async (err: Error) => {
+        logger.error(err);
+        
+        await logger.beforeExit();
 
-    await DatabaseConnection.Singleton.tryConnectAsync();
+        process.exitCode = 1;
+    };
+    
+    const beforeExitAsync = async (exitCode: number) => {    
+        logger.log(`Service exited`, { exitCode: exitCode });
+    
+        await logger.beforeExit();
+    };
+    
+    process.on('SIGINT', () => signalHandlerAsync);
+    process.on('SIGTERM', () => signalHandlerAsync);
+    process.on('uncaughtExceptionMonitor', gracefulShutdownAsync);
+    process.on('beforeExit', beforeExitAsync);
+
+    try {
+        logger.log(`Creating Database connection...`);
+
+        const prod = process.env.NODE_ENV === 'production';
+
+        const connection = new Sequelize({
+            dialect: "mariadb",
+            host: prod
+                ? process.env.HOSTNAME
+                : process.env.MARIADB_HOST,
+            port: prod
+                ? 3306
+                : Number(process.env.MARIADB_PORT),
+            username: process.env.MARIADB_USER,
+            password: process.env.MARIADB_PASSWORD,
+            database: process.env.MARIADB_DATABASE,
+            logging: false,
+            pool: {
+              max: 5,
+              min: 0,
+              acquire: 30000,
+              idle: 10000
+            },
+            models: [__dirname + '/**/entities/*.entity.{js,ts}'],
+        });
+    
+        await connection.authenticate();
+    
+        await connection.sync();
+
+        logger.log(`Database connection successful`);
+    } catch(ex) {
+        const error = ex as Error;
+
+        logger.error(error);
+
+        return;
+    }
+
+    const app = express();
 
     // Kubernetes Startup, Readiness and Liveness Probes
     app.use(kubernetesProbesRouter);
@@ -34,8 +94,11 @@ async function bootstrap() {
     // Gmail Transactions Routes
     app.use('/api/transactions/gmail', gmailTransactionsRouter);
 
-    app.listen(port, () => {
-        logger.log(`Server is running`, { hostname: hostname, port: port });
+    app.listen(process.env.PORT, () => {
+        logger.log(`Server is running`, {
+            hostname: process.env.HOSTNAME,
+            port: process.env.PORT
+        });
     });
 }
 

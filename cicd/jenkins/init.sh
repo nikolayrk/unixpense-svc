@@ -32,17 +32,11 @@ kubectl create secret generic dockerconfig \
     --type=kubernetes.io/dockerconfigjson \
     --from-literal=.dockerconfigjson="$DOCKERCONFIGJSON" | kubectl apply -f -
 
-kubectl create secret generic mariadb-cred \
+kubectl create secret generic mariadb-secret \
     --dry-run=client -o yaml \
     --namespace=${KUBERNETES_NAMESPACE} \
-    --from-literal=MARIADB_USERNAME=${MARIADB_USERNAME} \
-    --from-literal=MARIADB_PASSWORD=${MARIADB_PASSWORD} | kubectl apply -f -
-
-kubectl create configmap mariadb-config \
-    --dry-run=client -o yaml \
-    --namespace=${KUBERNETES_NAMESPACE} \
-    --from-literal=MARIADB_HOST=${MARIADB_HOST} \
-    --from-literal=MARIADB_PORT=${MARIADB_PORT} \
+    --from-literal=MARIADB_USER=${MARIADB_USER} \
+    --from-literal=MARIADB_PASSWORD=${MARIADB_PASSWORD} \
     --from-literal=MARIADB_DATABASE=${MARIADB_DATABASE} | kubectl apply -f -
     
 kubectl create secret generic google-cred \
