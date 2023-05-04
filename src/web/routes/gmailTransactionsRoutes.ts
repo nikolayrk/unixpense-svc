@@ -23,7 +23,7 @@ const swaggerComponents: swaggerJSDoc.Components = {
                     tokenUrl: `${process.env.NODE_ENV === 'production'
                             ? 'https://'
                             : 'http://'
-                        }${process.env.UNIXPENSE_URI}${process.env.UNIXPENSE_URI_PREFIX ?? ''}/api/transactions/gmail/oauthcallback`,
+                        }${process.env.UNIXPENSE_HOST}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}/api/transactions/gmail/oauthcallback`,
                     scopes: {
                         'https://www.googleapis.com/auth/gmail.readonly': 'Read-only access to Gmail message data',
                     }

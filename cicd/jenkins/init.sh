@@ -22,8 +22,8 @@ kubectl create configmap unixpense-svc-config \
     --from-literal=PORT=${PORT} \
     --from-literal=NODE_ENV=${NODE_ENV} \
     --from-literal=LOG_LEVEL=${LOG_LEVEL} \
-    --from-literal=UNIXPENSE_URI=${UNIXPENSE_URI} \
-    --from-literal=UNIXPENSE_URI_PREFIX=${UNIXPENSE_URI_PREFIX} \
+    --from-literal=UNIXPENSE_HOST=${UNIXPENSE_HOST} \
+    --from-literal=UNIXPENSE_HOST_PREFIX=${UNIXPENSE_HOST_PREFIX} \
     --from-literal=LOKI_HOST=${LOKI_HOST} | kubectl apply -f -
 
 kubectl create secret generic dockerconfig \

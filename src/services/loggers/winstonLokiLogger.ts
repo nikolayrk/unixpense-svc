@@ -35,16 +35,18 @@ export default class WinstonLokiLogger implements ILogger {
             ),
             transports: process.env.NODE_ENV === 'production'
                 ? process.env.LOKI_HOST !== undefined
-                    // Production env w/ Loki
+                    // Production env w/ Loki (if host present)
                     ? [ new winston.transports.Console({ format: winston.format.uncolorize() }),
-                        this.lokiTransport = new LokiTransport({
-                            host: process.env.LOKI_HOST,
-                            batching: false,
-                            gracefulShutdown: true,
-                            format: winston.format.printf((info => 'stack' in info
-                                ? `${info.message}\n${info.stack}`
-                                : `${info.message}`))
-                        })]
+                        ...(process.env.LOKI_HOST !== undefined ? [
+                            this.lokiTransport = new LokiTransport({
+                                host: process.env.LOKI_HOST,
+                                batching: false,
+                                gracefulShutdown: true,
+                                format: winston.format.printf((info => 'stack' in info
+                                    ? `${info.message}\n${info.stack}`
+                                    : `${info.message}`))
+                            })
+                        ] : [])]
                     // Production env w/o Loki
                     : new winston.transports.Console({ format: winston.format.uncolorize() })
                 // Development env

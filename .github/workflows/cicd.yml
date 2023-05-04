@@ -76,8 +76,8 @@ jobs:
           PORT: ${{ vars.PORT }}
           NODE_ENV: ${{ vars.NODE_ENV }}
           LOG_LEVEL: ${{ vars.LOG_LEVEL }}
-          UNIXPENSE_URI: ${{ vars.UNIXPENSE_URI }}
-          UNIXPENSE_URI_PREFIX: ${{ vars.UNIXPENSE_URI_PREFIX }}
+          UNIXPENSE_HOST: ${{ vars.UNIXPENSE_HOST }}
+          UNIXPENSE_HOST_PREFIX: ${{ vars.UNIXPENSE_HOST_PREFIX }}
           LOKI_HOST: ${{ vars.LOKI_HOST }}
 
       - name: Create MariaDb Credentials Kubernetes Secret
@@ -129,6 +129,6 @@ jobs:
         env:
           PORT: ${{ vars.PORT }}
           latest: ${{ github.sha }}
-          UNIXPENSE_URI: ${{ vars.UNIXPENSE_URI }}
-          UNIXPENSE_URI_PREFIX: ${{ vars.UNIXPENSE_URI_PREFIX }}
+          UNIXPENSE_HOST: ${{ vars.UNIXPENSE_HOST }}
+          UNIXPENSE_HOST_PREFIX: ${{ vars.UNIXPENSE_HOST_PREFIX }}
           MARIADB_VOLUME_STORAGE_CLASS_NAME: ${{ vars.MARIADB_VOLUME_STORAGE_CLASS_NAME }}

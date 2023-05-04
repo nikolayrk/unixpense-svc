@@ -9,7 +9,7 @@ const options = {
     definition: {
       openapi: '3.0.0',
       servers: [
-        { url: `${process.env.UNIXPENSE_URI_PREFIX ?? ''}/api` }
+        { url: `${process.env.UNIXPENSE_HOST_PREFIX ?? ''}/api` }
       ],
       info: {
         title: 'Unixpense Tracker API',

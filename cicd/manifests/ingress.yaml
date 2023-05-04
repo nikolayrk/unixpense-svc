@@ -9,10 +9,10 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:
-  - host: $UNIXPENSE_URI
+  - host: $UNIXPENSE_HOST
     http:
       paths:
-      - path: $UNIXPENSE_URI_PREFIX($|/)(.*) # https://stackoverflow.com/a/59786485
+      - path: $UNIXPENSE_HOST_PREFIX($|/)(.*) # https://stackoverflow.com/a/59786485
         pathType: Prefix
         backend:
           service:

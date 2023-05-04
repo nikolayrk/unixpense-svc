@@ -51,15 +51,13 @@ async function bootstrap() {
 
         const connection = new Sequelize({
             dialect: "mariadb",
-            host: prod
-                ? process.env.HOSTNAME
-                : process.env.MARIADB_HOST,
-            port: prod
-                ? 3306
-                : Number(process.env.MARIADB_PORT),
-            username: process.env.MARIADB_USER,
-            password: process.env.MARIADB_PASSWORD,
-            database: process.env.MARIADB_DATABASE,
+            host: process.env.MARIADB_HOST ?? process.env.HOSTNAME,
+            port: process.env.MARIADB_PORT !== undefined
+                ? Number(process.env.MARIADB_PORT)
+                : 3306,
+            username: process.env.MARIADB_USER ?? '',
+            password: process.env.MARIADB_PASSWORD ?? '',
+            database: process.env.MARIADB_DATABASE ?? 'unixpense',
             logging: false,
             pool: {
               max: 5,
@@ -94,10 +92,10 @@ async function bootstrap() {
     // Gmail Transactions Routes
     app.use('/api/transactions/gmail', gmailTransactionsRouter);
 
-    app.listen(process.env.PORT, () => {
+    app.listen(process.env.PORT ?? 8000, () => {
         logger.log(`Server is running`, {
-            hostname: process.env.HOSTNAME,
-            port: process.env.PORT
+            hostname: process.env.HOSTNAME ?? 'localhost',
+            port: process.env.PORT ?? 8000
         });
     });
 }
