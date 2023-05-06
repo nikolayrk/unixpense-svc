@@ -8,8 +8,8 @@ export default class GoogleOAuth2IdentifiersFactory {
             clientId: clientId,
             clientSecret: clientSecret,
             redirectUri: redirectUri,
-            accessToken: accessToken,
-            refreshToken: refreshToken,
+            accessToken: accessToken ?? null,
+            refreshToken: refreshToken ?? null,
         } as GoogleOAuth2Identifiers
     }
 }
