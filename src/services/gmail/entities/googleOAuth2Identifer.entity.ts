@@ -19,7 +19,6 @@ export default class GoogleOAuth2IdentifierEntity extends Model {
     @Column(DataType.STRING)
     client_secret!: string;
     
-    @Unique
     @AllowNull(false)
     @Column(DataType.STRING)
     redirect_uri!: string;
