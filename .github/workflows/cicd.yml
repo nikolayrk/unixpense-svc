@@ -77,7 +77,7 @@ jobs:
                 "MARIADB_USER": "${{ secrets.MARIADB_USER }}",
                 "MARIADB_PASSWORD": "${{ secrets.MARIADB_PASSWORD }}",
                 "MARIADB_DATABASE": "${{ vars.MARIADB_DATABASE }}",
-                "MARIADB_VOLUME_STORAGE_CLASS_NAME": "${{ vars.MARIADB_VOLUME_STORAGE_CLASS_NAME }}",
+                "MARIADB_STORAGE_CLASS_NAME": "${{ vars.MARIADB_STORAGE_CLASS_NAME }}",
                 "MARIADB_RANDOM_ROOT_PASSWORD": "yes"
               }
 
@@ -112,4 +112,4 @@ jobs:
           LOKI_HOST: ${{ vars.LOKI_HOST }}
           UNIXPENSE_HOST: ${{ vars.UNIXPENSE_HOST }}
           UNIXPENSE_HOST_PREFIX: ${{ vars.UNIXPENSE_HOST_PREFIX }}
-          MARIADB_VOLUME_STORAGE_CLASS_NAME: ${{ vars.MARIADB_VOLUME_STORAGE_CLASS_NAME }}
+          MARIADB_STORAGE_CLASS_NAME: ${{ vars.MARIADB_STORAGE_CLASS_NAME }}

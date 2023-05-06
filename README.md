@@ -14,27 +14,27 @@ The service is responsible for fetching and persisting new transaction data from
 Environment variables used by this project. `var` and `secret` refer to variables, which can be loaded from GitHub Actions via [Configuration Variables](https://docs.github.com/en/actions/learn-github-actions/variables#using-the-vars-context-to-access-configuration-variable-values) and [Encrypted secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository), respectively.
 
 | Name                              | Description                                   | Type        |
-| --------------------------------- | --------------------------------------------- | ----------- |
-| PORT                              | Server listening port. Default: 8000          | var         |
-| NODE_ENV                          | Node environment. Default: development        | var         |
-| LOG_LEVEL                         | Logger log level. Default: info               | var         |
-| UNIXPENSE_HOST                    | Server host. Default: localhost:8000          | var         |
-| UNIXPENSE_HOST_PREFIX             | Server subpath to load the API on. Optional.  | var         |
-| MARIADB_HOST                      | Optional. Default: `$HOSTNAME`                | var         |
-| MARIADB_PORT                      | Optional. Default: 3306                       | var         |
-| MARIADB_USER                      | Optional.                                     | secret      |
-| MARIADB_PASSWORD                  | Optional.                                     | secret      |
-| MARIADB_DATABASE                  | Optional.                                     | var         |
-| MARIADB_VOLUME_STORAGE_CLASS_NAME | MariaDB Kubernetes Storage Volume Class Name  | var         |
-| LOKI_HOST                         | URL to Grafana Loki instance. Optional.       | var         |
-| DOCKER_REPO                       | Docker Image Repository                       | var         |
-| DOCKERHUB_USERNAME                | Docker Image Repository                       | secret      |
-| DOCKERHUB_PASSWORD                | Docker Image Repository                       | secret      |
-| KUBERNETES_URL                    | Kubernetes API URL                            | var         |
-| KUBECONFIG                        | Kubernetes Config Resource                    | secret      |
-| GOOGLE_OAUTH2_CLIENT_ID           | Google OAuth2 Client ID to use in CronJob     | secret      |
-| GOOGLE_OAUTH2_CLIENT_SECRET       | Google OAuth2 Client Secret to use in CronJob | secret      |
-| GOOGLE_OAUTH2_REDIRECT_URI        | Google OAuth2 Redirect URI to use in CronJob  | secret      |
+| --------------------------- | --------------------------------------------- | ----------- |
+| PORT                        | Server listening port. Default: 8000          | var         |
+| NODE_ENV                    | Node environment. Default: development        | var         |
+| LOG_LEVEL                   | Logger log level. Default: info               | var         |
+| UNIXPENSE_HOST              | Server host. Default: localhost:8000          | var         |
+| UNIXPENSE_HOST_PREFIX       | Server subpath to load the API on. Optional.  | var         |
+| MARIADB_HOST                | Optional. Default: `$HOSTNAME`                | var         |
+| MARIADB_PORT                | Optional. Default: 3306                       | var         |
+| MARIADB_USER                | Optional.                                     | secret      |
+| MARIADB_PASSWORD            | Optional.                                     | secret      |
+| MARIADB_DATABASE            | Optional.                                     | var         |
+| MARIADB_STORAGE_CLASS_NAME  | MariaDB Kubernetes Storage Volume Class Name  | var         |
+| LOKI_HOST                   | URL to Grafana Loki instance. Optional.       | var         |
+| DOCKER_REPO                 | Docker Image Repository                       | var         |
+| DOCKERHUB_USERNAME          | Docker Image Repository                       | secret      |
+| DOCKERHUB_PASSWORD          | Docker Image Repository                       | secret      |
+| KUBERNETES_URL              | Kubernetes API URL                            | var         |
+| KUBECONFIG                  | Kubernetes Config Resource                    | secret      |
+| GOOGLE_OAUTH2_CLIENT_ID     | Google OAuth2 Client ID to use in CronJob     | secret      |
+| GOOGLE_OAUTH2_CLIENT_SECRET | Google OAuth2 Client Secret to use in CronJob | secret      |
+| GOOGLE_OAUTH2_REDIRECT_URI  | Google OAuth2 Redirect URI to use in CronJob  | secret      |
 
 ## Google Environment
 

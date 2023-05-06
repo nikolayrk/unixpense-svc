@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  namespace: unixpense
   name: mariadb-pvc
+  namespace: unixpense
 spec:
-  storageClassName: $MARIADB_VOLUME_STORAGE_CLASS_NAME
+  storageClassName: $MARIADB_STORAGE_CLASS_NAME
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: "10Mi"
+      storage: "1Gi"
