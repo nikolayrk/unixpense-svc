@@ -92,7 +92,7 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
                 error: "Google OAuth Credentials were found by the provided clientId, but without a matching access and/or refresh tokens. Please navigate to https://myaccount.google.com/permissions and under 'Third-party apps with account access', find 'Unixpense Tracker' then click 'Remove Access'. Once done, navigate to the enclosed consent URL and complete the Google OAuth flow.",
                 consentUrl: 'https://accounts.google.com/o/oauth2/v2/auth?access_type=offline' + 
                     '&response_type=code' + 
-                    '&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.readonly' + 
+                    `&scope=${encodeURIComponent('https://www.googleapis.com/auth/gmail.readonly')}` + 
                     `&client_id=${clientId}` + 
                     `&redirect_uri=${encodeURIComponent(persistedIdentifiers.redirectUri)}`
             })
