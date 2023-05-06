@@ -65,22 +65,8 @@ jobs:
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBECONFIG }}
-          
-      - name: Create Kubernetes ConfigMaps
-        uses: swdotcom/update-and-apply-kubernetes-configs@v1
-        with:
-          k8-config-file-paths: |
-            cicd/manifests/config.yaml
-          replacement-method: defined
-        env:
-          PORT: ${{ vars.PORT }}
-          NODE_ENV: ${{ vars.NODE_ENV }}
-          LOG_LEVEL: ${{ vars.LOG_LEVEL }}
-          UNIXPENSE_HOST: ${{ vars.UNIXPENSE_HOST }}
-          UNIXPENSE_HOST_PREFIX: ${{ vars.UNIXPENSE_HOST_PREFIX }}
-          LOKI_HOST: ${{ vars.LOKI_HOST }}
 
-      - name: Create MariaDb Credentials Kubernetes Secret
+      - name: Create MariaDb Kubernetes Secret
         uses: Azure/k8s-create-secret@v4
         with:
           namespace: 'unixpense'
@@ -95,7 +81,7 @@ jobs:
                 "MARIADB_RANDOM_ROOT_PASSWORD": "yes"
               }
 
-      - name: Create Google OAuth2 Kubernetes Secret
+      - name: Create Google OAuth2 Credentials Kubernetes Secret
         uses: Azure/k8s-create-secret@v4
         with:
           namespace: 'unixpense'
@@ -108,27 +94,22 @@ jobs:
               "GOOGLE_OAUTH2_REDIRECT_URI": "${{ secrets.GOOGLE_OAUTH2_REDIRECT_URI }}"
             }
 
-      # - name: Deploy to Kubernetes Cluster
-      #   uses: Azure/k8s-deploy@v4.9
-      #   with:
-      #     namespace: unixpense
-      #     manifests: |
-      #       cicd/manifests/deployment.yaml
-      #     images: |
-      #       ${{ vars.DOCKER_REPO }}:${{ github.sha }}
-          
       - name: Deploy to Kubernetes Cluster
         uses: swdotcom/update-and-apply-kubernetes-configs@v1
         with:
           k8-config-file-paths: |
+            cicd/manifests/config.yaml
             cicd/manifests/mariadb-pvc.yaml
             cicd/manifests/deployment.yaml
             cicd/manifests/service.yaml
             cicd/manifests/ingress.yaml
           replacement-method: defined
         env:
-          PORT: ${{ vars.PORT }}
           latest: ${{ github.sha }}
+          PORT: ${{ vars.PORT }}
+          NODE_ENV: ${{ vars.NODE_ENV }}
+          LOG_LEVEL: ${{ vars.LOG_LEVEL }}
+          LOKI_HOST: ${{ vars.LOKI_HOST }}
           UNIXPENSE_HOST: ${{ vars.UNIXPENSE_HOST }}
           UNIXPENSE_HOST_PREFIX: ${{ vars.UNIXPENSE_HOST_PREFIX }}
           MARIADB_VOLUME_STORAGE_CLASS_NAME: ${{ vars.MARIADB_VOLUME_STORAGE_CLASS_NAME }}
