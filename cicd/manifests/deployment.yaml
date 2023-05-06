@@ -56,20 +56,20 @@ spec:
           httpGet:
             path: /healthz
             port: $PORT
-          initialDelaySeconds: 120
+          initialDelaySeconds: 90
           periodSeconds: 5
           failureThreshold: 30
         readinessProbe:
           httpGet:
             path: /readyz
             port: $PORT
-          initialDelaySeconds: 120
+          initialDelaySeconds: 90
           periodSeconds: 10
         livenessProbe:
           httpGet:
             path: /alivez
             port: $PORT
-          initialDelaySeconds: 120
+          initialDelaySeconds: 90
           periodSeconds: 10
           failureThreshold: 3
         ports:
