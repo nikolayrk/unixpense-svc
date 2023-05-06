@@ -23,10 +23,16 @@ async function bootstrap() {
         const error = new Error(`${signal} received. Exiting...`);
     
         await gracefulShutdownAsync(error);
+
+        process.exit(1);
     };
     
     const gracefulShutdownAsync = async (err: Error) => {
-        logger.error(err);
+        logger.error(err, {
+            platform: process.platform,
+            arch: process.arch,
+            pid: process.pid
+        });
         
         await logger.beforeExit();
 
@@ -34,13 +40,18 @@ async function bootstrap() {
     };
     
     const beforeExitAsync = async (exitCode: number) => {    
-        logger.log(`Service exited`, { exitCode: exitCode });
+        logger.log(`Service exited`, {
+            platform: process.platform,
+            arch: process.arch,
+            pid: process.pid,
+            exitCode: exitCode
+        });
     
         await logger.beforeExit();
     };
     
-    process.on('SIGINT', () => signalHandlerAsync);
-    process.on('SIGTERM', () => signalHandlerAsync);
+    process.on('SIGINT', signalHandlerAsync);
+    process.on('SIGTERM', signalHandlerAsync);
     process.on('uncaughtExceptionMonitor', gracefulShutdownAsync);
     process.on('beforeExit', beforeExitAsync);
 
