@@ -13,28 +13,29 @@ The service is responsible for fetching and persisting new transaction data from
 
 Environment variables used by this project. `var` and `secret` refer to variables, which can be loaded from GitHub Actions via [Configuration Variables](https://docs.github.com/en/actions/learn-github-actions/variables#using-the-vars-context-to-access-configuration-variable-values) and [Encrypted secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository), respectively.
 
-| Name                              | Description                                   | Type        |
-| --------------------------- | --------------------------------------------- | ----------- |
-| PORT                        | Server listening port. Default: 8000          | var         |
-| NODE_ENV                    | Node environment. Default: development        | var         |
-| LOG_LEVEL                   | Logger log level. Default: info               | var         |
-| UNIXPENSE_HOST              | Server host. Default: localhost:8000          | var         |
-| UNIXPENSE_HOST_PREFIX       | Server subpath to load the API on. Optional.  | var         |
-| MARIADB_HOST                | Optional. Default: `$HOSTNAME`                | var         |
-| MARIADB_PORT                | Optional. Default: 3306                       | var         |
-| MARIADB_USER                | Optional.                                     | secret      |
-| MARIADB_PASSWORD            | Optional.                                     | secret      |
-| MARIADB_DATABASE            | Optional.                                     | var         |
-| MARIADB_STORAGE_CLASS_NAME  | MariaDB Kubernetes Storage Volume Class Name  | var         |
-| LOKI_HOST                   | URL to Grafana Loki instance. Optional.       | var         |
-| DOCKER_REPO                 | Docker Image Repository                       | var         |
-| DOCKERHUB_USERNAME          | Docker Image Repository                       | secret      |
-| DOCKERHUB_PASSWORD          | Docker Image Repository                       | secret      |
-| KUBERNETES_URL              | Kubernetes API URL                            | var         |
-| KUBECONFIG                  | Kubernetes Config Resource                    | secret      |
-| GOOGLE_OAUTH2_CLIENT_ID     | Google OAuth2 Client ID to use in CronJob     | secret      |
-| GOOGLE_OAUTH2_CLIENT_SECRET | Google OAuth2 Client Secret to use in CronJob | secret      |
-| GOOGLE_OAUTH2_REDIRECT_URI  | Google OAuth2 Redirect URI to use in CronJob  | secret      |
+| Name                              | Description                                        | Type        |
+| --------------------------- | -------------------------------------------------------- | ----------- |
+| PORT                        | Server listening port. Default: 8000                     | var         |
+| NODE_ENV                    | Node environment. Default: development                   | var         |
+| LOG_LEVEL                   | Logger log level. Default: info                          | var         |
+| UNIXPENSE_HOST              | Server host. Default: localhost:8000                     | var         |
+| UNIXPENSE_HOST_PREFIX       | Server subpath to load the API on. Optional.             | var         |
+| MARIADB_HOST                | Optional. Default: `$HOSTNAME`                           | var         |
+| MARIADB_PORT                | Optional. Default: 3306                                  | var         |
+| MARIADB_USER                | Optional.                                                | secret      |
+| MARIADB_PASSWORD            | Optional.                                                | secret      |
+| MARIADB_DATABASE            | Optional.                                                | var         |
+| MARIADB_NFS_SERVER          | Host / IP of the NFS server holding the MariaDB database | var         |
+| MARIADB_NFS_PATH            | Path to the MariaDB database within the NFS server       | var         |
+| LOKI_HOST                   | URL to Grafana Loki instance. Optional.                  | var         |
+| DOCKER_REPO                 | Docker Image Repository                                  | var         |
+| DOCKERHUB_USERNAME          | Docker Image Repository                                  | secret      |
+| DOCKERHUB_PASSWORD          | Docker Image Repository                                  | secret      |
+| KUBERNETES_URL              | Kubernetes API URL                                       | var         |
+| KUBECONFIG                  | Kubernetes Config Resource                               | secret      |
+| GOOGLE_OAUTH2_CLIENT_ID     | Google OAuth2 Client ID to use in CronJob                | secret      |
+| GOOGLE_OAUTH2_CLIENT_SECRET | Google OAuth2 Client Secret to use in CronJob            | secret      |
+| GOOGLE_OAUTH2_REDIRECT_URI  | Google OAuth2 Redirect URI to use in CronJob             | secret      |
 
 ## Google Environment
 
@@ -109,8 +110,6 @@ When ran as a service, a [CronJob](https://kubernetes.io/docs/concepts/workloads
 
 > **_NOTE:_** The current recommended way to setup all the necessary components needed for the service to function, is by using the GitHub Actions CI-CD workflow. There also exists a Jenkins pipeline, which was used in the past, but is now deprecated and does not contain all the steps available in the Actions workflow.
 
-> **_NOTE:_** All variables and secrets need to have been configured in the GitHub repo's '**Actions secrets and variables**' Settings page, in order for the successful run of the workflow.
-
 The Actions workflow consists of three jobs, the high-level operations of which are detailed below:
 
 ### Pre-build
@@ -129,6 +128,10 @@ The Actions workflow consists of three jobs, the high-level operations of which 
 1. Establish a connection to the Kubernetes API
 2. Create Kubernetes Secrets for any sensitive app data
 3. Create the necessary Kubernetes components for the app's deployment, persistence and networking
+
+## Persistence
+
+The service uses an [NFS Volume](https://kubernetes.io/docs/concepts/storage/volumes/#nfs) for data persistence.
 
 ---
 ## Built using

@@ -77,7 +77,8 @@ jobs:
                 "MARIADB_USER": "${{ secrets.MARIADB_USER }}",
                 "MARIADB_PASSWORD": "${{ secrets.MARIADB_PASSWORD }}",
                 "MARIADB_DATABASE": "${{ vars.MARIADB_DATABASE }}",
-                "MARIADB_STORAGE_CLASS_NAME": "${{ vars.MARIADB_STORAGE_CLASS_NAME }}",
+                "MARIADB_NFS_SERVER": "${{ vars.MARIADB_NFS_SERVER }}",
+                "MARIADB_NFS_PATH": "${{ vars.MARIADB_NFS_PATH }}",
                 "MARIADB_RANDOM_ROOT_PASSWORD": "yes"
               }
 
@@ -99,7 +100,7 @@ jobs:
         with:
           k8-config-file-paths: |
             cicd/manifests/config.yaml
-            cicd/manifests/mariadb-pvc.yaml
+            cicd/manifests/persistence.yaml
             cicd/manifests/deployment.yaml
             cicd/manifests/service.yaml
             cicd/manifests/ingress.yaml
@@ -112,4 +113,5 @@ jobs:
           LOKI_HOST: ${{ vars.LOKI_HOST }}
           UNIXPENSE_HOST: ${{ vars.UNIXPENSE_HOST }}
           UNIXPENSE_HOST_PREFIX: ${{ vars.UNIXPENSE_HOST_PREFIX }}
-          MARIADB_STORAGE_CLASS_NAME: ${{ vars.MARIADB_STORAGE_CLASS_NAME }}
+          MARIADB_NFS_SERVER: ${{ vars.MARIADB_NFS_SERVER }}
+          MARIADB_NFS_PATH: ${{ vars.MARIADB_NFS_PATH }}
