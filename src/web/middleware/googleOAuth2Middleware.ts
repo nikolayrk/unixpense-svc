@@ -53,7 +53,7 @@ const redirect = async (req: Request, res: Response) => {
 
 const protect = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.get('Authorization');
-    const clientId = req.get('ClientId');
+    const userEmail = req.get('User-Email');
 
     if (authHeader === undefined) {
         res
@@ -64,17 +64,17 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
         return;
     }
 
-    if (clientId === undefined) {
+    if (userEmail === undefined) {
         res
             .status(403)
-            .json({ error: "Missing client ID header" })
+            .json({ error: "Missing user email header" })
             .end();
 
         return;
     }
 
     const googleOAuth2IdentifierRepository = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifierRepository>(injectables.GoogleOAuth2IdentifierRepository);
-    const persistedIdentifiers = await googleOAuth2IdentifierRepository.getOrNullAsync(clientId);
+    const persistedIdentifiers = await googleOAuth2IdentifierRepository.getOrNullAsync(userEmail);
 
     if (persistedIdentifiers === null) {
         res
@@ -89,12 +89,9 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
         res
             .status(403)
             .json({
-                error: "Google OAuth Credentials were found by the provided clientId, but without a matching access and/or refresh tokens. Please navigate to https://myaccount.google.com/permissions and under 'Third-party apps with account access', find 'Unixpense Tracker' then click 'Remove Access'. Once done, navigate to the enclosed consent URL and complete the Google OAuth flow.",
-                consentUrl: 'https://accounts.google.com/o/oauth2/v2/auth?access_type=offline' + 
-                    '&response_type=code' + 
-                    `&scope=${encodeURIComponent('https://www.googleapis.com/auth/gmail.readonly')}` + 
-                    `&client_id=${clientId}` + 
-                    `&redirect_uri=${encodeURIComponent(persistedIdentifiers.redirectUri)}`
+                error:  'There was an issue during the initial OAuth Consent Flow. ' +
+                        'Please navigate to https://myaccount.google.com/permissions and under \'Third-party apps with account access\', find \'Unixpense Tracker\' then click \'Remove Access\'. ' + 
+                        'Once done, go through the Google OAuth flow again.',
             })
             .end();
         return;

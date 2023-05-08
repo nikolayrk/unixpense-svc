@@ -112,7 +112,7 @@ export class DependencyInjector {
                     return async (identifiers: GoogleOAuth2Identifiers) => {
                         const service = context.container.get<T>(serviceIdentifier);
         
-                        await service.useAsync(identifiers);
+                        await service.useOAuth2IdentifiersAsync(identifiers);
         
                         return service;
                     }

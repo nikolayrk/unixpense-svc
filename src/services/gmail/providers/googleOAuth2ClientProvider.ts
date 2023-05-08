@@ -11,7 +11,11 @@ import IUsesGoogleOAuth2 from '../contracts/IUsesGoogleOAuth2';
 
 @injectable()
 export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
-    private readonly scope = 'https://www.googleapis.com/auth/gmail.readonly';
+    private readonly scopes = [
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/gmail.readonly'
+    ];
 
     private oauth2Client: OAuth2Client;
     private identifiers: GoogleOAuth2Identifiers;
@@ -36,30 +40,55 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
         return this.oauth2Client;
     }
 
-    public async useAsync(identifiers: GoogleOAuth2Identifiers) {
+    public async useOAuth2IdentifiersAsync(identifiers: GoogleOAuth2Identifiers) {
         this.identifiers = identifiers;
+
+        const onNewTokens = async (tokens: Credentials) => {
+            try {
+                const refreshableTokens: Credentials = {
+                    ...tokens,
+                    refresh_token: tokens.refresh_token ?? this.identifiers.refreshToken
+                };
+
+                if (tokens.access_token === undefined || tokens.access_token === null) {
+                    throw new Error(`No access token received from tokens event`);
+                }
+
+                this.oauth2Client.setCredentials(refreshableTokens);
+
+                const tokenInfo = await this.oauth2Client.getTokenInfo(tokens.access_token);
+
+                if (tokenInfo.email === undefined) {
+                    throw new Error(`No user email received from token info`);
+                }
+
+                this.identifiers.userEmail = tokenInfo.email; // For logging
+
+                await this.googleOAuth2IdentifierRepository.createOrUpdateAsync({
+                        ...this.identifiers,
+            
+                        userEmail: tokenInfo.email,
+                        accessToken: refreshableTokens.access_token ?? null,
+                        refreshToken: refreshableTokens.refresh_token ?? null
+                    });
+
+                this.logEvent(`Received new OAuth2 Client tokens`);
+            } catch(ex) {
+                const error = ex as Error;
+
+                this.logError(error);
+            }
+        };
         
         this.oauth2Client = new google.auth
-            .OAuth2(this.identifiers.clientId, this.identifiers.clientSecret, this.identifiers.redirectUri)
-            .on('tokens', async (tokens) => {
-                this.logEvent(`Received new OAuth2 Client tokens`);
+            .OAuth2(this.identifiers.clientId, this.identifiers.clientSecret)
+            .on('tokens', onNewTokens);
 
-                try {
-                    const tokensWithRefreshToken = await this.tryUsePersistedRefreshTokenAsync(tokens);
-
-                    this.authorizeWithTokens(tokensWithRefreshToken);
-                } catch(ex) {
-                    const error = ex as Error;
-
-                    this.logError(error);
-                }
-            });
-
-        if (this.identifiers.accessToken !== undefined) {
+        if (this.identifiers.accessToken !== null) {
             this.logEvent(`Using OAuth2 Client tokens`);
 
-            this.authorizeWithTokens({
-                scope: this.scope,
+            this.oauth2Client.setCredentials({
+                scope: this.scopes.join(' '),
                 token_type: "Bearer",
                 access_token: this.identifiers.accessToken,
                 refresh_token: this.identifiers.refreshToken,
@@ -69,20 +98,20 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
 
     public logEvent(message: string, labels?: Record<string, unknown>) {
         this.logger.log(message, labels
-            ? { clientId: this.identifiers.clientId, ...labels }
-            : { clientId: this.identifiers.clientId });
+            ? { email: this.identifiers.userEmail, ...labels }
+            : { email: this.identifiers.userEmail });
     }
 
     public logWarning(message: string, labels?: Record<string, unknown>) {
         this.logger.warn(message, labels
-            ? { clientId: this.identifiers.clientId, ...labels }
-            : { clientId: this.identifiers.clientId });
+            ? { email: this.identifiers.userEmail, ...labels }
+            : { email: this.identifiers.userEmail });
     }
 
     public logError(message: Error, labels?: Record<string, unknown>) {
         this.logger.error(message, labels
-            ? { clientId: this.identifiers.clientId, ...labels }
-            : { clientId: this.identifiers.clientId });
+            ? { email: this.identifiers.userEmail, ...labels }
+            : { email: this.identifiers.userEmail });
     }
 
     // throws Error
@@ -103,34 +132,4 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
             throw ex;
         }
     }
-
-    private authorizeWithTokens(tokens: Credentials) {
-        this.oauth2Client.setCredentials(tokens);
-    }
-
-    // throws Error
-    private async tryUsePersistedRefreshTokenAsync(tokens: Credentials) {
-        const { refresh_token, ...rest } = tokens;
-        const persistedIdentifiers = await this.googleOAuth2IdentifierRepository.getOrNullAsync(this.identifiers.clientId);
-
-        if ((refresh_token === null || refresh_token === undefined) &&
-            (persistedIdentifiers === null || persistedIdentifiers.refreshToken === null)) {
-            throw new Error(`No refresh token was received from an authorization request, nor was a previously persisted one found. To force a refresh token to be sent on next auth, navigate to https://myaccount.google.com/permissions and under 'Third-party apps with account access', find 'Unixpense Tracker' then click 'Remove Access'`);
-        }
-
-        await this.persistTokensAsync(tokens);
-
-        return {
-            refresh_token: refresh_token ?? this.identifiers.refreshToken,
-            ...rest
-        } as Credentials;
-    }
-    
-    private persistTokensAsync = (tokens: Credentials) => 
-        this.googleOAuth2IdentifierRepository.createOrUpdateAsync({
-            ...this.identifiers,
-
-            accessToken: tokens.access_token ?? null,
-            refreshToken: tokens.refresh_token ?? null
-        });
 }

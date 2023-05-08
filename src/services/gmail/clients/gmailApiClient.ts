@@ -24,7 +24,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
         this.gmail = null!;
     }
 
-    public async useAsync(identifiers: GoogleOAuth2Identifiers) {
+    public async useOAuth2IdentifiersAsync(identifiers: GoogleOAuth2Identifiers) {
         this.googleOAuth2ClientProvider = await DependencyInjector.Singleton.generateServiceAsync(injectables.GoogleOAuth2ClientProviderGenerator, identifiers);
         this.gmail = google.gmail({version: 'v1', auth: this.googleOAuth2ClientProvider.client});
     }

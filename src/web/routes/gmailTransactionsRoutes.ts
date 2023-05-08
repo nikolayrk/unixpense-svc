@@ -25,7 +25,9 @@ const swaggerComponents: swaggerJSDoc.Components = {
                             : 'http://'
                         }${process.env.UNIXPENSE_HOST}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}/api/transactions/gmail/oauthcallback`,
                     scopes: {
-                        'https://www.googleapis.com/auth/gmail.readonly': 'Read-only access to Gmail message data',
+                        'https://www.googleapis.com/auth/userinfo.profile': 'See your personal info, including any personal info you\'ve made publicly available',
+                        'https://www.googleapis.com/auth/userinfo.email': 'See your primary Google Account email address',
+                        'https://www.googleapis.com/auth/gmail.readonly': 'View your email messages and settings',
                     }
                 }
             }
@@ -42,11 +44,13 @@ const swaggerComponents: swaggerJSDoc.Components = {
  *     description: Fetch and optionally persist formatted transaction data from Gmail
  *     security:
  *       - Google:
+ *         - https://www.googleapis.com/auth/userinfo.profile
+ *         - https://www.googleapis.com/auth/userinfo.email
  *         - https://www.googleapis.com/auth/gmail.readonly
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: clientId
+ *       - name: User-Email
  *         in: header
  *         required: true
  *         type: string

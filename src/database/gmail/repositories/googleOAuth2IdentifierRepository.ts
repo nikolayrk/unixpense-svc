@@ -19,7 +19,7 @@ export default class GoogleOAuth2IdentifierRepository {
     public async createOrUpdateAsync(identifiers: GoogleOAuth2Identifiers) {
         const existingEntity = await GoogleOAuth2IdentifierEntity.findOne({
             where: {
-                client_id: identifiers.clientId,
+                user_email: identifiers.userEmail
             }
         });
 
@@ -28,7 +28,7 @@ export default class GoogleOAuth2IdentifierRepository {
                 await GoogleOAuth2IdentifierEntity.create({
                     client_id: identifiers.clientId,
                     client_secret: identifiers.clientSecret,
-                    redirect_uri: identifiers.redirectUri,
+                    user_email: identifiers.userEmail,
                     access_token: identifiers.accessToken,
                     refresh_token: identifiers.refreshToken,
                 });
@@ -52,16 +52,16 @@ export default class GoogleOAuth2IdentifierRepository {
                 },
             }, {
                 where: {
-                    client_id: identifiers.clientId
+                    user_email: identifiers.userEmail
                 }
             });
     }
 
-    public async getOrNullAsync(clientId: string) {
+    public async getOrNullAsync(userEmail: string) {
         const entity = await GoogleOAuth2IdentifierEntity
             .findOne({
                 where: {
-                    client_id: clientId
+                    user_email: userEmail
                 }
             });
 
@@ -70,8 +70,8 @@ export default class GoogleOAuth2IdentifierRepository {
         }
 
         const identifiers = this.googleOAuth2IdentifierFactory.create(
-            entity.client_id, entity.client_secret, entity.redirect_uri,
-            entity.access_token, entity.refresh_token);
+            entity.client_id, entity.client_secret,
+            entity.user_email, entity.access_token, entity.refresh_token);
         
         return identifiers;
     }
