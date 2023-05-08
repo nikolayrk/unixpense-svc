@@ -20,9 +20,12 @@ async function bootstrap() {
     });
 
     const signalHandlerAsync = async (signal: string) => {
-        const error = new Error(`${signal} received. Exiting...`);
-    
-        await gracefulShutdownAsync(error);
+        logger.log(`${signal} received. Exiting...`, {
+            platform: process.platform,
+            arch: process.arch,
+            pid: process.pid,
+            signal: signal
+        });
 
         process.exit(1);
     };
@@ -39,15 +42,17 @@ async function bootstrap() {
         process.exitCode = 1;
     };
     
-    const beforeExitAsync = async (exitCode: number) => {    
-        logger.log(`Service exited`, {
-            platform: process.platform,
-            arch: process.arch,
-            pid: process.pid,
-            exitCode: exitCode
-        });
-    
-        await logger.beforeExit();
+    const beforeExitAsync = async (exitCode: number) => {
+        try {
+            logger.log(`Service exited`, {
+                platform: process.platform,
+                arch: process.arch,
+                pid: process.pid,
+                exitCode: exitCode
+            });
+
+            await logger.beforeExit();
+        } catch(ex) {}
     };
     
     process.on('SIGINT', signalHandlerAsync);
