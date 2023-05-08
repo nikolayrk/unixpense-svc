@@ -27,7 +27,7 @@ import WinstonLokiLogger from './services/loggers/winstonLokiLogger';
 import GmailCrossBorderTransferFeeStrategy from './services/gmail/strategies/gmailCrossBorderTransferFeeStrategy';
 import GoogleOAuth2Identifiers from './services/gmail/models/googleOAuth2Identifiers';
 import IUsesGoogleOAuth2 from './services/gmail/contracts/IUsesGoogleOAuth2';
-import GoogleOAuth2IdentifierRepository from './services/gmail/repositories/googleOAuth2IdentifierRepository';
+import GoogleOAuth2IdentifierRepository from './database/gmail/repositories/googleOAuth2IdentifierRepository';
 import GoogleOAuth2ClientProvider from './services/gmail/providers/googleOAuth2ClientProvider';
 import GmailApiClient from './services/gmail/clients/gmailApiClient';
 import GoogleOAuth2IdentifiersFactory from './services/gmail/factories/googleOAuth2IdentifiersFactory';
