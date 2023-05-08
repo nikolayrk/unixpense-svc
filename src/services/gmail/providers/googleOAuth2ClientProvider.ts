@@ -81,7 +81,7 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
         };
         
         this.oauth2Client = new google.auth
-            .OAuth2(this.identifiers.clientId, this.identifiers.clientSecret)
+            .OAuth2(this.identifiers.clientId, this.identifiers.clientSecret, this.identifiers.redirectUri ?? undefined)
             .on('tokens', onNewTokens);
 
         if (this.identifiers.accessToken !== null) {

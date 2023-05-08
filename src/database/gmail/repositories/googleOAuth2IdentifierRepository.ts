@@ -70,7 +70,7 @@ export default class GoogleOAuth2IdentifierRepository {
         }
 
         const identifiers = this.googleOAuth2IdentifierFactory.create(
-            entity.client_id, entity.client_secret,
+            entity.client_id, entity.client_secret, undefined,
             entity.user_email, entity.access_token, entity.refresh_token);
         
         return identifiers;
