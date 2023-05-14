@@ -19,7 +19,7 @@ const get = async (req: Request, res: Response) => {
     const idsValue = ids === undefined ? undefined : String(ids);
     const saveValue = /^true$/i.test(save?.toString() ?? '');
 
-    if (hasLast == false || lastValue < 1) {
+    if (hasLast == true && lastValue < 1) {
         res
             .status(400)
             .json({ error: "Invalid value for 'last' parameter" })
