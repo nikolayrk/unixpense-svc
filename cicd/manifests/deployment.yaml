@@ -26,6 +26,7 @@ spec:
           claimName: mariadb-pvc
       securityContext:
         runAsUser: 1000
+      hostname: unixpense-svc
       containers:
       - name: mariadb
         image: mariadb:latest
