@@ -79,9 +79,14 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
                 this.logError(error);
             }
         };
+
+        const defaultRedirectUri = `${process.env.NODE_ENV === 'production'
+            ? `https://${process.env.UNIXPENSE_HOST}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
+            : `http://${process.env.HOSTNAME ?? 'localhost'}:${process.env.port ?? 8000}`
+        }/api/transactions/gmail/oauthcallback`;
         
         this.oauth2Client = new google.auth
-            .OAuth2(this.identifiers.clientId, this.identifiers.clientSecret, this.identifiers.redirectUri ?? undefined)
+            .OAuth2(this.identifiers.clientId, this.identifiers.clientSecret, this.identifiers.redirectUri ?? defaultRedirectUri)
             .on('tokens', onNewTokens);
 
         if (this.identifiers.accessToken !== null) {
