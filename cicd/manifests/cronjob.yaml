@@ -39,7 +39,7 @@ spec:
                 WHERE user_email='$GMAIL_ADDRESS'"
 
               ACCESS_TOKEN=$(mariadb unixpense \
-                -h mariadb-service.unixpense.svc.cluster.local:3306 \
+                -h mariadb-service.unixpense.svc.cluster.local \
                 -u$MARIADB_USER \
                 -p$MARIADB_PASSWORD \
                 -se "$ACCESS_TOKEN_QUERY")
