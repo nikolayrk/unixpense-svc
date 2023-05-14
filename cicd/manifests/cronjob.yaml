@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: unixpense-svc-cron
+  namespace: unixpense
+spec:
+  schedule: "$CRONTAB"
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 5
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: mariadb-client
+            image: mariadb:latest
+            env:
+            - name: MARIADB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: MARIADB_USER
+            - name: MARIADB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: MARIADB_PASSWORD
+            command:
+            - /bin/sh
+            - -ec
+            - |
+              apt-get -qy update; apt-get -qy -o=Dpkg::Use-Pty=0 install curl
+
+              ACCESS_TOKEN_QUERY="\
+                SELECT access_token
+                FROM google_oauth2_identifiers
+                WHERE user_email='$GMAIL_ADDRESS'"
+
+              ACCESS_TOKEN=$(mariadb unixpense \
+                -h unixpense-svc-service.unixpense.svc.cluster.local:3306 \
+                -u$MARIADB_USER \
+                -p$MARIADB_PASSWORD \
+                -se "$ACCESS_TOKEN_QUERY")
+
+              curl \
+                -H "User-Email: $GMAIL_ADDRESS" \
+                -H "Authorization: Bearer $ACCESS_TOKEN" \
+                -X GET "http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api/transactions/gmail/get?save=true"

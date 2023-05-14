@@ -4,7 +4,7 @@ metadata:
   name: mariadb-pv
   namespace: unixpense
 spec:
-  storageClassName: unixpense
+  storageClassName: unixpense-svc
   capacity:
     storage: "1Gi"
   accessModes:
@@ -21,7 +21,7 @@ metadata:
   name: mariadb-pvc
   namespace: unixpense
 spec:
-  storageClassName: unixpense
+  storageClassName: unixpense-svc
   accessModes:
     - ReadWriteOnce
   resources:

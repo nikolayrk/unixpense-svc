@@ -73,26 +73,13 @@ jobs:
           secret-type: 'generic'
           secret-name: mariadb-secret
           string-data: |
-              {
-                "MARIADB_USER": "${{ secrets.MARIADB_USER }}",
-                "MARIADB_PASSWORD": "${{ secrets.MARIADB_PASSWORD }}",
-                "MARIADB_DATABASE": "${{ vars.MARIADB_DATABASE }}",
-                "MARIADB_NFS_SERVER": "${{ vars.MARIADB_NFS_SERVER }}",
-                "MARIADB_NFS_PATH": "${{ vars.MARIADB_NFS_PATH }}",
-                "MARIADB_RANDOM_ROOT_PASSWORD": "yes"
-              }
-
-      - name: Create Google OAuth2 Credentials Kubernetes Secret
-        uses: Azure/k8s-create-secret@v4
-        with:
-          namespace: 'unixpense'
-          secret-type: 'generic'
-          secret-name: google-cred
-          string-data: |
             {
-              "GOOGLE_OAUTH2_CLIENT_ID": "${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}",
-              "GOOGLE_OAUTH2_CLIENT_SECRET": "${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}",
-              "GOOGLE_OAUTH2_REDIRECT_URI": "${{ secrets.GOOGLE_OAUTH2_REDIRECT_URI }}"
+              "MARIADB_USER": "${{ secrets.MARIADB_USER }}",
+              "MARIADB_PASSWORD": "${{ secrets.MARIADB_PASSWORD }}",
+              "MARIADB_DATABASE": "${{ vars.MARIADB_DATABASE }}",
+              "MARIADB_NFS_SERVER": "${{ vars.MARIADB_NFS_SERVER }}",
+              "MARIADB_NFS_PATH": "${{ vars.MARIADB_NFS_PATH }}",
+              "MARIADB_RANDOM_ROOT_PASSWORD": "yes"
             }
 
       - name: Deploy to Kubernetes Cluster
@@ -104,6 +91,7 @@ jobs:
             cicd/manifests/deployment.yaml
             cicd/manifests/service.yaml
             cicd/manifests/ingress.yaml
+            cicd/manifests/cronjob.yaml
           replacement-method: defined
         env:
           latest: ${{ github.sha }}
@@ -115,3 +103,5 @@ jobs:
           UNIXPENSE_HOST_PREFIX: ${{ vars.UNIXPENSE_HOST_PREFIX }}
           MARIADB_NFS_SERVER: ${{ vars.MARIADB_NFS_SERVER }}
           MARIADB_NFS_PATH: ${{ vars.MARIADB_NFS_PATH }}
+          CRONTAB: ${{ vars.CRONTAB }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}

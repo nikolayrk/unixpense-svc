@@ -17,7 +17,7 @@ In order to allow the app access to read data from Gmail, you need to perform th
     - _Credential type_: **OAuth client ID**
     - _Application type_: **Web application**
 
-Once done, take note of the **Client ID**, **Client Secret** and **Redirect URI**.
+Once done, take note of the **Client ID** and **Client Secret**.
 
 ## Logging
 
@@ -53,9 +53,8 @@ Environment variables used by this project. `var` and `secret` refer to variable
 | DOCKERHUB_PASSWORD          | Docker Image Repository                                  | secret      |
 | KUBERNETES_URL              | Kubernetes API URL                                       | var         |
 | KUBECONFIG                  | Kubernetes Config Resource                               | secret      |
-| GOOGLE_OAUTH2_CLIENT_ID     | Google OAuth2 Client ID to use in CronJob                | secret      |
-| GOOGLE_OAUTH2_CLIENT_SECRET | Google OAuth2 Client Secret to use in CronJob            | secret      |
-| GOOGLE_OAUTH2_REDIRECT_URI  | Google OAuth2 Redirect URI to use in CronJob             | secret      |
+| CRONTAB                     | Cron schedule expression for the CronJob                 | var         |
+| GMAIL_ADDRESS               | The Gmail address, containing the transaction emails     | secret      |
 
 ---
 ## REST API Setup
