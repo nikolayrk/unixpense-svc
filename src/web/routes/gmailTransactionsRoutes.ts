@@ -13,28 +13,6 @@ router.use(bodyParser.urlencoded({ extended: true }));
 
 router.use('/oauthcallback', googleOAuth2Middleware.redirect);
 
-const swaggerComponents: swaggerJSDoc.Components = {
-    securitySchemes: {
-        Google: {
-            type: 'oauth2',
-            flows: {
-                authorizationCode: {
-                    authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth?access_type=offline',
-                    tokenUrl: `${process.env.NODE_ENV === 'production'
-                            ? 'https://'
-                            : 'http://'
-                        }${process.env.UNIXPENSE_HOST}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}/api/transactions/gmail/oauthcallback`,
-                    scopes: {
-                        'https://www.googleapis.com/auth/userinfo.profile': 'See your personal info, including any personal info you\'ve made publicly available',
-                        'https://www.googleapis.com/auth/userinfo.email': 'See your primary Google Account email address',
-                        'https://www.googleapis.com/auth/gmail.readonly': 'View your email messages and settings',
-                    }
-                }
-            }
-        }
-    }
-};
-
 /**
  * @swagger
  * /transactions/gmail/get:
@@ -79,5 +57,27 @@ const swaggerComponents: swaggerJSDoc.Components = {
  *         description: Service error
  */
 router.route('/get').get(googleOAuth2Middleware.protect, gmailTransactionsController.get);
+
+const swaggerComponents: swaggerJSDoc.Components = {
+    securitySchemes: {
+        Google: {
+            type: 'oauth2',
+            flows: {
+                authorizationCode: {
+                    authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth?access_type=offline',
+                    tokenUrl: `${process.env.NODE_ENV === 'production'
+                            ? `https://${process.env.UNIXPENSE_HOST}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
+                            : `http://${process.env.HOSTNAME ?? 'localhost'}:${process.env.PORT ?? 8000}`
+                        }/api/transactions/gmail/oauthcallback`,
+                    scopes: {
+                        'https://www.googleapis.com/auth/userinfo.profile': 'See your personal info, including any personal info you\'ve made publicly available',
+                        'https://www.googleapis.com/auth/userinfo.email': 'See your primary Google Account email address',
+                        'https://www.googleapis.com/auth/gmail.readonly': 'View your email messages and settings',
+                    }
+                }
+            }
+        }
+    }
+};
 
 export { router, swaggerComponents };
