@@ -91,6 +91,7 @@ jobs:
             cicd/manifests/deployment.yaml
             cicd/manifests/service.yaml
             cicd/manifests/ingress.yaml
+            cicd/manifests/mariadb-service.yaml
             cicd/manifests/cronjob.yaml
           replacement-method: defined
         env:
