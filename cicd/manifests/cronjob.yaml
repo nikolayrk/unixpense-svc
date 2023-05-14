@@ -44,7 +44,7 @@ spec:
                 -p$MARIADB_PASSWORD \
                 -se "$ACCESS_TOKEN_QUERY")
 
-              curl \
+              curl -s \
                 -H "User-Email: $GMAIL_ADDRESS" \
                 -H "Authorization: Bearer $ACCESS_TOKEN" \
                 -X GET "http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api/transactions/gmail/get?save=true"
