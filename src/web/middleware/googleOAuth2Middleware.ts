@@ -1,50 +1,53 @@
-import express, { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import { DependencyInjector } from "../../dependencyInjector";
 import GoogleOAuth2ClientProvider from "../../services/gmail/providers/googleOAuth2ClientProvider";
 import { injectables } from "../../shared/types/injectables";
-import GoogleOAuth2IdentifierRepository from "../../database/gmail/repositories/googleOAuth2IdentifierRepository";
+import GoogleOAuth2IdentifierRepository from "../../database/gmail/repositories/googleOAuth2TokensRepository";
 import GoogleOAuth2IdentifiersFactory from "../../services/gmail/factories/googleOAuth2IdentifiersFactory";
 
 const redirect = async (req: Request, res: Response) => {
     const { client_id, client_secret, redirect_uri, code } = req.body;
     
     if(client_id === undefined || client_secret === undefined || redirect_uri === undefined) {
-        res
+        return res
             .status(403)
             .json({ error: "No credentials provided" })
             .end();
+    }
 
-        return;
+    if (client_id !== process.env.GOOGLE_OAUTH2_CLIENT_ID || client_secret !== process.env.GOOGLE_OAUTH2_CLIENT_SECRET) {
+        return res
+            .status(403)
+            .json({ error: "Mismatched credentials" })
+            .end();
     }
 
     if(code === undefined) {
-        res
+        return res
             .status(400)
             .json({ error: "No authorization code provided" })
             .end();
-
-        return;
     }
 
     const googleOAuth2IdentifierFactory = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory);
     
-    const identifiers = googleOAuth2IdentifierFactory.create(String(client_id), String(client_secret), String(redirect_uri));
+    const identifiers = googleOAuth2IdentifierFactory.create(String(redirect_uri));
 
     const googleOAuth2ClientProvider = await DependencyInjector.Singleton.generateServiceAsync<GoogleOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProviderGenerator, identifiers);
     
     try {
         const tokens = await googleOAuth2ClientProvider.tryAuthorizeWithCodeAsync(String(code));
 
-        res
+        return res
             .status(200)
             .json(tokens)
             .end();
     } catch(ex) {
         const error = ex as Error;
         
-        googleOAuth2ClientProvider.logError(error, { clientId: identifiers.clientId });
+        googleOAuth2ClientProvider.logError(error, { ...req.body });
 
-        res
+        return res
             .status(503)
             .json({ error: error.message ?? ex })
             .end();
@@ -56,45 +59,42 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
     const userEmail = req.get('User-Email');
 
     if (authHeader === undefined) {
-        res
+        return res
             .status(403)
             .json({ error: "Missing authorization header" })
             .end();
-
-        return;
     }
 
     if (userEmail === undefined) {
-        res
+        return res
             .status(403)
             .json({ error: "Missing user email header" })
             .end();
-
-        return;
     }
 
-    const googleOAuth2IdentifierRepository = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifierRepository>(injectables.GoogleOAuth2IdentifierRepository);
+    const googleOAuth2IdentifierRepository = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifierRepository>(injectables.GoogleOAuth2TokensRepository);
     const persistedIdentifiers = await googleOAuth2IdentifierRepository.getOrNullAsync(userEmail);
 
     if (persistedIdentifiers === null) {
-        res
+        return res
             .status(403)
             .json({ error: "No Google OAuth Credentials found" })
             .end();
-
-        return;
     }
 
     if (persistedIdentifiers.accessToken === null || persistedIdentifiers.refreshToken === null) {
-        res
+        return res
             .status(403)
             .json({
                 error:  'There was an issue during the initial OAuth Consent Flow. ' +
-                        'Please navigate to https://myaccount.google.com/permissions and under \'Third-party apps with account access\', find \'Unixpense Tracker\' then click \'Remove Access\'. ' + 
+
+                        'Please navigate to https://myaccount.google.com/permissions ' +
+                        'and under \'Third-party apps with account access\', ' +
+                        'find \'Unixpense Tracker\' then click \'Remove Access\'. ' + 
+
                         'Once done, go through the Google OAuth flow again.',
             })
             .end();
-        return;
     }
     
     const receivedAccessToken = authHeader.replace('Bearer ', '');
@@ -106,7 +106,7 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
         ...rest
     };
 
-    next();
+    return next();
 };
 
 export {

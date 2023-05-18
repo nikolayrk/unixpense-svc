@@ -38,8 +38,13 @@ Environment variables used by this project. `var` and `secret` refer to variable
 | PORT                        | Server listening port. Default: 8000                     | var         |
 | NODE_ENV                    | Node environment. Default: development                   | var         |
 | LOG_LEVEL                   | Logger log level. Default: info                          | var         |
+| GMAIL_ADDRESS               | The Gmail address, containing the transaction emails     | var         |
+| REDIS_NFS_SERVER            | Host / IP of the NFS server holding the Redis storage    | var         |
+| REDIS_NFS_PATH              | Path to the Redis storage within the NFS server          | var         |
 | UNIXPENSE_HOST              | Server host. Default: localhost:8000                     | var         |
 | UNIXPENSE_HOST_PREFIX       | Server subpath to load the API on. Optional.             | var         |
+| OAUTH2_PROXY_COOKIE_SECRET  | OAuth2 Proxy Cookie seed string                          | secret      |
+| LOKI_HOST                   | URL to Grafana Loki instance. Optional.                  | var         |
 | MARIADB_HOST                | Optional. Default: `$HOSTNAME`                           | var         |
 | MARIADB_PORT                | Optional. Default: 3306                                  | var         |
 | MARIADB_USER                | Optional.                                                | secret      |
@@ -47,14 +52,14 @@ Environment variables used by this project. `var` and `secret` refer to variable
 | MARIADB_DATABASE            | Optional.                                                | var         |
 | MARIADB_NFS_SERVER          | Host / IP of the NFS server holding the MariaDB database | var         |
 | MARIADB_NFS_PATH            | Path to the MariaDB database within the NFS server       | var         |
-| LOKI_HOST                   | URL to Grafana Loki instance. Optional.                  | var         |
+| GOOGLE_OAUTH2_CLIENT_ID     | Client ID from [Creating Google Credentials](#creating-google-credentials)| secret      |
+| GOOGLE_OAUTH2_CLIENT_SECRET | Client Secret from [Creating Google Credentials](#creating-google-credentials)| secret      |
 | DOCKER_REPO                 | Docker Image Repository                                  | var         |
 | DOCKERHUB_USERNAME          | Docker Image Repository                                  | secret      |
 | DOCKERHUB_PASSWORD          | Docker Image Repository                                  | secret      |
 | KUBERNETES_URL              | Kubernetes API URL                                       | var         |
 | KUBECONFIG                  | Kubernetes Config Resource                               | secret      |
 | CRONTAB                     | Cron schedule expression for the CronJob                 | var         |
-| GMAIL_ADDRESS               | The Gmail address, containing the transaction emails     | secret      |
 
 ---
 ## REST API Setup

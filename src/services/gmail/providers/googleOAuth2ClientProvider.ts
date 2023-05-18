@@ -4,7 +4,7 @@ import { OAuth2Client } from 'googleapis-common';
 import { Credentials } from 'google-auth-library';
 import { inject, injectable } from 'inversify';
 import { injectables } from "../../../shared/types/injectables";
-import GoogleOAuth2IdentifierRepository from '../../../database/gmail/repositories/googleOAuth2IdentifierRepository';
+import GoogleOAuth2TokensRepository from '../../../database/gmail/repositories/googleOAuth2TokensRepository';
 import ILogger from '../../contracts/ILogger';
 import GoogleOAuth2Identifiers from '../models/googleOAuth2Identifiers';
 import IUsesGoogleOAuth2 from '../contracts/IUsesGoogleOAuth2';
@@ -21,17 +21,17 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
     private identifiers: GoogleOAuth2Identifiers;
 
     private readonly logger;
-    private readonly googleOAuth2IdentifierRepository;
+    private readonly googleOAuth2TokensRepository;
 
     public constructor(
         @inject(injectables.ILogger)
         logger: ILogger,
 
-        @inject(injectables.GoogleOAuth2IdentifierRepository)
-        googleOAuth2IdentifierRepository: GoogleOAuth2IdentifierRepository
+        @inject(injectables.GoogleOAuth2TokensRepository)
+        googleOAuth2TokensRepository: GoogleOAuth2TokensRepository
     ) {
         this.logger = logger;
-        this.googleOAuth2IdentifierRepository = googleOAuth2IdentifierRepository;
+        this.googleOAuth2TokensRepository = googleOAuth2TokensRepository;
         this.oauth2Client = null!;
         this.identifiers = null!;
     }
@@ -64,13 +64,10 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
 
                 this.identifiers.userEmail = tokenInfo.email; // For logging
 
-                await this.googleOAuth2IdentifierRepository.createOrUpdateAsync({
-                        ...this.identifiers,
-            
-                        userEmail: tokenInfo.email,
-                        accessToken: refreshableTokens.access_token ?? null,
-                        refreshToken: refreshableTokens.refresh_token ?? null
-                    });
+                await this.googleOAuth2TokensRepository.createOrUpdateAsync(
+                    tokenInfo.email,
+                    tokens.access_token,
+                    tokens.refresh_token ?? this.identifiers.refreshToken);
 
                 this.logEvent(`Received new OAuth2 Client tokens`);
             } catch(ex) {
@@ -86,7 +83,10 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
         }/api/transactions/gmail/oauthcallback`;
         
         this.oauth2Client = new google.auth
-            .OAuth2(this.identifiers.clientId, this.identifiers.clientSecret, this.identifiers.redirectUri ?? defaultRedirectUri)
+            .OAuth2(
+                process.env.GOOGLE_OAUTH2_CLIENT_ID,
+                process.env.GOOGLE_OAUTH2_CLIENT_SECRET,
+                this.identifiers.redirectUri ?? defaultRedirectUri)
             .on('tokens', onNewTokens);
 
         if (this.identifiers.accessToken !== null) {
@@ -103,8 +103,8 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
 
     public logEvent(message: string, labels?: Record<string, unknown>) {
         this.logger.log(message, labels
-            ? { email: this.identifiers.userEmail, ...labels }
-            : { email: this.identifiers.userEmail });
+            ? { ...this.identifiers, ...labels }
+            : { ...this.identifiers });
     }
 
     public logWarning(message: string, labels?: Record<string, unknown>) {

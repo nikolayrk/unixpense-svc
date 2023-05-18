@@ -27,7 +27,7 @@ import WinstonLokiLogger from './services/loggers/winstonLokiLogger';
 import GmailCrossBorderTransferFeeStrategy from './services/gmail/strategies/gmailCrossBorderTransferFeeStrategy';
 import GoogleOAuth2Identifiers from './services/gmail/models/googleOAuth2Identifiers';
 import IUsesGoogleOAuth2 from './services/gmail/contracts/IUsesGoogleOAuth2';
-import GoogleOAuth2IdentifierRepository from './database/gmail/repositories/googleOAuth2IdentifierRepository';
+import GoogleOAuth2TokensRepository from './database/gmail/repositories/googleOAuth2TokensRepository';
 import GoogleOAuth2ClientProvider from './services/gmail/providers/googleOAuth2ClientProvider';
 import GmailApiClient from './services/gmail/clients/gmailApiClient';
 import GoogleOAuth2IdentifiersFactory from './services/gmail/factories/googleOAuth2IdentifiersFactory';
@@ -75,7 +75,7 @@ export class DependencyInjector {
         this.registerServicesByContext(ServiceContexts.GMAIL);
 
         this.container.bind<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory).to(GoogleOAuth2IdentifiersFactory);
-        this.container.bind<GoogleOAuth2IdentifierRepository>(injectables.GoogleOAuth2IdentifierRepository).to(GoogleOAuth2IdentifierRepository);
+        this.container.bind<GoogleOAuth2TokensRepository>(injectables.GoogleOAuth2TokensRepository).to(GoogleOAuth2TokensRepository);
         this.container.bind<GoogleOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProvider).to(GoogleOAuth2ClientProvider);
         this.container.bind<GmailApiClient>(injectables.GmailApiClient).to(GmailApiClient);
 

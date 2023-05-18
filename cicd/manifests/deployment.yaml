@@ -81,3 +81,5 @@ spec:
             name: unixpense-svc-config
         - secretRef:
             name: mariadb-secret
+        - secretRef:
+            name: google-cred

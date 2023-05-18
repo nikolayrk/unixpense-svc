@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unixpense-auth
+  namespace: unixpense
+  labels:
+    app: unixpense-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: unixpense-auth
+  template:
+    metadata:
+      labels:
+        app: unixpense-auth
+    spec:
+      volumes:
+      - name: redis-config
+        configMap:
+          name: redis-config
+          items:
+          - key: redis.conf
+            path: redis.conf
+      - name: redis-volume
+        persistentVolumeClaim:
+          claimName: redis-pvc
+      - name: oauth2-authenticated-emails
+        configMap:
+          name: oauth2-authenticated-emails
+          items:
+          - key: authenticated-emails
+            path: authenticated-emails
+      securityContext:
+        runAsUser: 1000
+      containers:
+      - name: redis
+        image: redis:alpine
+        command:
+          - "redis-server"
+        args:
+          - "/etc/redis/redis.conf"
+          - "--protected-mode"
+          - "no"
+          - "--appendonly"
+          - "no"
+          - "--save"
+          - "300"
+          - "1"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 300m
+            memory: 128Mi
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+        - name: redis-config
+          mountPath: /etc/redis
+        - name: redis-volume
+          mountPath: /data
+      - name: oauth2-proxy
+        image: quay.io/oauth2-proxy/oauth2-proxy:latest-arm64
+        args:
+        - --authenticated-emails-file=/etc/oauth2-proxy/authenticated-emails
+        - --upstream=file:///dev/null
+        - --http-address=0.0.0.0:4180
+        - --cookie-secure=false
+        - --cookie-domain=$UNIXPENSE_HOST
+        - --whitelist-domain=$UNIXPENSE_HOST
+        - --provider=google
+        - --provider-display-name=Google
+        - --skip-provider-button=true
+        - --oidc-issuer-url=https://accounts.google.com/o/oauth2/v2/auth?access_type=offline
+        - --redeem-url=http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api/transactions/gmail/oauthcallback
+        - --redirect-url=https://$UNIXPENSE_HOST$UNIXPENSE_HOST_PREFIX/oauth2/callback
+        - --proxy-prefix=$UNIXPENSE_HOST_PREFIX/oauth2
+        - --session-store-type=redis
+        - --redis-connection-url=redis://localhost:6379
+        env:
+        - name: OAUTH2_PROXY_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: google-cred
+              key: GOOGLE_OAUTH2_CLIENT_ID
+        - name: OAUTH2_PROXY_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: google-cred
+              key: GOOGLE_OAUTH2_CLIENT_SECRET
+        - name: OAUTH2_PROXY_COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: oauth2-cookie-secret
+              key: cookie-secret
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        ports:
+        - containerPort: 4180
+          protocol: TCP
+        volumeMounts:
+        - name: oauth2-authenticated-emails
+          mountPath: /etc/oauth2-proxy

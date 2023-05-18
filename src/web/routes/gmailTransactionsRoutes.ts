@@ -67,7 +67,7 @@ const swaggerComponents: swaggerJSDoc.Components = {
                     authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth?access_type=offline',
                     tokenUrl: `${process.env.NODE_ENV === 'production'
                             ? `https://${process.env.UNIXPENSE_HOST}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
-                            : `http://${process.env.HOSTNAME ?? 'localhost'}:${process.env.PORT ?? 8000}`
+                            : `http://${process.env.HOSTNAME ?? 'localhost'}:${process.env.PORT ?? 8000}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
                         }/api/transactions/gmail/oauthcallback`,
                     scopes: {
                         'https://www.googleapis.com/auth/userinfo.profile': 'See your personal info, including any personal info you\'ve made publicly available',

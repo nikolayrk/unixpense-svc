@@ -82,16 +82,44 @@ jobs:
               "MARIADB_RANDOM_ROOT_PASSWORD": "yes"
             }
 
+      - name: Create Google OAuth2 Credentials Kubernetes Secret
+        uses: Azure/k8s-create-secret@v4
+        with:
+          namespace: 'unixpense'
+          secret-type: 'generic'
+          secret-name: google-cred
+          string-data: |
+            {
+              "GOOGLE_OAUTH2_CLIENT_ID": "${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}",
+              "GOOGLE_OAUTH2_CLIENT_SECRET": "${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}"
+            }
+
+      - name: Create OAuth2 Kubernetes Secret
+        uses: Azure/k8s-create-secret@v4
+        with:
+          namespace: 'unixpense'
+          secret-type: 'generic'
+          secret-name: oauth2-cookie-secret
+          string-data: |
+            {
+              "cookie-secret": "${{ secrets.OAUTH2_PROXY_COOKIE_SECRET }}"
+            }
+
       - name: Deploy to Kubernetes Cluster
         uses: swdotcom/update-and-apply-kubernetes-configs@v1
         with:
           k8-config-file-paths: |
+            cicd/manifests/redis-config.yaml
+            cicd/manifests/redis-persistence.yaml
+            cicd/manifests/auth-config.yaml
+            cicd/manifests/auth-deployment.yaml
+            cicd/manifests/auth-network.yaml
             cicd/manifests/config.yaml
-            cicd/manifests/persistence.yaml
+            cicd/manifests/mariadb-persistence.yaml
+            cicd/manifests/mariadb-service.yaml
             cicd/manifests/deployment.yaml
             cicd/manifests/service.yaml
             cicd/manifests/ingress.yaml
-            cicd/manifests/mariadb-service.yaml
             cicd/manifests/cronjob.yaml
           replacement-method: defined
         env:
@@ -99,10 +127,12 @@ jobs:
           PORT: ${{ vars.PORT }}
           NODE_ENV: ${{ vars.NODE_ENV }}
           LOG_LEVEL: ${{ vars.LOG_LEVEL }}
-          LOKI_HOST: ${{ vars.LOKI_HOST }}
+          GMAIL_ADDRESS: ${{ vars.GMAIL_ADDRESS }}
+          REDIS_NFS_SERVER: ${{ vars.REDIS_NFS_SERVER }}
+          REDIS_NFS_PATH: ${{ vars.REDIS_NFS_PATH }}
           UNIXPENSE_HOST: ${{ vars.UNIXPENSE_HOST }}
           UNIXPENSE_HOST_PREFIX: ${{ vars.UNIXPENSE_HOST_PREFIX }}
+          LOKI_HOST: ${{ vars.LOKI_HOST }}
           MARIADB_NFS_SERVER: ${{ vars.MARIADB_NFS_SERVER }}
           MARIADB_NFS_PATH: ${{ vars.MARIADB_NFS_PATH }}
           CRONTAB: ${{ vars.CRONTAB }}
-          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}

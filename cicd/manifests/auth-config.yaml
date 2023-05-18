@@ -1,0 +1,7 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: oauth2-authenticated-emails
+  namespace: unixpense
+data:
+  authenticated-emails: $GMAIL_ADDRESS

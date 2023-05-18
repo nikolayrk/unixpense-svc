@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: unixpense-svc-cron
+  name: unixpense-cron
   namespace: unixpense
 spec:
   schedule: "$CRONTAB"
@@ -35,7 +35,7 @@ spec:
 
               ACCESS_TOKEN_QUERY="\
                 SELECT access_token
-                FROM google_oauth2_identifiers
+                FROM google_oauth2_tokens
                 WHERE user_email='$GMAIL_ADDRESS'"
 
               ACCESS_TOKEN=$(mariadb unixpense \

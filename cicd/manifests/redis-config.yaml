@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: unixpense
+data:
+  redis.conf: |
+    databases 4
+    maxclients 2500
+    timeout 30
+    port 6379
+    tcp-keepalive 300
+    logfile ""
+    lazyfree-lazy-eviction no
+    lazyfree-lazy-expire no
+    lazyfree-lazy-server-del no

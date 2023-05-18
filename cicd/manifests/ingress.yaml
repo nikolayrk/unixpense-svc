@@ -4,7 +4,7 @@ metadata:
   namespace: unixpense
   name: unixpense-svc-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/rewrite-target: /api/$2
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   ingressClassName: nginx
@@ -12,7 +12,31 @@ spec:
   - host: $UNIXPENSE_HOST
     http:
       paths:
-      - path: $UNIXPENSE_HOST_PREFIX($|/)(.*) # https://stackoverflow.com/a/59786485
+      - path: $UNIXPENSE_HOST_PREFIX/api($|/)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: unixpense-svc-service
+            port:
+              number: $PORT
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: unixpense
+  name: unixpense-swagger-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /swagger/$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/auth-url: "http://unixpense-auth-service.unixpense.svc.cluster.local:4180/unixpense/oauth2/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "https://$host/unixpense/oauth2/start?rd=$escaped_request_uri"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: $UNIXPENSE_HOST
+    http:
+      paths:
+      - path: $UNIXPENSE_HOST_PREFIX/swagger($|/)(.*)
         pathType: Prefix
         backend:
           service:

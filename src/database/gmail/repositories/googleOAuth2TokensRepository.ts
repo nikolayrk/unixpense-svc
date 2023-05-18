@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import GoogleOAuth2IdentifierEntity from "../entities/googleOAuth2Identifer.entity";
+import GoogleOAuth2TokensEntity from "../entities/googleOAuth2Tokens.entity";
 import RepositoryError from "../../../shared/errors/repositoryError";
 import GoogleOAuth2Identifiers from "../../../services/gmail/models/googleOAuth2Identifiers";
 import GoogleOAuth2IdentifiersFactory from "../../../services/gmail/factories/googleOAuth2IdentifiersFactory";
@@ -16,21 +16,19 @@ export default class GoogleOAuth2IdentifierRepository {
         this.googleOAuth2IdentifierFactory = googleOAuth2IdentifierFactory;
     }
 
-    public async createOrUpdateAsync(identifiers: GoogleOAuth2Identifiers) {
-        const existingEntity = await GoogleOAuth2IdentifierEntity.findOne({
+    public async createOrUpdateAsync(userEmail: string, accessToken: string, refreshToken: string | null) {
+        const existingEntity = await GoogleOAuth2TokensEntity.findOne({
             where: {
-                user_email: identifiers.userEmail
+                user_email: userEmail
             }
         });
 
         if (existingEntity === null) {
             try {
-                await GoogleOAuth2IdentifierEntity.create({
-                    client_id: identifiers.clientId,
-                    client_secret: identifiers.clientSecret,
-                    user_email: identifiers.userEmail,
-                    access_token: identifiers.accessToken,
-                    refresh_token: identifiers.refreshToken,
+                await GoogleOAuth2TokensEntity.create({
+                    user_email: userEmail,
+                    access_token: accessToken,
+                    refresh_token: refreshToken,
                 });
 
                 return;
@@ -44,21 +42,21 @@ export default class GoogleOAuth2IdentifierRepository {
             }
         }
 
-        await GoogleOAuth2IdentifierEntity.update({
-                access_token: identifiers.accessToken,
+        await GoogleOAuth2TokensEntity.update({
+                access_token: accessToken,
 
-                ...(identifiers.refreshToken !== null) && {
-                    refresh_token: identifiers.refreshToken
+                ...(refreshToken !== null) && {
+                    refresh_token: refreshToken
                 },
             }, {
                 where: {
-                    user_email: identifiers.userEmail
+                    user_email: userEmail
                 }
             });
     }
 
     public async getOrNullAsync(userEmail: string) {
-        const entity = await GoogleOAuth2IdentifierEntity
+        const entity = await GoogleOAuth2TokensEntity
             .findOne({
                 where: {
                     user_email: userEmail
@@ -70,8 +68,10 @@ export default class GoogleOAuth2IdentifierRepository {
         }
 
         const identifiers = this.googleOAuth2IdentifierFactory.create(
-            entity.client_id, entity.client_secret, undefined,
-            entity.user_email, entity.access_token, entity.refresh_token);
+            undefined,
+            entity.user_email,
+            entity.access_token,
+            entity.refresh_token);
         
         return identifiers;
     }
