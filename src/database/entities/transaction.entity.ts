@@ -36,6 +36,7 @@ export default class TransactionEntity extends Model {
     @Column
     date!: Date;
 
+    @Unique('unique-transaction')
     @AllowNull(false)
     @Column
     reference!: string;
@@ -53,6 +54,7 @@ export default class TransactionEntity extends Model {
     @Column(EntryTypeExtensions.ToDataType())
     entry_type!: string;
 
+    @Unique('unique-transaction')
     @AllowNull(false)
     @Column(TransactionTypeExtensions.ToDataType())
     type!: string;
