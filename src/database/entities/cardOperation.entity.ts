@@ -6,7 +6,7 @@ import PaymentDetailsEntityBase from "./paymentDetails.entity.base";
     modelName: "card_operation",
     timestamps: false,
     indexes: [{
-        fields: ['transaction_reference']
+        fields: ['transaction_id']
     }]
 })
 export default class CardOperationEntity extends PaymentDetailsEntityBase {

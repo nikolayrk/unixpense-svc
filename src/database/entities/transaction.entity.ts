@@ -10,24 +10,22 @@ import StandardTransferEntity from './standardTransfer.entity';
     timestamps: false,
     indexes: [{
         fields: ['id']
-    }, {
-        fields: ['reference', 'type'],
-        unique: true
     }]
 })
 export default class TransactionEntity extends Model {
     @HasOne(() => CardOperationEntity, {
         as: 'card_operation',
-        foreignKey: 'transaction_reference'
+        foreignKey: 'transaction_id'
     })
     card_operation!: PaymentDetails;
     
     @HasOne(() => StandardTransferEntity, {
         as: 'standard_transfer',
-        foreignKey: 'transaction_reference'
+        foreignKey: 'transaction_id',
     })
     standard_transfer!: PaymentDetails;
 
+    @PrimaryKey
     @Unique
     @AllowNull(false)
     @Column
@@ -38,7 +36,6 @@ export default class TransactionEntity extends Model {
     @Column
     date!: Date;
 
-    @PrimaryKey
     @AllowNull(false)
     @Column
     reference!: string;
@@ -56,7 +53,6 @@ export default class TransactionEntity extends Model {
     @Column(EntryTypeExtensions.ToDataType())
     entry_type!: string;
 
-    @PrimaryKey
     @AllowNull(false)
     @Column(TransactionTypeExtensions.ToDataType())
     type!: string;
