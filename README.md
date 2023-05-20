@@ -19,16 +19,6 @@ In order to allow the app access to read data from Gmail, you need to perform th
 
 Once done, take note of the **Client ID** and **Client Secret**.
 
-## Logging
-
-Centralized logging is provisioned by [Grafana Loki](https://grafana.com/oss/loki/).
-
-## Swagger
-
-> **_NOTE:_**  In order to use Swagger, you have to add http://localhost:8000/swagger/oauth2-redirect.html as an additional redirect URI to your Google OAuth Credentials. The same route can be used with a public host, as well.
-
-[Swagger UI](https://swagger.io/tools/swagger-ui/) is accessible through `http://localhost:8000/swagger/`. The specification is generated from source.
-
 ## Environment
 
 Environment variables used by this project. `var` and `secret` refer to variables, which can be loaded from GitHub Actions via [Configuration Variables](https://docs.github.com/en/actions/learn-github-actions/variables#using-the-vars-context-to-access-configuration-variable-values) and [Encrypted secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository), respectively.
@@ -60,6 +50,12 @@ Environment variables used by this project. `var` and `secret` refer to variable
 | KUBERNETES_URL              | Kubernetes API URL                                       | var         |
 | KUBECONFIG                  | Kubernetes Config Resource                               | secret      |
 | CRONTAB                     | Cron schedule expression for the CronJob                 | var         |
+
+## Swagger
+
+> **_NOTE:_**  In order to use Swagger, you have to add http://localhost:8000/swagger/oauth2-redirect.html as an additional redirect URI to your Google OAuth Credentials. The same route can be used with a public host, as well.
+
+[Swagger UI](https://swagger.io/tools/swagger-ui/) is accessible through `http://localhost:8000/swagger/`. The specification is generated from source.
 
 ---
 ## REST API Setup
@@ -136,9 +132,23 @@ The Actions workflow consists of three jobs, the high-level operations of which 
 2. Create Kubernetes Secrets for any sensitive app data
 3. Create the necessary Kubernetes components for the app's deployment, persistence and networking
 
+## Authentication
+
+Authentication is handled by [OAuth2 Proxy](https://github.com/oauth2-proxy/oauth2-proxy) using Google as the IdP and [Redis](https://redis.io/) for session storage.
+
+> **_NOTE:_**  In order to use OAuth2 Authentication, you have to add https://_[UNIXPENSE_HOST]_/_[UNIXPENSE_HOST_PREFIX]_/oauth2/callback as an additional redirect URI to your Google OAuth Credentials.
+
 ## Persistence
 
 The service uses an [NFS Volume](https://kubernetes.io/docs/concepts/storage/volumes/#nfs) for data persistence.
+
+## Logging
+
+Centralized logging is provisioned by [Grafana Loki](https://grafana.com/oss/loki/).
+
+## Networking
+
+The service is exposed via an [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) using the [NGINX Ingress Controller](https://github.com/kubernetes/ingress-nginx)
 
 ---
 ## Built using
