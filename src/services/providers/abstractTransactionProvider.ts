@@ -46,7 +46,7 @@ export default abstract class AbstractTransactionProvider implements ITransactio
     public async * generateSaveAsync(transactionIdsQuery?: string) {
         this.logger.log(`Generating new transaction IDs...`, transactionIdsQuery ? { query: transactionIdsQuery } : {});
         
-        for await (const transactionId of this.generateTransactionIdsAsync()) {
+        for await (const transactionId of this.generateTransactionIdsAsync(transactionIdsQuery)) {
             if (await this.transactionExistsAsync(transactionId)) {
                 this.logger.warn(`Transaction already exists`, { transactionId: transactionId });
 
