@@ -6,6 +6,7 @@ import { EntryTypeExtensions } from "../../shared/extensions/entryTypeExtensions
 import { TransactionTypeExtensions } from "../../shared/extensions/transactionTypeExtensions";
 import { injectable } from 'inversify';
 import RepositoryError from '../../shared/errors/repositoryError';
+import StandardTransfer from '../../shared/models/standardTransfer';
 
 @injectable()
 export default class TransactionRepository {
@@ -30,7 +31,7 @@ export default class TransactionRepository {
                         TransactionTypeExtensions.IsDeskWithdrawal(transaction.type) ||
                         TransactionTypeExtensions.IsStandardFee(transaction.type) ||
                         TransactionTypeExtensions.IsStandardTransfer(transaction.type)) && {
-                        standard_transfer: transaction.paymentDetails
+                        standard_transfer: TransactionTypeExtensions.MapStandardTransfer(transaction.paymentDetails as StandardTransfer)
                     },
             }, {
                 include: [

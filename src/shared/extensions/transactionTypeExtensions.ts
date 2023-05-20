@@ -1,5 +1,6 @@
 import { DataType } from 'sequelize-typescript';
 import TransactionType from '../enums/transactionType';
+import StandardTransfer from '../models/standardTransfer';
 
 export class TransactionTypeExtensions {
     public static ToString(transactionType: TransactionType) {
@@ -57,5 +58,13 @@ export class TransactionTypeExtensions {
             default:
                 return false;
         }
+    }
+
+    public static MapStandardTransfer(standardTransfer: StandardTransfer) {
+        const mappedStandardTransfer: any = standardTransfer;
+
+        delete Object.assign(mappedStandardTransfer, { recipient_iban: standardTransfer.recipientIban })[standardTransfer.recipientIban];
+
+        return mappedStandardTransfer;
     }
 }
