@@ -1,22 +1,21 @@
 import { inject, injectable } from "inversify";
 import GoogleOAuth2TokensEntity from "../entities/googleOAuth2Tokens.entity";
 import RepositoryError from "../../../shared/errors/repositoryError";
-import GoogleOAuth2Identifiers from "../../../services/gmail/models/googleOAuth2Identifiers";
 import GoogleOAuth2IdentifiersFactory from "../../../services/gmail/factories/googleOAuth2IdentifiersFactory";
 import { injectables } from "../../../shared/types/injectables";
 
 @injectable()
-export default class GoogleOAuth2IdentifierRepository {
-    private readonly googleOAuth2IdentifierFactory;
+export default class GoogleOAuth2TokensRepository {
+    private readonly googleOAuth2IdentifiersFactory;
 
     public constructor(
         @inject(injectables.GoogleOAuth2IdentifiersFactory)
-        googleOAuth2IdentifierFactory: GoogleOAuth2IdentifiersFactory
+        googleOAuth2IdentifiersFactory: GoogleOAuth2IdentifiersFactory
     ) {
-        this.googleOAuth2IdentifierFactory = googleOAuth2IdentifierFactory;
+        this.googleOAuth2IdentifiersFactory = googleOAuth2IdentifiersFactory;
     }
 
-    public async createOrUpdateAsync(userEmail: string, accessToken: string, refreshToken: string | null) {
+    public async createOrUpdateAsync(userEmail: string, accessToken: string, refreshToken?: string) {
         const existingEntity = await GoogleOAuth2TokensEntity.findOne({
             where: {
                 user_email: userEmail
@@ -45,7 +44,7 @@ export default class GoogleOAuth2IdentifierRepository {
         await GoogleOAuth2TokensEntity.update({
                 access_token: accessToken,
 
-                ...(refreshToken !== null) && {
+                ...(refreshToken !== undefined) && {
                     refresh_token: refreshToken
                 },
             }, {
@@ -67,8 +66,8 @@ export default class GoogleOAuth2IdentifierRepository {
             return null;
         }
 
-        const identifiers = this.googleOAuth2IdentifierFactory.create(
-            undefined,
+        const identifiers = this.googleOAuth2IdentifiersFactory.create(
+            null,
             entity.user_email,
             entity.access_token,
             entity.refresh_token);

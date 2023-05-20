@@ -8,6 +8,7 @@ import GoogleOAuth2TokensRepository from '../../../database/gmail/repositories/g
 import ILogger from '../../contracts/ILogger';
 import GoogleOAuth2Identifiers from '../models/googleOAuth2Identifiers';
 import IUsesGoogleOAuth2 from '../contracts/IUsesGoogleOAuth2';
+import GoogleOAuth2IdentifiersFactory from '../factories/googleOAuth2IdentifiersFactory';
 
 @injectable()
 export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
@@ -22,16 +23,21 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
 
     private readonly logger;
     private readonly googleOAuth2TokensRepository;
+    private readonly googleOAuth2IdentifiersFactory;
 
     public constructor(
         @inject(injectables.ILogger)
         logger: ILogger,
 
         @inject(injectables.GoogleOAuth2TokensRepository)
-        googleOAuth2TokensRepository: GoogleOAuth2TokensRepository
+        googleOAuth2TokensRepository: GoogleOAuth2TokensRepository,
+        
+        @inject(injectables.GoogleOAuth2IdentifiersFactory)
+        googleOAuth2IdentifiersFactory: GoogleOAuth2IdentifiersFactory
     ) {
         this.logger = logger;
         this.googleOAuth2TokensRepository = googleOAuth2TokensRepository;
+        this.googleOAuth2IdentifiersFactory = googleOAuth2IdentifiersFactory;
         this.oauth2Client = null!;
         this.identifiers = null!;
     }
@@ -41,33 +47,44 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
     }
 
     public async useOAuth2IdentifiersAsync(identifiers: GoogleOAuth2Identifiers) {
-        this.identifiers = identifiers;
+        const persistedIdentifiersOrNull = identifiers.userEmail === undefined
+            ? null
+            : await this.googleOAuth2TokensRepository.getOrNullAsync(identifiers.userEmail);
+
+        this.identifiers = persistedIdentifiersOrNull ?? identifiers;
 
         const onNewTokens = async (tokens: Credentials) => {
             try {
-                const refreshableTokens: Credentials = {
-                    ...tokens,
-                    refresh_token: tokens.refresh_token ?? this.identifiers.refreshToken
-                };
-
                 if (tokens.access_token === undefined || tokens.access_token === null) {
                     throw new Error(`No access token received from tokens event`);
                 }
+
+                const refreshableTokens: Credentials = {
+                    ...tokens,
+                    refresh_token: tokens.refresh_token ?? persistedIdentifiersOrNull?.refreshToken
+                };
 
                 this.oauth2Client.setCredentials(refreshableTokens);
 
                 const tokenInfo = await this.oauth2Client.getTokenInfo(tokens.access_token);
 
+                const newIdentifiers = this.googleOAuth2IdentifiersFactory.create(
+                    null,
+                    tokenInfo.email,
+                    tokens.access_token,
+                    tokens.refresh_token ?? persistedIdentifiersOrNull?.refreshToken
+                );
+
+                this.identifiers = newIdentifiers; // For logging
+
                 if (tokenInfo.email === undefined) {
                     throw new Error(`No user email received from token info`);
                 }
 
-                this.identifiers.userEmail = tokenInfo.email; // For logging
-
                 await this.googleOAuth2TokensRepository.createOrUpdateAsync(
                     tokenInfo.email,
                     tokens.access_token,
-                    tokens.refresh_token ?? this.identifiers.refreshToken);
+                    tokens.refresh_token ?? persistedIdentifiersOrNull?.refreshToken);
 
                 this.logEvent(`Received new OAuth2 Client tokens`);
             } catch(ex) {

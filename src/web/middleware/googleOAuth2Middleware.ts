@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import { DependencyInjector } from "../../dependencyInjector";
 import GoogleOAuth2ClientProvider from "../../services/gmail/providers/googleOAuth2ClientProvider";
 import { injectables } from "../../shared/types/injectables";
-import GoogleOAuth2IdentifierRepository from "../../database/gmail/repositories/googleOAuth2TokensRepository";
 import GoogleOAuth2IdentifiersFactory from "../../services/gmail/factories/googleOAuth2IdentifiersFactory";
 
 const redirect = async (req: Request, res: Response) => {
@@ -71,40 +70,14 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
             .json({ error: "Missing user email header" })
             .end();
     }
-
-    const googleOAuth2IdentifierRepository = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifierRepository>(injectables.GoogleOAuth2TokensRepository);
-    const persistedIdentifiers = await googleOAuth2IdentifierRepository.getOrNullAsync(userEmail);
-
-    if (persistedIdentifiers === null) {
-        return res
-            .status(403)
-            .json({ error: "No Google OAuth Credentials found" })
-            .end();
-    }
-
-    if (persistedIdentifiers.accessToken === null || persistedIdentifiers.refreshToken === null) {
-        return res
-            .status(403)
-            .json({
-                error:  'There was an issue during the initial OAuth Consent Flow. ' +
-
-                        'Please navigate to https://myaccount.google.com/permissions ' +
-                        'and under \'Third-party apps with account access\', ' +
-                        'find \'Unixpense Tracker\' then click \'Remove Access\'. ' + 
-
-                        'Once done, go through the Google OAuth flow again.',
-            })
-            .end();
-    }
     
-    const receivedAccessToken = authHeader.replace('Bearer ', '');
-    const { accessToken, ...rest } = persistedIdentifiers;
+    const accessToken = authHeader.replace('Bearer ', '');
 
-    res.locals.googleOAuth2Identifiers = {
-        accessToken: receivedAccessToken,
+    const googleOAuth2IdentifierFactory = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory);
+    
+    const identifiers = googleOAuth2IdentifierFactory.create(undefined, userEmail, accessToken);
 
-        ...rest
-    };
+    res.locals.googleOAuth2Identifiers = identifiers;
 
     return next();
 };
