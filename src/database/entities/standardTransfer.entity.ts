@@ -11,7 +11,7 @@ import PaymentDetailsEntityBase from "./paymentDetails.entity.base";
 export default class StandardTransferEntity extends PaymentDetailsEntityBase {
     @AllowNull(false)
     @Column
-    recipientIban!: string;
+    recipient_iban!: string;
 
     @AllowNull(false)
     @Column

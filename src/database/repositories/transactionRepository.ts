@@ -25,19 +25,11 @@ export default class TransactionRepository {
                         card_operation: transaction.paymentDetails
                     },
 
-                    ...TransactionTypeExtensions.IsStandardTransfer(transaction.type) && {
-                        standard_transfer: transaction.paymentDetails
-                    },
-                    
-                    ...TransactionTypeExtensions.IsCrossBorderTransfer(transaction.type) && {
-                        standard_transfer: transaction.paymentDetails
-                    },
-                    
-                    ...TransactionTypeExtensions.IsDeskWithdrawal(transaction.type) && {
-                        standard_transfer: transaction.paymentDetails
-                    },
-
-                    ...TransactionTypeExtensions.IsStandardFee(transaction.type) && {
+                    ...(TransactionTypeExtensions.IsCrossBorderTransfer(transaction.type) ||
+                        TransactionTypeExtensions.IsCrossBorderTransferFee(transaction.type) ||
+                        TransactionTypeExtensions.IsDeskWithdrawal(transaction.type) ||
+                        TransactionTypeExtensions.IsStandardFee(transaction.type) ||
+                        TransactionTypeExtensions.IsStandardTransfer(transaction.type)) && {
                         standard_transfer: transaction.paymentDetails
                     },
             }, {

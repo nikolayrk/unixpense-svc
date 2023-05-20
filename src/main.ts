@@ -63,8 +63,6 @@ async function bootstrap() {
     try {
         logger.log(`Creating Database connection...`);
 
-        const prod = process.env.NODE_ENV === 'production';
-
         const connection = new Sequelize({
             dialect: "mariadb",
             host: process.env.MARIADB_HOST ?? process.env.HOSTNAME,
