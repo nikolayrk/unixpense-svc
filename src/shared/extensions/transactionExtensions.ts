@@ -24,12 +24,12 @@ export class TransactionExtensions {
                 TransactionTypeExtensions.IsDeskWithdrawal(transaction.type) ||
                 TransactionTypeExtensions.IsStandardFee(transaction.type) ||
                 TransactionTypeExtensions.IsStandardTransfer(transaction.type)) && {
-                standard_transfer: this.mapStandardTransfer(transaction.paymentDetails as StandardTransfer)
+                standard_transfer: TransactionExtensions.MapStandardTransfer(transaction.paymentDetails as StandardTransfer)
             },
         };
     }
 
-    public static mapStandardTransfer(standardTransfer: StandardTransfer) {
+    public static MapStandardTransfer(standardTransfer: StandardTransfer) {
         const mappedStandardTransfer: any = standardTransfer;
 
         delete Object.assign(mappedStandardTransfer, { recipient_iban: standardTransfer.recipientIban })[standardTransfer.recipientIban];
