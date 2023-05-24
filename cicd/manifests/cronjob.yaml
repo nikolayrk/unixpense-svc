@@ -57,4 +57,4 @@ spec:
                 -H "Authorization: Bearer $ACCESS_TOKEN" \
                 -H "Accept: application/json" \
                 -H "Content-Type: application/json" \
-                -d '$TRANSACTION_IDS')
+                -d $TRANSACTION_IDS)
