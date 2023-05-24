@@ -34,7 +34,7 @@ export default class TransactionEntity extends Model {
     @IsDate
     @AllowNull(false)
     @Column
-    date!: Date;
+    date!: string;
 
     @Unique('unique-transaction')
     @AllowNull(false)
@@ -44,11 +44,11 @@ export default class TransactionEntity extends Model {
     @IsDate
     @AllowNull(false)
     @Column
-    value_date!: Date;
+    value_date!: string;
 
     @AllowNull(false)
     @Column(DataType.DECIMAL(20, 2))
-    sum!: number;
+    sum!: string;
 
     @AllowNull(false)
     @Column(EntryTypeExtensions.ToDataType())

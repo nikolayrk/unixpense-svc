@@ -11,15 +11,18 @@ const router = express.Router();
 
 router.use(bodyParser.urlencoded({ extended: true }));
 
+router.use(express.json());
+
 router.use('/oauthcallback', googleOAuth2Middleware.redirect);
 
 /**
  * @swagger
- * /transactions/gmail/get:
+ * /transactions/gmail/get/ids/last/{last}:
  *   get:
  *     tags:
+ *       - Transactions
  *       - Gmail
- *     description: Fetch and optionally persist formatted transaction data from Gmail
+ *     description: Get the IDs of the requested number of latest Gmail transactions
  *     security:
  *       - Google:
  *         - https://www.googleapis.com/auth/userinfo.profile
@@ -28,35 +31,186 @@ router.use('/oauthcallback', googleOAuth2Middleware.redirect);
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: User-Email
+ *       - name: X-User-Email
  *         in: header
  *         required: true
  *         type: string
  *       - name: last
- *         in: query
- *         required: false
+ *         in: path
+ *         required: true
  *         type: integer
- *       - name: ids
- *         in: query
- *         required: false
- *         type: string
- *       - name: save
- *         in: query
- *         required: false
- *         type: boolean
  *     responses:
  *       200:
- *         description: Transaction data result
+ *         description: Array of Gmail Message IDs (transaction IDs)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: string
+ *                 example: 1773e8e6b4cff981
  *       400:
- *         description: Request error
+ *         description: Bad request
  *       403:
  *         description: Authorization error
  *       500:
- *         description: Transaction data processing error
+ *         description: Transaction processing error
  *       503:
  *         description: Service error
  */
-router.route('/get').get(googleOAuth2Middleware.protect, gmailTransactionsController.get);
+router.route('/get/ids/last/:last').get(googleOAuth2Middleware.protect, gmailTransactionsController.getLastIds);
+
+/**
+ * @swagger
+ * /transactions/gmail/get/ids/skip_depth/{skip_depth}:
+ *   get:
+ *     tags:
+ *       - Transactions
+ *       - Gmail
+ *     description: Get the IDs of the latest transactions from Gmail, constrainted to the requested number of consecutively skipped entries
+ *     security:
+ *       - Google:
+ *         - https://www.googleapis.com/auth/userinfo.profile
+ *         - https://www.googleapis.com/auth/userinfo.email
+ *         - https://www.googleapis.com/auth/gmail.readonly
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: X-User-Email
+ *         in: header
+ *         required: true
+ *         type: string
+ *       - name: skip_depth
+ *         in: path
+ *         required: true
+ *         type: integer
+ *       - name: skip_saved
+ *         in: query
+ *         required: false
+ *         type: boolean
+ *         default: false
+ *     responses:
+ *       200:
+ *         description: Array of Gmail Message IDs (transaction IDs)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: string
+ *                 example: 1773e8e6b4cff981
+ *       400:
+ *         description: Bad request
+ *       403:
+ *         description: Authorization error
+ *       500:
+ *         description: Transaction processing error
+ *       503:
+ *         description: Service error
+ */
+router.route('/get/ids/skip_depth/:skip_depth').get(googleOAuth2Middleware.protect, gmailTransactionsController.getIdsByDepth);
+
+/**
+ * @swagger
+ * /transactions/gmail/resolve:
+ *   post:
+ *     tags:
+ *       - Transactions
+ *       - Gmail
+ *     description: Resolve Gmail transactions by their respective transaction IDs
+ *     security:
+ *       - Google:
+ *         - https://www.googleapis.com/auth/userinfo.profile
+ *         - https://www.googleapis.com/auth/userinfo.email
+ *         - https://www.googleapis.com/auth/gmail.readonly
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: X-User-Email
+ *         in: header
+ *         required: true
+ *         type: string
+ *     requestBody:
+ *       description: Array of Gmail Message IDs of the messages holding the data for the requested transactions.
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: array
+ *             items:
+ *               type: string
+ *               example: 1773e8e6b4cff981
+ *     responses:
+ *       200:
+ *         description: Array of the data for each requested transaction
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 oneOf:
+ *                   - $ref: '#/components/schemas/cardOperationTransaction'
+ *                   - $ref: '#/components/schemas/standardTransferTransaction'
+ *       400:
+ *         description: Bad request
+ *       403:
+ *         description: Authorization error
+ *       500:
+ *         description: Transaction processing error
+ *       503:
+ *         description: Service error
+ */
+router.route('/resolve').post(googleOAuth2Middleware.protect, gmailTransactionsController.resolve);
+
+/**
+ * @swagger
+ * /transactions/gmail/save:
+ *   post:
+ *     tags:
+ *       - Transactions
+ *       - Gmail
+ *     description: Save the requested transactions to the database
+ *     security:
+ *       - Google:
+ *         - https://www.googleapis.com/auth/userinfo.profile
+ *         - https://www.googleapis.com/auth/userinfo.email
+ *         - https://www.googleapis.com/auth/gmail.readonly
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: X-User-Email
+ *         in: header
+ *         required: true
+ *         type: string
+ *     requestBody:
+ *       description: Array of Gmail Message IDs of the messages holding the data for the requested transactions.
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: array
+ *             items:
+ *               type: string
+ *               example: 1773e8e6b4cff981
+ *     responses:
+ *       201:
+ *         description: Confirmation for the number of successfully added transactions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Added 1 transaction to database
+ *       403:
+ *         description: Authorization error
+ *       500:
+ *         description: Transaction processing error
+ *       503:
+ *         description: Service error
+ */
+router.route('/save').post(googleOAuth2Middleware.protect, gmailTransactionsController.save);
 
 const swaggerComponents: swaggerJSDoc.Components = {
     securitySchemes: {
@@ -77,7 +231,7 @@ const swaggerComponents: swaggerJSDoc.Components = {
                 }
             }
         }
-    }
+    },
 };
 
 export { router, swaggerComponents };

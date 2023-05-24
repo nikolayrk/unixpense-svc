@@ -51,7 +51,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
     
     public async fetchMessageDataAsync(messageId: string) {
         const messageResponse = await this.makeApiCallAsync(async () =>
-            this.gmail.users.messages.get({
+            await this.gmail.users.messages.get({
                 userId: 'me',
                 id: messageId
             }));
@@ -65,7 +65,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
     
     public async fetchAttachmentDataBase64Async(messageData: GmailMessageData) {
         const response = await this.makeApiCallAsync(async () => 
-            this.gmail.users.messages.attachments.get({
+            await this.gmail.users.messages.attachments.get({
                 userId: 'me',
                 messageId: messageData.messageId,
                 id: messageData.attachmentId
@@ -81,7 +81,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
         this.googleOAuth2ClientProvider.logEvent(`Requesting messages...`);
 
         const response = await this.makeApiCallAsync(async () =>
-            this.gmail.users.messages.list({
+            await this.gmail.users.messages.list({
                 userId: 'me',
                 q: this.searchQuery,
                 pageToken: pageToken
@@ -96,8 +96,6 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
 
             return { messages: [], nextPageToken: null };
         }
-    
-        this.googleOAuth2ClientProvider.logEvent(`Received ${messages.length} messages`);
     
         return { messages, nextPageToken };
     }
@@ -122,13 +120,13 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
         } catch(ex) {
             this.googleOAuth2ClientProvider.logWarning(`Gmail API call failed (${(ex as Error).message ?? ex}). Reattempting after ${this.exponentialBackoffDepth ** 2}s...`);
             
-            result = await this.tryExponentialBackoffAsync(ex, () => this.makeApiCallAsync(apiCall));
+            result = await this.tryExponentialBackoffAsync(ex, async () => await this.makeApiCallAsync(apiCall));
         }
 
         return result;
     }
 
-    private async tryExponentialBackoffAsync<T>(ex: unknown, operation: () => T): Promise<T> {
+    private async tryExponentialBackoffAsync<T>(ex: unknown, operation: () => Promise<T>): Promise<T> {
         if (this.exponentialBackoffDepth > this.maxExponentialBackoffDepth) {
             this.exponentialBackoffDepth = 0;
 

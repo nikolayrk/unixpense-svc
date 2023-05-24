@@ -3,12 +3,15 @@ import TransactionType from '../enums/transactionType';
 import StandardTransfer from '../models/standardTransfer';
 
 export class TransactionTypeExtensions {
+    public static Keys() {
+        return Object.keys(TransactionType).filter(k => isNaN(Number(k)));
+    }
     public static ToString(transactionType: TransactionType) {
         return Object.keys(TransactionType)[Object.values(TransactionType).indexOf(transactionType)];
     }
 
     public static ToDataType() {
-        return DataType.ENUM(...Object.keys(TransactionType).filter(k => isNaN(Number(k))));
+        return DataType.ENUM(...this.Keys());
     }
 
     public static IsCardOperation(transactionType: TransactionType) {
@@ -58,13 +61,5 @@ export class TransactionTypeExtensions {
             default:
                 return false;
         }
-    }
-
-    public static MapStandardTransfer(standardTransfer: StandardTransfer) {
-        const mappedStandardTransfer: any = standardTransfer;
-
-        delete Object.assign(mappedStandardTransfer, { recipient_iban: standardTransfer.recipientIban })[standardTransfer.recipientIban];
-
-        return mappedStandardTransfer;
     }
 }

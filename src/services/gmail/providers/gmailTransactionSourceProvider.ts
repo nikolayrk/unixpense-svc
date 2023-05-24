@@ -42,17 +42,13 @@ export default class GmailTransactionSourceProvider implements ITransactionSourc
 
         const gmailMessageData = await this.gmailApiClient.fetchMessageDataAsync(transactionId);
 
-        this.logger.log(`Received Gmail message`, { transactionId: transactionId });
-
         return gmailMessageData;
     }
 
     private async getAttachmentDataAsync(messageData: GmailMessageData) {
-        this.logger.log(`Fetching attachment...`, { transactionId: messageData.messageId });
+        this.logger.log(`Fetching Gmail attachment...`, { transactionId: messageData.messageId });
 
         const attachmentDataBase64 = await this.gmailApiClient.fetchAttachmentDataBase64Async(messageData);
-
-        this.logger.log(`Received attachment`, { transactionId: messageData.messageId });
 
         const attachmentData = this.decodeAttachmentData(attachmentDataBase64);
 

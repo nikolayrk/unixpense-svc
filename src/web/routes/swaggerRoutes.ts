@@ -2,6 +2,7 @@ import express from "express";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from 'swagger-ui-express';
 import { swaggerComponents as gmailTransactionsComponents } from "./gmailTransactionsRoutes";
+import { cardOperationTransaction, standardTransferTransaction } from "../schemas/transaction";
 
 const router = express.Router();
 
@@ -16,6 +17,10 @@ const options = {
         version: '1.0.0',
       },
       components: {
+        schemas: {
+          cardOperationTransaction,
+          standardTransferTransaction
+        },
         ...gmailTransactionsComponents
       }
     },

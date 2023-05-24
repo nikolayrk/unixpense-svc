@@ -55,7 +55,7 @@ const redirect = async (req: Request, res: Response) => {
 
 const protect = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.get('Authorization');
-    const userEmail = req.get('User-Email');
+    const userEmail = req.get('X-User-Email');
 
     if (authHeader === undefined) {
         return res
