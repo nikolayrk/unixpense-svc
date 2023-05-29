@@ -32,7 +32,7 @@ spec:
             - /bin/sh
             - -ec
             - |
-              apt-get -qy update; apt-get -qy -o=Dpkg::Use-Pty=0 install curl && clear
+              apt-get -qy update; apt-get -qy -o=Dpkg::Use-Pty=0 install curl
 
               ACCESS_TOKEN_QUERY="\
                 SELECT access_token
@@ -55,7 +55,7 @@ spec:
                 -H "Authorization: Bearer $ACCESS_TOKEN" \
                 -H "Accept: application/json")
 
-              echo Saving new transaction IDs (if any)...
+              echo Saving new transaction IDs...
 
               RESULT=$(curl -s \
                 -X POST "http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api/transactions/gmail/save" \
