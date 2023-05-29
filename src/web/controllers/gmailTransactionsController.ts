@@ -7,7 +7,7 @@ import ILogger from "../../services/contracts/ILogger";
 import TransactionRepository from "../../database/repositories/transactionRepository";
 import ITransactionProvider from "../../services/contracts/ITransactionProvider";
 
-const getLastIds = async (req: Request, res: Response) => {
+const getLast = async (req: Request, res: Response) => {
     const last = req.params.last;
 
     if (last === "") {
@@ -20,29 +20,7 @@ const getLastIds = async (req: Request, res: Response) => {
         return badRequest(res, "Invalid last amount provided");
     }
 
-    const identifiers = res.locals.googleOAuth2Identifiers as GoogleOAuth2Identifiers;
-
-    try {
-        const transactionIds = await resolveTransactionIdsAsync({
-            identifiers,
-            save: false,
-            last: lastValue
-        });
-        
-        return ok(res, transactionIds);
-    } catch (ex) {
-        const error = ex as Error;
-
-        return internalError(res, error.message ?? ex);
-    }
-};
-
-const getIdsByDepth = async (req: Request, res: Response) => {
-    const skipDepth = req.params.skip_depth;
-
-    if (skipDepth === "") {
-        return badRequest(res, "No skip depth provided");
-    }
+    const skipDepth = req.query.skip_depth;
     
     const skipDepthValue = Number(skipDepth);
 
@@ -53,11 +31,12 @@ const getIdsByDepth = async (req: Request, res: Response) => {
     const skipSaved = req.query.skip_saved === 'true';
 
     const identifiers = res.locals.googleOAuth2Identifiers as GoogleOAuth2Identifiers;
-    
+
     try {
         const transactionIds = await resolveTransactionIdsAsync({
             identifiers,
             save: false,
+            last: lastValue,
             skipDepth: skipDepthValue
         }, skipSaved);
         
@@ -266,4 +245,4 @@ const badRequest = (res: Response, message: string) => jsonResponse(res, 400, { 
 
 const internalError = (res: Response, message: string) => jsonResponse(res, 500, { error: message });
 
-export { getLastIds, getIdsByDepth, resolve, save }
+export { getLast, resolve, save }

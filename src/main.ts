@@ -95,6 +95,9 @@ async function bootstrap() {
         return;
     }
 
+    // Register Gmail dependencies
+    DependencyInjector.Singleton.registerGmailServices();
+
     const app = express();
 
     // Kubernetes Startup, Readiness and Liveness Probes

@@ -1,11 +1,8 @@
 import express from "express";
 import * as googleOAuth2Middleware from '../middleware/googleOAuth2Middleware';
 import * as gmailTransactionsController from "../controllers/gmailTransactionsController";
-import { DependencyInjector } from "../../dependencyInjector";
 import bodyParser from "body-parser";
 import swaggerJSDoc from "swagger-jsdoc";
-
-DependencyInjector.Singleton.registerGmailServices();
 
 const router = express.Router();
 
@@ -17,7 +14,7 @@ router.use('/oauthcallback', googleOAuth2Middleware.redirect);
 
 /**
  * @swagger
- * /transactions/gmail/get/ids/last/{last}:
+ * /transactions/gmail/get/last/{last}:
  *   get:
  *     tags:
  *       - Transactions
@@ -39,55 +36,15 @@ router.use('/oauthcallback', googleOAuth2Middleware.redirect);
  *         in: path
  *         required: true
  *         type: integer
- *     responses:
- *       200:
- *         description: Array of Gmail Message IDs (transaction IDs)
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: string
- *                 example: 1773e8e6b4cff981
- *       400:
- *         description: Bad request
- *       403:
- *         description: Authorization error
- *       500:
- *         description: Transaction processing error
- *       503:
- *         description: Service error
- */
-router.route('/get/ids/last/:last').get(googleOAuth2Middleware.protect, gmailTransactionsController.getLastIds);
-
-/**
- * @swagger
- * /transactions/gmail/get/ids/skip_depth/{skip_depth}:
- *   get:
- *     tags:
- *       - Transactions
- *       - Gmail
- *     description: Get the IDs of the latest transactions from Gmail, constrainted to the requested number of consecutively skipped entries
- *     security:
- *       - Google:
- *         - https://www.googleapis.com/auth/userinfo.profile
- *         - https://www.googleapis.com/auth/userinfo.email
- *         - https://www.googleapis.com/auth/gmail.readonly
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: X-User-Email
- *         in: header
- *         required: true
- *         type: string
  *       - name: skip_depth
- *         in: path
- *         required: true
+ *         in: query
  *         type: integer
+ *         description: Constrain the result to a number of consecutively skipped entries
  *       - name: skip_saved
  *         in: query
  *         required: false
  *         type: boolean
+ *         description: Should persisted (saved) transactions be skipped
  *         default: false
  *     responses:
  *       200:
@@ -108,7 +65,7 @@ router.route('/get/ids/last/:last').get(googleOAuth2Middleware.protect, gmailTra
  *       503:
  *         description: Service error
  */
-router.route('/get/ids/skip_depth/:skip_depth').get(googleOAuth2Middleware.protect, gmailTransactionsController.getIdsByDepth);
+router.route('/get/last/:last').get(googleOAuth2Middleware.protect, gmailTransactionsController.getLast);
 
 /**
  * @swagger
