@@ -32,12 +32,14 @@ spec:
             - /bin/sh
             - -ec
             - |
-              apt-get -qy update; apt-get -qy -o=Dpkg::Use-Pty=0 install curl
+              apt-get -qy update; apt-get -qy -o=Dpkg::Use-Pty=0 install curl && clear
 
               ACCESS_TOKEN_QUERY="\
                 SELECT access_token
                 FROM google_oauth2_tokens
                 WHERE user_email='$GMAIL_ADDRESS'"
+
+              echo Resolving OAuth2 Access Token...
 
               ACCESS_TOKEN=$(mariadb unixpense \
                 -h mariadb-service.unixpense.svc.cluster.local \
@@ -45,11 +47,15 @@ spec:
                 -p$MARIADB_PASSWORD \
                 -se "$ACCESS_TOKEN_QUERY")
 
+              echo Fetching new transaction IDs...
+
               TRANSACTION_IDS=$(curl -s \
-                -X GET "http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api/transactions/gmail/get/ids/skip_depth/100?skip_saved=true" \
+                -X GET "http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api/transactions/gmail/get/last/100?skip_depth=100&skip_saved=true" \
                 -H "X-User-Email: $GMAIL_ADDRESS" \
                 -H "Authorization: Bearer $ACCESS_TOKEN" \
                 -H "Accept: application/json")
+
+              echo Saving new transaction IDs (if any)...
 
               RESULT=$(curl -s \
                 -X POST "http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api/transactions/gmail/save" \
@@ -58,3 +64,5 @@ spec:
                 -H "Accept: application/json" \
                 -H "Content-Type: application/json" \
                 -d $TRANSACTION_IDS)
+
+              echo Response: $RESULT
