@@ -67,7 +67,9 @@ export default abstract class AbstractTransactionProvider implements ITransactio
     }
 
     private async * generateTransactionIdsFromQueryAsync(transactionIdsQuery: string) {
-        const transactionIds = transactionIdsQuery.split(',');
+        const transactionIds = transactionIdsQuery
+            .split(',')
+            .filter(id => id.trim() !== '');
 
         for (const i in transactionIds) {
             const transactionId = transactionIds[i];

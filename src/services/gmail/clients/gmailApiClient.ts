@@ -16,7 +16,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
     private exponentialBackoffDepth = 0;
 
     private readonly searchQuery: string = 'from:pb@unicreditgroup.bg subject: "Dvizhenie po smetka"';
-    private readonly maxExponentialBackoffDepth: number = 7;
+    private readonly maxExponentialBackoffDepth: number = 4;
 
     public constructor() {
         this.credentials = null!;
