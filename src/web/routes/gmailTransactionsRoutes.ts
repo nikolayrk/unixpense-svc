@@ -19,7 +19,7 @@ router.use('/oauthcallback', googleOAuth2Middleware.redirect);
  *     tags:
  *       - Transactions
  *       - Gmail
- *     description: Get the IDs of the requested number of latest Gmail transactions
+ *     description: "Get the IDs of the requested number of latest Gmail transactions.\n\n*[Optional]* Constrain the result to a number of consecutively skipped entries\n\n*[Optional]* Skip persisted entries"
  *     security:
  *       - Google:
  *         - https://www.googleapis.com/auth/userinfo.profile
@@ -39,12 +39,10 @@ router.use('/oauthcallback', googleOAuth2Middleware.redirect);
  *       - name: skip_depth
  *         in: query
  *         type: integer
- *         description: Constrain the result to a number of consecutively skipped entries
  *       - name: skip_saved
  *         in: query
  *         required: false
  *         type: boolean
- *         description: Should persisted (saved) transactions be skipped
  *         default: false
  *     responses:
  *       200:
@@ -88,7 +86,7 @@ router.route('/get/last/:last').get(googleOAuth2Middleware.protect, gmailTransac
  *         required: true
  *         type: string
  *     requestBody:
- *       description: Array of Gmail Message IDs of the messages holding the data for the requested transactions.
+ *       description: Array of transaction IDs corresponding to the Gmail message IDs holding the data for the requested transactions.
  *       required: true
  *       content:
  *         application/json:
@@ -99,7 +97,7 @@ router.route('/get/last/:last').get(googleOAuth2Middleware.protect, gmailTransac
  *               example: 1773e8e6b4cff981
  *     responses:
  *       200:
- *         description: Array of the data for each requested transaction
+ *         description: Array of Gmail transaction data objects
  *         content:
  *           application/json:
  *             schema:
@@ -140,7 +138,7 @@ router.route('/resolve').post(googleOAuth2Middleware.protect, gmailTransactionsC
  *         required: true
  *         type: string
  *     requestBody:
- *       description: Array of Gmail Message IDs of the messages holding the data for the requested transactions.
+ *       description: Array of transaction IDs corresponding to the Gmail message IDs holding the data for the requested transactions.
  *       required: true
  *       content:
  *         application/json:
