@@ -74,6 +74,7 @@ spec:
         - --provider-display-name=Google
         - --skip-provider-button=true
         - --oidc-issuer-url=https://accounts.google.com/o/oauth2/v2/auth?access_type=offline
+        - --scope=https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.readonly
         - --redeem-url=http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api/transactions/gmail/oauthcallback
         - --redirect-url=https://$UNIXPENSE_HOST$UNIXPENSE_HOST_PREFIX/oauth2/callback
         - --proxy-prefix=$UNIXPENSE_HOST_PREFIX/oauth2
