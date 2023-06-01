@@ -81,7 +81,7 @@ const save = async (req: Request, res: Response) => {
             ids: ids.join(',')
         });
         
-        return ResponseExtensions.added(res, created);
+        return ResponseExtensions.added(res, created, 'transaction');
     } catch (ex) {
         const error = ex as Error;
 
