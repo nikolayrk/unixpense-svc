@@ -6,18 +6,19 @@ import GoogleOAuth2Identifiers from "../../services/gmail/models/googleOAuth2Ide
 import ILogger from "../../services/contracts/ILogger";
 import TransactionRepository from "../../database/repositories/transactionRepository";
 import ITransactionProvider from "../../services/contracts/ITransactionProvider";
+import { ResponseExtensions } from "../../shared/extensions/responseExtensions";
 
 const getLast = async (req: Request, res: Response) => {
     const last = req.params.last;
 
     if (last === "") {
-        return badRequest(res, "No last amount provided");
+        return ResponseExtensions.badRequest(res, "No last amount provided");
     }
     
     const lastValue = Number(last);
 
     if (Number.isNaN(last) || lastValue < 1) {
-        return badRequest(res, "Invalid last amount provided");
+        return ResponseExtensions.badRequest(res, "Invalid last amount provided");
     }
 
     const skipDepth = req.query.skip_depth;
@@ -25,7 +26,7 @@ const getLast = async (req: Request, res: Response) => {
     const skipDepthValue = Number(skipDepth);
 
     if (Number.isNaN(skipDepth) || skipDepthValue < 1) {
-        return badRequest(res, "Invalid skip depth provided");
+        return ResponseExtensions.badRequest(res, "Invalid skip depth provided");
     }
 
     const skipSaved = req.query.skip_saved === 'true';
@@ -40,11 +41,11 @@ const getLast = async (req: Request, res: Response) => {
             skipDepth: skipDepthValue
         }, skipSaved);
         
-        return ok(res, transactionIds);
+        return ResponseExtensions.ok(res, transactionIds);
     } catch (ex) {
         const error = ex as Error;
 
-        return internalError(res, error.message ?? ex);
+        return ResponseExtensions.internalError(res, error.message ?? ex);
     }
 };
 
@@ -60,11 +61,11 @@ const resolve = async (req: Request, res: Response) => {
             ids: ids.join(',')
         });
         
-        return ok(res, transactions);
+        return ResponseExtensions.ok(res, transactions);
     } catch (ex) {
         const error = ex as Error;
 
-        return internalError(res, error.message ?? ex);
+        return ResponseExtensions.internalError(res, error.message ?? ex);
     }
 };
 
@@ -80,11 +81,11 @@ const save = async (req: Request, res: Response) => {
             ids: ids.join(',')
         });
         
-        return added(res, created);
+        return ResponseExtensions.added(res, created);
     } catch (ex) {
         const error = ex as Error;
 
-        return internalError(res, error.message ?? ex);
+        return ResponseExtensions.internalError(res, error.message ?? ex);
     }
 };
 
@@ -229,20 +230,5 @@ const logError = (logger: ILogger, error: Error, options: Options) => {
 
     logger.error(error, { ...labels });
 }
-
-const jsonResponse = (res: Response, status: number, response: object | string) => res
-    .status(status)
-    .json(typeof response === 'object'
-        ? response
-        : { response })
-    .end();
-
-const ok = (res: Response, response: object | string) => jsonResponse(res, 200, response);
-
-const added = (res: Response, added: number) => jsonResponse(res, 201, { message: `Added ${added} transaction${added == 1 ? '' : 's'} to database`});
-
-const badRequest = (res: Response, message: string) => jsonResponse(res, 400, { error: message });
-
-const internalError = (res: Response, message: string) => jsonResponse(res, 500, { error: message });
 
 export { getLast, resolve, save }
