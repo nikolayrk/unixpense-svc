@@ -44,7 +44,7 @@ const redirect = async (req: Request, res: Response) => {
     } catch(ex) {
         const error = ex as Error;
         
-        googleOAuth2ClientProvider.logError(error, { ...req.body });
+        googleOAuth2ClientProvider.logErrorAsync(undefined, error, { ...req.body });
 
         return res
             .status(503)

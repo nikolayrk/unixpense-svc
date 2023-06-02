@@ -67,7 +67,7 @@ export default class GoogleOAuth2TokensRepository {
         }
 
         const identifiers = this.googleOAuth2IdentifiersFactory.create(
-            null,
+            undefined,
             entity.user_email,
             entity.access_token,
             entity.refresh_token);

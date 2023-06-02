@@ -157,13 +157,14 @@ const generateTransactionsAsync = async <T>(
         transactionProvider: ITransactionProvider,
         transactionId: string) => Promise<T | null>) => {
     const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
-    const gmailTransactionProvider = await DependencyInjector.Singleton
-        .generateServiceAsync<GmailTransactionProvider>(injectables.GmailTransactionProviderGenerator, options.identifiers);
     
     try {
         const results: T[] = [];
         let skippedCount = 0;
         let consecutiveSkippedCount = 0;
+        
+        const gmailTransactionProvider = await DependencyInjector.Singleton
+            .generateServiceAsync<GmailTransactionProvider>(injectables.GmailTransactionProviderGenerator, options.identifiers);
 
         for await (const transactionIdOrNull of gmailTransactionProvider.generateAsync(options.ids)) {
             if (options.last !== undefined && results.length + skippedCount >= options.last) {

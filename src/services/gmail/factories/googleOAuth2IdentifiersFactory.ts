@@ -3,12 +3,12 @@ import GoogleOAuth2Identifiers from "../models/googleOAuth2Identifiers";
 
 @injectable()
 export default class GoogleOAuth2IdentifiersFactory {
-    public create(redirectUri: string | null = null, userEmail: string | null = null, accessToken: string | null = null, refreshToken: string | null = null) {
+    public create(redirectUri?: string, userEmail?: string, accessToken?: string, refreshToken?: string) {
         return {
-            redirectUri: redirectUri ?? null,
-            userEmail: userEmail ?? null,
-            accessToken: accessToken ?? null,
-            refreshToken: refreshToken ?? null,
+            redirectUri: redirectUri,
+            userEmail: userEmail,
+            accessToken: accessToken,
+            refreshToken: refreshToken,
         } as GoogleOAuth2Identifiers
     }
 }
