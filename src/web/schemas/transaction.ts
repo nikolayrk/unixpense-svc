@@ -1,6 +1,6 @@
 import { Schema } from "swagger-jsdoc"
-import { EntryTypeExtensions } from "../../shared/extensions/entryTypeExtensions"
-import { TransactionTypeExtensions } from "../../shared/extensions/transactionTypeExtensions"
+import { EntryTypeExtensions } from "../../core/extensions/entryTypeExtensions"
+import { TransactionTypeExtensions } from "../../core/extensions/transactionTypeExtensions"
 
 const createTransactionSchema = (type: Schema, paymentDetails: Schema): Schema => {
     return {

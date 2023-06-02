@@ -1,20 +1,12 @@
 import express from "express";
-import * as googleOAuth2Middleware from '../middleware/googleOAuth2Middleware';
 import * as gmailTransactionsController from "../controllers/gmailTransactionsController";
-import bodyParser from "body-parser";
 import swaggerJSDoc from "swagger-jsdoc";
 
 const router = express.Router();
 
-router.use(bodyParser.urlencoded({ extended: true }));
-
-router.use(express.json());
-
-router.use('/oauthcallback', googleOAuth2Middleware.redirect);
-
 /**
  * @swagger
- * /transactions/gmail/get/last/{last}:
+ * /transactions/gmail/ids/last/{last}:
  *   get:
  *     tags:
  *       - Transactions
@@ -63,7 +55,7 @@ router.use('/oauthcallback', googleOAuth2Middleware.redirect);
  *       503:
  *         description: Service error
  */
-router.route('/get/last/:last').get(googleOAuth2Middleware.protect, gmailTransactionsController.getLast);
+router.route('/ids/last/:last').get(gmailTransactionsController.getLast);
 
 /**
  * @swagger
@@ -86,7 +78,7 @@ router.route('/get/last/:last').get(googleOAuth2Middleware.protect, gmailTransac
  *         required: true
  *         type: string
  *     requestBody:
- *       description: Array of transaction IDs corresponding to the Gmail message IDs holding the data for the requested transactions.
+ *       description: Array of transaction IDs to resolve.
  *       required: true
  *       content:
  *         application/json:
@@ -115,7 +107,7 @@ router.route('/get/last/:last').get(googleOAuth2Middleware.protect, gmailTransac
  *       503:
  *         description: Service error
  */
-router.route('/resolve').post(googleOAuth2Middleware.protect, gmailTransactionsController.resolve);
+router.route('/resolve').post(gmailTransactionsController.resolve);
 
 /**
  * @swagger
@@ -138,7 +130,7 @@ router.route('/resolve').post(googleOAuth2Middleware.protect, gmailTransactionsC
  *         required: true
  *         type: string
  *     requestBody:
- *       description: Array of transaction IDs corresponding to the Gmail message IDs holding the data for the requested transactions.
+ *       description: Array of transaction IDs to save.
  *       required: true
  *       content:
  *         application/json:
@@ -165,7 +157,7 @@ router.route('/resolve').post(googleOAuth2Middleware.protect, gmailTransactionsC
  *       503:
  *         description: Service error
  */
-router.route('/save').post(googleOAuth2Middleware.protect, gmailTransactionsController.save);
+router.route('/save').post(gmailTransactionsController.save);
 
 const swaggerComponents: swaggerJSDoc.Components = {
     securitySchemes: {
@@ -177,7 +169,7 @@ const swaggerComponents: swaggerJSDoc.Components = {
                     tokenUrl: `${process.env.NODE_ENV === 'production'
                             ? `https://${process.env.UNIXPENSE_HOST}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
                             : `http://${process.env.HOSTNAME ?? 'localhost'}:${process.env.PORT ?? 8000}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
-                        }/api/transactions/gmail/oauthcallback`,
+                        }/api/oauthcallback`,
                     scopes: {
                         'https://www.googleapis.com/auth/userinfo.profile': 'See your personal info, including any personal info you\'ve made publicly available',
                         'https://www.googleapis.com/auth/userinfo.email': 'See your primary Google Account email address',

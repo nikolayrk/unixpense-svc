@@ -1,14 +1,8 @@
-import bodyParser from "body-parser";
 import express from "express";
-import * as googleOAuth2Middleware from '../middleware/googleOAuth2Middleware';
 import * as groupsController from '../controllers/groupsController';
 import { router as groupRulesRouter } from './groupRulesRoutes';
 
 const router = express.Router();
-
-router.use(bodyParser.urlencoded({ extended: true }));
-
-router.use(express.json());
 
 /**
  * @swagger
@@ -58,7 +52,7 @@ router.use(express.json());
  *       503:
  *         description: Service error
  */
-router.route('/').post(googleOAuth2Middleware.protect, groupsController.new);
+router.route('/').post(groupsController.new);
 
 /**
  * @swagger
@@ -99,7 +93,7 @@ router.route('/').post(googleOAuth2Middleware.protect, groupsController.new);
  *       503:
  *         description: Service error
  */
-router.route('/:group').get(googleOAuth2Middleware.protect, groupsController.get);
+router.route('/:group').get(groupsController.get);
 
 /**
  * @swagger
@@ -138,7 +132,7 @@ router.route('/:group').get(googleOAuth2Middleware.protect, groupsController.get
  *       503:
  *         description: Service error
  */
-router.route('/all').get(googleOAuth2Middleware.protect, groupsController.getAll);
+router.route('/all').get(groupsController.getAll);
 
 /**
  * @swagger
@@ -173,7 +167,7 @@ router.route('/all').get(googleOAuth2Middleware.protect, groupsController.getAll
  *       503:
  *         description: Service error
  */
-router.route('/:group').delete(googleOAuth2Middleware.protect, groupsController.delete);
+router.route('/:group').delete(groupsController.delete);
 
 router.use('/:group/rules', groupRulesRouter);
 

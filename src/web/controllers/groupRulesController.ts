@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ResponseExtensions } from "../../shared/extensions/responseExtensions";
+import { ResponseExtensions } from "../../core/extensions/responseExtensions";
 
 const newRule = async (req: Request, res: Response) => {
     try {

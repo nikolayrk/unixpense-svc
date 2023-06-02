@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { DependencyInjector } from "../../dependencyInjector";
-import GoogleOAuth2ClientProvider from "../../services/gmail/providers/googleOAuth2ClientProvider";
-import { injectables } from "../../shared/types/injectables";
-import GoogleOAuth2IdentifiersFactory from "../../services/gmail/factories/googleOAuth2IdentifiersFactory";
+import GoogleOAuth2ClientProvider from "../../googleOAuth2/providers/googleOAuth2ClientProvider";
+import { injectables } from "../../core/types/injectables";
+import GoogleOAuth2IdentifiersFactory from "../../googleOAuth2/factories/googleOAuth2IdentifiersFactory";
 
 const redirect = async (req: Request, res: Response) => {
     const { client_id, client_secret, redirect_uri, code } = req.body;

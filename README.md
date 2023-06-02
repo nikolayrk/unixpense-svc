@@ -61,6 +61,23 @@ docker build -t nikolayrk/unixpense-svc:latest --build-arg=PORT=8000 # Build a D
 docker run nikolayrk/unixpense-svc:latest -p 8000:8000 --env-file .env # Run the image in a container
 ```
 
+## Creating Google Credentials
+
+Google OAuth2 is used both for [Authentication](#authentication), as well as Authorization for `.../gmail` routes. In order to allow the app access to read data from Gmail, you need to perform the following steps:
+1. [Create a Google Cloud Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
+2. [Create Google OAuth Credentials](https://developers.google.com/workspace/guides/create-credentials#oauth-client-id)
+    - _Credential type_: **OAuth client ID**
+    - _Application type_: **Web application**
+    - _Authorised JavaScript origins_: **http://localhost:8000** _(also applicable with a public host)_
+    - _Authorised redirect URIs_: **http://localhost:8000/api/oauthcallback** _(also applicable with a public host)_
+3. [Enable the Gmail API](https://cloud.google.com/endpoints/docs/openapi/enable-api)
+
+## Swagger
+
+> **_NOTE:_**  In order to use Swagger, you have to add http://localhost:8000/swagger/oauth2-redirect.html as an additional redirect URI to your Google OAuth Credentials. The same route can be used with a public host, as well.
+
+[Swagger UI](https://swagger.io/tools/swagger-ui/) is accessible through `http://localhost:8000/swagger/`. The specification is generated from source.
+
 # REST API
 
 ## Get the IDs of the requested number of latest Gmail transactions
@@ -68,90 +85,63 @@ docker run nikolayrk/unixpense-svc:latest -p 8000:8000 --env-file .env # Run the
 *[Optional]* Constrain the result to a number of consecutively skipped entries
 
 *[Optional]* Skip persisted entries
-### Request
 
-`GET /api/transactions/gmail/get/last/:last`
-
-    curl -X GET 'http://localhost:8000/api/transactions/gmail/get/last/100?[skip_depth=100&skip_saved=true]' \
-         -H 'X-User-Email: <Gmail address>' \
-         -H 'Authorization: Bearer <Google OAuth2 access token>' \
-         -H 'Accept: application/json'
-
-### Response
-
-    HTTP/1.1 200 OK
-    content-length: ...
-    content-type: application/json; charset=utf-8 
-    date: Mon,29 May 2023 21:24:20 GMT 
-    etag: ...
-    strict-transport-security: max-age=15724800; includeSubDomains 
-    x-powered-by: Express
-
-    [...] # Array of Gmail Message IDs (transaction IDs)
+    GET /api/transactions/gmail/get/last/{last}?skip_depth={depth}&skip_saved={bool}
+    <-  Array of Gmail Message IDs (transaction IDs)
 
 ## Resolve Gmail transactions by their respective transaction IDs
 
-### Request
-
-`POST /api/transactions/gmail/resolve`
-
-    curl -X POST 'http://localhost:8000/api/transactions/gmail/resolve' \
-         -H 'X-User-Email: <Gmail address>' \
-         -H 'Authorization: Bearer <Google OAuth2 access token>' \
-         -H 'Accept: application/json'
-         -H 'Content-Type: application/json'
-         -d [...] # Array of transaction IDs corresponding to the Gmail message IDs holding the data for the requested transactions
-
-### Response
-
-    HTTP/1.1 200 OK
-    content-length: ...
-    content-type: application/json; charset=utf-8 
-    date: Mon,29 May 2023 21:24:20 GMT 
-    etag: ...
-    strict-transport-security: max-age=15724800; includeSubDomains 
-    x-powered-by: Express
-
-    [...] # Array of Gmail transaction data objects
+    POST /api/transactions/gmail/resolve
+    ->   Array of transaction IDs to resolve
+    <-   Array of Gmail transaction data objects
 
 ## Save the requested transactions to the database
 
-### Request
+    POST /api/transactions/gmail/save
+    <-   Array of transaction IDs to save
+    ->   { "message": "Added ... transaction(s) to database" }
 
-`POST /api/transactions/gmail/save`
+## Create a new Transaction Group
 
-    curl -X POST 'http://localhost:8000/api/transactions/gmail/save' \
-         -H 'X-User-Email: <Gmail address>' \
-         -H 'Authorization: Bearer <Google OAuth2 access token>' \
-         -H 'Accept: application/json'
-         -H 'Content-Type: application/json'
-         -d [...] # Array of transaction IDs corresponding to the Gmail message IDs holding the data for the requested transactions.
+    POST /api/groups
+    <-   Group configuration object
+    ->   { "message": "Added 1 group to database" }
 
-### Response
+## Get a Transaction Group and its Rules
 
-    HTTP/1.1 201 OK
-    content-length: ...
-    content-type: application/json; charset=utf-8 
-    date: Mon,29 May 2023 21:24:20 GMT 
-    etag: ...
-    strict-transport-security: max-age=15724800; includeSubDomains 
-    x-powered-by: Express
+    GET /groups/{group}
+    ->  Group object
 
-    { "message": "Added ... transaction(s) to database" }
+## Delete a Transaction Group
 
-## Other Responses
+    DELETE /groups/{group}
+    ->  Confirmation for the successfully deleted Group
 
-### 403
+## Get all Transaction Groups and their Rules
 
-    Authorization error
+    GET /groups/all
+    ->  Array of Group object
 
-### 500
-    
-    Transaction processing error
+## Create a new Transaction Group Rule
 
-### 503
+    POST /api/groups/{group}/rules
+    <-   Rule configuration object
+    ->   { "message": "Added 1 group rule to database" }
 
-    Service error
+## Get a Transaction Group Rule
+
+    GET /groups/{group}/rules/{rule_id}
+    ->  Group Rule object
+
+## Delete a Transaction Group Rule
+
+    DELETE /groups/{group}/rules/{rule_id}
+    ->  Confirmation for the successfully deleted Rule
+
+## Get all Transaction Group Rules for a Group
+
+    GET /groups/{group}/rules/all
+    ->  Group object
 
 # Service
 
@@ -178,14 +168,6 @@ The Actions workflow consists of three jobs, the high-level operations of which 
 2. Create Kubernetes Secrets for any sensitive app data
 3. Create the necessary Kubernetes components for the app's deployment, persistence and networking
 
-## Creating Google Credentials
-
-In order to allow the app access to read data from Gmail, you need to perform the following steps:
-1. [Create a Google Cloud Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
-2. [Create Google OAuth Credentials](https://developers.google.com/workspace/guides/create-credentials#oauth-client-id)
-    - _Credential type_: **OAuth client ID**
-    - _Application type_: **Web application**
-
 Once done, take note of the **Client ID** and **Client Secret**.
 
 ## Authentication
@@ -193,12 +175,6 @@ Once done, take note of the **Client ID** and **Client Secret**.
 Authentication is handled by [OAuth2 Proxy](https://github.com/oauth2-proxy/oauth2-proxy) using Google as the IdP and [Redis](https://redis.io/) for session storage.
 
 > **_NOTE:_**  In order to use OAuth2 Authentication, you have to add https://_[UNIXPENSE_HOST]_/_[UNIXPENSE_HOST_PREFIX]_/oauth2/callback as an additional redirect URI to your Google OAuth Credentials.
-
-## Swagger
-
-> **_NOTE:_**  In order to use Swagger, you have to add http://localhost:8000/swagger/oauth2-redirect.html as an additional redirect URI to your Google OAuth Credentials. The same route can be used with a public host, as well.
-
-[Swagger UI](https://swagger.io/tools/swagger-ui/) is accessible through `http://localhost:8000/swagger/`. The specification is generated from source.
 
 ## Persistence
 

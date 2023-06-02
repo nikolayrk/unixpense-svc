@@ -50,7 +50,7 @@ spec:
               echo Fetching new transaction IDs...
 
               TRANSACTION_IDS=$(curl -s \
-                -X GET "http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api/transactions/gmail/get/last/100?skip_depth=100&skip_saved=true" \
+                -X GET "http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api/transactions/gmail/ids/last/100?skip_depth=99&skip_saved=true" \
                 -H "X-User-Email: $GMAIL_ADDRESS" \
                 -H "Authorization: Bearer $ACCESS_TOKEN" \
                 -H "Accept: application/json")

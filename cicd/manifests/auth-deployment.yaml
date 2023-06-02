@@ -67,6 +67,7 @@ spec:
         args:
         - --authenticated-emails-file=/etc/oauth2-proxy/authenticated-emails
         - --skip-jwt-bearer-tokens=true
+        - --skip-auth-route=$UNIXPENSE_HOST_PREFIX/api/oauthcallback
         - --upstream=file:///dev/null
         - --http-address=0.0.0.0:4180
         - --cookie-secure=false
@@ -77,7 +78,7 @@ spec:
         - --skip-provider-button=true
         - --oidc-issuer-url=https://accounts.google.com/o/oauth2/v2/auth?access_type=offline
         - --scope=https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.readonly
-        - --redeem-url=http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api/transactions/gmail/oauthcallback
+        - --redeem-url=http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api/oauthcallback
         - --redirect-url=https://$UNIXPENSE_HOST$UNIXPENSE_HOST_PREFIX/oauth2/callback
         - --proxy-prefix=$UNIXPENSE_HOST_PREFIX/oauth2
         - --session-store-type=redis

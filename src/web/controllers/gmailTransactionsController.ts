@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import GmailTransactionProvider from "../../services/gmail/providers/gmailTransactionProvider";
-import { injectables } from "../../shared/types/injectables";
+import GmailTransactionProvider from "../../gmail/providers/gmailTransactionProvider";
+import { injectables } from "../../core/types/injectables";
 import { DependencyInjector } from "../../dependencyInjector";
-import GoogleOAuth2Identifiers from "../../services/gmail/models/googleOAuth2Identifiers";
-import ILogger from "../../services/contracts/ILogger";
-import TransactionRepository from "../../database/repositories/transactionRepository";
-import ITransactionProvider from "../../services/contracts/ITransactionProvider";
-import { ResponseExtensions } from "../../shared/extensions/responseExtensions";
+import GoogleOAuth2Identifiers from "../../googleOAuth2/models/googleOAuth2Identifiers";
+import ILogger from "../../core/contracts/ILogger";
+import TransactionRepository from "../../core/repositories/transactionRepository";
+import ITransactionProvider from "../../core/contracts/ITransactionProvider";
+import { ResponseExtensions } from "../../core/extensions/responseExtensions";
 
 const getLast = async (req: Request, res: Response) => {
     const last = req.params.last;

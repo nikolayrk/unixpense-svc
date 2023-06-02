@@ -3,13 +3,15 @@ dotenv.config();
 import "reflect-metadata"
 import express from 'express';
 import { DependencyInjector } from './dependencyInjector';
-import ILogger from './services/contracts/ILogger';
-import { injectables } from './shared/types/injectables';
+import ILogger from './core/contracts/ILogger';
+import { injectables } from './core/types/injectables';
+import * as googleOAuth2Middleware from './web/middleware/googleOAuth2Middleware';
 import { router as gmailTransactionsRouter } from './web/routes/gmailTransactionsRoutes';
 import { router as swaggerRouter } from './web/routes/swaggerRoutes';
 import { router as kubernetesProbesRouter } from './web/routes/kubernetesProbesRoutes';
 import { router as groupsRouter } from './web/routes/groupsRoutes';
 import { Sequelize } from 'sequelize-typescript';
+import bodyParser from 'body-parser';
 
 async function bootstrap() {
     const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
@@ -101,17 +103,24 @@ async function bootstrap() {
 
     const app = express();
 
+    app.use(bodyParser.urlencoded({ extended: true }));
+    
+    app.use(express.json());
+
     // Kubernetes Startup, Readiness and Liveness Probes
     app.use(kubernetesProbesRouter);
 
-    // Swagger
-    app.use('/swagger', swaggerRouter);
+    // Google OAuth2 Callback Route. Used for authz of all ../gmail routes, as well as for authn via oauth2-proxy
+    app.use('/api/oauthcallback', googleOAuth2Middleware.redirect);
 
     // Gmail Transactions Routes
-    app.use('/api/transactions/gmail', gmailTransactionsRouter);
+    app.use('/api/transactions/gmail', googleOAuth2Middleware.protect, gmailTransactionsRouter);
 
     // Transaction Groups Routes
     app.use('/api/groups', groupsRouter);
+
+    // Swagger
+    app.use('/swagger', swaggerRouter);
 
     app.listen(process.env.PORT ?? 8000, () => {
         logger.log(`Server is running`, {

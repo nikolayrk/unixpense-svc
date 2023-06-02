@@ -1,13 +1,7 @@
-import bodyParser from "body-parser";
 import express from "express";
-import * as googleOAuth2Middleware from '../middleware/googleOAuth2Middleware';
 import * as groupRulesController from '../controllers/groupRulesController';
 
 const router = express.Router();
-
-router.use(bodyParser.urlencoded({ extended: true }));
-
-router.use(express.json());
 
 /**
  * @swagger
@@ -54,7 +48,7 @@ router.use(express.json());
  *       503:
  *         description: Service error
  */
-router.route('/').post(googleOAuth2Middleware.protect, groupRulesController.new);
+router.route('/').post(groupRulesController.new);
 
 /**
  * @swagger
@@ -86,7 +80,7 @@ router.route('/').post(googleOAuth2Middleware.protect, groupRulesController.new)
  *         type: integer
  *     responses:
  *       200:
- *         description: Group object
+ *         description: Group Rule object
  *         content:
  *           application/json:
  *             schema:
@@ -100,7 +94,7 @@ router.route('/').post(googleOAuth2Middleware.protect, groupRulesController.new)
  *       503:
  *         description: Service error
  */
-router.route('/:id').get(googleOAuth2Middleware.protect, groupRulesController.get);
+router.route('/:id').get(groupRulesController.get);
 
 /**
  * @swagger
@@ -109,7 +103,7 @@ router.route('/:id').get(googleOAuth2Middleware.protect, groupRulesController.ge
  *     tags:
  *       - Groups
  *       - Rules
- *     description: Get a Transaction Group Rule.
+ *     description: Get all Transaction Group Rules for a Group.
  *     security:
  *       - Google:
  *         - https://www.googleapis.com/auth/userinfo.profile
@@ -144,7 +138,7 @@ router.route('/:id').get(googleOAuth2Middleware.protect, groupRulesController.ge
  *       503:
  *         description: Service error
  */
-router.route('/all').get(googleOAuth2Middleware.protect, groupRulesController.getAll);
+router.route('/all').get(groupRulesController.getAll);
 
 /**
  * @swagger
@@ -184,6 +178,6 @@ router.route('/all').get(googleOAuth2Middleware.protect, groupRulesController.ge
  *       503:
  *         description: Service error
  */
-router.route('/:id').delete(googleOAuth2Middleware.protect, groupRulesController.delete);
+router.route('/:id').delete(groupRulesController.delete);
 
 export { router };

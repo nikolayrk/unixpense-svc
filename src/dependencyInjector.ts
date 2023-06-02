@@ -1,7 +1,7 @@
 import { Container, interfaces } from 'inversify';
-import GmailCardOperationStrategy from './services/gmail/strategies/gmailCardOperationStrategy';
-import GmailTransactionProvider from './services/gmail/providers/gmailTransactionProvider';
-import TransactionRepository from './database/repositories/transactionRepository';
+import GmailCardOperationStrategy from './gmail/strategies/gmailCardOperationStrategy';
+import GmailTransactionProvider from './gmail/providers/gmailTransactionProvider';
+import TransactionRepository from './core/repositories/transactionRepository';
 import {
     ICardOperationStrategy,
     ICrossBorderTransferFeeStrategy,
@@ -9,30 +9,30 @@ import {
     IDeskWithdrawalStrategy,
     IStandardFeeStrategy,
     IStandardTransferStrategy
-} from "./shared/types/paymentDetailsStrategies";
-import { injectables } from './shared/types/injectables';
-import TransactionFactory from './services/factories/transactionFactory';
-import GmailStandardTransferStrategy from './services/gmail/strategies/gmailStandardTransferStrategy';
-import GmailStandardFeeStrategy from './services/gmail/strategies/gmailStandardFeeStrategy';
-import GmailDeskWithdrawalStrategy from './services/gmail/strategies/gmailDeskWIthdrawalStrategy';
-import GmailCrossBorderTransferStrategy from './services/gmail/strategies/gmailCrossBorderTransferStrategy';
-import ITransactionDataProvider from './services/contracts/ITransactionDataProvider';
-import GmailTransactionDataProvider from './services/gmail/providers/gmailTransactionDataProvider';
-import PaymentDetailsFactory from './services/factories/paymentDetailsFactory';
-import PaymentDetailsContext from './services/contexts/paymentDetailsContext';
-import ITransactionSourceProvider from './services/contracts/ITransactionSourceProvider';
-import GmailTransactionSourceProvider from './services/gmail/providers/gmailTransactionSourceProvider';
-import ILogger from './services/contracts/ILogger';
-import WinstonLokiLogger from './services/loggers/winstonLokiLogger';
-import GmailCrossBorderTransferFeeStrategy from './services/gmail/strategies/gmailCrossBorderTransferFeeStrategy';
-import GoogleOAuth2Identifiers from './services/gmail/models/googleOAuth2Identifiers';
-import IUsesGoogleOAuth2 from './services/gmail/contracts/IUsesGoogleOAuth2';
-import GoogleOAuth2TokensRepository from './database/gmail/repositories/googleOAuth2TokensRepository';
-import GoogleOAuth2ClientProvider from './services/gmail/providers/googleOAuth2ClientProvider';
-import GmailApiClient from './services/gmail/clients/gmailApiClient';
-import GoogleOAuth2IdentifiersFactory from './services/gmail/factories/googleOAuth2IdentifiersFactory';
-import ServiceContexts from './shared/enums/serviceContexts';
-import ITransactionProvider from './services/contracts/ITransactionProvider';
+} from "./core/types/paymentDetailsStrategies";
+import { injectables } from './core/types/injectables';
+import TransactionFactory from './core/factories/transactionFactory';
+import GmailStandardTransferStrategy from './gmail/strategies/gmailStandardTransferStrategy';
+import GmailStandardFeeStrategy from './gmail/strategies/gmailStandardFeeStrategy';
+import GmailDeskWithdrawalStrategy from './gmail/strategies/gmailDeskWIthdrawalStrategy';
+import GmailCrossBorderTransferStrategy from './gmail/strategies/gmailCrossBorderTransferStrategy';
+import ITransactionDataProvider from './core/contracts/ITransactionDataProvider';
+import GmailTransactionDataProvider from './gmail/providers/gmailTransactionDataProvider';
+import PaymentDetailsFactory from './core/factories/paymentDetailsFactory';
+import PaymentDetailsContext from './core/contexts/paymentDetailsContext';
+import ITransactionSourceProvider from './core/contracts/ITransactionSourceProvider';
+import GmailTransactionSourceProvider from './gmail/providers/gmailTransactionSourceProvider';
+import ILogger from './core/contracts/ILogger';
+import WinstonLokiLogger from './core/loggers/winstonLokiLogger';
+import GmailCrossBorderTransferFeeStrategy from './gmail/strategies/gmailCrossBorderTransferFeeStrategy';
+import GoogleOAuth2Identifiers from './googleOAuth2/models/googleOAuth2Identifiers';
+import IUsesGoogleOAuth2 from './googleOAuth2/contracts/IUsesGoogleOAuth2';
+import GoogleOAuth2TokensRepository from './googleOAuth2/repositories/googleOAuth2TokensRepository';
+import GoogleOAuth2ClientProvider from './googleOAuth2/providers/googleOAuth2ClientProvider';
+import GmailApiClient from './gmail/clients/gmailApiClient';
+import GoogleOAuth2IdentifiersFactory from './googleOAuth2/factories/googleOAuth2IdentifiersFactory';
+import ServiceContexts from './core/enums/serviceContexts';
+import ITransactionProvider from './core/contracts/ITransactionProvider';
 
 export class DependencyInjector {
     private static singleton: DependencyInjector;
