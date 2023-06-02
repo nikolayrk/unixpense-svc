@@ -8,6 +8,7 @@ import { injectables } from './shared/types/injectables';
 import { router as gmailTransactionsRouter } from './web/routes/gmailTransactionsRoutes';
 import { router as swaggerRouter } from './web/routes/swaggerRoutes';
 import { router as kubernetesProbesRouter } from './web/routes/kubernetesProbesRoutes';
+import { router as groupsRouter } from './web/routes/groupsRoutes';
 import { Sequelize } from 'sequelize-typescript';
 
 async function bootstrap() {
@@ -108,6 +109,9 @@ async function bootstrap() {
 
     // Gmail Transactions Routes
     app.use('/api/transactions/gmail', gmailTransactionsRouter);
+
+    // Transaction Groups Routes
+    app.use('/api/groups', groupsRouter);
 
     app.listen(process.env.PORT ?? 8000, () => {
         logger.log(`Server is running`, {

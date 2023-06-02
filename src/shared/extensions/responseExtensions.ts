@@ -5,6 +5,10 @@ export class ResponseExtensions {
     
     public static added = (res: Response, added: number, entity: string) => ResponseExtensions.jsonResponse(res, 201, { message: `Added ${added} ${entity}${added == 1 ? '' : 's'} to database`});
     
+    public static noContent = (res: Response) => res
+        .status(204)
+        .end();
+    
     public static badRequest = (res: Response, message: string) => ResponseExtensions.jsonResponse(res, 400, { error: message });
     
     public static internalError = (res: Response, message: string) => ResponseExtensions.jsonResponse(res, 500, { error: message });
