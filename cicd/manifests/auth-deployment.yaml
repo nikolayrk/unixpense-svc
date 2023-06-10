@@ -66,7 +66,6 @@ spec:
         image: quay.io/oauth2-proxy/oauth2-proxy:latest-arm64
         args:
         - --authenticated-emails-file=/etc/oauth2-proxy/authenticated-emails
-        - --skip-jwt-bearer-tokens=true
         - --skip-auth-route=$UNIXPENSE_HOST_PREFIX/api/oauthcallback
         - --upstream=file:///dev/null
         - --http-address=0.0.0.0:4180
