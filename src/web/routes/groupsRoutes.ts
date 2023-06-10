@@ -11,18 +11,8 @@ const router = express.Router();
  *     tags:
  *       - Groups
  *     description: Create a new Transaction Group
- *     security:
- *       - Google:
- *         - https://www.googleapis.com/auth/userinfo.profile
- *         - https://www.googleapis.com/auth/userinfo.email
- *         - https://www.googleapis.com/auth/gmail.readonly
  *     produces:
  *       - application/json
- *     parameters:
- *       - name: X-User-Email
- *         in: header
- *         required: true
- *         type: string
  *     requestBody:
  *       description: Group configuration object
  *       required: true
@@ -45,8 +35,6 @@ const router = express.Router();
  *                 message:
  *                   type: string
  *                   example: Added 1 group to database
- *       403:
- *         description: Authorization error
  *       500:
  *         description: Transaction processing error
  *       503:
@@ -61,18 +49,9 @@ router.route('/').post(groupsController.new);
  *     tags:
  *       - Groups
  *     description: Get a Transaction Group and its Rules.
- *     security:
- *       - Google:
- *         - https://www.googleapis.com/auth/userinfo.profile
- *         - https://www.googleapis.com/auth/userinfo.email
- *         - https://www.googleapis.com/auth/gmail.readonly
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: X-User-Email
- *         in: header
- *         required: true
- *         type: string
  *       - name: group
  *         in: path
  *         required: true
@@ -86,8 +65,6 @@ router.route('/').post(groupsController.new);
  *               $ref: '#components/schemas/group'
  *       400:
  *         description: Bad request
- *       403:
- *         description: Authorization error
  *       500:
  *         description: Transaction processing error
  *       503:
@@ -102,18 +79,8 @@ router.route('/:group').get(groupsController.get);
  *     tags:
  *       - Groups
  *     description: Get all Transactions Groups and their Rules.
- *     security:
- *       - Google:
- *         - https://www.googleapis.com/auth/userinfo.profile
- *         - https://www.googleapis.com/auth/userinfo.email
- *         - https://www.googleapis.com/auth/gmail.readonly
  *     produces:
  *       - application/json
- *     parameters:
- *       - name: X-User-Email
- *         in: header
- *         required: true
- *         type: string
  *     responses:
  *       200:
  *         description: Array of Group objects
@@ -125,8 +92,6 @@ router.route('/:group').get(groupsController.get);
  *                 $ref: '#components/schemas/group'
  *       400:
  *         description: Bad request
- *       403:
- *         description: Authorization error
  *       500:
  *         description: Transaction processing error
  *       503:
@@ -141,18 +106,9 @@ router.route('/all').get(groupsController.getAll);
  *     tags:
  *       - Groups
  *     description: Delete a Transaction Group
- *     security:
- *       - Google:
- *         - https://www.googleapis.com/auth/userinfo.profile
- *         - https://www.googleapis.com/auth/userinfo.email
- *         - https://www.googleapis.com/auth/gmail.readonly
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: X-User-Email
- *         in: header
- *         required: true
- *         type: string
  *       - name: group
  *         in: path
  *         required: true
@@ -160,8 +116,6 @@ router.route('/all').get(groupsController.getAll);
  *     responses:
  *       204:
  *         description: Confirmation for the successfully deleted Group
- *       403:
- *         description: Authorization error
  *       500:
  *         description: Transaction processing error
  *       503:

@@ -11,16 +11,11 @@ const router = express.Router();
  *       - Groups
  *       - Rules
  *     description: Create a new Transaction Group Rule
- *     security:
- *       - Google:
- *         - https://www.googleapis.com/auth/userinfo.profile
- *         - https://www.googleapis.com/auth/userinfo.email
- *         - https://www.googleapis.com/auth/gmail.readonly
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: X-User-Email
- *         in: header
+ *       - name: group
+ *         in: path
  *         required: true
  *         type: string
  *     requestBody:
@@ -41,8 +36,6 @@ const router = express.Router();
  *                 message:
  *                   type: string
  *                   example: Added 1 group rule to database
- *       403:
- *         description: Authorization error
  *       500:
  *         description: Transaction processing error
  *       503:
@@ -58,18 +51,9 @@ router.route('/').post(groupRulesController.new);
  *       - Groups
  *       - Rules
  *     description: Get a Transaction Group Rule.
- *     security:
- *       - Google:
- *         - https://www.googleapis.com/auth/userinfo.profile
- *         - https://www.googleapis.com/auth/userinfo.email
- *         - https://www.googleapis.com/auth/gmail.readonly
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: X-User-Email
- *         in: header
- *         required: true
- *         type: string
  *       - name: group
  *         in: path
  *         required: true
@@ -87,8 +71,6 @@ router.route('/').post(groupRulesController.new);
  *               $ref: '#components/schemas/groupRule'
  *       400:
  *         description: Bad request
- *       403:
- *         description: Authorization error
  *       500:
  *         description: Transaction processing error
  *       503:
@@ -104,18 +86,9 @@ router.route('/:id').get(groupRulesController.get);
  *       - Groups
  *       - Rules
  *     description: Get all Transaction Group Rules for a Group.
- *     security:
- *       - Google:
- *         - https://www.googleapis.com/auth/userinfo.profile
- *         - https://www.googleapis.com/auth/userinfo.email
- *         - https://www.googleapis.com/auth/gmail.readonly
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: X-User-Email
- *         in: header
- *         required: true
- *         type: string
  *       - name: group
  *         in: path
  *         required: true
@@ -131,8 +104,6 @@ router.route('/:id').get(groupRulesController.get);
  *                 $ref: '#components/schemas/groupRule'
  *       400:
  *         description: Bad request
- *       403:
- *         description: Authorization error
  *       500:
  *         description: Transaction processing error
  *       503:
@@ -148,18 +119,9 @@ router.route('/all').get(groupRulesController.getAll);
  *       - Groups
  *       - Rules
  *     description: Delete a Transaction Group Rule
- *     security:
- *       - Google:
- *         - https://www.googleapis.com/auth/userinfo.profile
- *         - https://www.googleapis.com/auth/userinfo.email
- *         - https://www.googleapis.com/auth/gmail.readonly
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: X-User-Email
- *         in: header
- *         required: true
- *         type: string
  *       - name: group
  *         in: path
  *         required: true
@@ -171,8 +133,6 @@ router.route('/all').get(groupRulesController.getAll);
  *     responses:
  *       204:
  *         description: Confirmation for the successfully deleted Rule
- *       403:
- *         description: Authorization error
  *       500:
  *         description: Transaction processing error
  *       503:
