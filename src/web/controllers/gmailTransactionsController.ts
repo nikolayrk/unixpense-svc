@@ -8,7 +8,16 @@ import TransactionRepository from "../../core/repositories/transactionRepository
 import ITransactionProvider from "../../core/contracts/ITransactionProvider";
 import { ResponseExtensions } from "../../core/extensions/responseExtensions";
 
+type Options = {
+    save: boolean,
+    ids?: string,
+    last?: number,
+    skipDepth?: number
+};
+
 const getLast = async (req: Request, res: Response) => {
+    const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
+
     const last = req.params.last;
 
     if (last === "") {
@@ -34,137 +43,140 @@ const getLast = async (req: Request, res: Response) => {
     const identifiers = res.locals.googleOAuth2Identifiers as GoogleOAuth2Identifiers;
 
     try {
-        const transactionIds = await resolveTransactionIdsAsync({
-            identifiers,
+        const transactionIds = await resolveTransactionIdsAsync(identifiers, {
             save: false,
             last: lastValue,
             skipDepth: skipDepthValue
-        }, skipSaved);
+        }, skipSaved, logger);
         
         return ResponseExtensions.ok(res, transactionIds);
     } catch (ex) {
         const error = ex as Error;
+
+        logger.error(error);
 
         return ResponseExtensions.internalError(res, error.message ?? ex);
     }
 };
 
 const resolve = async (req: Request, res: Response) => {
+    const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
+
     const ids: [] = req.body;
 
     const identifiers = res.locals.googleOAuth2Identifiers as GoogleOAuth2Identifiers;
 
     try {
-        const transactions = await resolveTransactionsAsync({
-            identifiers,
+        const transactions = await resolveTransactionsAsync(identifiers, {
             save: false,
             ids: ids.join(',')
-        });
+        }, logger);
         
         return ResponseExtensions.ok(res, transactions);
     } catch (ex) {
         const error = ex as Error;
+
+        logger.error(error);
 
         return ResponseExtensions.internalError(res, error.message ?? ex);
     }
 };
 
 const save = async (req: Request, res: Response) => {
+    const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
+
     const identifiers = res.locals.googleOAuth2Identifiers as GoogleOAuth2Identifiers;
 
     try {
         const ids: [] = req.body;
 
-        const created = await saveTransactionsAsync({
-            identifiers,
+        const created = await saveTransactionsAsync(identifiers, {
             save: true,
             ids: ids.join(',')
-        });
+        }, logger);
         
         return ResponseExtensions.added(res, created, 'transaction');
     } catch (ex) {
         const error = ex as Error;
 
+        logger.error(error);
+
         return ResponseExtensions.internalError(res, error.message ?? ex);
     }
 };
 
-type Options = {
+const resolveTransactionIdsAsync = async (
     identifiers: GoogleOAuth2Identifiers,
-    save: boolean,
-    ids?: string,
-    last?: number,
-    skipDepth?: number};
-
-const resolveTransactionIdsAsync = async (options: Options, skipSaved?: boolean) => {
+    options: Options,
+    skipSaved: boolean,
+    logger: ILogger) => {
     if (skipSaved === true) {
         const transactionRepository = DependencyInjector.Singleton.resolve<TransactionRepository>(injectables.TransactionRepository);
     
         const existingTransactionIds = await transactionRepository.getAllIdsAsync();
     
-        const transactionIds = await generateTransactionsAsync(options, async (_, __, transactionId) => {
-            const exists = existingTransactionIds.find((id) => id === transactionId) !== undefined;
-    
-            if (exists) {
-                return null;
-            }
-    
-            return transactionId;
-        });
+        const transactionIds = await generateTransactionsAsync(identifiers, options, logger, async (_, transactionId) =>
+            transactionExists(transactionId, existingTransactionIds, logger)
+                ? null
+                : transactionId);
 
         return transactionIds;
     }
 
-    const transactionIds = await generateTransactionsAsync(options, async (_, __, transactionId) => transactionId);
+    const transactionIds = await generateTransactionsAsync(identifiers, options, logger, async (_, transactionId) => transactionId);
 
     return transactionIds;
 }
 
-const resolveTransactionsAsync = async(options: Options) => {
-    const transactions = await generateTransactionsAsync(options, async (_, gmailTransactionProvider, transactionId) => await gmailTransactionProvider.resolveTransactionOrNullAsync(transactionId));
+const resolveTransactionsAsync = (
+    identifiers: GoogleOAuth2Identifiers,
+    options: Options,
+    logger: ILogger) =>
+    generateTransactionsAsync(identifiers, options, logger, (gmailTransactionProvider, transactionId) =>
+        gmailTransactionProvider.resolveTransactionOrNullAsync(transactionId));
 
-    return transactions;
-}
-
-const saveTransactionsAsync = async (options: Options) => {
+const saveTransactionsAsync = async (
+    identifiers: GoogleOAuth2Identifiers,
+    options: Options,
+    logger: ILogger) => {
     const transactionRepository = DependencyInjector.Singleton.resolve<TransactionRepository>(injectables.TransactionRepository);
 
     const existingTransactionIds = await transactionRepository.getAllIdsAsync();
     
-    const transactions = await generateTransactionsAsync(options, async (logger, gmailTransactionProvider, transactionId) => {
-            const exists = existingTransactionIds.find((id) => id === transactionId) !== undefined;
-
-            if (exists) {
-                logger.warn("Transaction already exists", { transactionId: transactionId });
-
-                return null;
-            }
-
-            const transaction = await gmailTransactionProvider.resolveTransactionOrNullAsync(transactionId);
-            
-            return transaction;
-        });
+    const transactions = await generateTransactionsAsync(identifiers, options, logger, async (gmailTransactionProvider, transactionId) =>
+        transactionExists(transactionId, existingTransactionIds, logger)
+            ? null
+            : await gmailTransactionProvider.resolveTransactionOrNullAsync(transactionId));
 
     const created = await transactionRepository.tryBulkCreate(transactions);
 
     return created;
 }
 
+const transactionExists = (transactionId: string, existingTransactionIds: string[], logger: ILogger) => {
+    const exists = existingTransactionIds.find((id) => id === transactionId) !== undefined;
+
+    if (exists) {
+        logger.warn("Transaction already exists", { transactionId: transactionId });
+
+        return false;
+    }
+
+    return true;
+};
+
 const generateTransactionsAsync = async <T>(
+    identifiers: GoogleOAuth2Identifiers,
     options: Options,
-    transactionHandlerAsync: (
-        logger: ILogger,
-        transactionProvider: ITransactionProvider,
-        transactionId: string) => Promise<T | null>) => {
-    const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
-    
+    logger: ILogger,
+    transactionHandlerAsync: (transactionProvider: ITransactionProvider, transactionId: string) => Promise<T | null>) => {
     try {
         const results: T[] = [];
         let skippedCount = 0;
         let consecutiveSkippedCount = 0;
         
         const gmailTransactionProvider = await DependencyInjector.Singleton
-            .generateServiceAsync<GmailTransactionProvider>(injectables.GmailTransactionProviderGenerator, options.identifiers);
+            .generateServiceAsync<GmailTransactionProvider>(injectables.GmailTransactionProviderGenerator, identifiers);
 
         for await (const transactionIdOrNull of gmailTransactionProvider.generateAsync(options.ids)) {
             if (options.last !== undefined && results.length + skippedCount >= options.last) {
@@ -182,7 +194,7 @@ const generateTransactionsAsync = async <T>(
                 continue;
             }
 
-            const result = await transactionHandlerAsync(logger, gmailTransactionProvider, transactionIdOrNull);
+            const result = await transactionHandlerAsync(gmailTransactionProvider, transactionIdOrNull);
 
             if (result === null) {
                 skippedCount++;
@@ -195,21 +207,21 @@ const generateTransactionsAsync = async <T>(
             consecutiveSkippedCount = 0;
         }
 
-        const processedTransactionResultsCount = results.length;
+        const resolvedCount = results.length;
 
-        logResult(logger, processedTransactionResultsCount, skippedCount, options);
+        logResult(options, resolvedCount, skippedCount, logger);
 
         return results;
     } catch(ex) {
         const error = ex as Error;
 
-        logError(logger, error, options);
+        logError(options, error, logger);
 
         throw ex;
     }
 };
 
-const logResult = (logger: ILogger, resolvedCount: number, skippedCount: number, options: Options) => {
+const logResult = (options: Options, resolvedCount: number, skippedCount: number, logger: ILogger) => {
     const response = `${options.save === true
         ? `Resolved & saved`
         : `Resolved`}${!options.last !== undefined
@@ -221,13 +233,13 @@ const logResult = (logger: ILogger, resolvedCount: number, skippedCount: number,
                             : ''}`
                         : ``}`
 
-    const { identifiers, save, ...labels } = options;
+    const { save, ...labels } = options;
 
     logger.log(response, { ...labels });
 };
 
-const logError = (logger: ILogger, error: Error, options: Options) => {
-    const { identifiers, save, ...labels } = options;
+const logError = (options: Options, error: Error, logger: ILogger) => {
+    const { save, ...labels } = options;
 
     logger.error(error, { ...labels });
 }
