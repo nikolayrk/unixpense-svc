@@ -54,21 +54,9 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
             : await this.googleOAuth2TokensRepository.getOrNullAsync(identifiers.userEmail);
 
         if (identifiers.accessToken !== undefined) {
-            let tokenInfo = null;
+            const userEmail = await this.resolveEmailOrNullAsync(identifiers.accessToken);
 
-            try {
-                tokenInfo = await this.oauth2Client.getTokenInfo(identifiers.accessToken);
-            } catch(ex) {
-                const error = ex as Error;
-
-                this.logWarningAsync(identifiers.accessToken, `'${error.message}' when getting token info of ${identifiers.accessToken}` ?? error);
-            }
-
-            if (tokenInfo !== null && tokenInfo.email === undefined) {
-                throw new Error(`No user email received from token info`);
-            }
-
-            if (tokenInfo !== null && tokenInfo.email !== identifiers.userEmail) {
+            if (userEmail !== null && userEmail !== identifiers.userEmail) {
                 throw new Error(`Mismatched user email`);
             }
 
@@ -96,14 +84,14 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
 
                 this.oauth2Client.setCredentials(refreshableTokens);
 
-                const tokenInfo = await this.oauth2Client.getTokenInfo(tokens.access_token);
+                const userEmail = await this.resolveEmailOrNullAsync(identifiers.accessToken);
 
-                if (tokenInfo.email === undefined) {
+                if (userEmail === null) {
                     throw new Error(`No user email received from new token info`);
                 }
                 
                 await this.googleOAuth2TokensRepository.createOrUpdateAsync(
-                    tokenInfo.email,
+                    userEmail,
                     tokens.access_token,
                     tokens.refresh_token ?? persistedIdentifiersOrNull?.refreshToken);
 
