@@ -1,8 +1,8 @@
 import TransactionType from "../../core/enums/transactionType";
 import StandardFee from "../../core/models/standardFee";
 import { PaymentDetailsTestCase } from "../../core/types/paymentDetailsTestCase";
-import describePaymentDetailsTests from "../../core/utils/describePaymentDetails";
-import describeTransactionDataTests from "../../core/utils/describeTransactionData";
+import describePaymentDetailsTests from "../utils/describePaymentDetails";
+import describeTransactionDataTests from "../utils/describeTransactionData";
 import transactionDataTestCases from "./gmailTransactionData.test.cases";
 
 const standardFeeTestCases: PaymentDetailsTestCase<StandardFee>[] = [

@@ -1,7 +1,7 @@
 import {describe, expect, test} from '@jest/globals';
 import PaymentDetails from "../../core/models/paymentDetails";
 import { PaymentDetailsTestCase } from '../../core/types/paymentDetailsTestCase';
-import { TransactionDataTestCase } from '../types/transactionDataTestCase';
+import { TransactionDataTestCase } from '../../core/types/transactionDataTestCase';
 import PaymentDetailsContext from '../../core/contexts/paymentDetailsContext';
 import { DependencyInjector } from '../../dependencyInjector';
 import { injectables } from '../../core/types/injectables';
