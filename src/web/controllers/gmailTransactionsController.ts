@@ -159,10 +159,10 @@ const transactionExists = (transactionId: string, existingTransactionIds: string
     if (exists) {
         logger.warn("Transaction already exists", { transactionId: transactionId });
 
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 };
 
 const generateTransactionsAsync = async <T>(
