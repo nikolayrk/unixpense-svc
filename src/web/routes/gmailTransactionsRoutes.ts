@@ -11,7 +11,7 @@ const router = express.Router();
  *     tags:
  *       - Transactions
  *       - Gmail
- *     description: "Get the IDs of the requested number of latest Gmail transactions.\n\n*[Optional]* Constrain the result to a number of consecutively skipped entries\n\n*[Optional]* Skip persisted entries"
+ *     description: "Get the IDs of the requested number of latest Gmail transactions.\n\n*[Optional]* Skip persisted entries\n\n*[Optional]* Constrain the result to a number of consecutively skipped entries"
  *     security:
  *       - Google:
  *         - https://www.googleapis.com/auth/userinfo.profile
@@ -28,14 +28,15 @@ const router = express.Router();
  *         in: path
  *         required: true
  *         type: integer
- *       - name: skip_depth
- *         in: query
- *         type: integer
  *       - name: skip_saved
  *         in: query
  *         required: false
  *         type: boolean
  *         default: false
+ *       - name: skip_depth
+ *         in: query
+ *         required: false
+ *         type: integer
  *     responses:
  *       200:
  *         description: Array of Gmail Message IDs (transaction IDs)

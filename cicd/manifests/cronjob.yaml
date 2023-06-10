@@ -39,7 +39,7 @@ spec:
                 FROM google_oauth2_tokens
                 WHERE user_email='$GMAIL_ADDRESS'"
 
-              echo Resolving OAuth2 Access Token...
+              echo -n Resolving OAuth2 Access Token...
 
               ACCESS_TOKEN=$(mariadb unixpense \
                 -h mariadb-service.unixpense.svc.cluster.local \
@@ -47,15 +47,19 @@ spec:
                 -p$MARIADB_PASSWORD \
                 -se "$ACCESS_TOKEN_QUERY")
 
-              echo Fetching new transaction IDs...
+              echo $ACCESS_TOKEN
+
+              echo -n Fetching new transaction IDs...
 
               TRANSACTION_IDS=$(curl -s \
-                -X GET "http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api/transactions/gmail/ids/last/100?skip_depth=99&skip_saved=true" \
+                -X GET "http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api/transactions/gmail/ids/last/20?skip_saved=true&skip_depth=10" \
                 -H "X-User-Email: $GMAIL_ADDRESS" \
                 -H "Authorization: Bearer $ACCESS_TOKEN" \
                 -H "Accept: application/json")
 
-              echo Saving new transaction IDs...
+              echo $TRANSACTION_IDS
+
+              echo -n Saving new transaction IDs...
 
               RESULT=$(curl -s \
                 -X POST "http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api/transactions/gmail/save" \
