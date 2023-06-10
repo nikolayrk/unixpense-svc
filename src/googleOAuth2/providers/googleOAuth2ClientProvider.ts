@@ -84,7 +84,7 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
 
                 this.oauth2Client.setCredentials(refreshableTokens);
 
-                const userEmail = await this.resolveEmailOrNullAsync(identifiers.accessToken);
+                const userEmail = await this.resolveEmailOrNullAsync(tokens.access_token);
 
                 if (userEmail === null) {
                     throw new Error(`No user email received from new token info`);
