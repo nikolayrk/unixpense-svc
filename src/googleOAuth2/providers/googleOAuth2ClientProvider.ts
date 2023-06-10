@@ -54,13 +54,21 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
             : await this.googleOAuth2TokensRepository.getOrNullAsync(identifiers.userEmail);
 
         if (identifiers.accessToken !== undefined) {
-            const tokenInfo = await this.oauth2Client.getTokenInfo(identifiers.accessToken);
+            let tokenInfo = null;
 
-            if (tokenInfo.email === undefined) {
+            try {
+                tokenInfo = await this.oauth2Client.getTokenInfo(identifiers.accessToken);
+            } catch(ex) {
+                const error = ex as Error;
+
+                this.logWarningAsync(identifiers.accessToken, `'${error.message}' when getting token info of ${identifiers.accessToken}` ?? error);
+            }
+
+            if (tokenInfo !== null && tokenInfo.email === undefined) {
                 throw new Error(`No user email received from token info`);
             }
 
-            if (tokenInfo.email !== identifiers.userEmail) {
+            if (tokenInfo !== null && tokenInfo.email !== identifiers.userEmail) {
                 throw new Error(`Mismatched user email`);
             }
 
