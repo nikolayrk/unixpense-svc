@@ -93,6 +93,11 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
                 if (tokenInfo.email === undefined) {
                     throw new Error(`No user email received from new token info`);
                 }
+                
+                await this.googleOAuth2TokensRepository.createOrUpdateAsync(
+                    tokenInfo.email,
+                    tokens.access_token,
+                    tokens.refresh_token ?? persistedIdentifiersOrNull?.refreshToken);
 
                 this.logEventAsync(tokens.access_token, `Received new OAuth2 Client tokens`);
             } catch(ex) {
