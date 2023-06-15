@@ -8,24 +8,18 @@ import GoogleOAuth2TokensRepository from '../repositories/googleOAuth2TokensRepo
 import ILogger from '../../core/contracts/ILogger';
 import GoogleOAuth2Identifiers from '../models/googleOAuth2Identifiers';
 import IUsesGoogleOAuth2 from '../../googleOAuth2/contracts/IUsesGoogleOAuth2';
+import Constants from '../constants';
 
 @injectable()
 export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
-    private readonly scopes = [
-        'https://www.googleapis.com/auth/userinfo.profile',
-        'https://www.googleapis.com/auth/userinfo.email',
-        'https://www.googleapis.com/auth/gmail.readonly'
-    ];
-
-    private readonly defaultRedirectUri = `${process.env.NODE_ENV === 'production'
-            ? `https://${process.env.UNIXPENSE_HOST}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
-            : `http://${process.env.HOSTNAME ?? 'localhost'}:${process.env.port ?? 8000}`
-        }/api/oauthcallback`;
+    private readonly logger;
+    private readonly googleOAuth2TokensRepository;
 
     private oauth2Client: OAuth2Client;
 
-    private readonly logger;
-    private readonly googleOAuth2TokensRepository;
+    public get client() {
+        return this.oauth2Client;
+    }
 
     public constructor(
         @inject(injectables.ILogger)
@@ -39,15 +33,11 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
         this.oauth2Client = null!;
     }
 
-    public get client() {
-        return this.oauth2Client;
-    }
-
     public async useOAuth2IdentifiersAsync(identifiers: GoogleOAuth2Identifiers) {    
         this.oauth2Client = new google.auth.OAuth2(
             process.env.GOOGLE_OAUTH2_CLIENT_ID,
             process.env.GOOGLE_OAUTH2_CLIENT_SECRET,
-            identifiers.redirectUri ?? this.defaultRedirectUri);
+            identifiers.redirectUri ?? Constants.defaultRedirectUri);
 
         const persistedIdentifiersOrNull = identifiers.userEmail === undefined
             ? null
@@ -63,7 +53,7 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
             this.logEventAsync(identifiers.accessToken, `Using OAuth2 Client tokens`);
 
             this.oauth2Client.setCredentials({
-                scope: this.scopes.join(' '),
+                scope: Constants.scopes.join(' '),
                 token_type: "Bearer",
                 access_token: identifiers.accessToken,
                 refresh_token: identifiers.refreshToken ?? persistedIdentifiersOrNull?.refreshToken,

@@ -1,10 +1,31 @@
 import express from "express";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from 'swagger-ui-express';
-import { swaggerComponents as gmailTransactionsComponents } from "./gmailTransactionsRoutes";
 import { cardOperationTransaction, standardTransferTransaction } from "../schemas/transaction";
+import GoogleOAuth2Constants from "../../googleOAuth2/constants";
 
 const router = express.Router();
+
+const scopes: {
+    [key in typeof GoogleOAuth2Constants.scopes[number]]: string;
+} = {
+    'https://www.googleapis.com/auth/userinfo.profile': 'See your personal info, including any personal info you\'ve made publicly available',
+    'https://www.googleapis.com/auth/userinfo.email': 'See your primary Google Account email address',
+    'https://www.googleapis.com/auth/gmail.readonly': 'View your email messages and settings',
+};
+
+const googleOAuth2SecurityScheme = {
+    Google: {
+        type: 'oauth2',
+        flows: {
+            authorizationCode: {
+                authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth?access_type=offline',
+                tokenUrl: GoogleOAuth2Constants.defaultRedirectUri,
+                scopes: scopes
+            }
+        }
+    }
+};
 
 const options = {
     definition: {
@@ -17,11 +38,13 @@ const options = {
         version: '1.0.0',
       },
       components: {
+        securitySchemes: {
+          googleOAuth2SecurityScheme
+        },
         schemas: {
           cardOperationTransaction,
           standardTransferTransaction
-        },
-        ...gmailTransactionsComponents
+        }
       }
     },
     apis: [ './**/web/routes/*.{js,ts}' ],
