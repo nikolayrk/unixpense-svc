@@ -63,12 +63,12 @@ export class DependencyInjector {
         return this.container.get<T>(serviceIdentifier);
     }
 
-    public async generateServiceAsync<T>(
+    public generateServiceAsync<T>(
         providerIdentifier: interfaces.ServiceIdentifier<interfaces.Provider<T>>,
         ...args: any[]) {
         const provider = this.container.get<interfaces.Provider<T>>(providerIdentifier);
 
-        return await provider(...args) as T;
+        return provider(...args) as Promise<T>;
     }
 
     public registerGmailServices() {
@@ -76,8 +76,8 @@ export class DependencyInjector {
 
         this.container.bind<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory).to(GoogleOAuth2IdentifiersFactory);
         this.container.bind<GoogleOAuth2TokensRepository>(injectables.GoogleOAuth2TokensRepository).to(GoogleOAuth2TokensRepository);
-        this.container.bind<GoogleOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProvider).to(GoogleOAuth2ClientProvider);
-        this.container.bind<GmailApiClient>(injectables.GmailApiClient).to(GmailApiClient);
+        this.container.bind<GoogleOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProvider).to(GoogleOAuth2ClientProvider).inRequestScope();
+        this.container.bind<GmailApiClient>(injectables.GmailApiClient).to(GmailApiClient).inRequestScope();
 
         this.registerGoogleServiceGenerator(injectables.GoogleOAuth2ClientProviderGenerator, injectables.GoogleOAuth2ClientProvider);
         this.registerGoogleServiceGenerator(injectables.GmailApiClientGenerator, injectables.GmailApiClient);

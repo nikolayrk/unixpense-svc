@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import GmailTransactionProvider from "../../gmail/providers/gmailTransactionProvider";
 import { injectables } from "../../core/types/injectables";
 import { DependencyInjector } from "../../dependencyInjector";
 import GoogleOAuth2Identifiers from "../../googleOAuth2/models/googleOAuth2Identifiers";
@@ -176,7 +175,7 @@ const generateTransactionsAsync = async <T>(
         let consecutiveSkippedCount = 0;
         
         const gmailTransactionProvider = await DependencyInjector.Singleton
-            .generateServiceAsync<GmailTransactionProvider>(injectables.GmailTransactionProviderGenerator, identifiers);
+            .generateServiceAsync<ITransactionProvider>(injectables.GmailTransactionProviderGenerator, identifiers);
 
         for await (const transactionIdOrNull of gmailTransactionProvider.generateAsync(options.ids)) {
             if (options.last !== undefined && results.length + skippedCount >= options.last) {
