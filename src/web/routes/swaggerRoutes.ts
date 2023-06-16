@@ -39,7 +39,7 @@ const options = {
       },
       components: {
         securitySchemes: {
-          googleOAuth2SecurityScheme
+          ...googleOAuth2SecurityScheme
         },
         schemas: {
           cardOperationTransaction,
