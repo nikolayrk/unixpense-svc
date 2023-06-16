@@ -1,5 +1,5 @@
-import PaymentDetails from "../models/paymentDetails";
-import { TransactionDataBody } from '../models/transactionData';
+import PaymentDetails from "../../core/models/paymentDetails";
+import { TransactionDataBody } from '../../core/models/transactionData';
 
 export type PaymentDetailsTestCase<T extends PaymentDetails> = {
   testName: string;

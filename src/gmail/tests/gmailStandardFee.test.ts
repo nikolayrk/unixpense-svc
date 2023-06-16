@@ -1,6 +1,6 @@
 import TransactionType from "../../core/enums/transactionType";
 import StandardFee from "../../core/models/standardFee";
-import { PaymentDetailsTestCase } from "../../core/types/paymentDetailsTestCase";
+import { PaymentDetailsTestCase } from "../types/paymentDetailsTestCase";
 import describePaymentDetailsTests from "../utils/describePaymentDetails";
 import describeTransactionDataTests from "../utils/describeTransactionData";
 import transactionDataTestCases from "./gmailTransactionData.test.cases";
