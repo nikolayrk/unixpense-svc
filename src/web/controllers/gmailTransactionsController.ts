@@ -115,7 +115,7 @@ const resolveTransactionIdsAsync = async (
         const existingTransactionIds = await transactionRepository.getAllIdsAsync();
     
         const transactionIds = await generateTransactionsAsync(identifiers, options, logger, async (_, transactionId) =>
-            transactionExists(transactionId, existingTransactionIds, logger)
+            transactionExists(transactionId, existingTransactionIds)
                 ? null
                 : transactionId);
 
@@ -152,12 +152,11 @@ const saveTransactionsAsync = async (
     return created;
 }
 
-const transactionExists = (transactionId: string, existingTransactionIds: string[], logger: ILogger) => {
+const transactionExists = (transactionId: string, existingTransactionIds: string[], logger?: ILogger) => {
     const exists = existingTransactionIds.find((id) => id === transactionId) !== undefined;
 
     if (exists) {
-        // TODO: optional logger param (should be null when getting only ids)
-        logger.warn("Transaction already exists", { transactionId: transactionId });
+        logger?.warn("Transaction already exists", { transactionId: transactionId });
 
         return true;
     }
