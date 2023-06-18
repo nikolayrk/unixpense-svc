@@ -145,7 +145,7 @@ const saveTransactionsAsync = async (
     const transactions = await generateTransactionsAsync(identifiers, options, logger, async (gmailTransactionProvider, transactionId) =>
         transactionExists(transactionId, existingTransactionIds, logger)
             ? null
-            : await gmailTransactionProvider.resolveTransactionOrNullAsync(transactionId));
+            : gmailTransactionProvider.resolveTransactionOrNullAsync(transactionId));
 
     const created = await transactionRepository.tryBulkCreate(transactions);
 
@@ -156,6 +156,7 @@ const transactionExists = (transactionId: string, existingTransactionIds: string
     const exists = existingTransactionIds.find((id) => id === transactionId) !== undefined;
 
     if (exists) {
+        // TODO: optional logger param (should be null when getting only ids)
         logger.warn("Transaction already exists", { transactionId: transactionId });
 
         return true;
@@ -173,6 +174,10 @@ const generateTransactionsAsync = async <T>(
         const results: T[] = [];
         let skippedCount = 0;
         let consecutiveSkippedCount = 0;
+
+        if (options.ids?.length === 0) {
+            return results;
+        }
         
         const gmailTransactionProvider = await DependencyInjector.Singleton
             .generateServiceAsync<ITransactionProvider>(injectables.GmailTransactionProviderGenerator, identifiers);
