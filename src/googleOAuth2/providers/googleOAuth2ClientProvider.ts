@@ -52,8 +52,6 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
                 throw new Error(`Mismatched user email`);
             }
 
-            this.userEmail = userEmail;
-
             this.logEvent(`Using OAuth2 Client tokens`);
 
             this.oauth2Client.setCredentials({
@@ -83,8 +81,6 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
                 if (userEmail === null) {
                     throw new Error(`No user email received from new token info`);
                 }
-
-                this.userEmail = userEmail;
                 
                 await this.googleOAuth2TokensRepository.createOrUpdateAsync(
                     userEmail,
@@ -147,6 +143,8 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
 
         try  {
             const tokenInfo = await this.oauth2Client.getTokenInfo(accessToken);
+
+            this.userEmail = tokenInfo.email ?? null;
 
             return tokenInfo.email ?? null;
         } catch(ex) {
