@@ -11,7 +11,6 @@ import IUsesGoogleOAuth2 from '../../googleOAuth2/contracts/IUsesGoogleOAuth2';
 export default class GmailApiClient implements IUsesGoogleOAuth2 {
     private googleOAuth2ClientProvider: GoogleOAuth2ClientProvider;
     private gmail: gmail_v1.Gmail;
-    private accessToken: string | undefined;
 
     private exponentialBackoffDepth = 0;
 
@@ -21,13 +20,11 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
     public constructor() {
         this.googleOAuth2ClientProvider = null!;
         this.gmail = null!;
-        this.accessToken = null!;
     }
 
     public async useOAuth2IdentifiersAsync(identifiers: GoogleOAuth2Identifiers) {
         this.googleOAuth2ClientProvider = await DependencyInjector.Singleton.generateServiceAsync(injectables.GoogleOAuth2ClientProviderGenerator, identifiers);
         this.gmail = google.gmail({version: 'v1', auth: this.googleOAuth2ClientProvider.client});
-        this.accessToken = identifiers.accessToken;
     }
 
     public async * generateMessageIdsAsync(pageToken?: string): AsyncGenerator<string, [], undefined> {
@@ -35,7 +32,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
 
         for (const messageItem of messages) {
             if (messageItem.id === null || messageItem.id === undefined) {
-                this.logWarningAsync('Empty message id. Skipping...', { messageItem: JSON.stringify(messageItem) });
+                this.logWarning('Empty message id. Skipping...', { messageItem: JSON.stringify(messageItem) });
 
                 continue;
             }
@@ -79,7 +76,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
     }
     
     private async fetchMessagesAsync(pageToken?: string | undefined) {
-        this.logEventAsync(`Requesting messages...`);
+        this.logEvent(`Requesting messages...`);
 
         const response = await this.makeApiCallAsync(async () =>
             await this.gmail.users.messages.list({
@@ -93,7 +90,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
         const nextPageToken = messageList.nextPageToken;
     
         if (messages === undefined) {
-            this.logWarningAsync(`Failed to get messages`);
+            this.logWarning(`Failed to get messages`);
 
             return { messages: [], nextPageToken: null };
         }
@@ -119,7 +116,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
         try {
             result = await apiCall();
         } catch(ex) {
-            this.logWarningAsync(`Gmail API call failed (${(ex as Error).message ?? ex}). Reattempting after ${this.exponentialBackoffDepth ** 2}s...`);
+            this.logWarning(`Gmail API call failed (${(ex as Error).message ?? ex}). Reattempting after ${this.exponentialBackoffDepth ** 2}s...`);
             
             result = await this.tryExponentialBackoffAsync(ex, async () => await this.makeApiCallAsync(apiCall));
         }
@@ -143,12 +140,12 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
         return result;
     }
 
-    private logEventAsync = async (message: string, labels?: Record<string, unknown>) =>
-        this.googleOAuth2ClientProvider.logEventAsync(this.accessToken, message, labels);
+    private logEvent = async (message: string, labels?: Record<string, unknown>) =>
+        this.googleOAuth2ClientProvider.logEvent(message, labels);
 
-    private logWarningAsync = async (message: string, labels?: Record<string, unknown>) =>
-        this.googleOAuth2ClientProvider.logWarningAsync(this.accessToken, message, labels);
+    private logWarning = async (message: string, labels?: Record<string, unknown>) =>
+        this.googleOAuth2ClientProvider.logWarning(message, labels);
 
-    private logErrorAsync = async (message: Error, labels?: Record<string, unknown>) =>
-        this.googleOAuth2ClientProvider.logErrorAsync(this.accessToken, message, labels);
+    private logError = async (message: Error, labels?: Record<string, unknown>) =>
+        this.googleOAuth2ClientProvider.logError(message, labels);
 }

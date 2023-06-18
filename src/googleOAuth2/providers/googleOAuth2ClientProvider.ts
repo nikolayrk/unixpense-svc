@@ -16,6 +16,7 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
     private readonly googleOAuth2TokensRepository;
 
     private oauth2Client: OAuth2Client;
+    private userEmail: string | null;
 
     public get client() {
         return this.oauth2Client;
@@ -31,6 +32,7 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
         this.logger = logger;
         this.googleOAuth2TokensRepository = googleOAuth2TokensRepository;
         this.oauth2Client = null!;
+        this.userEmail = null!;
     }
 
     public async useOAuth2IdentifiersAsync(identifiers: GoogleOAuth2Identifiers) {    
@@ -50,7 +52,9 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
                 throw new Error(`Mismatched user email`);
             }
 
-            this.logEventAsync(identifiers.accessToken, `Using OAuth2 Client tokens`);
+            this.userEmail = userEmail;
+
+            this.logEvent(`Using OAuth2 Client tokens`);
 
             this.oauth2Client.setCredentials({
                 scope: Constants.scopes.join(' '),
@@ -79,17 +83,19 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
                 if (userEmail === null) {
                     throw new Error(`No user email received from new token info`);
                 }
+
+                this.userEmail = userEmail;
                 
                 await this.googleOAuth2TokensRepository.createOrUpdateAsync(
                     userEmail,
                     tokens.access_token,
                     tokens.refresh_token ?? persistedIdentifiersOrNull?.refreshToken);
 
-                this.logEventAsync(tokens.access_token, `Received new OAuth2 Client tokens`);
+                this.logEvent(`Received new OAuth2 Client tokens`);
             } catch(ex) {
                 const error = ex as Error;
 
-                await this.logErrorAsync(tokens.access_token ?? undefined, error);
+                await this.logError(error);
             }
         });
     }
@@ -113,21 +119,19 @@ export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
         }
     }
 
-    public logEventAsync = async (accessToken: string | undefined, message: string, labels?: Record<string, unknown>) =>
-        this.logger.log(message, await this.constructLabelsAsync(accessToken, labels));
+    public logEvent = (message: string, labels?: Record<string, unknown>) =>
+        this.logger.log(message, this.constructLabels(labels));
 
-    public logWarningAsync = async (accessToken: string | undefined, message: string, labels?: Record<string, unknown>) =>
-        this.logger.warn(message, await this.constructLabelsAsync(accessToken, labels));
+    public logWarning = (message: string, labels?: Record<string, unknown>) =>
+        this.logger.warn(message, this.constructLabels(labels));
 
-    public logErrorAsync = async (accessToken: string | undefined, message: Error, labels?: Record<string, unknown>) =>
-        this.logger.error(message, await this.constructLabelsAsync(accessToken, labels));
+    public logError = (message: Error, labels?: Record<string, unknown>) =>
+        this.logger.error(message, this.constructLabels(labels));
 
-    private async constructLabelsAsync(accessToken?: string, labels?: Record<string, unknown>) {
-        const email = await this.resolveEmailOrNullAsync(accessToken);
-
+    private constructLabels(labels?: Record<string, unknown>) {
         const fullLabels = {
-            ...(email !== null) && {
-                email: email,
+            ...(this.userEmail !== null) && {
+                email: this.userEmail,
             },
 
             ...labels,
