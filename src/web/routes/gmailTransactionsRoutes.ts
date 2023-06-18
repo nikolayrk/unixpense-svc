@@ -48,8 +48,10 @@ const router = express.Router();
  *                 example: 1773e8e6b4cff981
  *       400:
  *         description: Bad request
+ *       401:
+ *         description: Unauthorized
  *       403:
- *         description: Authorization error
+ *         description: Forbidden
  *       500:
  *         description: Transaction processing error
  *       503:
@@ -100,8 +102,10 @@ router.route('/ids/last/:last').get(gmailTransactionsController.getLast);
  *                   - $ref: '#/components/schemas/standardTransferTransaction'
  *       400:
  *         description: Bad request
+ *       401:
+ *         description: Unauthorized
  *       403:
- *         description: Authorization error
+ *         description: Forbidden
  *       500:
  *         description: Transaction processing error
  *       503:
@@ -150,8 +154,10 @@ router.route('/resolve').post(gmailTransactionsController.resolve);
  *                 message:
  *                   type: string
  *                   example: Added 1 transaction to database
+ *       401:
+ *         description: Unauthorized
  *       403:
- *         description: Authorization error
+ *         description: Forbidden
  *       500:
  *         description: Transaction processing error
  *       503:

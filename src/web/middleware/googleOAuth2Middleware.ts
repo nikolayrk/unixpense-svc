@@ -3,29 +3,21 @@ import { DependencyInjector } from "../../dependencyInjector";
 import GoogleOAuth2ClientProvider from "../../googleOAuth2/providers/googleOAuth2ClientProvider";
 import { injectables } from "../../core/types/injectables";
 import GoogleOAuth2IdentifiersFactory from "../../googleOAuth2/factories/googleOAuth2IdentifiersFactory";
+import { ResponseExtensions } from "../../core/extensions/responseExtensions";
 
 const redirect = async (req: Request, res: Response) => {
     const { client_id, client_secret, redirect_uri, code } = req.body;
     
     if(client_id === undefined || client_secret === undefined || redirect_uri === undefined) {
-        return res
-            .status(403)
-            .json({ error: "No credentials provided" })
-            .end();
+        return ResponseExtensions.unauthorized(res, "No credentials provided");
     }
 
     if (client_id !== process.env.GOOGLE_OAUTH2_CLIENT_ID || client_secret !== process.env.GOOGLE_OAUTH2_CLIENT_SECRET) {
-        return res
-            .status(403)
-            .json({ error: "Mismatched credentials" })
-            .end();
+        return ResponseExtensions.unauthorized(res, "Mismatched credentials");
     }
 
     if(code === undefined) {
-        return res
-            .status(400)
-            .json({ error: "No authorization code provided" })
-            .end();
+        return ResponseExtensions.forbidden(res, "No authorization code provided");
     }
 
     const googleOAuth2IdentifierFactory = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory);
@@ -37,19 +29,13 @@ const redirect = async (req: Request, res: Response) => {
     try {
         const tokens = await googleOAuth2ClientProvider.tryAuthorizeWithCodeAsync(String(code));
 
-        return res
-            .status(200)
-            .json(tokens)
-            .end();
+        return ResponseExtensions.ok(res, tokens);
     } catch(ex) {
         const error = ex as Error;
         
         googleOAuth2ClientProvider.logErrorAsync(undefined, error, { ...req.body });
 
-        return res
-            .status(503)
-            .json({ error: error.message ?? ex })
-            .end();
+        return ResponseExtensions.internalError(res, error.message ?? ex);
     }
 };
 
@@ -58,17 +44,11 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
     const userEmail = req.get('X-User-Email');
 
     if (authHeader === undefined) {
-        return res
-            .status(403)
-            .json({ error: "Missing authorization header" })
-            .end();
+        return ResponseExtensions.unauthorized(res, "No access token provided");
     }
 
     if (userEmail === undefined) {
-        return res
-            .status(403)
-            .json({ error: "Missing user email header" })
-            .end();
+        return ResponseExtensions.unauthorized(res, "No user email provided");
     }
     
     const accessToken = authHeader.replace('Bearer ', '');

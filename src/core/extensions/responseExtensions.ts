@@ -10,6 +10,10 @@ export class ResponseExtensions {
         .end();
     
     public static badRequest = (res: Response, message: string) => ResponseExtensions.jsonResponse(res, 400, { error: message });
+
+    public static unauthorized = (res: Response, message: string) => ResponseExtensions.jsonResponse(res, 401, { error: message });
+
+    public static forbidden = (res: Response, message: string) => ResponseExtensions.jsonResponse(res, 403, { error: message });
     
     public static internalError = (res: Response, message: string) => ResponseExtensions.jsonResponse(res, 500, { error: message });
 
