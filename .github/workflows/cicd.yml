@@ -9,6 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - name: Telegram Notify Workflow Start
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_CHAT_ID }}
+        token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        message: |
+          Started *${{ github.repository }} ${{ github.workflow }}* #${{ github.run_number }}
+
     - uses: actions/checkout@v3
 
     - name: Install
@@ -148,3 +156,26 @@ jobs:
           MARIADB_NFS_SERVER: ${{ vars.MARIADB_NFS_SERVER }}
           MARIADB_NFS_PATH: ${{ vars.MARIADB_NFS_PATH }}
           CRONTAB: ${{ vars.CRONTAB }}
+  
+  post-deploy:
+    name: Post-deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Telegram Notify Workflow Success
+      if: success()
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_CHAT_ID }}
+        token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        message: |
+          ✅ *${{ github.repository }} ${{ github.workflow }}* #${{ github.run_number }} was successful
+          
+    - name: Telegram Notify Workflow Failure
+      if: success()
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_CHAT_ID }}
+        token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        message: |
+          ❌ *${{ github.repository }} ${{ github.workflow }}* #${{ github.run_number }} was unsuccessful
