@@ -41,7 +41,7 @@ spec:
               FETCH_TRANSACTION_IDS_URL="$UNIXPENSE_API_URL/transactions/gmail/ids/last/20?skip_saved=true&skip_depth=10"
               SAVE_TRANSACTIONS_URL="$UNIXPENSE_API_URL/transactions/gmail/save"
 
-              echo -n "Resolving OAuth2 Access Token... "
+              echo -n "- Resolving OAuth2 Access Token... "
 
               ACCESS_TOKEN_QUERY="\
                 SELECT access_token
@@ -56,7 +56,7 @@ spec:
 
               echo $ACCESS_TOKEN
 
-              echo -n "Fetching new transaction IDs... "
+              echo -n "- Fetching new transaction IDs... "
 
               TRANSACTION_IDS=$(curl -s \
                 -X GET "$FETCH_TRANSACTION_IDS_URL" \
@@ -74,7 +74,7 @@ spec:
 
               echo "Received $TRANSACTION_ID_COUNT new transaction(s)."
 
-              echo -n "Saving new transaction IDs... "
+              echo -n "- Saving new transaction IDs... "
 
               RESULT=$(curl -s \
                 -X POST "$SAVE_TRANSACTIONS_URL" \
@@ -93,7 +93,7 @@ spec:
 
                 TELEGRAM_MESSAGE=$RESULT_MESSAGE
               elif [ "$RESULT_ERROR" != null ]; then
-                echo Failure: $RESULT_ERROR
+                echo Failed: $RESULT_ERROR
 
                 TELEGRAM_MESSAGE=$RESULT_ERROR
               else
@@ -102,7 +102,21 @@ spec:
                 TELEGRAM_MESSAGE=$RESULT
               fi
 
-              curl -s \
+              echo -n "- Sending result to Telegram... "
+
+              TELEGRAM_API_RESULT=$(curl -s \
                 -X POST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage \
                 -H 'Content-Type: application/json' \
-                -d "{\"chat_id\": \"$TELEGRAM_CHAT_ID\", \"text\": $TELEGRAM_MESSAGE \"disable_notification\": true}"
+                -d "{\"chat_id\": \"$TELEGRAM_CHAT_ID\", \"text\": $TELEGRAM_MESSAGE, \"disable_notification\": true}")
+
+              TELEGRAM_API_SUCCESSFUL=$(echo $TELEGRAM_API_RESULT | jq '.ok')
+
+              if [ "$TELEGRAM_API_RESULT" -eq "false" ]; then
+                TELEGRAM_API_ERROR_DESCRIPTION=$(echo $TELEGRAM_API_RESULT | jq '.description')
+
+                echo "Failed: $TELEGRAM_API_ERROR_DESCRIPTION"
+
+                exit
+              fi
+
+              echo Success
