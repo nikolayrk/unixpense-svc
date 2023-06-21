@@ -105,6 +105,18 @@ jobs:
               "cookie-secret": "${{ secrets.OAUTH2_PROXY_COOKIE_SECRET }}"
             }
 
+      - name: Create Telegram Kubernetes Secret
+        uses: Azure/k8s-create-secret@v4
+        with:
+          namespace: 'unixpense'
+          secret-type: 'generic'
+          secret-name: telegram-secret
+          string-data: |
+            {
+              "TELEGRAM_BOT_TOKEN": "${{ secrets.TELEGRAM_BOT_TOKEN }}",
+              "TELEGRAM_CHAT_ID": "${{ secrets.TELEGRAM_CHAT_ID }}"
+            }
+
       - name: Deploy to Kubernetes Cluster
         uses: swdotcom/update-and-apply-kubernetes-configs@v1
         with:

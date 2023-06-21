@@ -28,6 +28,9 @@ spec:
                 secretKeyRef:
                   name: mariadb-secret
                   key: MARIADB_PASSWORD
+            envFrom:
+            - secretRef:
+                name: telegram-secret
             command:
             - /bin/sh
             - -ec
@@ -83,11 +86,23 @@ spec:
 
               RESULT_MESSAGE=$(echo $RESULT | jq '.message')
               RESULT_ERROR=$(echo $RESULT | jq '.error')
+              TELEGRAM_MESSAGE=""
 
               if [ "$RESULT_MESSAGE" != null ]; then
                 echo Success: $RESULT_MESSAGE
+
+                TELEGRAM_MESSAGE=$RESULT_MESSAGE
               elif [ "$RESULT_ERROR" != null ]; then
                 echo Failure: $RESULT_ERROR
+
+                TELEGRAM_MESSAGE=$RESULT_ERROR
               else
                 echo Unexpected result: $RESULT
+
+                TELEGRAM_MESSAGE=$RESULT
               fi
+
+              curl -s \
+                -X POST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage \
+                -H 'Content-Type: application/json' \
+                -d '{"chat_id": "$TELEGRAM_CHAT_ID", "text": $TELEGRAM_MESSAGE, "disable_notification": true}'
