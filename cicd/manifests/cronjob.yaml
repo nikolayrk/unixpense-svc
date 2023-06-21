@@ -38,8 +38,8 @@ spec:
               apt-get -qy update; apt-get -qy -o=Dpkg::Use-Pty=0 install curl jq
 
               UNIXPENSE_API_URL=http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api
-              FETCH_TRANSACTION_IDS_URL="$UNIXPENSE_API_URL"/transactions/gmail/ids/last/20?skip_saved=true&skip_depth=10
-              SAVE_TRANSACTIONS_URL="$UNIXPENSE_API_URL"/transactions/gmail/save
+              FETCH_TRANSACTION_IDS_URL="$UNIXPENSE_API_URL/transactions/gmail/ids/last/20?skip_saved=true&skip_depth=10"
+              SAVE_TRANSACTIONS_URL="$UNIXPENSE_API_URL/transactions/gmail/save"
 
               echo -n "Resolving OAuth2 Access Token... "
 
@@ -59,7 +59,7 @@ spec:
               echo -n "Fetching new transaction IDs... "
 
               TRANSACTION_IDS=$(curl -s \
-                -X GET $FETCH_TRANSACTION_IDS_URL \
+                -X GET "$FETCH_TRANSACTION_IDS_URL" \
                 -H "X-User-Email: $GMAIL_ADDRESS" \
                 -H "Authorization: Bearer $ACCESS_TOKEN" \
                 -H "Accept: application/json")
@@ -77,7 +77,7 @@ spec:
               echo -n "Saving new transaction IDs... "
 
               RESULT=$(curl -s \
-                -X POST $SAVE_TRANSACTIONS_URL \
+                -X POST "$SAVE_TRANSACTIONS_URL" \
                 -H "X-User-Email: $GMAIL_ADDRESS" \
                 -H "Authorization: Bearer $ACCESS_TOKEN" \
                 -H "Accept: application/json" \
@@ -105,4 +105,4 @@ spec:
               curl -s \
                 -X POST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage \
                 -H 'Content-Type: application/json' \
-                -d '{"chat_id": "$TELEGRAM_CHAT_ID", "text": $TELEGRAM_MESSAGE, "disable_notification": true}'
+                -d "{\"chat_id\": \"$TELEGRAM_CHAT_ID\", \"text\": $TELEGRAM_MESSAGE \"disable_notification\": true}"
