@@ -19,6 +19,7 @@ jobs:
 
   pre-build:
     name: Pre-build
+    needs: telegram-notify-start
     runs-on: ubuntu-latest
     
     steps:
@@ -164,7 +165,7 @@ jobs:
   
   telegram-notify-success:
     name: Telegram Notify Workflow Success
-    if: ${{ always() && contains(needs.*.result, 'success') }}
+    if: success()
     needs: [ pre-build, build, deploy ]
     runs-on: ubuntu-latest
     
