@@ -40,6 +40,8 @@ Environment variables used by this project. `var` and `secret` refer to variable
 | KUBERNETES_URL              | Kubernetes API URL                                       | var         |
 | KUBECONFIG                  | Kubernetes Config Resource                               | secret      |
 | CRONTAB                     | Cron schedule expression for the CronJob                 | var         |
+| TELEGRAM_BOT_TOKEN          | Telegram Bot Token for sending notifications             | secret      |
+| TELEGRAM_CHAT_ID            | Telegram Chat ID for sending notifications               | secret      |
 
 ## Basic Setup
 
@@ -153,9 +155,10 @@ The Actions workflow consists of three jobs, the high-level operations of which 
 
 ### Pre-build
 
-1. Install dependencies
-2. Run Linter
-3. Run Tests
+1. Notify the workflow starting
+2. Install dependencies
+3. Run Linter
+4. Run Tests
 
 ### Build
 
@@ -167,6 +170,10 @@ The Actions workflow consists of three jobs, the high-level operations of which 
 1. Establish a connection to the Kubernetes API
 2. Create Kubernetes Secrets for any sensitive app data
 3. Create the necessary Kubernetes components for the app's deployment, persistence and networking
+
+### Post-deploy
+
+1. Notify the workflow finishing
 
 Once done, take note of the **Client ID** and **Client Secret**.
 
