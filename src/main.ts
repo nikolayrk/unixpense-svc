@@ -1,7 +1,6 @@
 import dotenv from 'dotenv'
 dotenv.config();
 import "reflect-metadata"
-import express from 'express';
 import { DependencyInjector } from './dependencyInjector';
 import ILogger from './core/contracts/ILogger';
 import { injectables } from './core/types/injectables';
