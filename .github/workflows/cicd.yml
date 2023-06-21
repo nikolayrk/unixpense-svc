@@ -159,6 +159,7 @@ jobs:
   
   post-deploy:
     name: Post-deploy
+    needs: [ pre-build, build, deploy ]
     runs-on: ubuntu-latest
     
     steps:
@@ -172,7 +173,7 @@ jobs:
           ✅ *${{ github.repository }} ${{ github.workflow }}* #${{ github.run_number }} was successful
           
     - name: Telegram Notify Workflow Failure
-      if: success()
+      if: ${{ always() && contains(needs.*.result, 'failure') }}
       uses: appleboy/telegram-action@master
       with:
         to: ${{ secrets.TELEGRAM_CHAT_ID }}
