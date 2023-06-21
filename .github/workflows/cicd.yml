@@ -15,7 +15,7 @@ jobs:
         to: ${{ secrets.TELEGRAM_CHAT_ID }}
         token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         message: |
-          Started *${{ github.repository }} ${{ github.workflow }}* #${{ github.run_number }}
+          Started ${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }}
 
     - uses: actions/checkout@v3
 
@@ -170,7 +170,7 @@ jobs:
         to: ${{ secrets.TELEGRAM_CHAT_ID }}
         token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         message: |
-          ✅ *${{ github.repository }} ${{ github.workflow }}* #${{ github.run_number }} was successful
+          ✅ ${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was successful
           
     - name: Telegram Notify Workflow Failure
       if: ${{ always() && contains(needs.*.result, 'failure') }}
@@ -179,4 +179,4 @@ jobs:
         to: ${{ secrets.TELEGRAM_CHAT_ID }}
         token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         message: |
-          ❌ *${{ github.repository }} ${{ github.workflow }}* #${{ github.run_number }} was unsuccessful
+          ❌ ${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was unsuccessful
