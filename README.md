@@ -153,12 +153,15 @@ When ran as a service, a [CronJob](https://kubernetes.io/docs/concepts/workloads
 
 The Actions workflow consists of three jobs, the high-level operations of which are detailed below:
 
-### Pre-build
+### Telegram Notify Start
 
 1. Notify the workflow starting
-2. Install dependencies
-3. Run Linter
-4. Run Tests
+
+### Pre-build
+
+1. Install dependencies
+2. Run Linter
+3. Run Tests
 
 ### Build
 
@@ -171,9 +174,9 @@ The Actions workflow consists of three jobs, the high-level operations of which 
 2. Create Kubernetes Secrets for any sensitive app data
 3. Create the necessary Kubernetes components for the app's deployment, persistence and networking
 
-### Post-deploy
+### Telegram Notify Success / Failed
 
-1. Notify the workflow finishing
+1. Notify the workflow finishing depending on its result
 
 Once done, take note of the **Client ID** and **Client Secret**.
 

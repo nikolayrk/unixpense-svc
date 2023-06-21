@@ -4,12 +4,12 @@ on: push
 
 jobs:
 
-  pre-build:
-    name: Pre-build
+  telegram-notify-start:
+    name: Telegram Notify Workflow Start
     runs-on: ubuntu-latest
     
     steps:
-    - name: Telegram Notify Workflow Start
+    - name: Telegram Notify
       uses: appleboy/telegram-action@master
       with:
         to: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -17,6 +17,11 @@ jobs:
         message: |
           Started ${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }}
 
+  pre-build:
+    name: Pre-build
+    runs-on: ubuntu-latest
+    
+    steps:
     - uses: actions/checkout@v3
 
     - name: Install
@@ -157,13 +162,14 @@ jobs:
           MARIADB_NFS_PATH: ${{ vars.MARIADB_NFS_PATH }}
           CRONTAB: ${{ vars.CRONTAB }}
   
-  post-deploy:
-    name: Post-deploy
+  telegram-notify-success:
+    name: Telegram Notify Workflow Success
+    if: ${{ always() && contains(needs.*.result, 'success') }}
     needs: [ pre-build, build, deploy ]
     runs-on: ubuntu-latest
     
     steps:
-    - name: Telegram Notify Workflow Success
+    - name: Telegram Notify
       if: success()
       uses: appleboy/telegram-action@master
       with:
@@ -171,9 +177,15 @@ jobs:
         token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         message: |
           ✅ ${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was successful
-          
-    - name: Telegram Notify Workflow Failure
-      if: ${{ always() && contains(needs.*.result, 'failure') }}
+    
+  telegram-notify-failed:
+    name: Telegram Notify Workflow Failure
+    if: ${{ always() && contains(needs.*.result, 'failure') }}
+    needs: [ pre-build, build, deploy ]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Telegram Notify
       uses: appleboy/telegram-action@master
       with:
         to: ${{ secrets.TELEGRAM_CHAT_ID }}
