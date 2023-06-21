@@ -32,14 +32,18 @@ spec:
             - /bin/sh
             - -ec
             - |
-              apt-get -qy update; apt-get -qy -o=Dpkg::Use-Pty=0 install curl
+              apt-get -qy update; apt-get -qy -o=Dpkg::Use-Pty=0 install curl jq
+
+              UNIXPENSE_API_URL=http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api
+              FETCH_TRANSACTION_IDS_URL="$UNIXPENSE_API_URL"/transactions/gmail/ids/last/20?skip_saved=true&skip_depth=10
+              SAVE_TRANSACTIONS_URL="$UNIXPENSE_API_URL"/transactions/gmail/save
+
+              echo -n "Resolving OAuth2 Access Token... "
 
               ACCESS_TOKEN_QUERY="\
                 SELECT access_token
                 FROM google_oauth2_tokens
                 WHERE user_email='$GMAIL_ADDRESS'"
-
-              echo -n Resolving OAuth2 Access Token...
 
               ACCESS_TOKEN=$(mariadb unixpense \
                 -h mariadb-service.unixpense.svc.cluster.local \
@@ -49,24 +53,41 @@ spec:
 
               echo $ACCESS_TOKEN
 
-              echo -n Fetching new transaction IDs...
+              echo -n "Fetching new transaction IDs... "
 
               TRANSACTION_IDS=$(curl -s \
-                -X GET "http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api/transactions/gmail/ids/last/20?skip_saved=true&skip_depth=10" \
+                -X GET $FETCH_TRANSACTION_IDS_URL \
                 -H "X-User-Email: $GMAIL_ADDRESS" \
                 -H "Authorization: Bearer $ACCESS_TOKEN" \
                 -H "Accept: application/json")
 
-              echo $TRANSACTION_IDS
+              TRANSACTION_ID_COUNT=$(echo $TRANSACTION_IDS | jq 'length')
 
-              echo -n Saving new transaction IDs...
+              if [ "$TRANSACTION_ID_COUNT" -eq "0" ]; then
+                echo No new transactions.
+
+                exit
+              fi
+
+              echo "Received $TRANSACTION_ID_COUNT new transaction(s)."
+
+              echo -n "Saving new transaction IDs... "
 
               RESULT=$(curl -s \
-                -X POST "http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api/transactions/gmail/save" \
+                -X POST $SAVE_TRANSACTIONS_URL \
                 -H "X-User-Email: $GMAIL_ADDRESS" \
                 -H "Authorization: Bearer $ACCESS_TOKEN" \
                 -H "Accept: application/json" \
                 -H "Content-Type: application/json" \
                 -d $TRANSACTION_IDS)
 
-              echo Response: $RESULT
+              RESULT_MESSAGE=$(echo $RESULT | jq '.message')
+              RESULT_ERROR=$(echo $RESULT | jq '.error')
+
+              if [ "$RESULT_MESSAGE" != null ]; then
+                echo Success: $RESULT_MESSAGE
+              elif [ "$RESULT_ERROR" != null ]; then
+                echo Failure: $RESULT_ERROR
+              else
+                echo Unexpected result: $RESULT
+              fi
