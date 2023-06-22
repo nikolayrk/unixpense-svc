@@ -178,13 +178,13 @@ The high-level operations of each job in the workflow are outlined below:
 
 1. Notify the workflow finishing depending on its result
 
-Once done, take note of the **Client ID** and **Client Secret**.
-
 ## Authentication
 
 Authentication is handled by [OAuth2 Proxy](https://github.com/oauth2-proxy/oauth2-proxy) using Google as the IdP and [Redis](https://redis.io/) for session storage.
 
 > **_NOTE:_**  In order to use OAuth2 Authentication, you have to add https://_[UNIXPENSE_HOST]_/_[UNIXPENSE_HOST_PREFIX]_/oauth2/callback as an additional redirect URI to your Google OAuth Credentials.
+
+Once done, take note of the **Client ID** and **Client Secret**.
 
 ## Persistence
 
