@@ -5,7 +5,7 @@ on: push
 jobs:
 
   telegram-notify-start:
-    name: Telegram Notify Workflow Start
+    name: Telegram Notify Start
     runs-on: ubuntu-latest
     
     steps:
@@ -164,7 +164,7 @@ jobs:
           CRONTAB: ${{ vars.CRONTAB }}
   
   telegram-notify-success:
-    name: Telegram Notify Workflow Success
+    name: Telegram Notify Success
     if: success()
     needs: [ pre-build, build, deploy ]
     runs-on: ubuntu-latest
@@ -180,7 +180,7 @@ jobs:
           ✅ ${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was successful
     
   telegram-notify-failed:
-    name: Telegram Notify Workflow Failure
+    name: Telegram Notify Failed
     if: ${{ always() && contains(needs.*.result, 'failure') }}
     needs: [ pre-build, build, deploy ]
     runs-on: ubuntu-latest
