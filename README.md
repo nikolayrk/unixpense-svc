@@ -151,7 +151,7 @@ When ran as a service, a [CronJob](https://kubernetes.io/docs/concepts/workloads
 
 > **_NOTE:_** The current recommended way to setup all the necessary components needed for the service to function, is by using the GitHub Actions CI-CD workflow. There also exists a Jenkins pipeline, which was used in the past, but is now deprecated and does not contain all the steps available in the Actions workflow.
 
-The Actions workflow consists of three jobs, the high-level operations of which are detailed below:
+The high-level operations of each job in the workflow are outlined below:
 
 ### Telegram Notify Start
 
