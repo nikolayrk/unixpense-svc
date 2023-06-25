@@ -50,53 +50,57 @@ export default class GmailTransactionDataProvider implements ITransactionDataPro
     }
 
     private parseTransactionDataHtml(attachmentData: string) {
-        const transactionData = htmlParse(attachmentData).
-            childNodes[1].       // <html>
-            childNodes[3].       // <body>
-            childNodes[12].      // <table>
-            childNodes[5].       // <tr>
-            childNodes;          // <td>[]
+        const transactionData = htmlParse(attachmentData)
+            .childNodes[1]      // <html>
+            ?.childNodes[3]     // <body>
+            ?.childNodes[12]    // <table>
+            ?.childNodes[5]     // <tr>
+            ?.childNodes;       // <td>[]
 
         return transactionData;
     }
 
     private parseDate(transactionData: Node[]) {
-        const date = dateParse(transactionData[1]
-            .childNodes[0]
-            .rawText, 'DD.MM.YYYY HH:mm:ss');
+        const date = dateParse(transactionData
+            ?.[1]
+            ?.childNodes[0]
+            ?.rawText, 'DD.MM.YYYY HH:mm:ss');
 
         return date;
     }
 
     private parseReference(transactionData: Node[]) {
-        const reference = transactionData[3]
-            .childNodes[1]
-            .childNodes[0]
-            .rawText;
+        const reference = transactionData
+            ?.[3]
+            ?.childNodes[1]
+            ?.childNodes[0]
+            ?.rawText;
 
         return reference;
     }
 
     private parseValueDate(transactionData: Node[]) {
-        const valueDate = dateParse(transactionData[5]
-            .childNodes[0]
-            .rawText, 'DD.MM.YYYY');
+        const valueDate = dateParse(transactionData
+            ?.[5]
+            ?.childNodes[0]
+            ?.rawText, 'DD.MM.YYYY');
 
         return valueDate;
     }
 
     private parseSum(transactionData: Node[]) {
-        const sum = transactionData[7]
-            .childNodes[0]
-            .rawText;
+        const sum = transactionData
+            ?.[7]
+            ?.childNodes[0]
+            ?.rawText;
 
         return sum;
     }
 
     private parseEntryType(transactionData: Node[], transactionReference: string) {
-        const entryTypeStr = transactionData[9]
-            .childNodes[0]
-            .rawText;
+        const entryTypeStr = transactionData?.[9]
+            ?.childNodes[0]
+            ?.rawText;
 
         const entryType: EntryType = (entryTypeStr == 'ДТ' || entryTypeStr == 'DR')
             ? EntryType.DEBIT
@@ -113,11 +117,15 @@ export default class GmailTransactionDataProvider implements ITransactionDataPro
 
     private parseTransactionType(transactionData: Node[], transactionReference: string) {
         const maxDataLineLength = 100;
-        const dataElementCount = transactionData[11].childNodes.length;
+        const dataElementCount = transactionData
+            ?.[11]
+            ?.childNodes
+            ?.length;
         let dataRawCount = 0;
-        const dataRaw = transactionData[11]
-            .childNodes
-            .reduce((accumulator, current, i) => {
+        const dataRaw = transactionData
+            ?.[11]
+            ?.childNodes
+            ?.reduce((accumulator, current, i) => {
                 const currentString = current.toString();
 
                 // Treat <br> variants as linebreaks
@@ -161,8 +169,9 @@ export default class GmailTransactionDataProvider implements ITransactionDataPro
         const typeRegex = new RegExp(`([ ]?[\/]?(${TRANSACTION_TYPES.join('|')})[ ]?)`);
 
         const found = dataRaw
-            .map(e => typeRegex.exec(e)?.[2])
-            .flat()?.[0] ?? null;
+            ?.map(e => typeRegex.exec(e)?.[2])
+            ?.flat()
+            ?.[0] ?? null;
 
         const typeByString = found as keyof typeof transactionTypesByString;
 
@@ -179,8 +188,8 @@ export default class GmailTransactionDataProvider implements ITransactionDataPro
         }
 
         const paymentDetailsRaw = dataRaw
-            .map(e => e.replace(typeRegex, ''))
-            .filter(e => e != '');
+            ?.map(e => e.replace(typeRegex, ''))
+            ?.filter(e => e != '');
 
         return { transactionType, paymentDetailsRaw };
     }

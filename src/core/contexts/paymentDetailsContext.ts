@@ -70,8 +70,7 @@ export default class PaymentDetailsContext {
             this.logger.log(`Falling back to using default payment details body...`, {
                 transactionReference: reference,
                 transactionType: transactionType
-            }
-        );
+            });
         
         return PaymentDetailsFactory.default;
     }
