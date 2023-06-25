@@ -33,6 +33,7 @@ import GmailApiClient from './gmail/clients/gmailApiClient';
 import GoogleOAuth2IdentifiersFactory from './googleOAuth2/factories/googleOAuth2IdentifiersFactory';
 import ServiceContexts from './core/enums/serviceContexts';
 import ITransactionProvider from './core/contracts/ITransactionProvider';
+import IOAuth2ClientProvider from './googleOAuth2/contracts/IOAuth2ClientProvider';
 
 export class DependencyInjector {
     private static singleton: DependencyInjector;
@@ -40,15 +41,9 @@ export class DependencyInjector {
     private readonly container: Container;
     
     private constructor() {
-        const container = new Container();
+        this.container = new Container();
 
-        this.container = container;
-
-        container.bind<ILogger>(injectables.ILogger).to(WinstonLokiLogger).inSingletonScope();
-        container.bind<PaymentDetailsFactory>(injectables.PaymentDetailsFactory).to(PaymentDetailsFactory);
-        container.bind<PaymentDetailsContext>(injectables.PaymentDetailsContext).to(PaymentDetailsContext);
-        container.bind<TransactionFactory>(injectables.TransactionFactory).to(TransactionFactory);
-        container.bind<TransactionRepository>(injectables.TransactionRepository).to(TransactionRepository);
+        this.registerCoreServices();
     }
 
     public static get Singleton() {
@@ -73,16 +68,14 @@ export class DependencyInjector {
 
     public registerGmailServices() {
         this.registerServicesByContext(ServiceContexts.GMAIL);
+    }
 
-        this.container.bind<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory).to(GoogleOAuth2IdentifiersFactory);
-        this.container.bind<GoogleOAuth2TokensRepository>(injectables.GoogleOAuth2TokensRepository).to(GoogleOAuth2TokensRepository);
-        this.container.bind<GoogleOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProvider).to(GoogleOAuth2ClientProvider).inRequestScope();
-        this.container.bind<GmailApiClient>(injectables.GmailApiClient).to(GmailApiClient).inRequestScope();
-
-        this.registerGoogleServiceGenerator(injectables.GoogleOAuth2ClientProviderGenerator, injectables.GoogleOAuth2ClientProvider);
-        this.registerGoogleServiceGenerator(injectables.GmailApiClientGenerator, injectables.GmailApiClient);
-        this.registerGoogleServiceGenerator(injectables.GmailTransactionSourceProviderGenerator, injectables.ITransactionSourceProvider);
-        this.registerGoogleServiceGenerator(injectables.GmailTransactionProviderGenerator, injectables.ITransactionProvider);
+    private registerCoreServices() {
+        this.container.bind<ILogger>(injectables.ILogger).to(WinstonLokiLogger).inSingletonScope();
+        this.container.bind<PaymentDetailsFactory>(injectables.PaymentDetailsFactory).to(PaymentDetailsFactory);
+        this.container.bind<PaymentDetailsContext>(injectables.PaymentDetailsContext).to(PaymentDetailsContext);
+        this.container.bind<TransactionFactory>(injectables.TransactionFactory).to(TransactionFactory);
+        this.container.bind<TransactionRepository>(injectables.TransactionRepository).to(TransactionRepository);
     }
 
     private registerServicesByContext(context: ServiceContexts) {
@@ -95,8 +88,19 @@ export class DependencyInjector {
                 this.container.bind<IStandardFeeStrategy>(injectables.IStandardFeeStrategy).to(GmailStandardFeeStrategy);
                 this.container.bind<IStandardTransferStrategy>(injectables.IStandardTransferStrategy).to(GmailStandardTransferStrategy);
                 this.container.bind<ITransactionDataProvider>(injectables.ITransactionDataProvider).to(GmailTransactionDataProvider);
+                
+                this.container.bind<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory).to(GoogleOAuth2IdentifiersFactory);
+                this.container.bind<GoogleOAuth2TokensRepository>(injectables.GoogleOAuth2TokensRepository).to(GoogleOAuth2TokensRepository);
+
                 this.container.bind<ITransactionSourceProvider>(injectables.ITransactionSourceProvider).to(GmailTransactionSourceProvider);
                 this.container.bind<ITransactionProvider>(injectables.ITransactionProvider).to(GmailTransactionProvider);
+                this.container.bind<IOAuth2ClientProvider>(injectables.IOAuth2ClientProvider).to(GoogleOAuth2ClientProvider).inRequestScope();
+                this.container.bind<GmailApiClient>(injectables.GmailApiClient).to(GmailApiClient).inRequestScope();
+        
+                this.registerGoogleServiceGenerator(injectables.GoogleOAuth2ClientProviderGenerator, injectables.IOAuth2ClientProvider);
+                this.registerGoogleServiceGenerator(injectables.GmailApiClientGenerator, injectables.GmailApiClient);
+                this.registerGoogleServiceGenerator(injectables.GmailTransactionSourceProviderGenerator, injectables.ITransactionSourceProvider);
+                this.registerGoogleServiceGenerator(injectables.GmailTransactionProviderGenerator, injectables.ITransactionProvider);
 
                 break;
             default:
