@@ -22,7 +22,7 @@ const redirect = async (req: Request, res: Response) => {
 
     const googleOAuth2IdentifierFactory = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory);
     
-    const identifiers = googleOAuth2IdentifierFactory.create(String(redirect_uri));
+    const identifiers = googleOAuth2IdentifierFactory.create({ redirectUri: String(redirect_uri) });
   
     try {
         const googleOAuth2ClientProvider = await DependencyInjector.Singleton.generateServiceAsync<IOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProviderGenerator, identifiers);
@@ -39,21 +39,16 @@ const redirect = async (req: Request, res: Response) => {
 
 const protect = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.get('Authorization');
-    const userEmail = req.get('X-User-Email');
 
     if (authHeader === undefined) {
         return ResponseExtensions.unauthorized(res, "No access token provided");
-    }
-
-    if (userEmail === undefined) {
-        return ResponseExtensions.unauthorized(res, "No user email provided");
     }
     
     const accessToken = authHeader.replace('Bearer ', '');
 
     const googleOAuth2IdentifierFactory = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory);
     
-    const identifiers = googleOAuth2IdentifierFactory.create(undefined, userEmail, accessToken);
+    const identifiers = googleOAuth2IdentifierFactory.create({ accessToken });
 
     res.locals.googleOAuth2Identifiers = identifiers;
 

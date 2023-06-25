@@ -66,11 +66,11 @@ export default class GoogleOAuth2TokensRepository {
             return null;
         }
 
-        const identifiers = this.googleOAuth2IdentifiersFactory.create(
-            undefined,
-            entity.user_email,
-            entity.access_token,
-            entity.refresh_token);
+        const identifiers = this.googleOAuth2IdentifiersFactory.create({
+            userEmail: entity.user_email,
+            accessToken: entity.access_token,
+            refreshToken: entity.refresh_token
+        });
         
         return identifiers;
     }

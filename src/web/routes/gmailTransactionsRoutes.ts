@@ -19,10 +19,6 @@ const router = express.Router();
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: X-User-Email
- *         in: header
- *         required: true
- *         type: string
  *       - name: last
  *         in: path
  *         required: true
@@ -74,11 +70,6 @@ router.route('/ids/last/:last').get(gmailTransactionsController.getLast);
  *         - https://www.googleapis.com/auth/gmail.readonly
  *     produces:
  *       - application/json
- *     parameters:
- *       - name: X-User-Email
- *         in: header
- *         required: true
- *         type: string
  *     requestBody:
  *       description: Array of transaction IDs to resolve.
  *       required: true
@@ -128,11 +119,6 @@ router.route('/resolve').post(gmailTransactionsController.resolve);
  *         - https://www.googleapis.com/auth/gmail.readonly
  *     produces:
  *       - application/json
- *     parameters:
- *       - name: X-User-Email
- *         in: header
- *         required: true
- *         type: string
  *     requestBody:
  *       description: Array of transaction IDs to save.
  *       required: true
