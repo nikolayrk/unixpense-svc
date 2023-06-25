@@ -1,23 +1,29 @@
 import { gmail_v1, google } from 'googleapis';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import GmailMessageData from '../models/gmailMessageData';
 import GoogleOAuth2ClientProvider from '../../googleOAuth2/providers/googleOAuth2ClientProvider';
 import { injectables } from '../../core/types/injectables';
 import GoogleOAuth2Identifiers from '../../googleOAuth2/models/googleOAuth2Identifiers';
 import { DependencyInjector } from '../../dependencyInjector';
 import IUsesGoogleOAuth2 from '../../googleOAuth2/contracts/IUsesGoogleOAuth2';
+import ILogger from '../../core/contracts/ILogger';
 
 @injectable()
 export default class GmailApiClient implements IUsesGoogleOAuth2 {
+    private readonly searchQuery: string = 'from:pb@unicreditgroup.bg subject: "Dvizhenie po smetka"';
+    private readonly maxExponentialBackoffDepth: number = 4;
+
+    private logger;
     private googleOAuth2ClientProvider: GoogleOAuth2ClientProvider;
     private gmail: gmail_v1.Gmail;
 
     private exponentialBackoffDepth = 0;
 
-    private readonly searchQuery: string = 'from:pb@unicreditgroup.bg subject: "Dvizhenie po smetka"';
-    private readonly maxExponentialBackoffDepth: number = 4;
-
-    public constructor() {
+    public constructor(
+        @inject(injectables.ILogger)
+        logger: ILogger
+    ) {
+        this.logger = logger;
         this.googleOAuth2ClientProvider = null!;
         this.gmail = null!;
     }
@@ -32,7 +38,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
 
         for (const messageItem of messages) {
             if (messageItem.id === null || messageItem.id === undefined) {
-                this.logWarning('Empty message id. Skipping...', { messageItem: JSON.stringify(messageItem) });
+                this.logger.warn('Empty message id. Skipping...', { messageItem: JSON.stringify(messageItem) });
 
                 continue;
             }
@@ -76,7 +82,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
     }
     
     private async fetchMessagesAsync(pageToken?: string | undefined) {
-        this.logEvent(`Requesting messages...`);
+        this.logger.log(`Requesting messages...`);
 
         const response = await this.makeApiCallAsync(async () =>
             await this.gmail.users.messages.list({
@@ -90,7 +96,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
         const nextPageToken = messageList.nextPageToken;
     
         if (messages === undefined) {
-            this.logWarning(`Failed to get messages`);
+            this.logger.warn(`Failed to get messages`);
 
             return { messages: [], nextPageToken: null };
         }
@@ -116,7 +122,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
         try {
             result = await apiCall();
         } catch(ex) {
-            this.logWarning(`Gmail API call failed (${(ex as Error).message ?? ex}). Reattempting after ${this.exponentialBackoffDepth ** 2}s...`);
+            this.logger.warn(`Gmail API call failed (${(ex as Error).message ?? ex}). Reattempting after ${this.exponentialBackoffDepth ** 2}s...`);
             
             result = await this.tryExponentialBackoffAsync(ex, async () => await this.makeApiCallAsync(apiCall));
         }
@@ -139,13 +145,4 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
 
         return result;
     }
-
-    private logEvent = async (message: string, labels?: Record<string, unknown>) =>
-        this.googleOAuth2ClientProvider.logEvent(message, labels);
-
-    private logWarning = async (message: string, labels?: Record<string, unknown>) =>
-        this.googleOAuth2ClientProvider.logWarning(message, labels);
-
-    private logError = async (message: Error, labels?: Record<string, unknown>) =>
-        this.googleOAuth2ClientProvider.logError(message, labels);
 }

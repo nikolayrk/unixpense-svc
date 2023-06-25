@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { DependencyInjector } from "../../dependencyInjector";
-import GoogleOAuth2ClientProvider from "../../googleOAuth2/providers/googleOAuth2ClientProvider";
 import { injectables } from "../../core/types/injectables";
 import GoogleOAuth2IdentifiersFactory from "../../googleOAuth2/factories/googleOAuth2IdentifiersFactory";
 import { ResponseExtensions } from "../../core/extensions/responseExtensions";
+import IOAuth2ClientProvider from "../../googleOAuth2/contracts/IOAuth2ClientProvider";
 
 const redirect = async (req: Request, res: Response) => {
     const { client_id, client_secret, redirect_uri, code } = req.body;
@@ -23,17 +23,15 @@ const redirect = async (req: Request, res: Response) => {
     const googleOAuth2IdentifierFactory = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory);
     
     const identifiers = googleOAuth2IdentifierFactory.create(String(redirect_uri));
-
-    const googleOAuth2ClientProvider = await DependencyInjector.Singleton.generateServiceAsync<GoogleOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProviderGenerator, identifiers);
-    
+  
     try {
-        const tokens = await googleOAuth2ClientProvider.tryAuthorizeWithCodeAsync(String(code));
+        const googleOAuth2ClientProvider = await DependencyInjector.Singleton.generateServiceAsync<IOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProviderGenerator, identifiers);
+
+        const tokens = await googleOAuth2ClientProvider.tryAuthorizeAsync(String(code));
 
         return ResponseExtensions.ok(res, tokens);
     } catch(ex) {
         const error = ex as Error;
-        
-        googleOAuth2ClientProvider.logError(error, { ...req.body });
 
         return ResponseExtensions.internalError(res, error.message ?? ex);
     }
