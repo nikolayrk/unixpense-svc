@@ -43,6 +43,7 @@
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "@typescript-eslint/parser": "^5.40.1",
     "supertest": "^6.3.3",
+    "testcontainers": "^9.9.1",
     "ts-jest": "^29.0.5"
   },
   "dependencies": {
