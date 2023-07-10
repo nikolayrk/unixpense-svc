@@ -29,9 +29,13 @@ export default abstract class AbstractGoogleOAuth2ClientProvider implements IOAu
                 scope: Constants.scopes.join(' '),
                 token_type: "Bearer",
                 access_token: identifiers.accessToken,
+                refresh_token: identifiers.refreshToken
             };
 
-            this.logger.log(`Using OAuth2 Client tokens`, { access_token: tokens.access_token });
+            this.logger.log(`Using OAuth2 Client tokens`, {
+                access_token: tokens.access_token,
+                refresh_token: tokens.refresh_token
+            });
 
             await this.tryHandleTokensAsync(tokens);
         }

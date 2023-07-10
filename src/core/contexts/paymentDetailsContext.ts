@@ -64,7 +64,11 @@ export default class PaymentDetailsContext {
         } catch(ex) {
             const error = ex as Error;
             
-            this.logger.error(error, { transactionReference: reference });
+            if (ex instanceof UnsupportedTxnError) {
+                this.logger.warn(error.message, { transactionReference: reference });
+            } else {
+                this.logger.error(error, { transactionReference: reference });
+            }
         }
 
             this.logger.log(`Falling back to using default payment details body...`, {

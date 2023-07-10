@@ -236,15 +236,15 @@ const logResult = (options: Options, resolvedCount: number, skippedCount: number
                             : ''}`
                         : ``}`
 
-    const { save, ...labels } = options;
+    const { save, skipDepth, ...labels } = options;
 
-    logger.log(response, { ...labels });
+    logger.log(response, { ...labels, ...(!Number.isNaN(skipDepth)) && { skipDepth } });
 };
 
 const logError = (options: Options, error: Error, logger: ILogger) => {
-    const { save, ...labels } = options;
+    const { save, skipDepth, ...labels } = options;
 
-    logger.error(error, { ...labels });
+    logger.error(error, { ...labels, ...(!Number.isNaN(skipDepth)) && { skipDepth } });
 }
 
 export { getLast, resolve, save }
