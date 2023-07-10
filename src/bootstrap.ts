@@ -9,6 +9,7 @@ import { Sequelize } from 'sequelize-typescript';
 import bodyParser from 'body-parser';
 import ILogger from './core/contracts/ILogger';
 import { DependencyInjector } from './dependencyInjector';
+import * as mariadb from 'mariadb';
 
 const registerErrorHandlers = (logger: ILogger) => {
     const signalHandlerAsync = async (signal: string) => {
@@ -53,8 +54,27 @@ const registerErrorHandlers = (logger: ILogger) => {
     process.on('beforeExit', beforeExitAsync);
 }
 
-const createDatabaseConnectionAsync = async(host: string, port: number, username: string, password: string, database: string, logger:ILogger) => {
+const createDatabaseIfNotExistsAsync = async (host: string, port: number, username: string, password: string, database: string) => {
+    const pool = mariadb.createPool({
+        host: host,
+        port: port,
+        user: username,
+        password: password
+    });
+
+    const conn = await pool.getConnection();
+
+    await conn.query(`CREATE DATABASE IF NOT EXISTS \`${database}\`;`);
+
+    await conn.release();
+
+    await pool.end();
+}
+
+const createDatabaseConnectionAsync = async(host: string, port: number, username: string, password: string, database: string, logger: ILogger) => {
     try {
+        await createDatabaseIfNotExistsAsync(host, port, username, password, database);
+
         const connection = new Sequelize({
             dialect: "mariadb",
             host: host,
@@ -76,13 +96,13 @@ const createDatabaseConnectionAsync = async(host: string, port: number, username
     
         await connection.sync();
 
-        logger.log(`Database connection successful`);
+        return connection;
     } catch(ex) {
         const error = ex as Error;
 
         logger.error(error);
 
-        return;
+        return null;
     }
 }
 

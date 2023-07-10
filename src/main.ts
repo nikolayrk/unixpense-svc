@@ -23,7 +23,11 @@ const main = async () => {
     const password = process.env.MARIADB_PASSWORD ?? '';
     const database = process.env.MARIADB_DATABASE ?? 'unixpense';
 
-    await createDatabaseConnectionAsync(host, port, username, password, database, logger);
+    const connection = await createDatabaseConnectionAsync(host, port, username, password, database, logger);
+
+    if (connection === null) {
+        return;
+    }
 
     logger.log('Registering dependencies...');
 
