@@ -9,4 +9,15 @@ export default class Constants {
             ? `https://${process.env.UNIXPENSE_HOST}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
             : `http://${process.env.HOSTNAME ?? 'localhost'}:${process.env.port ?? 8000}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
         }/api/oauthcallback` as const;
+
+    public static readonly Mock = {
+        userEmail: "email",
+        clientId: "client_id",
+        clientSecret: "client_secret",
+        redirectUri: "redirect_uri",
+        authorizationCode: "code",
+        authorizationCodeError: "error_code",
+        accessToken: "access_token",
+        refreshToken: "refresh_token"
+    } as const;
 }
