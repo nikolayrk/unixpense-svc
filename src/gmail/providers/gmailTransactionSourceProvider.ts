@@ -22,7 +22,7 @@ export default class GmailTransactionSourceProvider implements ITransactionSourc
     }
 
     public async useOAuth2IdentifiersAsync(identifiers: GoogleOAuth2Identifiers) {
-        this.gmailApiClient = await DependencyInjector.Singleton.generateServiceAsync(injectables.GmailApiClientGenerator, identifiers);
+        this.gmailApiClient = await DependencyInjector.Singleton.generateGmailServiceAsync(injectables.GmailApiClientGenerator, identifiers);
     }
 
     public generateTransactionIdsAsync() {

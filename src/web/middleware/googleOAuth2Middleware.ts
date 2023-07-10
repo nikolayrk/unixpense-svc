@@ -25,7 +25,7 @@ const redirect = async (req: Request, res: Response) => {
     const identifiers = googleOAuth2IdentifierFactory.create({ redirectUri: String(redirect_uri) });
   
     try {
-        const googleOAuth2ClientProvider = await DependencyInjector.Singleton.generateServiceAsync<IOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProviderGenerator, identifiers);
+        const googleOAuth2ClientProvider = await DependencyInjector.Singleton.generateGmailServiceAsync<IOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProviderGenerator, identifiers);
 
         const tokens = await googleOAuth2ClientProvider.tryAuthorizeAsync(String(code));
 

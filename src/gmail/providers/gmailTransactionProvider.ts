@@ -15,6 +15,6 @@ export default class GmailTransactionProvider extends AbstractTransactionProvide
     }
 
     public async useOAuth2IdentifiersAsync(identifiers: GoogleOAuth2Identifiers) {
-        this.transactionSourceProvider = await DependencyInjector.Singleton.generateServiceAsync(injectables.GmailTransactionSourceProviderGenerator, identifiers);
+        this.transactionSourceProvider = await DependencyInjector.Singleton.generateGmailServiceAsync(injectables.GmailTransactionSourceProviderGenerator, identifiers);
     }
 }

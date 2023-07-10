@@ -33,6 +33,8 @@ import GmailApiClient from './gmail/clients/gmailApiClient';
 import GoogleOAuth2IdentifiersFactory from './googleOAuth2/factories/googleOAuth2IdentifiersFactory';
 import ServiceContexts from './core/enums/serviceContexts';
 import ITransactionProvider from './core/contracts/ITransactionProvider';
+import MockGmailTransactionSourceProvider from './gmail/providers/mockGmailTransactionSourceProvider';
+import MockGoogleOAuth2ClientProvider from './googleOAuth2/providers/mockGoogleOAuth2ClientProvider';
 import IOAuth2ClientProvider from './googleOAuth2/contracts/IOAuth2ClientProvider';
 
 export class DependencyInjector {
@@ -58,13 +60,10 @@ export class DependencyInjector {
         return this.container.get<T>(serviceIdentifier);
     }
 
-    public generateServiceAsync<T>(
+    public generateGmailServiceAsync = <T>(
         providerIdentifier: interfaces.ServiceIdentifier<interfaces.Provider<T>>,
-        ...args: any[]) {
-        const provider = this.container.get<interfaces.Provider<T>>(providerIdentifier);
-
-        return provider(...args) as Promise<T>;
-    }
+        oauth2Identifiers: GoogleOAuth2Identifiers) => 
+            this.generateServiceAsync(providerIdentifier, oauth2Identifiers);
 
     public registerGmailServices() {
         this.registerServicesByContext(ServiceContexts.GMAIL);
@@ -88,14 +87,19 @@ export class DependencyInjector {
                 this.container.bind<IStandardFeeStrategy>(injectables.IStandardFeeStrategy).to(GmailStandardFeeStrategy);
                 this.container.bind<IStandardTransferStrategy>(injectables.IStandardTransferStrategy).to(GmailStandardTransferStrategy);
                 this.container.bind<ITransactionDataProvider>(injectables.ITransactionDataProvider).to(GmailTransactionDataProvider);
-                
+                this.container.bind<ITransactionProvider>(injectables.ITransactionProvider).to(GmailTransactionProvider);
+
                 this.container.bind<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory).to(GoogleOAuth2IdentifiersFactory);
                 this.container.bind<GoogleOAuth2TokensRepository>(injectables.GoogleOAuth2TokensRepository).to(GoogleOAuth2TokensRepository);
 
-                this.container.bind<ITransactionSourceProvider>(injectables.ITransactionSourceProvider).to(GmailTransactionSourceProvider);
-                this.container.bind<ITransactionProvider>(injectables.ITransactionProvider).to(GmailTransactionProvider);
-                this.container.bind<IOAuth2ClientProvider>(injectables.IOAuth2ClientProvider).to(GoogleOAuth2ClientProvider).inRequestScope();
-                this.container.bind<GmailApiClient>(injectables.GmailApiClient).to(GmailApiClient).inRequestScope();
+                if (process.env.NODE_ENV === 'test') {
+                    this.container.bind<ITransactionSourceProvider>(injectables.ITransactionSourceProvider).to(MockGmailTransactionSourceProvider);
+                    this.container.bind<IOAuth2ClientProvider>(injectables.IOAuth2ClientProvider).to(MockGoogleOAuth2ClientProvider).inRequestScope();
+                } else {
+                    this.container.bind<ITransactionSourceProvider>(injectables.ITransactionSourceProvider).to(GmailTransactionSourceProvider);
+                    this.container.bind<IOAuth2ClientProvider>(injectables.IOAuth2ClientProvider).to(GoogleOAuth2ClientProvider).inRequestScope();
+                    this.container.bind<GmailApiClient>(injectables.GmailApiClient).to(GmailApiClient).inRequestScope();
+                }
         
                 this.registerGoogleServiceGenerator(injectables.GoogleOAuth2ClientProviderGenerator, injectables.IOAuth2ClientProvider);
                 this.registerGoogleServiceGenerator(injectables.GmailApiClientGenerator, injectables.GmailApiClient);
@@ -121,4 +125,12 @@ export class DependencyInjector {
                         return service;
                     }
                 });
+
+    private generateServiceAsync<T>(
+        providerIdentifier: interfaces.ServiceIdentifier<interfaces.Provider<T>>,
+        ...args: any[]) {
+        const provider = this.container.get<interfaces.Provider<T>>(providerIdentifier);
+
+        return provider(...args) as Promise<T>;
+    }
 }

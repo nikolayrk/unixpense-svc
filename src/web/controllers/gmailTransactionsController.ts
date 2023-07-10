@@ -179,7 +179,7 @@ const generateTransactionsAsync = async <T>(
         }
         
         const gmailTransactionProvider = await DependencyInjector.Singleton
-            .generateServiceAsync<ITransactionProvider>(injectables.GmailTransactionProviderGenerator, identifiers);
+            .generateGmailServiceAsync<ITransactionProvider>(injectables.GmailTransactionProviderGenerator, identifiers);
 
         for await (const transactionIdOrNull of gmailTransactionProvider.generateAsync(options.ids)) {
             if (options.last !== undefined && results.length + skippedCount >= options.last) {
