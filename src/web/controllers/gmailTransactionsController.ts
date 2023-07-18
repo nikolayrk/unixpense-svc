@@ -18,14 +18,10 @@ const getLast = async (req: Request, res: Response) => {
     const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
 
     const last = req.params.last;
-
-    if (last === "") {
-        return ResponseExtensions.badRequest(res, "No last amount provided");
-    }
     
     const lastValue = Number(last);
 
-    if (Number.isNaN(last) || lastValue < 1) {
+    if (Number.isNaN(lastValue) || lastValue < 1) {
         return ResponseExtensions.badRequest(res, "Invalid last amount provided");
     }
 
@@ -33,7 +29,7 @@ const getLast = async (req: Request, res: Response) => {
     
     const skipDepthValue = Number(skipDepth);
 
-    if (Number.isNaN(skipDepth) || skipDepthValue < 1) {
+    if (skipDepth !== undefined && (Number.isNaN(skipDepthValue) || skipDepthValue < 1)) {
         return ResponseExtensions.badRequest(res, "Invalid skip depth provided");
     }
 
@@ -51,8 +47,6 @@ const getLast = async (req: Request, res: Response) => {
         return ResponseExtensions.ok(res, transactionIds);
     } catch (ex) {
         const error = ex as Error;
-
-        logger.error(error);
 
         return ResponseExtensions.internalError(res, error.message ?? ex);
     }
@@ -75,8 +69,6 @@ const resolve = async (req: Request, res: Response) => {
     } catch (ex) {
         const error = ex as Error;
 
-        logger.error(error);
-
         return ResponseExtensions.internalError(res, error.message ?? ex);
     }
 };
@@ -97,8 +89,6 @@ const save = async (req: Request, res: Response) => {
         return ResponseExtensions.added(res, created, 'transaction');
     } catch (ex) {
         const error = ex as Error;
-
-        logger.error(error);
 
         return ResponseExtensions.internalError(res, error.message ?? ex);
     }
@@ -147,7 +137,7 @@ const saveTransactionsAsync = async (
             ? null
             : gmailTransactionProvider.resolveTransactionOrNullAsync(transactionId));
 
-    const created = await transactionRepository.tryBulkCreate(transactions);
+    const created = await transactionRepository.bulkCreateAsync(transactions);
 
     return created;
 }

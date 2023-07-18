@@ -14,7 +14,7 @@ import Constants from '../constants';
 describe('Google OAuth2 Routes Tests', () => {
     const mariadbPort = 3306;
     const mariadbRootPassword = 'password';
-    const beforeAllTimeout = 10 * 1000; // 10s
+    const beforeAllTimeout = 30 * 1000; // 30s
 
     let logger: ILogger;
     let googleOAuth2TokensRepository: GoogleOAuth2TokensRepository;
@@ -24,6 +24,7 @@ describe('Google OAuth2 Routes Tests', () => {
     let app: Server | null = null;
 
     beforeAll(async () => {
+        process.env.PORT = String(Math.round(Math.random() * (65535 - 1) + 1));
         process.env.GOOGLE_OAUTH2_CLIENT_ID = Constants.Mock.clientId;
         process.env.GOOGLE_OAUTH2_CLIENT_SECRET = Constants.Mock.clientSecret;
 

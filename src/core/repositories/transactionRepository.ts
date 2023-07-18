@@ -13,7 +13,7 @@ export default class TransactionRepository {
     }
 
     // throws RepositoryError
-    public async tryBulkCreate(transactions: Transaction<PaymentDetails>[]) {
+    public async bulkCreateAsync(transactions: Transaction<PaymentDetails>[]) {
         const mapped = transactions.map(TransactionExtensions.MapTransaction);
         
         try {
