@@ -237,7 +237,7 @@ spec:
                   exit 1
                 fi
 
-                echo "Success: $(echo \"$TELEGRAM_API_RESULT | jq '.result')\""
+                echo "Success: $(echo \"$TELEGRAM_API_RESULT\" | jq '.result')"
               }
 
               main
