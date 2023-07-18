@@ -6,7 +6,7 @@ import { registerDependencies } from '../../bootstrap';
 import PaymentDetails from '../../core/models/paymentDetails';
 import ITransactionProvider from '../../core/contracts/ITransactionProvider';
 import TransactionFactory from '../../core/factories/transactionFactory';
-import { transactionDataTestCase } from '../types/transactionDataTestCase';
+import { constructTransactionDataTestCase } from '../types/transactionDataTestCase';
 import { TransactionData } from '../../core/models/transactionData';
 import GoogleOAuth2IdentifiersFactory from '../../googleOAuth2/factories/googleOAuth2IdentifiersFactory';
 
@@ -29,12 +29,14 @@ describe('Gmail Transaction Provider Tests', () => {
         const testCase = entry[1];
 
         it(`should resolve transaction of type ${transactionId}`, async () => {
-            const expectedTransactionData: TransactionData = {
-                ...transactionDataTestCase.expectedTransactionDataHead,
-                ...testCase.expectedTransactionDataBody
+            const transactionHead = constructTransactionDataTestCase(transactionId).expectedTransactionDataHead;
+            const transactionBody = testCase.expectedTransactionDataBody;
+            const transactionData: TransactionData = {
+                ...transactionHead,
+                ...transactionBody
             };
-            const expectedPaymentDetails = testCase.expectedPaymentDetails;
-            const expected = transactionFactory.create(transactionId, expectedTransactionData, expectedPaymentDetails);
+            const paymentDetails = testCase.expectedPaymentDetails;
+            const expected = transactionFactory.create(transactionId, transactionData, paymentDetails);
 
             const actual = await transactionProvider.resolveTransactionOrNullAsync(transactionId);
 

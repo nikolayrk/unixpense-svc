@@ -5,7 +5,7 @@ import GoogleOAuth2Identifiers from "../../googleOAuth2/models/googleOAuth2Ident
 import { DependencyInjector } from "../../dependencyInjector";
 import { injectables } from "../../core/types/injectables";
 import { paymentDetailsTestCases } from "../types/paymentDetailsTestCases";
-import { transactionDataTestCase } from "../types/transactionDataTestCase";
+import { constructTransactionDataTestCase } from "../types/transactionDataTestCase";
 
 @injectable()
 export default class MockGmailTransactionSourceProvider implements ITransactionSourceProvider, IUsesGoogleOAuth2 {
@@ -107,7 +107,10 @@ export default class MockGmailTransactionSourceProvider implements ITransactionS
 
     public async getAsync(transactionId: string) {
         if (transactionId in paymentDetailsTestCases) {
-            return `${this.attachmentPaddingTop}${transactionDataTestCase.attachmentDataHead}${paymentDetailsTestCases[transactionId].attachmentDataBody}${this.attachmentPaddingBottom}`;
+            const transactionHead = constructTransactionDataTestCase(transactionId).attachmentDataHead;
+            const transactionBody = paymentDetailsTestCases[transactionId].attachmentDataBody;
+
+            return `${this.attachmentPaddingTop}${transactionHead}${transactionBody}${this.attachmentPaddingBottom}`;
         }
 
         throw new Error("Transaction not found.");
