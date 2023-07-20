@@ -46,9 +46,11 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
     
     const accessToken = authHeader.replace('Bearer ', '');
 
+    const refreshToken = req.get('X-Refresh-Token');
+
     const googleOAuth2IdentifierFactory = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory);
     
-    const identifiers = googleOAuth2IdentifierFactory.create({ accessToken });
+    const identifiers = googleOAuth2IdentifierFactory.create({ accessToken, refreshToken });
 
     res.locals.googleOAuth2Identifiers = identifiers;
 
