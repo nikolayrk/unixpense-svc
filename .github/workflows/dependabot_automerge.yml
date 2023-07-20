@@ -8,8 +8,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  test:
-    name: Run tests      
+  checks:
+    name: Checks    
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -17,13 +17,15 @@ jobs:
       run: npm ci
     - name: Lint
       run: npm run lint
+    - name: Build
+      run: npm run build
     - name: Test
       run: npm run test
 
   approve:
     name: Approve the PR
     runs-on: ubuntu-latest
-    needs: test
+    needs: checks
     if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
     steps:
       - name: Dependabot metadata
