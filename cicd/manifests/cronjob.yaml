@@ -33,6 +33,11 @@ spec:
                 secretKeyRef:
                   name: mariadb-secret
                   key: MARIADB_PASSWORD
+            - name: GMAIL_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: oauth2-authenticated-emails
+                  key: authenticated-emails
             envFrom:
             - secretRef:
                 name: telegram-secret
