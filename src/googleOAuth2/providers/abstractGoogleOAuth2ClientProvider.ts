@@ -88,6 +88,10 @@ export default abstract class AbstractGoogleOAuth2ClientProvider implements IOAu
 
     private async resolvePersistedRefreshToken(userEmail: string) {
         const persistedIdentifiers = await this.googleOAuth2TokensRepository.getOrNullAsync(userEmail);
+
+        if (persistedIdentifiers !== null) {
+            this.logger.log(`Using persisted OAuth2 refresh token`, { refreshToken: persistedIdentifiers.refreshToken });
+        }
         
         return persistedIdentifiers?.refreshToken;
     }

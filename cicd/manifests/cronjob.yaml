@@ -14,6 +14,11 @@ spec:
       template:
         spec:
           restartPolicy: Never
+          volumes:
+          - name: refresh-sh
+            configMap:
+              name: refresh-sh
+              defaultMode: 0555
           containers:
           - name: mariadb-client
             image: mariadb:latest
@@ -28,216 +33,18 @@ spec:
                 secretKeyRef:
                   name: mariadb-secret
                   key: MARIADB_PASSWORD
+            - name: GMAIL_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: oauth2-authenticated-emails
+                  key: authenticated-emails
             envFrom:
             - secretRef:
                 name: telegram-secret
+            volumeMounts:
+              - mountPath: /usr/sh
+                name: refresh-sh
             command:
             - /bin/sh
             - -ec
-            - |
-              apt-get -qy update; apt-get -qy -o=Dpkg::Use-Pty=0 install curl jq
-
-              main() {
-                local UNIXPENSE_API_URL=http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api
-                local FETCH_TRANSACTION_IDS_URL="$UNIXPENSE_API_URL/transactions/gmail/ids/last/20?skip_saved=true&skip_depth=10"
-                local SAVE_TRANSACTIONS_URL="$UNIXPENSE_API_URL/transactions/gmail/save"
-                local RESOLVE_TRANSACTIONS_URL="$UNIXPENSE_API_URL/transactions/gmail/resolve"
-
-                echo -n "- Resolving OAuth2 Access Token... "
-
-                local ACCESS_TOKEN="$(resolveAccessToken)"
-
-                echo -n "- Fetching new transaction IDs... "
-
-                local FETCH_RESULT="$(fetchTransactionIds \"GET $FETCH_TRANSACTION_IDS_URL\" $ACCESS_TOKEN)"
-                
-                local FETCH_ERROR=$(echo $FETCH_RESULT | jq '.error')
-
-                if [ "$FETCH_ERROR" != null ]; then
-                  echo "Failed."
-
-                  sendTelegram "$FETCH_ERROR"
-
-                  exit 1
-                fi
-
-                local TRANSACTION_IDS="$(echo $FETCH_RESULT | jq '.result')"
-
-                local TRANSACTION_ID_COUNT=$(echo $TRANSACTION_IDS | jq 'length')
-
-                if [ "$TRANSACTION_ID_COUNT" -eq "0" ]; then
-                  echo "No new transactions."
-
-                  exit
-                fi
-
-                echo "Received $TRANSACTION_ID_COUNT new transaction(s)."
-
-                # Hydrate access token, in case the first request triggered a token refresh
-                ACCESS_TOKEN="$(resolveAccessToken)"
-
-                echo -n "- Saving new transaction IDs... "
-
-                local SAVE_RESULT="$(saveTransactions \"POST $SAVE_TRANSACTIONS_URL\" $ACCESS_TOKEN \"$TRANSACTION_IDS\")"
-                
-                local SAVE_ERROR=$(echo $SAVE_RESULT | jq '.error')
-
-                if [ "$SAVE_ERROR" != null ]; then
-                  echo "Failed."
-
-                  sendTelegram "$SAVE_ERROR"
-
-                  exit 1
-                fi
-
-                local SAVE_MESSAGE="$(SAVE_RESULT | jq '.result')."
-
-                echo "$SAVE_MESSAGE"
-
-                sendTelegram "$SAVE_MESSAGE"
-
-                echo -n "- Resolving transactions... "
-
-                local RESOLVE_RESULT="$(resolveTransactions \"POST $RESOLVE_TRANSACTIONS_URL\" $ACCESS_TOKEN \"$TRANSACTION_IDS\")"
-                
-                local RESOLVE_ERROR=$(echo $RESOLVE_RESULT | jq '.error')
-
-                if [ "$RESOLVE_ERROR" != null ]; then
-                  echo "Failed."
-
-                  sendTelegram "$RESOLVE_ERROR"
-
-                  exit 1
-                fi
-
-                local $RESOLVE_MESSAGE=$(RESOLVE_RESULT | jq '.result')
-
-                echo "Success."
-
-                sendTelegram "<code>$RESOLVE_MESSAGE</code>"
-              }
-
-              resolveAccessToken() {
-                local ACCESS_TOKEN_QUERY="\
-                  SELECT access_token
-                  FROM google_oauth2_tokens
-                  WHERE user_email='$GMAIL_ADDRESS'"
-
-                local ACCESS_TOKEN=$(mariadb unixpense \
-                  -h mariadb-service.unixpense.svc.cluster.local \
-                  -u$MARIADB_USER \
-                  -p$MARIADB_PASSWORD \
-                  -se "$ACCESS_TOKEN_QUERY")
-
-                echo $ACCESS_TOKEN
-              }
-
-              fetchTransactionIds() {
-                if [[ $# -ne 2 ]]; then
-                    echo "fetchTransactionIds(): called with $# parameters, expected 2"
-
-                    exit 1
-                fi
-
-                local REQUEST="$1"
-                local ACCESS_TOKEN=$2
-
-                local RESULT=$(curl -s \
-                  -X "$REQUEST" \
-                  -H "Authorization: Bearer $ACCESS_TOKEN" \
-                  -H "Accept: application/json")
-
-                echo "$(formatResult \"$RESULT\")"
-              }
-              
-              saveTransactions() {
-                if [[ $# -ne 3 ]]; then
-                    echo "saveTransactions(): called with $# parameters, expected 3"
-
-                    exit 1
-                fi
-
-                local REQUEST="$1"
-                local ACCESS_TOKEN=$2
-                local TRANSACTION_IDS="$3"
-
-                local RESULT=$(curl -s \
-                  -X "$REQUEST" \
-                  -H "Authorization: Bearer $ACCESS_TOKEN" \
-                  -H "Accept: application/json" \
-                  -H "Content-Type: application/json" \
-                  -d \"$TRANSACTION_IDS\")
-
-                echo "$(formatResult \"$RESULT\")"
-              }
-
-              resolveTransactions() {
-                if [[ $# -ne 3 ]]; then
-                    echo "resolveTransactions(): called with $# parameters, expected 3"
-
-                    exit 1
-                fi
-
-                local REQUEST="$1"
-                local ACCESS_TOKEN=$2
-                local TRANSACTION_IDS="$3"
-
-                local RESULT=$(curl -s \
-                  -X "$REQUEST" \
-                  -H "Authorization: Bearer $ACCESS_TOKEN" \
-                  -H "Accept: application/json" \
-                  -H "Content-Type: application/json" \
-                  -d \"$TRANSACTION_IDS\")
-
-                echo "$(formatResult \"$RESULT\")"
-              }
-
-              formatResult() {
-                if [[ $# -ne 1 ]]; then
-                    echo "formatResult(): called with $# parameters, expected 1"
-
-                    exit 1
-                fi
-
-                local RESULT_RAW=$1
-
-                local RESULT_MESSAGE=$(echo $RESULT_RAW | jq '.message')
-                local RESULT_ERROR=$(echo $RESULT_RAW | jq '.error')
-
-                if [ "$RESULT_MESSAGE" != null ]; then
-                  echo "{\"result\": \"<b><u>Success:</u> <i>$RESULT_MESSAGE</i></b>\"}"
-                elif [ "$RESULT_ERROR" != null ]; then
-                  echo "{\"error\": \"<b><u>Error:</u> <i>$RESULT_ERROR</i></b>\"}"
-                else
-                  echo "{\"result\": \"$RESULT_RAW\"}"
-                fi
-              }
-              
-              function sendTelegram() {
-                if [[ $# -ne 1 ]]; then
-                    echo "sendTelegram(): called with $# parameters, expected 1"
-
-                    exit 1
-                fi
-
-                local MESSAGE="$1"
-
-                TELEGRAM_API_RESULT=$(curl -s \
-                  -X POST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage \
-                  -H 'Content-Type: application/json' \
-                  -d "{\"chat_id\": \"$TELEGRAM_CHAT_ID\", \"parse_mode\": \"HTML\", \"text\": $MESSAGE, \"disable_notification\": true}")
-
-                TELEGRAM_API_SUCCESSFUL=$(echo $TELEGRAM_API_RESULT | jq '.ok')
-
-                if [ "$TELEGRAM_API_SUCCESSFUL" -eq "false" ]; then
-                  TELEGRAM_API_ERROR_DESCRIPTION=$(echo $TELEGRAM_API_RESULT | jq '.description')
-
-                  echo "Failed: $TELEGRAM_API_ERROR_DESCRIPTION"
-
-                  exit 1
-                fi
-
-                echo "Success: $(echo \"$TELEGRAM_API_RESULT | jq '.result')\""
-              }
-
-              main
+            - /usr/sh/refresh.sh
