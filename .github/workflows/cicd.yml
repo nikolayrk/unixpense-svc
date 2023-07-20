@@ -1,9 +1,7 @@
 name: CI-CD
 
 on: 
-  push:
-    branches:
-      - develop
+  push
 
 jobs:
 
