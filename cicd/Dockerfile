@@ -8,7 +8,7 @@ COPY tsconfig.json ./
 
 COPY src ./src
 
-RUN npm ci --legacy-peer-deps
+RUN npm ci --force
 
 ARG NODE_ENV
 
