@@ -32,6 +32,10 @@ const router = express.Router();
  *         in: query
  *         required: false
  *         type: integer
+ *       - name: X-Refresh-Token
+ *         in: header
+ *         required: false
+ *         type: string
  *     responses:
  *       200:
  *         description: Array of Gmail Message IDs (transaction IDs)
@@ -70,6 +74,11 @@ router.route('/ids/last/:last').get(gmailTransactionsController.getLast);
  *         - https://www.googleapis.com/auth/gmail.readonly
  *     produces:
  *       - application/json
+ *     parameters:
+ *       - name: X-Refresh-Token
+ *         in: header
+ *         required: false
+ *         type: string
  *     requestBody:
  *       description: Array of transaction IDs to resolve.
  *       required: true
@@ -119,6 +128,11 @@ router.route('/resolve').post(gmailTransactionsController.resolve);
  *         - https://www.googleapis.com/auth/gmail.readonly
  *     produces:
  *       - application/json
+ *     parameters:
+ *       - name: X-Refresh-Token
+ *         in: header
+ *         required: false
+ *         type: string
  *     requestBody:
  *       description: Array of transaction IDs to save.
  *       required: true
