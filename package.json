@@ -55,7 +55,7 @@
     "googleapis": "^108.0.1",
     "inversify": "^6.0.1",
     "mariadb": "^3.2.0",
-    "node-html-parser": "^6.1.1",
+    "node-html-parser": "^6.1.5",
     "reflect-metadata": "^0.1.13",
     "seedrandom": "^3.0.5",
     "sequelize-typescript": "^2.1.5",
