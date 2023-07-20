@@ -17,7 +17,7 @@ spec:
           volumes:
           - name: refresh-sh
             configMap:
-              name: unixpense-refresh-sh
+              name: refresh-sh
               defaultMode: 0555
           containers:
           - name: mariadb-client

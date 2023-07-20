@@ -131,6 +131,9 @@ jobs:
               "TELEGRAM_CHAT_ID": "${{ secrets.TELEGRAM_CHAT_ID }}"
             }
 
+      - name: Create Refresh Script Kubernetes ConfigMap
+        run: kubectl create configmap refresh-sh --namespace unixpense --from-file=sh/refresh.sh -o yaml --dry-run=client | kubectl apply -f -
+
       - name: Deploy to Kubernetes Cluster
         uses: swdotcom/update-and-apply-kubernetes-configs@v1
         with:
@@ -146,7 +149,6 @@ jobs:
             cicd/manifests/deployment.yaml
             cicd/manifests/service.yaml
             cicd/manifests/ingress.yaml
-            cicd/manifests/refresh-sh.yaml
             cicd/manifests/cronjob.yaml
           replacement-method: defined
         env:
