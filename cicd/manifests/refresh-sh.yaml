@@ -15,15 +15,17 @@ data:
       local SAVE_TRANSACTIONS_URL="$UNIXPENSE_API_URL/transactions/gmail/save"
       local RESOLVE_TRANSACTIONS_URL="$UNIXPENSE_API_URL/transactions/gmail/resolve"
 
-      echo -n "- Resolving OAuth2 Access Token... "
+      echo -n "- Resolving OAuth2 Tokens... "
 
       local ACCESS_TOKEN="$(resolveAccessToken)"
 
-      echo $ACCESS_TOKEN
+      local REFRESH_TOKEN="$(resolveRefreshToken)"
+
+      echo "Success."
 
       echo -n "- Fetching new transaction IDs... "
 
-      local FETCH_RESULT=$(fetchTransactionIds $FETCH_TRANSACTION_IDS_URL $ACCESS_TOKEN)
+      local FETCH_RESULT=$(fetchTransactionIds $FETCH_TRANSACTION_IDS_URL $ACCESS_TOKEN $REFRESH_TOKEN)
       
       local FETCH_ERROR=$(echo $FETCH_RESULT | jq '.error')
 
@@ -94,7 +96,7 @@ data:
     }
 
     resolveAccessToken() {
-      local ACCESS_TOKEN_QUERY="\
+      local QUERY="\
         SELECT access_token
         FROM google_oauth2_tokens
         WHERE user_email='$GMAIL_ADDRESS'"
@@ -103,24 +105,41 @@ data:
         -h mariadb-service.unixpense.svc.cluster.local \
         -u$MARIADB_USER \
         -p$MARIADB_PASSWORD \
-        -se "$ACCESS_TOKEN_QUERY")
+        -se "$QUERY")
 
       echo $ACCESS_TOKEN
     }
 
+    resolveRefreshToken() {
+      local QUERY="\
+        SELECT refresh_token
+        FROM google_oauth2_tokens
+        WHERE user_email='$GMAIL_ADDRESS'"
+
+      local REFRESH_TOKEN=$(mariadb unixpense \
+        -h mariadb-service.unixpense.svc.cluster.local \
+        -u$MARIADB_USER \
+        -p$MARIADB_PASSWORD \
+        -se "$QUERY")
+
+      echo $REFRESH_TOKEN
+    }
+
     fetchTransactionIds() {
-      if [[ $# -ne 2 ]]; then
-          echo $(formatResult "{\"error\": \"fetchTransactionIds(): called with $# parameters, expected 2\"}")
+      if [[ $# -ne 3 ]]; then
+          echo $(formatResult "{\"error\": \"fetchTransactionIds(): called with $# parameters, expected 3\"}")
 
           exit 1
       fi
 
       local URL=$1
       local ACCESS_TOKEN=$2
+      local REFRESH_TOKEN=$3
 
       local RESULT=$(curl -s \
         -X GET "$URL" \
         -H "Authorization: Bearer $ACCESS_TOKEN" \
+        -H "X-Refresh-Token: $REFRESH_TOKEN" \
         -H "Accept: application/json")
 
       echo $(formatResult "$RESULT")
