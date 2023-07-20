@@ -32,7 +32,7 @@
   "homepage": "https://github.com/nikolayrk/unixpense-svc#readme",
   "devDependencies": {
     "@jest/globals": "^29.5.0",
-    "@types/express": "^4.17.14",
+    "@types/express": "^4.17.17",
     "@types/node": "^18.11.4",
     "@types/seedrandom": "^3.0.5",
     "@types/sequelize": "^4.28.14",
