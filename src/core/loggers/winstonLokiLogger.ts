@@ -67,8 +67,6 @@ export default class WinstonLokiLogger implements ILogger {
     }
 
     public async beforeExit() {
-        await this.lokiTransport?.flush();
-        
         this.logger.end();
     }
 }
