@@ -32,12 +32,12 @@ jobs:
         id: metadata
         uses: dependabot/fetch-metadata@v1
         with:
-          github-token: "${{ secrets.DEPENDABOT_GH_TOKEN }}"
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
       - name: Approve the PR
         run: gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.DEPENDABOT_GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
   auto-merge:
     name: Mark the PR for auto-merge
@@ -48,9 +48,9 @@ jobs:
         id: metadata
         uses: dependabot/fetch-metadata@v1
         with:
-          github-token: "${{ secrets.DEPENDABOT_GH_TOKEN }}"
+          github-token: "${{ secrets.GH_TOKEN }}"
       - name: Enable auto-merge
         run: gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.DEPENDABOT_GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
