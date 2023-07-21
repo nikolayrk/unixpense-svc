@@ -111,7 +111,7 @@ const registerDependencies = () => {
     DependencyInjector.Singleton.registerGmailServices();
 }
 
-const startServerAsync = async () => {
+const startServerAsync = (port: number) => {
     const app = express();
 
     app.use(bodyParser.urlencoded({ extended: true }));
@@ -134,7 +134,7 @@ const startServerAsync = async () => {
     app.use('/swagger', swaggerRouter);
 
     const server = new Promise<Server>((resolve) => {
-        const server: Server = app.listen(process.env.PORT ?? 8000, () => resolve(server));
+        const server: Server = app.listen(port, () => resolve(server));
     });
 
     return server;

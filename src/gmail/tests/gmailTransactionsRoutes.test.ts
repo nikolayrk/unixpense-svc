@@ -38,7 +38,6 @@ describe('Gmail Transactions Routes Tests', () => {
     let app: Server | null = null;
 
     beforeAll(async () => {
-        process.env.PORT = String(Math.round(Math.random() * (65535 - 1024) + 1024));
         process.env.GOOGLE_OAUTH2_CLIENT_ID = Constants.Mock.clientId;
         process.env.GOOGLE_OAUTH2_CLIENT_SECRET = Constants.Mock.clientSecret;
 
@@ -68,8 +67,10 @@ describe('Gmail Transactions Routes Tests', () => {
             mariadbPassword,
             mariadbDatabase,
             logger);
-        
-        app = await startServerAsync();
+            
+        const port = Math.round(Math.random() * (65535 - 1024) + 1024);
+
+        app = await startServerAsync(port);
     }, beforeAllTimeout);
     
     afterAll(async () => {

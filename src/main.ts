@@ -15,15 +15,15 @@ const main = async () => {
 
     logger.log('Creating database connection...');
 
-    const host = process.env.MARIADB_HOST ?? process.env.HOSTNAME ?? 'localhost';
-    const port = process.env.MARIADB_PORT !== undefined
+    const mariadbHost = process.env.MARIADB_HOST ?? process.env.HOSTNAME ?? 'localhost';
+    const mariadbPort = process.env.MARIADB_PORT !== undefined
         ? Number(process.env.MARIADB_PORT)
         : 3306;
     const username = process.env.MARIADB_USER ?? '';
     const password = process.env.MARIADB_PASSWORD ?? '';
     const database = process.env.MARIADB_DATABASE ?? 'unixpense';
 
-    const connection = await createDatabaseConnectionAsync(host, port, username, password, database, logger);
+    const connection = await createDatabaseConnectionAsync(mariadbHost, mariadbPort, username, password, database, logger);
 
     if (connection === null) {
         return;
@@ -35,12 +35,14 @@ const main = async () => {
 
     logger.log('Starting server...');
 
-    await startServerAsync();
+    const hostname = process.env.HOSTNAME ?? 'localhost';
+    const port = Number.isNaN(process.env.PORT ?? NaN)
+        ? 8000
+        : Number(process.env.PORT);
 
-    logger.log(`Server is running`, {
-        hostname: process.env.HOSTNAME ?? 'localhost',
-        port: process.env.PORT ?? 8000
-    });
+    await startServerAsync(port);
+
+    logger.log(`Server is running`, { hostname, port });
 
     logger.log(`Service started`, {
         platform: process.platform,
