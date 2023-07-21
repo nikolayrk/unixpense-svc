@@ -1,6 +1,6 @@
 import { describe, it, beforeAll, afterAll, expect } from '@jest/globals';
 import * as supertest from 'supertest';
-import { createDatabaseConnectionAsync, registerDependencies, server } from '../../bootstrap';
+import { createDatabaseConnectionAsync, registerDependencies, startServerAsync } from '../../bootstrap';
 import ILogger from '../../core/contracts/ILogger';
 import { DependencyInjector } from '../../dependencyInjector';
 import { injectables } from '../../core/types/injectables';
@@ -47,7 +47,7 @@ describe('Google OAuth2 Routes Tests', () => {
             'unixpense',
             logger);
         
-        app = server(logger);
+        app = await startServerAsync();
     }, beforeAllTimeout);
     
     afterAll(async () => {

@@ -10,6 +10,7 @@ import bodyParser from 'body-parser';
 import ILogger from './core/contracts/ILogger';
 import { DependencyInjector } from './dependencyInjector';
 import * as mariadb from 'mariadb';
+import { Server } from 'http';
 
 const registerErrorHandlers = (logger: ILogger) => {
     const signalHandlerAsync = async (signal: string) => {
@@ -110,7 +111,7 @@ const registerDependencies = () => {
     DependencyInjector.Singleton.registerGmailServices();
 }
 
-const server = (logger: ILogger) => {
+const startServerAsync = async () => {
     const app = express();
 
     app.use(bodyParser.urlencoded({ extended: true }));
@@ -132,12 +133,11 @@ const server = (logger: ILogger) => {
     // Swagger
     app.use('/swagger', swaggerRouter);
 
-    return app.listen(process.env.PORT ?? 8000, () => {
-        logger.log(`Server is running`, {
-            hostname: process.env.HOSTNAME ?? 'localhost',
-            port: process.env.PORT ?? 8000
-        });
+    const server = new Promise<Server>((resolve) => {
+        const server: Server = app.listen(process.env.PORT ?? 8000, () => resolve(server));
     });
+
+    return server;
 };
 
-export { registerErrorHandlers, createDatabaseConnectionAsync, registerDependencies, server }
+export { registerErrorHandlers, createDatabaseConnectionAsync, registerDependencies, startServerAsync }

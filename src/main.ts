@@ -4,7 +4,7 @@ import "reflect-metadata"
 import { DependencyInjector } from './dependencyInjector';
 import ILogger from './core/contracts/ILogger';
 import { injectables } from './core/types/injectables';
-import { createDatabaseConnectionAsync, registerDependencies, registerErrorHandlers, server } from './bootstrap';
+import { createDatabaseConnectionAsync, registerDependencies, registerErrorHandlers, startServerAsync } from './bootstrap';
 
 const main = async () => {
     const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
@@ -35,7 +35,12 @@ const main = async () => {
 
     logger.log('Starting server...');
 
-    const app = server(logger);
+    await startServerAsync();
+
+    logger.log(`Server is running`, {
+        hostname: process.env.HOSTNAME ?? 'localhost',
+        port: process.env.PORT ?? 8000
+    });
 
     logger.log(`Service started`, {
         platform: process.platform,
