@@ -24,10 +24,9 @@ describe('Google OAuth2 Routes Tests', () => {
     let app: Server | null = null;
 
     beforeAll(async () => {
-        process.env.PORT = String(Math.round(Math.random() * (65535 - 1) + 1));
         process.env.GOOGLE_OAUTH2_CLIENT_ID = Constants.Mock.clientId;
         process.env.GOOGLE_OAUTH2_CLIENT_SECRET = Constants.Mock.clientSecret;
-
+        
         registerDependencies();
         
         logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
@@ -46,8 +45,10 @@ describe('Google OAuth2 Routes Tests', () => {
             mariadbRootPassword,
             'unixpense',
             logger);
-        
-        app = await startServerAsync();
+            
+        const port = Math.round(Math.random() * (65535 - 1024) + 1024);
+
+        app = await startServerAsync(port);
     }, beforeAllTimeout);
     
     afterAll(async () => {
