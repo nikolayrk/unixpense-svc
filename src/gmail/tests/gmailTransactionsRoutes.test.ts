@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, beforeAll, afterAll, expect } from '@jest/globals';
 import * as supertest from 'supertest';
-import { createDatabaseConnectionAsync, registerDependencies, server } from '../../bootstrap';
+import { createDatabaseConnectionAsync, registerDependencies, startServerAsync } from '../../bootstrap';
 import ILogger from '../../core/contracts/ILogger';
 import { DependencyInjector } from '../../dependencyInjector';
 import { injectables } from '../../core/types/injectables';
@@ -69,7 +69,7 @@ describe('Gmail Transactions Routes Tests', () => {
             mariadbDatabase,
             logger);
         
-        app = server(logger);
+        app = await startServerAsync();
     }, beforeAllTimeout);
     
     afterAll(async () => {

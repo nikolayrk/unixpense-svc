@@ -128,7 +128,7 @@ export class DependencyInjector {
 
     private generateServiceAsync<T>(
         providerIdentifier: interfaces.ServiceIdentifier<interfaces.Provider<T>>,
-        ...args: any[]) {
+        ...args: Record<string, unknown>[]) {
         const provider = this.container.get<interfaces.Provider<T>>(providerIdentifier);
 
         return provider(...args) as Promise<T>;
