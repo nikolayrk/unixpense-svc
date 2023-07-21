@@ -15,8 +15,12 @@ jobs:
       with:
         to: ${{ secrets.TELEGRAM_CHAT_ID }}
         token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        disable_notification: true
+        format: markdown
         message: |
-          Started ${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }}
+          ♻️ **Started ${{ github.repository }} - ${{ github.workflow }} #${{ github.run_number }}**
+
+          *${{ github.event.commits[0].message }}*
           
   build:
     name: Build
@@ -149,8 +153,10 @@ jobs:
       with:
         to: ${{ secrets.TELEGRAM_CHAT_ID }}
         token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        disable_notification: true
+        format: markdown
         message: |
-          ✅ ${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was successful
+          ✅ **${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was successful**
     
   telegram-notify-failed:
     name: Telegram Notify Failed
@@ -163,5 +169,7 @@ jobs:
       with:
         to: ${{ secrets.TELEGRAM_CHAT_ID }}
         token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        disable_notification: true
+        format: markdown
         message: |
-          ❌ ${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was unsuccessful
+          ❌ **${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was unsuccessful**
