@@ -6,6 +6,7 @@ import ILogger from "../../core/contracts/ILogger";
 import TransactionRepository from "../../core/repositories/transactionRepository";
 import ITransactionProvider from "../../core/contracts/ITransactionProvider";
 import { ResponseExtensions } from "../../core/extensions/responseExtensions";
+import { TransactionExtensions } from "../../core/extensions/transactionExtensions";
 
 type Options = {
     save: boolean,
@@ -64,8 +65,11 @@ const resolve = async (req: Request, res: Response) => {
             save: false,
             ids: ids.join(',')
         }, logger);
+
+        const result = transactions
+            .map(t => TransactionExtensions.MapTransactionResponse(t));
         
-        return ResponseExtensions.ok(res, transactions);
+        return ResponseExtensions.ok(res, result);
     } catch (ex) {
         const error = ex as Error;
 

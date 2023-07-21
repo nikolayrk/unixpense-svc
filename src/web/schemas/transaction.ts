@@ -13,25 +13,25 @@ const createTransactionSchema = (type: Schema, paymentDetails: Schema): Schema =
             },
             date: {
                 type: "string",
-                description: "The date (ISO 8601) when the transaction was processed by the bank.",
-                example: "2023-05-19T12:24:24.000Z"
+                description: "The datetime when the transaction was processed by the bank.",
+                example: "Fri May 19th 2023 12:24:24 PM"
             },
             reference: {
                 type: "string",
                 description: "The reference for this transaction. Unique when coupled with the transaction type.",
                 example: "403BATM230900160"
             },
-            valueDate: {
+            value_date: {
                 type: "string",
-                description: "The date (ISO 8601) when the transaction took place.",
-                example: "2023-05-17T00:00:00.000Z"
+                description: "The date when the transaction took place.",
+                example: "Wed May 17th 2023"
             },
             sum: {
-                type: "string",
+                type: "number",
                 description: "The amount that was credited / debited from the bank account.",
                 example: "12.34"
             },
-            entryType: {
+            entry_type: {
                 type: "string",
                 enum: EntryTypeExtensions.Keys(),
                 description: "The entry type of the transaction.",
