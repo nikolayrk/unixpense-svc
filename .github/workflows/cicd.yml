@@ -18,9 +18,9 @@ jobs:
         disable_notification: true
         format: markdown
         message: |
-          ♻️ **Started ${{ github.repository }} - ${{ github.workflow }} #${{ github.run_number }}**
+          ♻️ Started ${{ github.repository }} - *${{ github.workflow }} #${{ github.run_number }}*
 
-          *${{ github.event.commits[0].message }}*
+          ${{ github.event.commits[0].message }}
           
   build:
     name: Build
@@ -156,7 +156,7 @@ jobs:
         disable_notification: true
         format: markdown
         message: |
-          ✅ **${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was successful**
+          ✅ *${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was successful*
     
   telegram-notify-failed:
     name: Telegram Notify Failed
@@ -172,4 +172,4 @@ jobs:
         disable_notification: true
         format: markdown
         message: |
-          ❌ **${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was unsuccessful**
+          ❌ *${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was unsuccessful*
