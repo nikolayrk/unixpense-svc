@@ -19,9 +19,13 @@ const main = async () => {
     const mariadbPort = process.env.MARIADB_PORT !== undefined
         ? Number(process.env.MARIADB_PORT)
         : 3306;
-    const username = process.env.MARIADB_USER ?? '';
-    const password = process.env.MARIADB_PASSWORD ?? '';
+    const username = process.env.MARIADB_USER;
+    const password = process.env.MARIADB_PASSWORD;
     const database = process.env.MARIADB_DATABASE ?? 'unixpense';
+
+    if (username === undefined || password === undefined) {
+        throw new Error('Missing database credentials');
+    }
 
     const connection = await createDatabaseConnectionAsync(mariadbHost, mariadbPort, username, password, database, logger);
 
