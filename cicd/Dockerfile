@@ -2,17 +2,14 @@ FROM node:current-alpine3.16
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
-
-COPY tsconfig.json ./
+COPY package.json yarn.lock tsconfig.json ./
 
 COPY src ./src
 
-RUN npm ci --force
-
 ARG NODE_ENV
 
-RUN npm run build && \
+RUN yarn install --pure-lockfile && \
+    npm run build && \
     rm -rf  ./src \
             tsconfig.json
 
