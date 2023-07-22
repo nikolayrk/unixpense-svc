@@ -20,7 +20,9 @@ const registerErrorHandlers = (logger: ILogger) => {
             pid: process.pid,
             signal: signal
         });
-
+        
+        await logger.beforeExit();
+        
         process.exit(1);
     };
     

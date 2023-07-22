@@ -66,7 +66,9 @@ export default class WinstonLokiLogger implements ILogger {
         this.logger.log('error', { message: error, labels: labels });
     }
 
-    public async beforeExit() {
+    public beforeExit() {
         this.logger.end();
+
+        return new Promise<void>((resolve) => this.logger.on('finish', () => resolve()));
     }
 }

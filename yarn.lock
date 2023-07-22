@@ -4688,11 +4688,6 @@ uri-js@^4.2.2:
   dependencies:
     punycode "^2.1.0"
 
-url-polyfill@^1.1.12:
-  version "1.1.12"
-  resolved "https://registry.yarnpkg.com/url-polyfill/-/url-polyfill-1.1.12.tgz#6cdaa17f6b022841b3aec0bf8dbd87ac0cd33331"
-  integrity sha512-mYFmBHCapZjtcNHW0MDq9967t+z4Dmg5CJ0KqysK3+ZbyoNOWQHksGCTWwDhxGXllkWlOc10Xfko6v4a3ucM6A==
-
 url-template@^2.0.8:
   version "2.0.8"
   resolved "https://registry.yarnpkg.com/url-template/-/url-template-2.0.8.tgz#fc565a3cccbff7730c775f5641f9555791439f21"
@@ -4769,15 +4764,14 @@ which@^2.0.1:
   dependencies:
     isexe "^2.0.0"
 
-winston-loki@^6.0.7-rc2:
-  version "6.0.7-rc2"
-  resolved "https://registry.yarnpkg.com/winston-loki/-/winston-loki-6.0.7-rc2.tgz#bc50302250c18798fcf91c48b412260fecbe377d"
-  integrity sha512-FYpNzwAP9aukdblZ0iUTkijg/5Eu0OrAisLhVUfBQAPH2wFH56JZWw2H8Ll3gvmQL5RkNU0D9jwAbpbL5iVamQ==
+winston-loki@^6.0.6:
+  version "6.0.6"
+  resolved "https://registry.yarnpkg.com/winston-loki/-/winston-loki-6.0.6.tgz#18360a7c9068cb6edd8b25d4496489c6fce4571b"
+  integrity sha512-cll+nv5T/b9uJXqca0N2WKL1JJNuJND9E6WOOAuSGkZ44L9VQ/QK9F+/5VKbv6LIP9p0nvPSOYxtACCDb/9iWw==
   dependencies:
     async-exit-hook "2.0.1"
     btoa "^1.2.1"
     protobufjs "^6.8.8"
-    url-polyfill "^1.1.12"
     winston-transport "^4.3.0"
   optionalDependencies:
     snappy "7.1.1"
