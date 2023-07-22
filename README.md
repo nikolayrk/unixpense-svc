@@ -1,11 +1,8 @@
 # Unixpense Tracker (Service)
-
-<div style="display: flex; flex-direction: row;">
+<!--rehype:style=display: flex; height: 230px; align-items: center; justify-content: center; font-size: 38px;-->
 
 [![CI-CD](https://github.com/nikolayrk/unixpense-svc/actions/workflows/cicd.yml/badge.svg)](https://github.com/nikolayrk/unixpense-svc/actions/workflows/cicd.yml)
-
 [![Coverage](https://nikolayrk.github.io/unixpense-svc/coverage/badge.svg)](https://nikolayrk.github.io/unixpense-svc/coverage/index.html)
-</div>
 
 Unixpense Tracker is an automated expense tracker for (individual) clients of [UniCredit BulBank](https://www.unicreditbulbank.bg/en/individual-clients/).
 
