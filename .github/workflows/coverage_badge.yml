@@ -1,0 +1,33 @@
+name: Generage Coverage Badges
+
+on: 
+  push:
+    branches:
+      - develop
+    paths-ignore:
+      - '**/README.md'
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    name: Generate badge
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Install
+      run: yarn install --pure-lockfile
+    - name: Test
+      run: npm run test
+    - name: Generate Coverage Badge
+      uses: jaywcjlove/coverage-badges-cli@main
+      with:
+        source: coverage/coverage-summary.json
+        output: coverage/badge.svg
+    - name: Publish coverage report to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        folder: coverage
+        target-folder: coverage

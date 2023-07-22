@@ -8,7 +8,7 @@
     "lint": "eslint \"./src/*\" --fix",
     "build": "tsc -p .",
     "start": "node dist/main.js",
-    "test": "jest --noStackTrace --ci",
+    "test": "jest --noStackTrace --ci --coverage --coverageReporters=json-summary --coverageReporters=html",
     "clean": "tsc --build --clean"
   },
   "repository": {
