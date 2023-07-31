@@ -48,38 +48,8 @@ export default class GmailTransactionSourceProvider implements ITransactionSourc
     private async getAttachmentDataAsync(messageData: GmailMessageData) {
         this.logger.log(`Fetching Gmail attachment...`, { transactionId: messageData.messageId });
 
-        const attachmentDataBase64 = await this.gmailApiClient.fetchAttachmentDataBase64Async(messageData);
-
-        const attachmentData = this.decodeAttachmentData(attachmentDataBase64);
+        const attachmentData = await this.gmailApiClient.fetchAttachmentDataAsync(messageData);
 
         return attachmentData;
-    }
-
-    private decodeAttachmentData(attachmentDataBase64: string) {
-        const urlDecoded = this.base64UrlDecode(attachmentDataBase64);
-    
-        const base64Decoded = Buffer.from(urlDecoded, 'base64');
-    
-        const utf16Decoded = base64Decoded.toString('utf16le');
-    
-        return utf16Decoded;
-    }
-
-    private base64UrlDecode(input: string) {
-        // Replace non-url compatible chars with base64 standard chars
-        input = input
-            .replace(/-/g, '+')
-            .replace(/_/g, '/');
-    
-        // Pad out with standard base64 required padding characters
-        const pad = input.length % 4;
-        if (pad) {
-            if (pad === 1) {
-                throw new Error('InvalidLengthError: Input base64url string is the wrong length to determine padding');
-            }
-            input += new Array(5 - pad).join('=');
-        }
-    
-        return input;
     }
 }

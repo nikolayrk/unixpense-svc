@@ -67,7 +67,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
         return messageData;
     }
     
-    public async fetchAttachmentDataBase64Async(messageData: GmailMessageData) {
+    public async fetchAttachmentDataAsync(messageData: GmailMessageData) {
         const response = await this.makeApiCallAsync(async () => 
             await this.gmail.users.messages.attachments.get({
                 userId: 'me',
@@ -77,8 +77,10 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
 
         const messagePartBody = response.data;
         const attachmentDataBase64 = String(messagePartBody.data);
+
+        const attachmentData = this.decodeAttachmentData(attachmentDataBase64);
     
-        return attachmentDataBase64;
+        return attachmentData;
     }
     
     private async fetchMessagesAsync(pageToken?: string | undefined) {
@@ -144,5 +146,33 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
         this.exponentialBackoffDepth = 0;
 
         return result;
+    }
+
+    private decodeAttachmentData(attachmentDataBase64: string) {
+        const urlDecoded = this.base64UrlDecode(attachmentDataBase64);
+    
+        const base64Decoded = Buffer.from(urlDecoded, 'base64');
+    
+        const utf16Decoded = base64Decoded.toString('utf16le');
+    
+        return utf16Decoded;
+    }
+
+    private base64UrlDecode(input: string) {
+        // Replace non-url compatible chars with base64 standard chars
+        input = input
+            .replace(/-/g, '+')
+            .replace(/_/g, '/');
+    
+        // Pad out with standard base64 required padding characters
+        const pad = input.length % 4;
+        if (pad) {
+            if (pad === 1) {
+                throw new Error('InvalidLengthError: Input base64url string is the wrong length to determine padding');
+            }
+            input += new Array(5 - pad).join('=');
+        }
+    
+        return input;
     }
 }
