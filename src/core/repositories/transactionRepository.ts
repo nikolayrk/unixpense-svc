@@ -8,9 +8,7 @@ import { TransactionExtensions } from '../../core/extensions/transactionExtensio
 
 @injectable()
 export default class TransactionRepository {
-    public async getAllIdsAsync() {
-        return (await TransactionEntity.findAll({attributes: ['id']})).map(e => e.id);
-    }
+    public getAllIdsAsync = async () => (await TransactionEntity.findAll({attributes: ['id']})).map(e => e.id);
 
     // throws RepositoryError
     public async bulkCreateAsync(transactions: Transaction<PaymentDetails>[]) {
