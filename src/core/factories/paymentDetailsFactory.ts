@@ -1,14 +1,9 @@
 import { injectable } from "inversify";
 import CardOperation from "../../core/models/cardOperation";
 import StandardTransfer from "../../core/models/standardTransfer";
-import PaymentDetails from "../../core/models/paymentDetails";
 
 @injectable()
 export default class PaymentDetailsFactory {
-    public static readonly default: PaymentDetails = {
-        recipient: '<N/A>'
-    };
-
     private static readonly defaultFeeRecipient = 'UNICREDIT BULBANK';
     private static readonly defaultIban = 'N/A';
     private static readonly defaultDescription = 'N/A';

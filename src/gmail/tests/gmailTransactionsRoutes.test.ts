@@ -9,7 +9,7 @@ import { Server } from 'http';
 import { LogWaitStrategy } from 'testcontainers/dist/src/wait-strategy/log-wait-strategy';
 import { Sequelize } from 'sequelize';
 import { paymentDetailsTestCases } from '../types/paymentDetailsTestCases';
-import Constants from '../../googleOAuth2/constants';
+import Constants from '../../constants';
 import * as mariadb from 'mariadb';
 import GoogleOAuth2TokensRepository from '../../googleOAuth2/repositories/googleOAuth2TokensRepository';
 import TransactionRepository from '../../core/repositories/transactionRepository';
@@ -67,6 +67,8 @@ describe('Gmail Transactions Routes Tests', () => {
             mariadbPassword,
             mariadbDatabase,
             logger);
+
+        await googleOAuth2TokensRepository.createOrUpdateAsync(Constants.Mock.userEmail, Constants.Mock.accessToken, Constants.Mock.refreshToken);
             
         const port = Math.round(Math.random() * (65535 - 1024) + 1024);
 
@@ -83,8 +85,6 @@ describe('Gmail Transactions Routes Tests', () => {
 
     beforeEach(async () => {
         await clearDatabaseAsync();
-        
-        await googleOAuth2TokensRepository.createOrUpdateAsync(Constants.Mock.userEmail, Constants.Mock.accessToken, Constants.Mock.refreshToken);
     });
 
     const clearDatabaseAsync = async () => {
@@ -101,7 +101,6 @@ describe('Gmail Transactions Routes Tests', () => {
     
         await conn.query([
                 'card_operations',
-                'google_oauth2_tokens',
                 'standard_transfers',
                 'transactions'
            ].map(table => `DELETE FROM ${table};`)
@@ -125,7 +124,7 @@ describe('Gmail Transactions Routes Tests', () => {
 
         const transactions = transactionIds
             .map(async (transactionId: string) => {
-                const transaction = await transactionProvider.resolveTransactionOrNullAsync(transactionId);
+                const transaction = await transactionProvider.resolveTransactionAsync(transactionId);
                 
                 return transaction;
             })
@@ -268,6 +267,9 @@ describe('Gmail Transactions Routes Tests', () => {
         expect(response.headers["content-type"]).toMatch(/json/);
         expect(actualTransactionIds).toEqual(expectedTransactionIds);
     });
+
+    // TODO: test /resolve
+    // TODO: test throwing error when resolving transactions (somehow)
 
     it('should persist a random number of transactions', async () => {
         const expectedTransactionIds = resolveRandomTransactionIds().sort((a, b) => a.localeCompare(b));

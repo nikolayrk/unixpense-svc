@@ -9,6 +9,9 @@ import TransactionFactory from '../../core/factories/transactionFactory';
 import { constructTransactionDataTestCase } from '../types/transactionDataTestCase';
 import { TransactionData } from '../../core/models/transactionData';
 import GoogleOAuth2IdentifiersFactory from '../../googleOAuth2/factories/googleOAuth2IdentifiersFactory';
+import EntryType from '../../core/enums/entryType';
+import TransactionType from '../../core/enums/transactionType';
+import Constants from '../../constants';
 
 describe('Gmail Transaction Provider Tests', () => {
     let transactionFactory: TransactionFactory;
@@ -38,7 +41,7 @@ describe('Gmail Transaction Provider Tests', () => {
             const paymentDetails = testCase.expectedPaymentDetails;
             const expected = transactionFactory.create(transactionId, transactionData, paymentDetails);
 
-            const actual = await transactionProvider.resolveTransactionOrNullAsync(transactionId);
+            const actual = await transactionProvider.resolveTransactionAsync(transactionId);
 
             expect(actual).toEqual(expected);
         });
@@ -47,4 +50,20 @@ describe('Gmail Transaction Provider Tests', () => {
     Object
         .entries(paymentDetailsTestCases)
         .map(describePaymentDetailsTest);
+
+
+    it('should resolve from an empty source string', async () => {
+        const expected = {
+            id: Constants.Mock.emptyTransactionSourceId,
+            date: new Date(NaN),
+            valueDate: new Date(NaN),
+            entryType: EntryType.INVALID,
+            type: TransactionType.UNKNOWN,
+            paymentDetails: Constants.defaultPaymentDetails
+        };
+
+        const actual = await transactionProvider.resolveTransactionAsync(Constants.Mock.emptyTransactionSourceId);
+
+        expect(JSON.stringify(actual)).toStrictEqual(JSON.stringify(expected));
+    });
 });

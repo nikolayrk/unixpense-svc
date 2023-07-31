@@ -34,30 +34,22 @@ export default abstract class AbstractTransactionProvider implements ITransactio
         return [];
     }
 
-    public async resolveTransactionOrNullAsync(transactionId: string) {
+    public async resolveTransactionAsync(transactionId: string) {
         this.logger.log(`Resolving transaction...`, { transactionId: transactionId });
 
-        try {
-            const transactionSource = await this.transactionSourceProvider.getAsync(transactionId);
+        const transactionSource = await this.transactionSourceProvider.getAsync(transactionId);
 
-            const transactionData = this.transactionDataProvider.get(transactionSource);
+        const transactionData = this.transactionDataProvider.get(transactionSource);
 
-            const paymentDetails = this.paymentDetailsContext.resolve(
-                transactionData.reference,
-                transactionData.transactionType,
-                transactionData.paymentDetailsRaw,
-                transactionData.additionalDetailsRaw);
+        const paymentDetails = this.paymentDetailsContext.resolve(
+            transactionData.reference,
+            transactionData.transactionType,
+            transactionData.paymentDetailsRaw,
+            transactionData.additionalDetailsRaw);
 
-            const transaction = this.transactionFactory.create(transactionId, transactionData, paymentDetails);
+        const transaction = this.transactionFactory.create(transactionId, transactionData, paymentDetails);
 
-            return transaction;
-        } catch(ex) {
-            const error = ex as Error;
-
-            this.logger.error(error, { transactionId: transactionId });
-
-            return null;
-        }
+        return transaction;
     }
 
     private generateTransactionIdsAsync(transactionIdsQuery?: string) {

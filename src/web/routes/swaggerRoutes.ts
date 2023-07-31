@@ -2,7 +2,7 @@ import express from "express";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from 'swagger-ui-express';
 import { cardOperationTransaction, standardTransferTransaction } from "../schemas/transaction";
-import GoogleOAuth2Constants from "../../googleOAuth2/constants";
+import GoogleOAuth2Constants from "../../constants";
 
 const router = express.Router();
 

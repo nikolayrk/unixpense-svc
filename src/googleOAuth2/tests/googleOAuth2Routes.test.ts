@@ -9,7 +9,7 @@ import { Server } from 'http';
 import { LogWaitStrategy } from 'testcontainers/dist/src/wait-strategy/log-wait-strategy';
 import GoogleOAuth2TokensRepository from '../repositories/googleOAuth2TokensRepository';
 import { Sequelize } from 'sequelize';
-import Constants from '../constants';
+import Constants from '../../constants';
 
 describe('Google OAuth2 Routes Tests', () => {
     const mariadbPort = 3306;

@@ -3,7 +3,7 @@ import { GaxiosError } from 'gaxios';
 import { OAuth2Client } from 'googleapis-common';
 import { Credentials } from 'google-auth-library';
 import GoogleOAuth2Identifiers from '../models/googleOAuth2Identifiers';
-import Constants from '../constants';
+import Constants from '../../constants';
 import AbstractGoogleOAuth2ClientProvider from './abstractGoogleOAuth2ClientProvider';
 
 export default class GoogleOAuth2ClientProvider extends AbstractGoogleOAuth2ClientProvider {

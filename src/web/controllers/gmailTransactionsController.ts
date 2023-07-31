@@ -126,7 +126,7 @@ const resolveTransactionsAsync = (
     options: Options,
     logger: ILogger) =>
     generateTransactionsAsync(identifiers, options, logger, (gmailTransactionProvider, transactionId) =>
-        gmailTransactionProvider.resolveTransactionOrNullAsync(transactionId));
+        gmailTransactionProvider.resolveTransactionAsync(transactionId));
 
 const saveTransactionsAsync = async (
     identifiers: GoogleOAuth2Identifiers,
@@ -139,7 +139,7 @@ const saveTransactionsAsync = async (
     const transactions = await generateTransactionsAsync(identifiers, options, logger, async (gmailTransactionProvider, transactionId) =>
         transactionExists(transactionId, existingTransactionIds, logger)
             ? null
-            : gmailTransactionProvider.resolveTransactionOrNullAsync(transactionId));
+            : gmailTransactionProvider.resolveTransactionAsync(transactionId));
 
     const created = await transactionRepository.bulkCreateAsync(transactions);
 

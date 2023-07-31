@@ -1,3 +1,4 @@
+import Constants from "../../constants";
 import TransactionType from "../../core/enums/transactionType";
 import CardOperation from "../../core/models/cardOperation";
 import CrossBorderTransfer from "../../core/models/crossBorderTransfer";
@@ -15,6 +16,28 @@ export type PaymentDetailsTestCase<T extends PaymentDetails> = {
 };
 
 export const paymentDetailsTestCases: Record<string, PaymentDetailsTestCase<PaymentDetails>> = {
+  'UNKNOWN': {
+      attachmentDataBody: `
+          <td nowrap="" align="left">xxx<br></td>
+          <td align="center">
+          <table width="100%">
+              <tbody><tr>
+                  <td align="right" nowrap="">4591TATB0</td>
+              </tr>
+              <tr>
+                  <td align="right" nowrap=""></td>
+              </tr>
+          </tbody></table>
+          </td>`,
+      expectedTransactionDataBody: {
+          transactionType: TransactionType.UNKNOWN,
+          paymentDetailsRaw: [
+              'xxx'
+          ],
+          additionalDetailsRaw: ['4591TATB0']
+      },
+      expectedPaymentDetails: Constants.defaultPaymentDetails
+  },
   'CARD_OPERATION > ПОС': {
       attachmentDataBody: `
           <td nowrap="" align="left">Операция с карта<br><br>ПОС 4.48 BGN авт.код:833023-GLOBAL RETAIL HOLDING EOO/VARNA/PAN:4402****5296/CT:<wbr>01<br></td>

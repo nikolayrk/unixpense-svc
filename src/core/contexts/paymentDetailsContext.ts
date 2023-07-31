@@ -13,6 +13,7 @@ import { ICardOperationStrategy,
     IStandardTransferStrategy } from "../../core/types/paymentDetailsStrategies";
 import ILogger from "../../core/contracts/ILogger";
 import PaymentDetailsFactory from "../factories/paymentDetailsFactory";
+import Constants from "../../constants";
 
 @injectable()
 export default class PaymentDetailsContext {
@@ -71,12 +72,12 @@ export default class PaymentDetailsContext {
             }
         }
 
-            this.logger.log(`Falling back to using default payment details body...`, {
-                transactionReference: reference,
-                transactionType: transactionType
-            });
+        this.logger.log(`Falling back to using default payment details body...`, {
+            transactionReference: reference,
+            transactionType: transactionType
+        });
         
-        return PaymentDetailsFactory.default;
+        return Constants.defaultPaymentDetails;
     }
     
     // throws UnsupportedTxnError

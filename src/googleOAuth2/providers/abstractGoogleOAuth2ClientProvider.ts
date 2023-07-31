@@ -6,7 +6,7 @@ import GoogleOAuth2TokensRepository from '../repositories/googleOAuth2TokensRepo
 import ILogger from '../../core/contracts/ILogger';
 import GoogleOAuth2Identifiers from '../models/googleOAuth2Identifiers';
 import IUsesGoogleOAuth2 from '../../googleOAuth2/contracts/IUsesGoogleOAuth2';
-import Constants from '../constants';
+import Constants from '../../constants';
 import IOAuth2ClientProvider from '../contracts/IOAuth2ClientProvider';
 import { DependencyInjector } from '../../dependencyInjector';
 

@@ -6,6 +6,7 @@ import { DependencyInjector } from "../../dependencyInjector";
 import { injectables } from "../../core/types/injectables";
 import { paymentDetailsTestCases } from "../types/paymentDetailsTestCases";
 import { constructTransactionDataTestCase } from "../types/transactionDataTestCase";
+import Constants from "../../constants";
 
 @injectable()
 export default class MockGmailTransactionSourceProvider implements ITransactionSourceProvider, IUsesGoogleOAuth2 {
@@ -106,6 +107,10 @@ export default class MockGmailTransactionSourceProvider implements ITransactionS
     }
 
     public async getAsync(transactionId: string) {
+        if (transactionId === Constants.Mock.emptyTransactionSourceId) {
+            return "";
+        }
+
         if (transactionId in paymentDetailsTestCases) {
             const transactionHead = constructTransactionDataTestCase(transactionId).attachmentDataHead;
             const transactionBody = paymentDetailsTestCases[transactionId].attachmentDataBody;

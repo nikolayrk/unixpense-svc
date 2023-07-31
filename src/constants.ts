@@ -1,3 +1,5 @@
+import PaymentDetails from "../src/core/models/paymentDetails";
+
 export default class Constants {
     public static readonly scopes = [
         'https://www.googleapis.com/auth/userinfo.profile',
@@ -18,6 +20,11 @@ export default class Constants {
         authorizationCode: "code",
         authorizationCodeError: "error_code",
         accessToken: "access_token",
-        refreshToken: "refresh_token"
+        refreshToken: "refresh_token",
+        emptyTransactionSourceId: "empty"
     } as const;
+
+    public static readonly defaultPaymentDetails: PaymentDetails = {
+        recipient: '<N/A>'
+    };
 }

@@ -2,7 +2,7 @@ import { injectable } from "inversify";
 import GoogleOAuth2Identifiers from "../models/googleOAuth2Identifiers";
 import AbstractGoogleOAuth2ClientProvider from "./abstractGoogleOAuth2ClientProvider";
 import { Credentials } from "google-auth-library";
-import Constants from "../constants";
+import Constants from "../../constants";
 
 @injectable()
 export default class MockGoogleOAuth2ClientProvider extends AbstractGoogleOAuth2ClientProvider {
