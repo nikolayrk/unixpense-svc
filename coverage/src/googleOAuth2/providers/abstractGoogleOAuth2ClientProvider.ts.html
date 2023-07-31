@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">90% </span>
+                <span class="strong">93.1% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>27/30</span>
+                <span class='fraction'>27/29</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">89.28% </span>
+                <span class="strong">92.59% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>25/28</span>
+                <span class='fraction'>25/27</span>
             </div>
         
             
@@ -155,46 +155,36 @@
 <a name='L90'></a><a href='#L90'>90</a>
 <a name='L91'></a><a href='#L91'>91</a>
 <a name='L92'></a><a href='#L92'>92</a>
-<a name='L93'></a><a href='#L93'>93</a>
-<a name='L94'></a><a href='#L94'>94</a>
-<a name='L95'></a><a href='#L95'>95</a>
-<a name='L96'></a><a href='#L96'>96</a>
-<a name='L97'></a><a href='#L97'>97</a>
-<a name='L98'></a><a href='#L98'>98</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L93'></a><a href='#L93'>93</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -221,6 +211,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -233,8 +225,6 @@
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -265,7 +255,7 @@ import GoogleOAuth2TokensRepository from '../repositories/googleOAuth2TokensRepo
 import ILogger from '../../core/contracts/ILogger';
 import GoogleOAuth2Identifiers from '../models/googleOAuth2Identifiers';
 import IUsesGoogleOAuth2 from '../../googleOAuth2/contracts/IUsesGoogleOAuth2';
-import Constants from '../constants';
+import Constants from '../../constants';
 import IOAuth2ClientProvider from '../contracts/IOAuth2ClientProvider';
 import { DependencyInjector } from '../../dependencyInjector';
 &nbsp;
@@ -291,11 +281,6 @@ export default abstract class AbstractGoogleOAuth2ClientProvider implements IOAu
                 refresh_token: identifiers.refreshToken
             };
 &nbsp;
-            this.logger.log(`Using OAuth2 Client tokens`, {
-                access_token: tokens.access_token,
-                refresh_token: tokens.refresh_token
-            });
-&nbsp;
             await this.tryHandleTokensAsync(tokens);
         }
     }
@@ -319,6 +304,8 @@ export default abstract class AbstractGoogleOAuth2ClientProvider implements IOAu
             refresh_token: refreshToken,
         };
 &nbsp;
+        this.logger.log(`Using OAuth2 Client tokens`, { ...tokens });
+&nbsp;
         this.authenticate(refreshableTokens);
     }
 &nbsp;
@@ -330,8 +317,6 @@ export default abstract class AbstractGoogleOAuth2ClientProvider implements IOAu
         const userEmail = await this.resolveEmailOrNullAsync(tokens.access_token);
 &nbsp;
         <span class="missing-if-branch" title="if path not taken" >I</span>if (userEmail === null) {
-<span class="cstat-no" title="statement not covered" >            this.logger.log(`No persisted OAuth2 Client tokens found`);</span>
-&nbsp;
 <span class="cstat-no" title="statement not covered" >            return tokens.refresh_token ?? null;</span>
         }
 &nbsp;
@@ -349,7 +334,7 @@ export default abstract class AbstractGoogleOAuth2ClientProvider implements IOAu
         const persistedIdentifiers = await this.googleOAuth2TokensRepository.getOrNullAsync(userEmail);
 &nbsp;
         if (persistedIdentifiers !== null) {
-            this.logger.log(`Using persisted OAuth2 refresh token`, { refreshToken: persistedIdentifiers.refreshToken });
+            this.logger.log(`Using persisted OAuth2 refresh token`, { refresh_token: persistedIdentifiers.refreshToken });
         }
         
         return persistedIdentifiers<span class="branch-0 cbranch-no" title="branch not covered" >?.r</span>efreshToken;
@@ -361,7 +346,7 @@ export default abstract class AbstractGoogleOAuth2ClientProvider implements IOAu
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2023-07-31T08:32:45.592Z
+                at 2023-07-31T23:58:39.753Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
