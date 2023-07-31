@@ -64,10 +64,16 @@ export default class GoogleOAuth2ClientProvider extends AbstractGoogleOAuth2Clie
         }
 
         try  {
+            // https://cloud.google.com/nodejs/docs/reference/google-auth-library/latest#checking-accesstoken-information
+            // This method will throw if the token is invalid.
             const tokenInfo = await this.oauth2Client.getTokenInfo(accessToken);
 
             return tokenInfo.email ?? null;
         } catch(ex) {
+            const error = ex as Error;
+
+            this.logger.warn(`Failed to get token info: ${error.message ?? String(ex) }`, { access_token: accessToken });
+
             return null;
         }
     }

@@ -32,11 +32,6 @@ export default abstract class AbstractGoogleOAuth2ClientProvider implements IOAu
                 refresh_token: identifiers.refreshToken
             };
 
-            this.logger.log(`Using OAuth2 Client tokens`, {
-                access_token: tokens.access_token,
-                refresh_token: tokens.refresh_token
-            });
-
             await this.tryHandleTokensAsync(tokens);
         }
     }
@@ -60,6 +55,8 @@ export default abstract class AbstractGoogleOAuth2ClientProvider implements IOAu
             refresh_token: refreshToken,
         };
 
+        this.logger.log(`Using OAuth2 Client tokens`, { ...tokens });
+
         this.authenticate(refreshableTokens);
     }
 
@@ -71,8 +68,6 @@ export default abstract class AbstractGoogleOAuth2ClientProvider implements IOAu
         const userEmail = await this.resolveEmailOrNullAsync(tokens.access_token);
 
         if (userEmail === null) {
-            this.logger.log(`No persisted OAuth2 Client tokens found`);
-
             return tokens.refresh_token ?? null;
         }
 
@@ -90,7 +85,7 @@ export default abstract class AbstractGoogleOAuth2ClientProvider implements IOAu
         const persistedIdentifiers = await this.googleOAuth2TokensRepository.getOrNullAsync(userEmail);
 
         if (persistedIdentifiers !== null) {
-            this.logger.log(`Using persisted OAuth2 refresh token`, { refreshToken: persistedIdentifiers.refreshToken });
+            this.logger.log(`Using persisted OAuth2 refresh token`, { refresh_token: persistedIdentifiers.refreshToken });
         }
         
         return persistedIdentifiers?.refreshToken;
