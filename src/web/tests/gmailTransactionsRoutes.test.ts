@@ -8,7 +8,7 @@ import { GenericContainer, StartedTestContainer } from 'testcontainers';
 import { Server } from 'http';
 import { LogWaitStrategy } from 'testcontainers/dist/src/wait-strategy/log-wait-strategy';
 import { Sequelize } from 'sequelize';
-import { paymentDetailsTestCases } from '../types/paymentDetailsTestCases';
+import { paymentDetailsTestCases } from '../../gmail/types/paymentDetailsTestCases';
 import Constants from '../../constants';
 import * as mariadb from 'mariadb';
 import GoogleOAuth2TokensRepository from '../../googleOAuth2/repositories/googleOAuth2TokensRepository';
