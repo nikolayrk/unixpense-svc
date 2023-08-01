@@ -16,10 +16,6 @@ const newGroup = async (req: Request, res: Response) => {
 const get = async (req: Request, res: Response) => {
     const group = req.params.group;
 
-    if (group === "") {
-        return ResponseExtensions.badRequest(res, "No group provided");
-    }
-
     try {
         const result = {}; // TODO
         
@@ -45,11 +41,7 @@ const getAll = async (req: Request, res: Response) => {
 
 const deleteGroup = async (req: Request, res: Response) => {
     const group = req.params.group;
-
-    if (group === "") {
-        return ResponseExtensions.badRequest(res, "No group provided");
-    }
-
+    
     // TODO
 
     return ResponseExtensions.noContent(res);

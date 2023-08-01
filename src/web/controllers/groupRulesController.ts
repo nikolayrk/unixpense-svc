@@ -14,24 +14,9 @@ const newRule = async (req: Request, res: Response) => {
 };
 
 const get = async (req: Request, res: Response) => {
-    const group = req.params.rule_id;
-
-    if (group === "") {
-        return ResponseExtensions.badRequest(res, "No group provided");
-    }
-
-    const ruleId = req.params.rule_id;
-
-    if (ruleId === "") {
-        return ResponseExtensions.badRequest(res, "No rule_id provided");
-    }
+    const group = req.params.group;
+    const ruleId = req.params.id;
     
-    const ruleIdValue = Number(ruleId);
-
-    if (Number.isNaN(ruleId) || ruleIdValue < 1) {
-        return ResponseExtensions.badRequest(res, "Invalid rule_id provided");
-    }
-
     try {
         const result = {}; // TODO
         
@@ -57,23 +42,8 @@ const getAll = async (req: Request, res: Response) => {
 };
 
 const deleteRule = async (req: Request, res: Response) => {
-    const group = req.params.rule_id;
-
-    if (group === "") {
-        return ResponseExtensions.badRequest(res, "No group provided");
-    }
-    
-    const ruleId = req.params.rule_id;
-
-    if (ruleId === "") {
-        return ResponseExtensions.badRequest(res, "No rule_id provided");
-    }
-    
-    const ruleIdValue = Number(ruleId);
-
-    if (Number.isNaN(ruleId) || ruleIdValue < 1) {
-        return ResponseExtensions.badRequest(res, "Invalid rule_id provided");
-    }
+    const group = req.params.group;
+    const ruleId = req.params.id;
 
     // TODO
 
