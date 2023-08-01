@@ -136,6 +136,7 @@ fetchTransactionIds() {
     local REFRESH_TOKEN=$3
 
     local RESULT=$(curl -s \
+        --connect-timeout 180 \
         -X GET "$URL" \
         -H "Authorization: Bearer $ACCESS_TOKEN" \
         -H "X-Refresh-Token: $REFRESH_TOKEN" \
@@ -156,6 +157,7 @@ saveTransactions() {
     local TRANSACTION_IDS=$3
 
     local RESULT=$(curl -s \
+        --connect-timeout 180 \
         -X POST "$URL" \
         -H "Authorization: Bearer $ACCESS_TOKEN" \
         -H "Accept: application/json" \
@@ -177,6 +179,7 @@ resolveTransactions() {
     local TRANSACTION_IDS=$3
 
     local RESULT=$(curl -s \
+        --connect-timeout 180 \
         -X POST "$URL" \
         -H "Authorization: Bearer $ACCESS_TOKEN" \
         -H "Accept: application/json" \
@@ -217,6 +220,7 @@ sendTelegram() {
     local MESSAGE=$1
 
     TELEGRAM_API_RESULT=$(curl -s \
+        --connect-timeout 180 \
         -X POST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage \
         -H 'Content-Type: application/json' \
         -d "{\"chat_id\": \"$TELEGRAM_CHAT_ID\", \"parse_mode\": \"HTML\", \"text\": $MESSAGE, \"disable_notification\": true}")
