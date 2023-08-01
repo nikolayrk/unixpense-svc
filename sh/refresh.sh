@@ -31,7 +31,7 @@ main() {
     if [ "$FETCH_ERROR" != '' ]; then
         echo "Failed."
 
-        echo $(sendTelegram "$FETCH_ERROR")
+        echo $(sendTelegram "Failed to fetch transaction IDs: $FETCH_ERROR")
 
         exit 1
     fi
@@ -43,7 +43,7 @@ main() {
     if [ "$TRANSACTION_ID_COUNT" -eq "0" ]; then
         echo "No new transactions."
 
-        exit
+        exit 1
     fi
 
     echo "Received $TRANSACTION_ID_COUNT new transaction(s)."
@@ -60,7 +60,7 @@ main() {
     if [ "$SAVE_ERROR" != null ]; then
         echo "Failed."
 
-        echo $(sendTelegram "$SAVE_ERROR")
+        echo $(sendTelegram "Failed to save transactions: $SAVE_ERROR")
 
         exit 1
     fi
@@ -80,7 +80,7 @@ main() {
     if [ "$RESOLVE_ERROR" != '' ]; then
         echo "Failed."
 
-        echo $(sendTelegram "$RESOLVE_ERROR")
+        echo $(sendTelegram "Failed to resolve transactions: $RESOLVE_ERROR")
 
         exit 1
     fi
