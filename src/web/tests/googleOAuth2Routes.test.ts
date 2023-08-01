@@ -7,7 +7,7 @@ import { injectables } from '../../core/types/injectables';
 import { GenericContainer, StartedTestContainer } from 'testcontainers';
 import { Server } from 'http';
 import { LogWaitStrategy } from 'testcontainers/dist/src/wait-strategy/log-wait-strategy';
-import GoogleOAuth2TokensRepository from '../repositories/googleOAuth2TokensRepository';
+import GoogleOAuth2TokensRepository from '../../googleOAuth2/repositories/googleOAuth2TokensRepository';
 import { Sequelize } from 'sequelize';
 import Constants from '../../constants';
 
