@@ -15,15 +15,15 @@ The Service is responsible for fetching and persisting new transaction data from
 ```bash
 yarn install # Install dependencies
 
-npm run lint # Run linter
+yarn lint # Run linter
 
-npm test # Run tests
+yarn test # Run tests
 
-npm run build # Build the project
+yarn build # Build the project
 
-npm start # Run the API server
+yarn start # Run the API server
 
-npm run dev # Run in development mode
+yarn dev # Run in development mode
 
 docker build -t nikolayrk/unixpense-svc:latest --build-arg=PORT=8000 # Build a Docker image
 
