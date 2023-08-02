@@ -10,7 +10,7 @@ spec:
     matchLabels:
       app: unixpense-svc
   revisionHistoryLimit: 0
-  replicas: 1
+  replicas: 2
   strategy:
       type: RollingUpdate
       rollingUpdate:
