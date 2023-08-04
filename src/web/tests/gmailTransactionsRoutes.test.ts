@@ -4,9 +4,8 @@ import { createDatabaseConnectionAsync, registerDependencies, startServerAsync }
 import ILogger from '../../core/contracts/ILogger';
 import { DependencyInjector } from '../../dependencyInjector';
 import { injectables } from '../../core/types/injectables';
-import { GenericContainer, StartedTestContainer } from 'testcontainers';
+import { GenericContainer, StartedTestContainer, Wait } from 'testcontainers';
 import { Server } from 'http';
-import { LogWaitStrategy } from 'testcontainers/dist/src/wait-strategy/log-wait-strategy';
 import { Sequelize } from 'sequelize';
 import { paymentDetailsTestCases } from '../../gmail/types/paymentDetailsTestCases';
 import Constants from '../../constants';
@@ -54,7 +53,7 @@ describe('Gmail Transactions Routes Tests', () => {
         container = await new GenericContainer("mariadb")
             .withEnvironment({ "MARIADB_ROOT_PASSWORD": mariadbPassword })
             .withExposedPorts(mariadbPort)
-            .withWaitStrategy(new LogWaitStrategy("mariadbd: ready for connections.", 1))
+            .withWaitStrategy(Wait.forLogMessage("mariadbd: ready for connections.", 1))
             .start();
 
         mariadbHost = container.getHost();
