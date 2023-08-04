@@ -12,51 +12,6 @@ import { DependencyInjector } from './dependencyInjector';
 import * as mariadb from 'mariadb';
 import { Server } from 'http';
 
-const registerErrorHandlers = (logger: ILogger) => {
-    const signalHandlerAsync = async (signal: string) => {
-        logger.log(`${signal} received. Exiting...`, {
-            platform: process.platform,
-            arch: process.arch,
-            pid: process.pid,
-            signal: signal
-        });
-        
-        await logger.beforeExit();
-        
-        process.exit(1);
-    };
-    
-    const gracefulShutdownAsync = async (err: Error) => {
-        logger.error(err, {
-            platform: process.platform,
-            arch: process.arch,
-            pid: process.pid
-        });
-        
-        await logger.beforeExit();
-
-        process.exitCode = 1;
-    };
-    
-    const beforeExitAsync = async (exitCode: number) => {
-        try {
-            logger.log(`Service exited`, {
-                platform: process.platform,
-                arch: process.arch,
-                pid: process.pid,
-                exitCode: exitCode
-            });
-
-            await logger.beforeExit();
-        } catch(ex) {}
-    };
-    
-    process.on('SIGINT', signalHandlerAsync);
-    process.on('SIGTERM', signalHandlerAsync);
-    process.on('uncaughtExceptionMonitor', gracefulShutdownAsync);
-    process.on('beforeExit', beforeExitAsync);
-}
-
 const createDatabaseIfNotExistsAsync = async (host: string, port: number, username: string, password: string, database: string) => {
     const pool = mariadb.createPool({
         host: host,
@@ -142,4 +97,4 @@ const startServerAsync = (port: number) => {
     return server;
 };
 
-export { registerErrorHandlers, createDatabaseConnectionAsync, registerDependencies, startServerAsync }
+export { createDatabaseConnectionAsync, registerDependencies, startServerAsync }

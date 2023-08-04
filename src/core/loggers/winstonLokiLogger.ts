@@ -5,6 +5,11 @@ import { injectable } from 'inversify';
 
 @injectable()
 export default class WinstonLokiLogger implements ILogger {
+    private readonly labels = {
+        job: 'unixpense',
+        host: `${process.env.HOSTNAME ?? 'localhost'}:${process.env.port ?? 8000}`
+    } as const;
+    
     private readonly logger: winston.Logger;
     private readonly lokiTransport?: LokiTransport;
     
@@ -55,15 +60,15 @@ export default class WinstonLokiLogger implements ILogger {
     }
 
     public log(message: string, labels?: Record<string, unknown>) {
-        this.logger.info(message, { labels: labels });
+        this.logger.info(message, { ...this.labels, ...labels });
     }
 
     public warn(message: string, labels?: Record<string, unknown>) {
-        this.logger.warn(message, { labels: labels });
+        this.logger.warn(message, { ...this.labels, ...labels });
     }
 
     public error(error: Error, labels?: Record<string, unknown>) {
-        this.logger.log('error', { message: error, labels: labels });
+        this.logger.log('error', { ...this.labels, message: error, ...labels });
     }
 
     public beforeExit() {

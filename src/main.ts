@@ -4,14 +4,10 @@ import "reflect-metadata"
 import { DependencyInjector } from './dependencyInjector';
 import ILogger from './core/contracts/ILogger';
 import { injectables } from './core/types/injectables';
-import { createDatabaseConnectionAsync, registerDependencies, registerErrorHandlers, startServerAsync } from './bootstrap';
+import { createDatabaseConnectionAsync, registerDependencies, startServerAsync } from './bootstrap';
 
 const main = async () => {
     const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
-
-    logger.log('Registering error handlers...');
-
-    registerErrorHandlers(logger);
 
     logger.log('Creating database connection...');
 
@@ -46,13 +42,58 @@ const main = async () => {
 
     await startServerAsync(port);
 
-    logger.log(`Server is running`, { hostname, port });
+    logger.log(`Server is running`);
 
     logger.log(`Service started`, {
         platform: process.platform,
         arch: process.arch,
         pid: process.pid
     });
+
+    const signalHandlerAsync = async (signal: string) => {
+        logger.log(`${signal} received. Exiting...`, {
+            platform: process.platform,
+            arch: process.arch,
+            pid: process.pid,
+            signal: signal
+        });
+        
+        await logger.beforeExit();
+        
+        process.exit(1);
+    };
+    
+    const gracefulShutdownAsync = async (err: Error) => {
+        logger.error(err, {
+            platform: process.platform,
+            arch: process.arch,
+            pid: process.pid
+        });
+        
+        await logger.beforeExit();
+
+        process.exitCode = 1;
+    };
+    
+    const beforeExitAsync = async (exitCode: number) => {
+        try {
+            logger.log(`Service exited`, {
+                platform: process.platform,
+                arch: process.arch,
+                pid: process.pid,
+                exitCode: exitCode
+            });
+
+            await logger.beforeExit();
+        } catch(ex) {}
+
+        process.exit(0);
+    };
+    
+    process.on('SIGINT', signalHandlerAsync);
+    process.on('SIGTERM', signalHandlerAsync);
+    process.on('uncaughtExceptionMonitor', gracefulShutdownAsync);
+    process.on('beforeExit', beforeExitAsync);
 }
 
 main();
