@@ -10,6 +10,6 @@ spec:
     app: unixpense-svc
   ports:
   - name: http
-    port: $PORT
-    targetPort: $PORT
+    port: 8000
+    targetPort: http
     protocol: TCP

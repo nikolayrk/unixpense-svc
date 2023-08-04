@@ -20,4 +20,4 @@ spec:
           service:
             name: unixpense-svc-service
             port:
-              number: $PORT
+              name: http

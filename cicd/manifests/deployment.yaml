@@ -21,31 +21,9 @@ spec:
       labels:
         app: unixpense-svc
     spec:
-      volumes:
-      - name: mariadb-volume
-        persistentVolumeClaim:
-          claimName: mariadb-pvc
       securityContext:
         runAsUser: 1000
       containers:
-      - name: mariadb
-        image: mariadb:latest
-        resources:
-          requests:
-            cpu: 300m
-            memory: 75Mi
-          limits:
-            cpu: 500m
-            memory: 150Mi
-        envFrom:
-        - secretRef:
-            name: mariadb-secret
-        ports:
-        - containerPort: 3306
-          name: mariadb-port
-        volumeMounts:
-        - name: mariadb-volume
-          mountPath: /var/lib/mysql
       - name: unixpense-svc
         image: nikolayrk/unixpense-svc:$latest
         resources:
@@ -58,25 +36,26 @@ spec:
         startupProbe:
           httpGet:
             path: /healthz
-            port: $PORT
+            port: http
           initialDelaySeconds: 120
           periodSeconds: 5
           failureThreshold: 30
         readinessProbe:
           httpGet:
             path: /readyz
-            port: $PORT
+            port: http
           initialDelaySeconds: 120
           periodSeconds: 10
         livenessProbe:
           httpGet:
             path: /alivez
-            port: $PORT
+            port: http
           initialDelaySeconds: 120
           periodSeconds: 10
           failureThreshold: 3
         ports:
-        - containerPort: $PORT
+        - name: http
+          containerPort: $PORT
         envFrom:
         - configMapRef:
             name: unixpense-svc-config

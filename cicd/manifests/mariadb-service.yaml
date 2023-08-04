@@ -4,10 +4,10 @@ metadata:
   name: mariadb-service
   namespace: unixpense
   labels:
-    app: unixpense-svc
+    app: unixpense-db
 spec:
   selector:
-    app: unixpense-svc
+    app: unixpense-db
   ports:
   - name: mariadb
     port: 3306
