@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">68.42% </span>
+                <span class="strong">65% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>13/19</span>
-            </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">35.71% </span>
-                <span class="quiet">Branches</span>
-                <span class='fraction'>5/14</span>
+                <span class='fraction'>13/20</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">50% </span>
-                <span class="quiet">Functions</span>
-                <span class='fraction'>5/10</span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>11/22</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">73.33% </span>
+                <span class="strong">40% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>4/10</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">68.75% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>11/15</span>
+                <span class='fraction'>11/16</span>
             </div>
         
             
@@ -136,13 +136,23 @@
 <a name='L71'></a><a href='#L71'>71</a>
 <a name='L72'></a><a href='#L72'>72</a>
 <a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">6x</span>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -161,12 +171,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">176x</span>
-<span class="cline-any cline-yes">176x</span>
-<span class="cline-any cline-yes">200x</span>
+<span class="cline-any cline-yes">148x</span>
+<span class="cline-any cline-yes">148x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">176x</span>
+<span class="cline-any cline-yes">148x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -193,7 +203,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">159x</span>
+<span class="cline-any cline-yes">131x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -216,6 +226,11 @@ import { injectable } from 'inversify';
 &nbsp;
 @injectable()
 export default class WinstonLokiLogger implements ILogger {
+    private readonly labels = {
+        job: 'unixpense',
+        host: `${process.env.HOSTNAME<span class="branch-0 cbranch-no" title="branch not covered" > ?? '</span>localhost'}:${process.env.port<span class="branch-0 cbranch-no" title="branch not covered" > ?? 8</span>000}`
+    } as const;
+    
     private readonly logger: winston.Logger;
     private readonly lokiTransport?: LokiTransport;
     
@@ -236,7 +251,7 @@ export default class WinstonLokiLogger implements ILogger {
                 winston.format.printf((info =&gt; {
                     const { message, level, stack, labels } = info;
                     const labelStrings = Object.entries({ ...labels })
-                        .map(([k, v]) =&gt; `\n\t[${k}]\t${v}`)
+                        .map(<span class="fstat-no" title="function not covered" >([</span>k, v]) =&gt; <span class="cstat-no" title="statement not covered" >`\n\t[${k}]\t${v}`)</span>
                         .join('');
 &nbsp;
                     return 'stack' in info
@@ -266,15 +281,15 @@ export default class WinstonLokiLogger implements ILogger {
     }
 &nbsp;
     public log(message: string, labels?: Record&lt;string, unknown&gt;) {
-        this.logger.info(message, { labels: labels });
+        this.logger.info(message, { ...this.labels, ...labels });
     }
 &nbsp;
     public warn(message: string, labels?: Record&lt;string, unknown&gt;) {
-        this.logger.warn(message, { labels: labels });
+        this.logger.warn(message, { ...this.labels, ...labels });
     }
 &nbsp;
     public <span class="fstat-no" title="function not covered" >error(</span>error: Error, labels?: Record&lt;string, unknown&gt;) {
-<span class="cstat-no" title="statement not covered" >        this.logger.log('error', { message: error, labels: labels });</span>
+<span class="cstat-no" title="statement not covered" >        this.logger.log('error', { ...this.labels, message: error, ...labels });</span>
     }
 &nbsp;
     public <span class="fstat-no" title="function not covered" >beforeExit(</span>) {
@@ -289,7 +304,7 @@ export default class WinstonLokiLogger implements ILogger {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2023-08-04T21:06:51.587Z
+                at 2023-08-04T22:16:31.815Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
