@@ -96,6 +96,8 @@ jobs:
           secret-name: mariadb-secret
           string-data: |
             {
+              "MARIADB_HOST": "${{ secrets.MARIADB_HOST }}",
+              "MARIADB_PORT": "${{ secrets.MARIADB_PORT }}",
               "MARIADB_USER": "${{ secrets.MARIADB_USER }}",
               "MARIADB_PASSWORD": "${{ secrets.MARIADB_PASSWORD }}",
               "MARIADB_DATABASE": "${{ vars.MARIADB_DATABASE }}",
