@@ -66,24 +66,28 @@ jobs:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBECONFIG }}
       - name: Create Configuration ConfigMap
-        run: kubectl create configmap unixpense-svc-config \
-          --dry-run=client -o yaml \
-          --namespace=${KUBERNETES_NAMESPACE} \
-          --from-literal=PORT=${{ vars.PORT }} \
-          --from-literal=NODE_ENV=${{ vars.NODE_ENV }} \
-          --from-literal=LOG_LEVEL=${{ vars.LOG_LEVEL }} \
-          --from-literal=UNIXPENSE_HOST=${{ vars.UNIXPENSE_HOST }} \
-          --from-literal=UNIXPENSE_HOST_PREFIX=${{ vars.UNIXPENSE_HOST_PREFIX }} \
-          --from-literal=LOKI_HOST=${{ vars.LOKI_HOST }} | kubectl apply -f -
+        run: >
+          kubectl create configmap unixpense-svc-config
+          --namespace=unixpense
+          --from-literal=PORT=${{ vars.PORT }}
+          --from-literal=NODE_ENV=${{ vars.NODE_ENV }}
+          --from-literal=LOG_LEVEL=${{ vars.LOG_LEVEL }}
+          --from-literal=UNIXPENSE_HOST=${{ vars.UNIXPENSE_HOST }}
+          --from-literal=UNIXPENSE_HOST_PREFIX=${{ vars.UNIXPENSE_HOST_PREFIX }}
+          --from-literal=LOKI_HOST=${{ vars.LOKI_HOST }}
+          -o yaml --dry-run=client | kubectl apply -f -
       - name: Create OAuth2 Configuration ConfigMap
-        run: kubectl create configmap oauth2-authenticated-emails \
-            --namespace unixpense \
-            --from-literal=authenticated-emails=${{ vars.GMAIL_ADDRESS }} | kubectl apply -f -
+        run: >
+          kubectl create configmap oauth2-authenticated-emails
+          --namespace unixpense
+          --from-literal=authenticated-emails=${{ vars.GMAIL_ADDRESS }}
+          -o yaml --dry-run=client | kubectl apply -f -
       - name: Create Refresh Script ConfigMap
-        run: kubectl create configmap refresh-sh \
-            --namespace unixpense \
-            --from-file=sh/refresh.sh \
-            -o yaml --dry-run=client | kubectl apply -f -
+        run: >
+          kubectl create configmap refresh-sh
+          --namespace unixpense
+          --from-file=sh/refresh.sh
+          -o yaml --dry-run=client | kubectl apply -f -
       - name: Create MariaDb Secret
         uses: Azure/k8s-create-secret@v4
         with:
@@ -95,8 +99,6 @@ jobs:
               "MARIADB_USER": "${{ secrets.MARIADB_USER }}",
               "MARIADB_PASSWORD": "${{ secrets.MARIADB_PASSWORD }}",
               "MARIADB_DATABASE": "${{ vars.MARIADB_DATABASE }}",
-              "MARIADB_NFS_SERVER": "${{ vars.MARIADB_NFS_SERVER }}",
-              "MARIADB_NFS_PATH": "${{ vars.MARIADB_NFS_PATH }}",
               "MARIADB_RANDOM_ROOT_PASSWORD": "yes"
             }
       - name: Create Google OAuth2 Credentials Secret
