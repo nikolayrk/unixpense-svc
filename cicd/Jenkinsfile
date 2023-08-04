@@ -1,3 +1,5 @@
+// This workflow is deprecated. Use the CICD GitHub Actions workflow
+
 def runBashFile(filePath) {
     sh "chmod +x ${filePath} && ${filePath}"
 }
