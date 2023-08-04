@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unixpense-db
+  namespace: unixpense
+  labels:
+    app: unixpense-db
+spec:
+  selector:
+    matchLabels:
+      app: unixpense-db
+  revisionHistoryLimit: 0
+  replicas: 1
+  strategy:
+      type: RollingUpdate
+      rollingUpdate:
+         maxSurge: 1
+         maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: unixpense-db
+    spec:
+      volumes:
+      - name: mariadb-volume
+        persistentVolumeClaim:
+          claimName: mariadb-pvc
+      securityContext:
+        runAsUser: 1000
+      containers:
+      - name: mariadb
+        image: mariadb:latest
+        resources:
+          requests:
+            cpu: 300m
+            memory: 75Mi
+          limits:
+            cpu: 500m
+            memory: 150Mi
+        envFrom:
+        - secretRef:
+            name: mariadb-secret
+        ports:
+        - containerPort: 3306
+          name: mariadb-port
+        volumeMounts:
+        - name: mariadb-volume
+          mountPath: /var/lib/mysql

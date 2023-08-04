@@ -8,7 +8,7 @@ spec:
   capacity:
     storage: "1Gi"
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   nfs:
     server: $MARIADB_NFS_SERVER
     path: $MARIADB_NFS_PATH
@@ -23,7 +23,7 @@ metadata:
 spec:
   storageClassName: unixpense-svc
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: "1Gi"

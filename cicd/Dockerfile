@@ -9,7 +9,7 @@ COPY src ./src
 ARG NODE_ENV
 
 RUN yarn install --pure-lockfile && \
-    npm run build && \
+    yarn build && \
     rm -rf  ./src \
             tsconfig.json
 
@@ -17,4 +17,4 @@ ARG PORT
 
 EXPOSE $PORT
 
-CMD [ "npm", "start" ]
+CMD [ "yarn", "start" ]
