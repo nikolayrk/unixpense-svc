@@ -35,7 +35,7 @@ const options = {
       ],
       info: {
         title: 'Unixpense Tracker API',
-        version: '1.0.0',
+        version: process.env.VERSION ?? 'develop',
       },
       components: {
         securitySchemes: {
