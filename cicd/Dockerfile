@@ -17,4 +17,4 @@ ARG PORT
 
 EXPOSE $PORT
 
-CMD [ "yarn", "start" ]
+CMD [ "node", "dist/main.js" ]

@@ -26,7 +26,7 @@ const main = async () => {
     const connection = await createDatabaseConnectionAsync(mariadbHost, mariadbPort, username, password, database, logger);
 
     if (connection === null) {
-        return;
+        throw new Error('Failed to create a connection to the database');
     }
 
     logger.log('Registering dependencies...');
@@ -35,12 +35,11 @@ const main = async () => {
 
     logger.log('Starting server...');
 
-    const hostname = process.env.HOSTNAME ?? 'localhost';
     const port = Number.isNaN(process.env.PORT ?? NaN)
         ? 8000
         : Number(process.env.PORT);
 
-    await startServerAsync(port);
+    const server = await startServerAsync(port);
 
     logger.log(`Server is running`);
 
@@ -50,6 +49,24 @@ const main = async () => {
         pid: process.pid
     });
 
+    const closeResources = () => {
+        server.close(async (err) => {
+            let exitCode = 0;
+
+            if(err) {
+                logger.error(err);
+
+                exitCode = 1;
+            }
+        
+            await logger.beforeExit();
+
+            await connection.close();
+
+            process.exit(exitCode);
+        });
+    }
+
     const signalHandlerAsync = async (signal: string) => {
         logger.log(`${signal} received. Exiting...`, {
             platform: process.platform,
@@ -57,10 +74,8 @@ const main = async () => {
             pid: process.pid,
             signal: signal
         });
-        
-        await logger.beforeExit();
-        
-        process.exit(1);
+
+        closeResources();
     };
     
     const gracefulShutdownAsync = async (err: Error) => {
@@ -69,25 +84,19 @@ const main = async () => {
             arch: process.arch,
             pid: process.pid
         });
-        
-        await logger.beforeExit();
 
-        process.exitCode = 1;
+        closeResources();
     };
     
     const beforeExitAsync = async (exitCode: number) => {
-        try {
-            logger.log(`Service exited`, {
-                platform: process.platform,
-                arch: process.arch,
-                pid: process.pid,
-                exitCode: exitCode
-            });
+        logger.log(`Service exited`, {
+            platform: process.platform,
+            arch: process.arch,
+            pid: process.pid,
+            exitCode: exitCode
+        });
 
-            await logger.beforeExit();
-        } catch(ex) {}
-
-        process.exit(0);
+        closeResources();
     };
     
     process.on('SIGINT', signalHandlerAsync);
