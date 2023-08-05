@@ -7,7 +7,11 @@ import { injectable } from 'inversify';
 export default class WinstonLokiLogger implements ILogger {
     private readonly labels = {
         job: 'unixpense',
-        host: `${process.env.HOSTNAME ?? 'localhost'}:${process.env.port ?? 8000}`
+        host: `${process.env.HOSTNAME ?? 'localhost'}:${process.env.port ?? 8000}`,
+        
+        ...(process.env.VERSION !== undefined) && {
+            version: process.env.VERSION
+        }
     } as const;
     
     private readonly logger: winston.Logger;

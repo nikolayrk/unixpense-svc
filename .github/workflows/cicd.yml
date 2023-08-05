@@ -75,6 +75,7 @@ jobs:
           --from-literal=UNIXPENSE_HOST=${{ vars.UNIXPENSE_HOST }}
           --from-literal=UNIXPENSE_HOST_PREFIX=${{ vars.UNIXPENSE_HOST_PREFIX }}
           --from-literal=LOKI_HOST=${{ vars.LOKI_HOST }}
+          --from-literal=VERSION=${{ github.sha }}
           -o yaml --dry-run=client | kubectl apply -f -
       - name: Create OAuth2 Configuration ConfigMap
         run: >
