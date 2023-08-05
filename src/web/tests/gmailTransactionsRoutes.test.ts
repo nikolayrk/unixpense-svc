@@ -16,6 +16,7 @@ import ITransactionProvider from '../../core/contracts/ITransactionProvider';
 import GoogleOAuth2IdentifiersFactory from '../../googleOAuth2/factories/googleOAuth2IdentifiersFactory';
 import Transaction from '../../core/models/transaction';
 import PaymentDetails from '../../core/models/paymentDetails';
+import { TransactionExtensions } from '../../core/extensions/transactionExtensions';
 
 describe('Gmail Transactions Routes Tests', () => {
     const mariadbPort = 3306;
@@ -146,7 +147,7 @@ describe('Gmail Transactions Routes Tests', () => {
 
     it('should error out with a missing access token', async () => {
         const response = await supertest.agent(app)
-            .post("/api/transactions/gmail/resolve")
+            .get("/api/transactions/gmail/ids/last/1")
             .set('Accept', 'application/json')
             .send([]);
 
@@ -207,7 +208,7 @@ describe('Gmail Transactions Routes Tests', () => {
         expect(response.body).toEqual({ error: "Invalid skip depth provided" });
     });
 
-    it('should resolve a random number of transaction IDs', async () => {
+    it('should fetch a random number of transaction IDs', async () => {
         const expectedTransactionIds = resolveRandomTransactionIds();
 
         const response = await supertest.agent(app)
@@ -223,7 +224,7 @@ describe('Gmail Transactions Routes Tests', () => {
         expect(actualTransactionIds).toEqual(expectedTransactionIds);
     });
 
-    it('should resolve a random number of transaction IDs and skip a portion', async () => {
+    it('should fetch a random number of transaction IDs and skip a portion', async () => {
         const transactions = await resolveRandomTransactionsAsync();
         const halfwayPoint = Math.floor(transactions.length / 2);
         const existingTransactionsCount = Math.floor(Math.random() * (halfwayPoint - 1) + 1);
@@ -245,7 +246,7 @@ describe('Gmail Transactions Routes Tests', () => {
         expect(actualTransactionIds).toEqual(expectedTransactionIds);
     });
 
-    it('should resolve an empty array after entering skip depth constraints', async () => {
+    it('should fetch an empty array after entering skip depth constraints', async () => {
         const transactions = await resolveRandomTransactionsAsync();
         const halfwayPoint = Math.ceil(transactions.length / 2);
         const existingTransactionsCount = Math.floor(Math.random() * (halfwayPoint - 1) + 1);
@@ -267,8 +268,49 @@ describe('Gmail Transactions Routes Tests', () => {
         expect(actualTransactionIds).toEqual(expectedTransactionIds);
     });
 
-    // TODO: test /resolve
-    // TODO: test throwing error when resolving transactions (somehow)
+    // TODO: test throwing error when fetching transaction IDs (somehow)
+
+    it('should error out while trying to resolve a transaction', async () => {
+        const response = await supertest.agent(app)
+            .post(`/api/transactions/gmail/resolve`)
+            .auth(Constants.Mock.accessToken, { type: "bearer" })
+            .set('Accept', 'application/json')
+            .send([ Constants.Mock.errorTransactionSourceId ]);
+
+        expect(response.statusCode).toBe(500);
+        expect(response.headers["content-type"]).toMatch(/json/);
+        expect(response.body).toEqual({ error: Constants.Mock.errorTransactionSourceId });
+    });
+
+    it('should resolve a random number of transactions', async () => {
+        const transactions = await resolveRandomTransactionsAsync();
+        const transactionIds = transactions.map(t => t.id);
+
+        const response = await supertest.agent(app)
+            .post(`/api/transactions/gmail/resolve`)
+            .auth(Constants.Mock.accessToken, { type: "bearer" })
+            .set('Accept', 'application/json')
+            .send(transactionIds);
+
+        const expected = transactions
+            .map(t => TransactionExtensions.MapTransactionResponse(t));
+
+        expect(response.statusCode).toBe(200);
+        expect(response.headers["content-type"]).toMatch(/json/);
+        expect(response.body).toEqual(expected);
+    });
+
+    it('should error out while trying to persist a transaction', async () => {
+        const response = await supertest.agent(app)
+            .post(`/api/transactions/gmail/save`)
+            .auth(Constants.Mock.accessToken, { type: "bearer" })
+            .set('Accept', 'application/json')
+            .send([ Constants.Mock.errorTransactionSourceId ]);
+
+        expect(response.statusCode).toBe(500);
+        expect(response.headers["content-type"]).toMatch(/json/);
+        expect(response.body).toEqual({ error: Constants.Mock.errorTransactionSourceId });
+    });
 
     it('should persist a random number of transactions', async () => {
         const expectedTransactionIds = resolveRandomTransactionIds().sort((a, b) => a.localeCompare(b));

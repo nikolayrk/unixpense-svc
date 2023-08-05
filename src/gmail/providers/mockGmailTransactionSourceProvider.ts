@@ -111,6 +111,10 @@ export default class MockGmailTransactionSourceProvider implements ITransactionS
             return "";
         }
 
+        if (transactionId === Constants.Mock.errorTransactionSourceId) {
+            throw new Error(Constants.Mock.errorTransactionSourceId);
+        }
+
         if (transactionId in paymentDetailsTestCases) {
             const transactionHead = constructTransactionDataTestCase(transactionId).attachmentDataHead;
             const transactionBody = paymentDetailsTestCases[transactionId].attachmentDataBody;

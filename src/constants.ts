@@ -21,7 +21,8 @@ export default class Constants {
         authorizationCodeError: "error_code",
         accessToken: "access_token",
         refreshToken: "refresh_token",
-        emptyTransactionSourceId: "empty"
+        emptyTransactionSourceId: "empty",
+        errorTransactionSourceId: "error"
     } as const;
 
     public static readonly defaultPaymentDetails: PaymentDetails = {
