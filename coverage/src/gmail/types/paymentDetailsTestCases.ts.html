@@ -724,7 +724,36 @@
 <a name='L659'></a><a href='#L659'>659</a>
 <a name='L660'></a><a href='#L660'>660</a>
 <a name='L661'></a><a href='#L661'>661</a>
-<a name='L662'></a><a href='#L662'>662</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">6x</span>
+<a name='L662'></a><a href='#L662'>662</a>
+<a name='L663'></a><a href='#L663'>663</a>
+<a name='L664'></a><a href='#L664'>664</a>
+<a name='L665'></a><a href='#L665'>665</a>
+<a name='L666'></a><a href='#L666'>666</a>
+<a name='L667'></a><a href='#L667'>667</a>
+<a name='L668'></a><a href='#L668'>668</a>
+<a name='L669'></a><a href='#L669'>669</a>
+<a name='L670'></a><a href='#L670'>670</a>
+<a name='L671'></a><a href='#L671'>671</a>
+<a name='L672'></a><a href='#L672'>672</a>
+<a name='L673'></a><a href='#L673'>673</a>
+<a name='L674'></a><a href='#L674'>674</a>
+<a name='L675'></a><a href='#L675'>675</a>
+<a name='L676'></a><a href='#L676'>676</a>
+<a name='L677'></a><a href='#L677'>677</a>
+<a name='L678'></a><a href='#L678'>678</a>
+<a name='L679'></a><a href='#L679'>679</a>
+<a name='L680'></a><a href='#L680'>680</a>
+<a name='L681'></a><a href='#L681'>681</a>
+<a name='L682'></a><a href='#L682'>682</a>
+<a name='L683'></a><a href='#L683'>683</a>
+<a name='L684'></a><a href='#L684'>684</a>
+<a name='L685'></a><a href='#L685'>685</a>
+<a name='L686'></a><a href='#L686'>686</a>
+<a name='L687'></a><a href='#L687'>687</a>
+<a name='L688'></a><a href='#L688'>688</a>
+<a name='L689'></a><a href='#L689'>689</a>
+<a name='L690'></a><a href='#L690'>690</a>
+<a name='L691'></a><a href='#L691'>691</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -742,6 +771,35 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1418,9 +1476,7 @@ export const paymentDetailsTestCases: Record&lt;string, PaymentDetailsTestCase&l
           &lt;/td&gt;`,
       expectedTransactionDataBody: {
           transactionType: TransactionType.UNKNOWN,
-          paymentDetailsRaw: [
-              'xxx'
-          ],
+          paymentDetailsRaw: [ 'xxx' ],
           additionalDetailsRaw: ['4591TATB0']
       },
       expectedPaymentDetails: Constants.defaultPaymentDetails
@@ -1478,6 +1534,26 @@ export const paymentDetailsTestCases: Record&lt;string, PaymentDetailsTestCase&l
           currency: 'BGN'
       } as CardOperation
   },
+  'CARD_OPERATION &gt; Invalid body': {
+      attachmentDataBody: `
+          &lt;td nowrap="" align="left"&gt;Операция с карта&lt;br&gt;&lt;br&gt;xxx&lt;br&gt;&lt;/td&gt;
+          &lt;td align="center"&gt;
+              &lt;table width="100%"&gt;
+                  &lt;tbody&gt;&lt;tr&gt;
+                      &lt;td align="right" nowrap=""&gt;4591TATB0&lt;/td&gt;
+                  &lt;/tr&gt;
+                  &lt;tr&gt;
+                      &lt;td align="right" nowrap=""&gt;&lt;/td&gt;
+                  &lt;/tr&gt;
+              &lt;/tbody&gt;&lt;/table&gt;
+          &lt;/td&gt;`,
+      expectedTransactionDataBody: {
+          transactionType: TransactionType.CARD_OPERATION,
+          paymentDetailsRaw: [],
+          additionalDetailsRaw: ['4591TATB0'],
+      },
+      expectedPaymentDetails: Constants.defaultPaymentDetails
+  },
   'CROSS_BORDER_TRANSFER': {
       attachmentDataBody: `
           &lt;td nowrap="" align="left"&gt;, BUNQNL2AXXX , NL48BUNQ4950396806,   ,  ,/Издаване на превод във валута&lt;br&gt;AZV-Treehouse Distribution, Ord.Ref: NOTPROVIDED, HEDG, , T-535685  , GPP Ref.: 2243120123, , 1.9585&lt;br&gt;&lt;br&gt;&lt;/td&gt;
@@ -1492,6 +1568,17 @@ export const paymentDetailsTestCases: Record&lt;string, PaymentDetailsTestCase&l
           recipientIban: 'NL48BUNQ4950396806',
           description: 'Ord.Ref: NOTPROVIDED, HEDG, T-535685, GPP Ref.: 2243120123'
       } as CrossBorderTransfer
+  },
+  'CROSS_BORDER_TRANSFER &gt; Invalid body': {
+      attachmentDataBody: `
+          &lt;td nowrap="" align="left"&gt;, BUNQNL2AXXX , NL48BUNQ4950396806,   ,  ,/Издаване на превод във валута&lt;br&gt;AZV-Treehouse Distribution, xxx&lt;br&gt;&lt;br&gt;&lt;/td&gt;
+          &lt;td align="center"&gt;&lt;/td&gt;`,
+      expectedTransactionDataBody: {
+          transactionType: TransactionType.CROSS_BORDER_TRANSFER,
+          paymentDetailsRaw: [],
+          additionalDetailsRaw: []
+      },
+      expectedPaymentDetails: Constants.defaultPaymentDetails
   },
   'CROSS_BORDER_TRANSFER_FEE': {
       attachmentDataBody: `
@@ -2053,7 +2140,7 @@ export const paymentDetailsTestCases: Record&lt;string, PaymentDetailsTestCase&l
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2023-08-04T22:16:31.815Z
+                at 2023-08-05T15:03:54.717Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
