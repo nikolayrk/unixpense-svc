@@ -14,7 +14,7 @@ import { paymentDetailsTestCases } from '../../gmail/types/paymentDetailsTestCas
 import Transaction from '../models/transaction';
 import PaymentDetails from '../models/paymentDetails';
 
-describe('Gmail Transactions Routes Tests', () => {
+describe('Transaction Repository Tests', () => {
     const mariadbPort = 3306;
     const mariadbUser = 'root';
     const mariadbPassword = 'password';
@@ -134,6 +134,7 @@ describe('Gmail Transactions Routes Tests', () => {
             const error = ex as Error;
 
             expect(error.name).toBe('RepositoryError');
+            expect(error.message).toMatch(/Validation error: SequelizeUniqueConstraintError \(Duplicate entry '(?:\w+)' for key '(?:\w+)'\)/);
         }
 
         expect(second).toBe(null);

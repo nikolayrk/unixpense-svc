@@ -118,7 +118,7 @@ describe('Groups Routes Tests', () => {
 
         expect(response.statusCode).toBe(200);
         expect(response.headers["content-type"]).toMatch(/json/);
-        expect(response.body).toEqual({})
+        expect(response.body).toEqual([])
     });
 
     it('should delete a group', async () => {

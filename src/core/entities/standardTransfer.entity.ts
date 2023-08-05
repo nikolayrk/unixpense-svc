@@ -9,11 +9,11 @@ import PaymentDetailsEntityBase from "./paymentDetails.entity.base";
     }]
 })
 export default class StandardTransferEntity extends PaymentDetailsEntityBase {
-    @AllowNull(false)
+    @AllowNull(true)
     @Column
     recipient_iban!: string;
 
-    @AllowNull(false)
+    @AllowNull(true)
     @Column
     description!: string;
 }

@@ -31,9 +31,7 @@ export const paymentDetailsTestCases: Record<string, PaymentDetailsTestCase<Paym
           </td>`,
       expectedTransactionDataBody: {
           transactionType: TransactionType.UNKNOWN,
-          paymentDetailsRaw: [
-              'xxx'
-          ],
+          paymentDetailsRaw: [ 'xxx' ],
           additionalDetailsRaw: ['4591TATB0']
       },
       expectedPaymentDetails: Constants.defaultPaymentDetails
@@ -91,6 +89,26 @@ export const paymentDetailsTestCases: Record<string, PaymentDetailsTestCase<Paym
           currency: 'BGN'
       } as CardOperation
   },
+  'CARD_OPERATION > Invalid body': {
+      attachmentDataBody: `
+          <td nowrap="" align="left">Операция с карта<br><br>xxx<br></td>
+          <td align="center">
+              <table width="100%">
+                  <tbody><tr>
+                      <td align="right" nowrap="">4591TATB0</td>
+                  </tr>
+                  <tr>
+                      <td align="right" nowrap=""></td>
+                  </tr>
+              </tbody></table>
+          </td>`,
+      expectedTransactionDataBody: {
+          transactionType: TransactionType.CARD_OPERATION,
+          paymentDetailsRaw: [],
+          additionalDetailsRaw: ['4591TATB0'],
+      },
+      expectedPaymentDetails: Constants.defaultPaymentDetails
+  },
   'CROSS_BORDER_TRANSFER': {
       attachmentDataBody: `
           <td nowrap="" align="left">, BUNQNL2AXXX , NL48BUNQ4950396806,   ,  ,/Издаване на превод във валута<br>AZV-Treehouse Distribution, Ord.Ref: NOTPROVIDED, HEDG, , T-535685  , GPP Ref.: 2243120123, , 1.9585<br><br></td>
@@ -105,6 +123,17 @@ export const paymentDetailsTestCases: Record<string, PaymentDetailsTestCase<Paym
           recipientIban: 'NL48BUNQ4950396806',
           description: 'Ord.Ref: NOTPROVIDED, HEDG, T-535685, GPP Ref.: 2243120123'
       } as CrossBorderTransfer
+  },
+  'CROSS_BORDER_TRANSFER > Invalid body': {
+      attachmentDataBody: `
+          <td nowrap="" align="left">, BUNQNL2AXXX , NL48BUNQ4950396806,   ,  ,/Издаване на превод във валута<br>AZV-Treehouse Distribution, xxx<br><br></td>
+          <td align="center"></td>`,
+      expectedTransactionDataBody: {
+          transactionType: TransactionType.CROSS_BORDER_TRANSFER,
+          paymentDetailsRaw: [],
+          additionalDetailsRaw: []
+      },
+      expectedPaymentDetails: Constants.defaultPaymentDetails
   },
   'CROSS_BORDER_TRANSFER_FEE': {
       attachmentDataBody: `

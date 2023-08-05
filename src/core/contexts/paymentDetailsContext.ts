@@ -12,7 +12,6 @@ import { ICardOperationStrategy,
     IStandardFeeStrategy,
     IStandardTransferStrategy } from "../../core/types/paymentDetailsStrategies";
 import ILogger from "../../core/contracts/ILogger";
-import PaymentDetailsFactory from "../factories/paymentDetailsFactory";
 import Constants from "../../constants";
 
 @injectable()

@@ -44,6 +44,33 @@ router.route('/').post(groupsController.new);
 
 /**
  * @swagger
+ * /groups/all:
+ *   get:
+ *     tags:
+ *       - Groups
+ *     description: Get all Transactions Groups and their Rules.
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: Array of Group objects
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#components/schemas/group'
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Transaction processing error
+ *       503:
+ *         description: Service error
+ */
+router.route('/all').get(groupsController.getAll);
+
+/**
+ * @swagger
  * /groups/{group}:
  *   get:
  *     tags:
@@ -71,33 +98,6 @@ router.route('/').post(groupsController.new);
  *         description: Service error
  */
 router.route('/:group').get(groupsController.get);
-
-/**
- * @swagger
- * /groups/all:
- *   get:
- *     tags:
- *       - Groups
- *     description: Get all Transactions Groups and their Rules.
- *     produces:
- *       - application/json
- *     responses:
- *       200:
- *         description: Array of Group objects
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#components/schemas/group'
- *       400:
- *         description: Bad request
- *       500:
- *         description: Transaction processing error
- *       503:
- *         description: Service error
- */
-router.route('/all').get(groupsController.getAll);
 
 /**
  * @swagger
