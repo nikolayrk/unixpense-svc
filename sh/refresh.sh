@@ -43,7 +43,7 @@ main() {
     if [ "$TRANSACTION_ID_COUNT" -eq "0" ]; then
         echo "No new transactions."
 
-        exit 0
+        exit
     fi
 
     echo "Received $TRANSACTION_ID_COUNT new transaction(s)."
