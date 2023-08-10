@@ -6,7 +6,7 @@ main() {
     local SAVE_TRANSACTIONS_URL="$UNIXPENSE_API_URL/transactions/gmail/save"
     local RESOLVE_TRANSACTIONS_URL="$UNIXPENSE_API_URL/transactions/gmail/resolve"
 
-    echo -n "Installing dependencies... "
+    echo "Installing dependencies... "
     
     installDependencies
 
@@ -101,20 +101,18 @@ installDependencies() {
 
     while true; do
         # Send SIGTERM (signal 15) if apt-get takes more than 1 minute
-        if timeout -s 15 60 "$(apt-get -qy update; apt-get -qy -o=Dpkg::Use-Pty=0 install curl jq)"; then
+        if timeout -s 15 60 apt-get -qy update && apt-get -qy -o=Dpkg::Use-Pty=0 install curl jq; then
             break
         fi
 
         if (( count++ == retry )); then
-            echo "Failed."
+            echo "Failed to install dependencies."
 
             exit 1
         fi
 
         sleep 5 # Wait 5 seconds before retry
     done
-
-    echo "Success."
 }
 
 resolveAccessToken() {
