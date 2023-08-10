@@ -10,7 +10,7 @@ spec:
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
-      # activeDeadlineSeconds: 1800 # 30 minutes
+      activeDeadlineSeconds: 600 # 10 minutes
       backoffLimit: 2
       ttlSecondsAfterFinished: 5
       template:
@@ -49,8 +49,4 @@ spec:
             command:
               - /bin/bash
               - -ec
-              - >
-                while IFS= read -r line; do
-                    echo "$(date +%D) $(date +%T.%3N) $line" >> /var/log/unixpense.log;
-                    echo $line;
-                done <<< $(/bin/bash /usr/sh/refresh.sh)
+              - /usr/sh/refresh.sh

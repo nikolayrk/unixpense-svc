@@ -1,12 +1,14 @@
 #!/bin/bash
 
-apt-get -qy update; apt-get -qy -o=Dpkg::Use-Pty=0 install curl jq
-
 main() {
     local UNIXPENSE_API_URL=http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api
     local FETCH_TRANSACTION_IDS_URL="$UNIXPENSE_API_URL/transactions/gmail/ids/last/20?skip_saved=true&skip_depth=10"
     local SAVE_TRANSACTIONS_URL="$UNIXPENSE_API_URL/transactions/gmail/save"
     local RESOLVE_TRANSACTIONS_URL="$UNIXPENSE_API_URL/transactions/gmail/resolve"
+
+    echo -n "Installing dependencies... "
+    
+    installDependencies
 
     echo -n "- Resolving OAuth2 Tokens... "
 
@@ -92,6 +94,27 @@ main() {
     local RESOLVE_MESSAGE="<code>$FORMATTED_TRANSACTIONS</code>"
 
     echo $(sendTelegram "\"$RESOLVE_MESSAGE\"")
+}
+
+installDependencies() {
+    local retry=5 count=0
+
+    while true; do
+        # Send SIGTERM (signal 15) if apt-get takes more than 1 minute
+        if timeout -s 15 60 "$(apt-get -qy update; apt-get -qy -o=Dpkg::Use-Pty=0 install curl jq)"; then
+            break
+        fi
+
+        if (( count++ == retry )); then
+            echo "Failed."
+
+            exit 1
+        fi
+
+        sleep 5 # Wait 5 seconds before retry
+    done
+
+    echo "Success."
 }
 
 resolveAccessToken() {
