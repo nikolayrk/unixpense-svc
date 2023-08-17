@@ -5,7 +5,7 @@ import { TransactionData } from "../../core/models/transactionData";
 
 @injectable()
 export default class TransactionFactory {
-    public create(id: string, transactionData: TransactionData, paymentDetails: PaymentDetails): Transaction<PaymentDetails> {
+    public static create(id: string, transactionData: TransactionData, paymentDetails: PaymentDetails): Transaction<PaymentDetails> {
         const transaction: Transaction<PaymentDetails> = {
             id: id,
             date: transactionData.date,

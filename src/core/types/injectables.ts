@@ -3,7 +3,6 @@ export const injectables = {
     ILogger: Symbol.for('ILogger'),
     PaymentDetailsFactory: Symbol.for('PaymentDetailsFactory'),
     PaymentDetailsContext: Symbol.for('PaymentDetailsContext'),
-    TransactionFactory: Symbol.for('TransactionFactory'),
     TransactionRepository: Symbol.for('TransactionRepository'),
 
     // Contextual Services

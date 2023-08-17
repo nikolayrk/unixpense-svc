@@ -73,7 +73,6 @@ export class DependencyInjector {
         this.container.bind<ILogger>(injectables.ILogger).to(WinstonLokiLogger).inSingletonScope();
         this.container.bind<PaymentDetailsFactory>(injectables.PaymentDetailsFactory).to(PaymentDetailsFactory);
         this.container.bind<PaymentDetailsContext>(injectables.PaymentDetailsContext).to(PaymentDetailsContext);
-        this.container.bind<TransactionFactory>(injectables.TransactionFactory).to(TransactionFactory);
         this.container.bind<TransactionRepository>(injectables.TransactionRepository).to(TransactionRepository);
     }
 

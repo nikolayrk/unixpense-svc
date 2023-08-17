@@ -13,7 +13,6 @@ export default abstract class AbstractTransactionProvider implements ITransactio
     private readonly logger;
     private readonly transactionDataProvider;
     private readonly paymentDetailsContext;
-    private readonly transactionFactory;
 
     protected readonly transactionSourceProvider!: ITransactionSourceProvider;
 
@@ -21,7 +20,6 @@ export default abstract class AbstractTransactionProvider implements ITransactio
         this.logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
         this.transactionDataProvider = DependencyInjector.Singleton.resolve<ITransactionDataProvider>(injectables.ITransactionDataProvider);
         this.paymentDetailsContext = DependencyInjector.Singleton.resolve<PaymentDetailsContext>(injectables.PaymentDetailsContext);
-        this.transactionFactory = DependencyInjector.Singleton.resolve<TransactionFactory>(injectables.TransactionFactory);
     }
 
     public async * generateAsync(transactionIdsQuery?: string) {
@@ -47,7 +45,7 @@ export default abstract class AbstractTransactionProvider implements ITransactio
             transactionData.paymentDetailsRaw,
             transactionData.additionalDetailsRaw);
 
-        const transaction = this.transactionFactory.create(transactionId, transactionData, paymentDetails);
+        const transaction = TransactionFactory.create(transactionId, transactionData, paymentDetails);
 
         return transaction;
     }

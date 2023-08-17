@@ -14,7 +14,6 @@ import TransactionType from '../../core/enums/transactionType';
 import Constants from '../../constants';
 
 describe('Gmail Transaction Provider Tests', () => {
-    let transactionFactory: TransactionFactory;
     let transactionProvider: ITransactionProvider;
 
     beforeAll(async () => {
@@ -23,7 +22,6 @@ describe('Gmail Transaction Provider Tests', () => {
         const googleOAuth2IdentifierFactory = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory);
         const oauth2Identifiers = googleOAuth2IdentifierFactory.create({});
 
-        transactionFactory = DependencyInjector.Singleton.resolve<TransactionFactory>(injectables.TransactionFactory);
         transactionProvider = await DependencyInjector.Singleton.generateGmailServiceAsync<ITransactionProvider>(injectables.GmailTransactionProviderGenerator, oauth2Identifiers);
     });
 
@@ -39,7 +37,7 @@ describe('Gmail Transaction Provider Tests', () => {
                 ...transactionBody
             };
             const paymentDetails = testCase.expectedPaymentDetails;
-            const expected = transactionFactory.create(transactionId, transactionData, paymentDetails);
+            const expected = TransactionFactory.create(transactionId, transactionData, paymentDetails);
 
             const actual = await transactionProvider.resolveTransactionAsync(transactionId);
 
