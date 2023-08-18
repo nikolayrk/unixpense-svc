@@ -8,7 +8,6 @@ import { router as kubernetesProbesRouter } from './web/routes/kubernetesProbesR
 import { router as groupsRouter } from './web/routes/groupsRoutes';
 import { Sequelize } from 'sequelize-typescript';
 import bodyParser from 'body-parser';
-import ILogger from './core/contracts/ILogger';
 import { DependencyInjector } from './dependencyInjector';
 import * as mariadb from 'mariadb';
 import { Server } from 'http';
@@ -30,46 +29,38 @@ const createDatabaseIfNotExistsAsync = async (host: string, port: number, userna
     await pool.end();
 }
 
-const createDatabaseConnectionAsync = async(host: string, port: number, username: string, password: string, database: string, logger: ILogger) => {
-    try {
-        await createDatabaseIfNotExistsAsync(host, port, username, password, database);
+const createDatabaseConnectionAsync = async(host: string, port: number, username: string, password: string, database: string) => {
+    await createDatabaseIfNotExistsAsync(host, port, username, password, database);
 
-        const connection = new Sequelize({
-            dialect: "mariadb",
-            host: host,
-            port: port,
-            username: username,
-            password: password,
-            database: database,
-            logging: false,
-            pool: {
-              max: 5,
-              min: 0,
-              acquire: 30000,
-              idle: 10000
-            },
-            models: [__dirname + '/**/entities/*.entity.{js,ts}'],
-        });
-    
-        await connection.authenticate();
-    
-        await connection.sync();
+    const connection = new Sequelize({
+        dialect: "mariadb",
+        host: host,
+        port: port,
+        username: username,
+        password: password,
+        database: database,
+        logging: false,
+        pool: {
+            max: 5,
+            min: 0,
+            acquire: 30000,
+            idle: 10000
+        },
+        models: [__dirname + '/**/entities/*.entity.{js,ts}'],
+    });
 
-        return connection;
-    } catch(ex) {
-        const error = ex as Error;
+    await connection.authenticate();
 
-        logger.error(error);
+    await connection.sync();
 
-        return null;
-    }
+    return connection;
 }
 
 const registerDependencies = () => {
     DependencyInjector.Singleton.registerGmailServices();
 }
 
-const startServerAsync = (port: number) => {
+const startServerAsync = (port?: number) => {
     const app = express();
 
     app.use(bodyParser.urlencoded({ extended: true }));
@@ -94,11 +85,25 @@ const startServerAsync = (port: number) => {
     // Swagger
     app.use('/swagger', swaggerRouter);
 
+    const finalPort = port ?? Math.round(Math.random() * (65535 - 1024) + 1024);
+
+    process.env.port = String(finalPort);
+
     const server = new Promise<Server>((resolve) => {
-        const server: Server = app.listen(port, () => resolve(server));
+        const server: Server = app.listen(finalPort, () => resolve(server));
     });
 
     return server;
 };
 
-export { createDatabaseConnectionAsync, registerDependencies, startServerAsync }
+const stopServerAsync = async (app: Server) => 
+    new Promise<void>((resolve) => 
+        app.on('close', () => resolve())
+           .close());
+
+export {
+    createDatabaseConnectionAsync,
+    registerDependencies,
+    startServerAsync,
+    stopServerAsync
+}

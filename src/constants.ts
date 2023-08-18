@@ -1,6 +1,15 @@
 import PaymentDetails from "../src/core/models/paymentDetails";
 
 export default class Constants {
+    public static readonly Defaults = {
+        port: 8000,
+        mariadbPort: 3306,
+        mariadbPassword: 'password',
+        mariadbUser: 'root',
+        mariadbDatabase: 'unixpense',
+        containerTimeout: 30 * 1000 // 30s
+    }
+
     public static readonly scopes = [
         'https://www.googleapis.com/auth/userinfo.profile',
         'https://www.googleapis.com/auth/userinfo.email',
@@ -9,7 +18,7 @@ export default class Constants {
 
     public static readonly defaultRedirectUri = `${process.env.NODE_ENV === 'production'
             ? `https://${process.env.UNIXPENSE_HOST}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
-            : `http://${process.env.HOSTNAME ?? 'localhost'}:${process.env.PORT ?? 8000}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
+            : `http://${process.env.HOSTNAME ?? 'localhost'}:${process.env.port ?? Constants.Defaults.port}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
         }/api/oauthcallback` as const;
 
     public static readonly Mock = {

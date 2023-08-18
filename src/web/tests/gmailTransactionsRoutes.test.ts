@@ -1,15 +1,13 @@
 import { describe, it, beforeAll, afterAll, expect, beforeEach } from '@jest/globals';
 import * as supertest from 'supertest';
-import { createDatabaseConnectionAsync, registerDependencies, startServerAsync } from '../../bootstrap';
-import ILogger from '../../core/contracts/ILogger';
+import { registerDependencies, startServerAsync, stopServerAsync } from '../../bootstrap';
+import { clearDatabaseAsync, createContainerDatabaseConnectionAsync, createMariaDbContainerAsync } from '../../core/tests/helpers';
 import { DependencyInjector } from '../../dependencyInjector';
 import { injectables } from '../../core/types/injectables';
-import { GenericContainer, StartedTestContainer, Wait } from 'testcontainers';
+import { StartedTestContainer } from 'testcontainers';
 import { Server } from 'http';
-import { Sequelize } from 'sequelize';
-import { paymentDetailsTestCases } from '../../gmail/types/paymentDetailsTestCases';
+import { Sequelize } from 'sequelize-typescript';
 import Constants from '../../constants';
-import * as mariadb from 'mariadb';
 import GoogleOAuth2TokensRepository from '../../googleOAuth2/repositories/googleOAuth2TokensRepository';
 import TransactionRepository from '../../core/repositories/transactionRepository';
 import ITransactionProvider from '../../core/contracts/ITransactionProvider';
@@ -17,26 +15,16 @@ import GoogleOAuth2IdentifiersFactory from '../../googleOAuth2/factories/googleO
 import Transaction from '../../core/models/transaction';
 import PaymentDetails from '../../core/models/paymentDetails';
 import { TransactionExtensions } from '../../core/extensions/transactionExtensions';
+import { resolveRandomTransactionIds, resolveRandomTransactionsAsync } from '../../gmail/utils/randomTransactionsUtils';
 
 describe('Gmail Transactions Routes Tests', () => {
-    const mariadbPort = 3306;
-    const mariadbUser = 'root';
-    const mariadbPassword = 'password';
-    const mariadbDatabase = 'unixpense;'
-    const beforeAllTimeout = 30 * 1000; // 30s
-
-    let mariadbHost: string;
-    let mariadbMappedPort: number;
-
-    let logger: ILogger;
-    let googleOAuth2TokensRepository: GoogleOAuth2TokensRepository;
-    let transactionRepository: TransactionRepository;
+    let container: StartedTestContainer;
+    let connection: Sequelize;
+    let app: Server;
+    
     let transactionProvider: ITransactionProvider;
-
-    let container: StartedTestContainer | null = null;
-    let connection: Sequelize | null = null;
-    let app: Server | null = null;
-
+    let transactionRepository: TransactionRepository;
+    
     beforeAll(async () => {
         process.env.GOOGLE_OAUTH2_CLIENT_ID = Constants.Mock.clientId;
         process.env.GOOGLE_OAUTH2_CLIENT_SECRET = Constants.Mock.clientSecret;
@@ -45,105 +33,28 @@ describe('Gmail Transactions Routes Tests', () => {
 
         const googleOAuth2IdentifierFactory = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory);
         const oauth2Identifiers = googleOAuth2IdentifierFactory.create({});
-        
-        logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
-        googleOAuth2TokensRepository = DependencyInjector.Singleton.resolve(injectables.GoogleOAuth2TokensRepository);
-        transactionRepository = DependencyInjector.Singleton.resolve(injectables.TransactionRepository);
+
         transactionProvider = await DependencyInjector.Singleton.generateGmailServiceAsync<ITransactionProvider>(injectables.GmailTransactionProviderGenerator, oauth2Identifiers);
+        transactionRepository = DependencyInjector.Singleton.resolve(injectables.TransactionRepository);
         
-        container = await new GenericContainer("mariadb")
-            .withEnvironment({ "MARIADB_ROOT_PASSWORD": mariadbPassword })
-            .withExposedPorts(mariadbPort)
-            .withWaitStrategy(Wait.forLogMessage("mariadbd: ready for connections.", 1))
-            .start();
+        container = await createMariaDbContainerAsync();
+        connection = await createContainerDatabaseConnectionAsync(container);
+        app = await startServerAsync();
 
-        mariadbHost = container.getHost();
-        mariadbMappedPort = container.getMappedPort(mariadbPort);
-        
-        connection = await createDatabaseConnectionAsync(
-            mariadbHost,
-            mariadbMappedPort,
-            mariadbUser,
-            mariadbPassword,
-            mariadbDatabase,
-            logger);
-
-        await googleOAuth2TokensRepository.createOrUpdateAsync(Constants.Mock.userEmail, Constants.Mock.accessToken, Constants.Mock.refreshToken);
-            
-        const port = Math.round(Math.random() * (65535 - 1024) + 1024);
-
-        app = await startServerAsync(port);
-    }, beforeAllTimeout);
+        await DependencyInjector.Singleton
+            .resolve<GoogleOAuth2TokensRepository>(injectables.GoogleOAuth2TokensRepository)
+            .createOrUpdateAsync(Constants.Mock.userEmail, Constants.Mock.accessToken, Constants.Mock.refreshToken);
+    }, Constants.Defaults.containerTimeout);
     
     afterAll(async () => {
-        app?.close();
-
-        await connection?.close();
-        
-        await container?.stop();
+        await stopServerAsync(app);
+        await connection.close();
+        await container.stop();
     });
 
     beforeEach(async () => {
-        await clearDatabaseAsync();
+        await clearDatabaseAsync(connection);
     });
-
-    const clearDatabaseAsync = async () => {
-        const pool = mariadb.createPool({
-            host: mariadbHost,
-            port: mariadbMappedPort,
-            user: mariadbUser,
-            password: mariadbPassword,
-            database: mariadbDatabase,
-            multipleStatements: true
-        });
-    
-        const conn = await pool.getConnection();
-    
-        await conn.query([
-                'card_operations',
-                'standard_transfers',
-                'transactions'
-           ].map(table => `DELETE FROM ${table};`)
-            .join(''));
-    
-        await conn.release();
-    
-        await pool.end();
-    }
-
-    const resolveRandomTransactionIds = () => {
-        const allTransactionIds = Object.keys(paymentDetailsTestCases).filter(k => isNaN(Number(k)));
-        const count = Math.random() * (allTransactionIds.length - 1) + 1;
-        const transactionIds = allTransactionIds.splice(0, count);
-        
-        return transactionIds;
-    };
-
-    const resolveRandomTransactionsAsync = () => {
-        const transactionIds = resolveRandomTransactionIds();
-
-        const transactions = transactionIds
-            .map(async (transactionId: string) => {
-                const transaction = await transactionProvider.resolveTransactionAsync(transactionId);
-                
-                return transaction;
-            })
-            .reduce(async (accumulator, current, i) => {
-                const currentValue = await current;
-
-                if (currentValue === null) {
-                    return accumulator;
-                }
-                
-                const accumulatorValue = await accumulator;
-
-                accumulatorValue.push(currentValue);
-
-                return accumulator;
-            }, Promise.resolve([] as Transaction<PaymentDetails>[]));
-
-        return transactions;
-    };
 
     it('should error out with a missing access token', async () => {
         const response = await supertest.agent(app)
@@ -225,7 +136,7 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should fetch a random number of transaction IDs and skip a portion', async () => {
-        const transactions = await resolveRandomTransactionsAsync();
+        const transactions = await resolveRandomTransactionsAsync(transactionProvider);
         const halfwayPoint = Math.floor(transactions.length / 2);
         const existingTransactionsCount = Math.floor(Math.random() * (halfwayPoint - 1) + 1);
         const skipDepth = existingTransactionsCount + 1;
@@ -247,7 +158,7 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should fetch an empty array after entering skip depth constraints', async () => {
-        const transactions = await resolveRandomTransactionsAsync();
+        const transactions = await resolveRandomTransactionsAsync(transactionProvider);
         const halfwayPoint = Math.ceil(transactions.length / 2);
         const existingTransactionsCount = Math.floor(Math.random() * (halfwayPoint - 1) + 1);
         const skipDepth = existingTransactionsCount;
@@ -283,7 +194,7 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should resolve a random number of transactions', async () => {
-        const transactions = await resolveRandomTransactionsAsync();
+        const transactions = await resolveRandomTransactionsAsync(transactionProvider);
         const transactionIds = transactions.map(t => t.id);
 
         const response = await supertest.agent(app)

@@ -2,12 +2,13 @@ import winston, { createLogger, transport } from 'winston';
 import LokiTransport from 'winston-loki';
 import ILogger from '../../core/contracts/ILogger';
 import { injectable } from 'inversify';
+import Constants from '../../constants';
 
 @injectable()
 export default class WinstonLokiLogger implements ILogger {
     private readonly labels = {
         job: 'unixpense',
-        host: `${process.env.HOSTNAME ?? 'localhost'}:${process.env.port ?? 8000}`,
+        host: `${process.env.HOSTNAME ?? 'localhost'}:${process.env.port ?? Constants.Defaults.port}`,
         
         ...(process.env.VERSION !== undefined) && {
             version: process.env.VERSION

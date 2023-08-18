@@ -1,26 +1,21 @@
 import { describe, it, beforeAll, afterAll, expect } from '@jest/globals';
 import * as supertest from 'supertest';
-import { createDatabaseConnectionAsync, registerDependencies, startServerAsync } from '../../bootstrap';
-import ILogger from '../../core/contracts/ILogger';
+import { registerDependencies, startServerAsync, stopServerAsync } from '../../bootstrap';
+import { createContainerDatabaseConnectionAsync, createMariaDbContainerAsync } from '../../core/tests/helpers';
 import { DependencyInjector } from '../../dependencyInjector';
 import { injectables } from '../../core/types/injectables';
-import { GenericContainer, StartedTestContainer, Wait } from 'testcontainers';
+import { StartedTestContainer } from 'testcontainers';
 import { Server } from 'http';
 import GoogleOAuth2TokensRepository from '../../googleOAuth2/repositories/googleOAuth2TokensRepository';
 import { Sequelize } from 'sequelize';
 import Constants from '../../constants';
 
 describe('Google OAuth2 Routes Tests', () => {
-    const mariadbPort = 3306;
-    const mariadbRootPassword = 'password';
-    const beforeAllTimeout = 30 * 1000; // 30s
-
-    let logger: ILogger;
+    let container: StartedTestContainer;
+    let connection: Sequelize;
+    let app: Server;
+    
     let googleOAuth2TokensRepository: GoogleOAuth2TokensRepository;
-
-    let container: StartedTestContainer | null = null;
-    let connection: Sequelize | null = null;
-    let app: Server | null = null;
 
     beforeAll(async () => {
         process.env.GOOGLE_OAUTH2_CLIENT_ID = Constants.Mock.clientId;
@@ -28,34 +23,17 @@ describe('Google OAuth2 Routes Tests', () => {
         
         registerDependencies();
         
-        logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
         googleOAuth2TokensRepository = DependencyInjector.Singleton.resolve<GoogleOAuth2TokensRepository>(injectables.GoogleOAuth2TokensRepository);    
         
-        container = await new GenericContainer("mariadb")
-            .withEnvironment({ "MARIADB_ROOT_PASSWORD": mariadbRootPassword })
-            .withExposedPorts(mariadbPort)
-            .withWaitStrategy(Wait.forLogMessage("mariadbd: ready for connections.", 1))
-            .start();
-        
-        connection = await createDatabaseConnectionAsync(
-            container.getHost(),
-            container.getMappedPort(mariadbPort),
-            'root',
-            mariadbRootPassword,
-            'unixpense',
-            logger);
-            
-        const port = Math.round(Math.random() * (65535 - 1024) + 1024);
-
-        app = await startServerAsync(port);
-    }, beforeAllTimeout);
+        container = await createMariaDbContainerAsync();
+        connection = await createContainerDatabaseConnectionAsync(container);
+        app = await startServerAsync();
+    }, Constants.Defaults.containerTimeout);
     
     afterAll(async () => {
-        app?.close();
-
-        await connection?.close();
-        
-        await container?.stop();
+        await stopServerAsync(app);
+        await connection.close();
+        await container.stop();
     });
 
     it('should have credentials', async () => {

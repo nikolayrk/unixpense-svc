@@ -1,92 +1,36 @@
 import { describe, it, beforeEach, beforeAll, afterAll, expect } from '@jest/globals';
 import * as supertest from 'supertest';
-import { createDatabaseConnectionAsync, registerDependencies, startServerAsync } from '../../bootstrap';
-import ILogger from '../../core/contracts/ILogger';
+import { registerDependencies, startServerAsync, stopServerAsync } from '../../bootstrap';
+import { createContainerDatabaseConnectionAsync, createMariaDbContainerAsync } from '../../core/tests/helpers';
 import { DependencyInjector } from '../../dependencyInjector';
 import { injectables } from '../../core/types/injectables';
-import { GenericContainer, StartedTestContainer, Wait } from 'testcontainers';
+import { StartedTestContainer, Wait } from 'testcontainers';
 import { Server } from 'http';
 import { Sequelize } from 'sequelize';
-import * as mariadb from 'mariadb';
+import Constants from '../../constants';
 
 describe('Groups Routes Tests', () => {
-    const mariadbPort = 3306;
-    const mariadbUser = 'root';
-    const mariadbPassword = 'password';
-    const mariadbDatabase = 'unixpense;'
-    const beforeAllTimeout = 30 * 1000; // 30s
-
-    let mariadbHost: string;
-    let mariadbMappedPort: number;
-
-    let logger: ILogger;
-
-    let container: StartedTestContainer | null = null;
-    let connection: Sequelize | null = null;
-    let app: Server | null = null;
+    let container: StartedTestContainer;
+    let connection: Sequelize;
+    let app: Server;
 
     beforeAll(async () => {
         registerDependencies();
 
-        // logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
-
-        // container = await new GenericContainer("mariadb")
-        //     .withEnvironment({ "MARIADB_ROOT_PASSWORD": mariadbPassword })
-        //     .withExposedPorts(mariadbPort)
-        //     .withWaitStrategy(Wait.forLogMessage("mariadbd: ready for connections.", 1))
-        //     .start();
-
-        // mariadbHost = container.getHost();
-        // mariadbMappedPort = container.getMappedPort(mariadbPort);
-        
-        // connection = await createDatabaseConnectionAsync(
-        //     mariadbHost,
-        //     mariadbMappedPort,
-        //     mariadbUser,
-        //     mariadbPassword,
-        //     mariadbDatabase,
-        //     logger);
-
-        const port = Math.round(Math.random() * (65535 - 1024) + 1024);
-
-        app = await startServerAsync(port);
-    }, beforeAllTimeout);
+        // container = await createMariaDbContainerAsync();
+        // connection = await createContainerDatabaseConnectionAsync(container);
+        app = await startServerAsync();
+    }, Constants.Defaults.containerTimeout);
     
     afterAll(async () => {
-        app?.close();
-
-        // await connection?.close();
-        
-        // await container?.stop();
+        await stopServerAsync(app);
+        // await connection.close();
+        // await container.stop();
     });
 
     beforeEach(async () => {
-        // await clearDatabaseAsync();
+        // await clearDatabaseAsync(connection);
     });
-
-    const clearDatabaseAsync = async () => {
-        const pool = mariadb.createPool({
-            host: mariadbHost,
-            port: mariadbMappedPort,
-            user: mariadbUser,
-            password: mariadbPassword,
-            database: mariadbDatabase,
-            multipleStatements: true
-        });
-    
-        const conn = await pool.getConnection();
-    
-        await conn.query([
-                'card_operations',
-                'standard_transfers',
-                'transactions'
-           ].map(table => `DELETE FROM ${table};`)
-            .join(''));
-    
-        await conn.release();
-    
-        await pool.end();
-    }
 
     it('should add a new group', async () => {
         const response = await supertest.agent(app)

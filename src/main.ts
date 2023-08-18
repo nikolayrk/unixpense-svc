@@ -4,7 +4,8 @@ import "reflect-metadata"
 import { DependencyInjector } from './dependencyInjector';
 import ILogger from './core/contracts/ILogger';
 import { injectables } from './core/types/injectables';
-import { createDatabaseConnectionAsync, registerDependencies, startServerAsync } from './bootstrap';
+import { createDatabaseConnectionAsync, registerDependencies, startServerAsync, stopServerAsync } from './bootstrap';
+import Constants from './constants';
 
 const main = async () => {
     const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
@@ -14,20 +15,26 @@ const main = async () => {
     const mariadbHost = process.env.MARIADB_HOST ?? process.env.HOSTNAME ?? 'localhost';
     const mariadbPort = process.env.MARIADB_PORT !== undefined
         ? Number(process.env.MARIADB_PORT)
-        : 3306;
+        : Constants.Defaults.mariadbPort;
     const username = process.env.MARIADB_USER;
     const password = process.env.MARIADB_PASSWORD;
-    const database = process.env.MARIADB_DATABASE ?? 'unixpense';
+    const database = process.env.MARIADB_DATABASE ?? Constants.Defaults.mariadbDatabase;
 
     if (username === undefined || password === undefined) {
         throw new Error('Missing database credentials');
     }
 
-    const connection = await createDatabaseConnectionAsync(mariadbHost, mariadbPort, username, password, database, logger);
+    const connection = await (async () => {
+        try {
+            return await createDatabaseConnectionAsync(mariadbHost, mariadbPort, username, password, database);
+        } catch(ex) {
+            const error = ex as Error;
 
-    if (connection === null) {
-        throw new Error('Failed to create a connection to the database');
-    }
+            logger.error(error);
+
+            throw new Error(`Failed to create a connection to the database: ${error.message}`);
+        }
+    })();
 
     logger.log('Registering dependencies...');
 
@@ -36,7 +43,7 @@ const main = async () => {
     logger.log('Starting server...');
 
     const port = Number.isNaN(process.env.PORT ?? NaN)
-        ? 8000
+        ? Constants.Defaults.port
         : Number(process.env.PORT);
 
     const server = await startServerAsync(port);
@@ -62,6 +69,8 @@ const main = async () => {
             await logger.beforeExit();
 
             await connection.close();
+
+            await stopServerAsync(server);
 
             process.exit(exitCode);
         });

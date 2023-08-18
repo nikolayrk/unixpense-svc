@@ -1,40 +1,27 @@
 import { describe, it, beforeEach, beforeAll, afterAll, expect } from '@jest/globals';
 import * as supertest from 'supertest';
-import { createDatabaseConnectionAsync, registerDependencies, startServerAsync } from '../../bootstrap';
-import ILogger from '../../core/contracts/ILogger';
+import { registerDependencies, startServerAsync, stopServerAsync } from '../../bootstrap';
+import { clearDatabaseAsync, createContainerDatabaseConnectionAsync, createMariaDbContainerAsync } from '../../core/tests/helpers';
 import { DependencyInjector } from '../../dependencyInjector';
 import { injectables } from '../../core/types/injectables';
-import { GenericContainer, StartedTestContainer, Wait } from 'testcontainers';
+import { StartedTestContainer } from 'testcontainers';
 import { Server } from 'http';
-import { Sequelize } from 'sequelize';
-import { paymentDetailsTestCases } from '../../gmail/types/paymentDetailsTestCases';
+import { Sequelize } from 'sequelize-typescript';
 import Constants from '../../constants';
-import * as mariadb from 'mariadb';
 import TransactionRepository from '../../core/repositories/transactionRepository';
 import ITransactionProvider from '../../core/contracts/ITransactionProvider';
 import GoogleOAuth2IdentifiersFactory from '../../googleOAuth2/factories/googleOAuth2IdentifiersFactory';
-import Transaction from '../../core/models/transaction';
-import PaymentDetails from '../../core/models/paymentDetails';
 import { TransactionExtensions } from '../../core/extensions/transactionExtensions';
+import { resolveRandomTransactionsAsync } from '../../gmail/utils/randomTransactionsUtils';
 
 describe('Base Transactions Routes Tests', () => {
-    const mariadbPort = 3306;
-    const mariadbUser = 'root';
-    const mariadbPassword = 'password';
-    const mariadbDatabase = 'unixpense;'
-    const beforeAllTimeout = 30 * 1000; // 30s
+    let container: StartedTestContainer;
+    let connection: Sequelize;
+    let app: Server;
 
-    let mariadbHost: string;
-    let mariadbMappedPort: number;
-
-    let logger: ILogger;
     let transactionRepository: TransactionRepository;
     let transactionProvider: ITransactionProvider;
-
-    let container: StartedTestContainer | null = null;
-    let connection: Sequelize | null = null;
-    let app: Server | null = null;
-
+    
     beforeAll(async () => {
         process.env.GOOGLE_OAUTH2_CLIENT_ID = Constants.Mock.clientId;
         process.env.GOOGLE_OAUTH2_CLIENT_SECRET = Constants.Mock.clientSecret;
@@ -44,104 +31,26 @@ describe('Base Transactions Routes Tests', () => {
         const googleOAuth2IdentifierFactory = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory);
         const oauth2Identifiers = googleOAuth2IdentifierFactory.create({});
         
-        logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
         transactionRepository = DependencyInjector.Singleton.resolve(injectables.TransactionRepository);
         transactionProvider = await DependencyInjector.Singleton.generateGmailServiceAsync<ITransactionProvider>(injectables.GmailTransactionProviderGenerator, oauth2Identifiers);
         
-        container = await new GenericContainer("mariadb")
-            .withEnvironment({ "MARIADB_ROOT_PASSWORD": mariadbPassword })
-            .withExposedPorts(mariadbPort)
-            .withWaitStrategy(Wait.forLogMessage("mariadbd: ready for connections.", 1))
-            .start();
-
-        mariadbHost = container.getHost();
-        mariadbMappedPort = container.getMappedPort(mariadbPort);
-        
-        connection = await createDatabaseConnectionAsync(
-            mariadbHost,
-            mariadbMappedPort,
-            mariadbUser,
-            mariadbPassword,
-            mariadbDatabase,
-            logger);
-            
-        const port = Math.round(Math.random() * (65535 - 1024) + 1024);
-
-        app = await startServerAsync(port);
-    }, beforeAllTimeout);
+        container = await createMariaDbContainerAsync();
+        connection = await createContainerDatabaseConnectionAsync(container);
+        app = await startServerAsync();
+    }, Constants.Defaults.containerTimeout);
     
     afterAll(async () => {
-        app?.close();
-
-        await connection?.close();
-        
-        await container?.stop();
+        await stopServerAsync(app);
+        await connection.close();
+        await container.stop();
     });
 
     beforeEach(async () => {
-        await clearDatabaseAsync();
+        await clearDatabaseAsync(connection);
     });
 
-    const clearDatabaseAsync = async () => {
-        const pool = mariadb.createPool({
-            host: mariadbHost,
-            port: mariadbMappedPort,
-            user: mariadbUser,
-            password: mariadbPassword,
-            database: mariadbDatabase,
-            multipleStatements: true
-        });
-    
-        const conn = await pool.getConnection();
-    
-        await conn.query([
-                'card_operations',
-                'standard_transfers',
-                'transactions'
-           ].map(table => `DELETE FROM ${table};`)
-            .join(''));
-    
-        await conn.release();
-    
-        await pool.end();
-    }
-
-    const resolveRandomTransactionIds = () => {
-        const allTransactionIds = Object.keys(paymentDetailsTestCases).filter(k => isNaN(Number(k)));
-        const count = Math.random() * (allTransactionIds.length - 1) + 1;
-        const transactionIds = allTransactionIds.splice(0, count);
-        
-        return transactionIds;
-    };
-
-    const resolveRandomTransactionsAsync = () => {
-        const transactionIds = resolveRandomTransactionIds();
-
-        const transactions = transactionIds
-            .map(async (transactionId: string) => {
-                const transaction = await transactionProvider.resolveTransactionAsync(transactionId);
-                
-                return transaction;
-            })
-            .reduce(async (accumulator, current, i) => {
-                const currentValue = await current;
-
-                if (currentValue === null) {
-                    return accumulator;
-                }
-                
-                const accumulatorValue = await accumulator;
-
-                accumulatorValue.push(currentValue);
-
-                return accumulator;
-            }, Promise.resolve([] as Transaction<PaymentDetails>[]));
-
-        return transactions;
-    };
-
     it('should persist a random number of transactions', async () => {
-        const transactions = await resolveRandomTransactionsAsync();
+        const transactions = await resolveRandomTransactionsAsync(transactionProvider);
         const transactionsResponse = transactions.map(t => TransactionExtensions.toResponse(t));
 
         const expectedTransactionIds = transactions.map(t => t.id).sort((a, b) => a.localeCompare(b));
@@ -163,7 +72,7 @@ describe('Base Transactions Routes Tests', () => {
     });
 
     it('should persist a random number of transactions and skip a portion', async () => {
-        const transactions = await resolveRandomTransactionsAsync();
+        const transactions = await resolveRandomTransactionsAsync(transactionProvider);
         const transactionsResponse = transactions.map(t => TransactionExtensions.toResponse(t));
         
         const existingTransactionsCount = Math.floor(Math.random() * (transactions.length - 1) + 1);
