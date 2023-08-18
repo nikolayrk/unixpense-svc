@@ -9,7 +9,6 @@ import { ResponseExtensions } from "../../core/extensions/responseExtensions";
 import { TransactionExtensions } from "../../core/extensions/transactionExtensions";
 
 type Options = {
-    save: boolean,
     ids?: string,
     last?: number,
     skipDepth?: number
@@ -40,7 +39,6 @@ const getLast = async (req: Request, res: Response) => {
 
     try {
         const transactionIds = await resolveTransactionIdsAsync(identifiers, {
-            save: false,
             last: lastValue,
             skipDepth: skipDepthValue
         }, skipSaved, logger);
@@ -61,36 +59,12 @@ const resolve = async (req: Request, res: Response) => {
     const identifiers = res.locals.googleOAuth2Identifiers as GoogleOAuth2Identifiers;
 
     try {
-        const transactions = await resolveTransactionsAsync(identifiers, {
-            save: false,
-            ids: ids.join(',')
-        }, logger);
+        const transactions = await resolveTransactionsAsync(identifiers, { ids: ids.join(',') }, logger);
 
         const result = transactions
-            .map(t => TransactionExtensions.MapTransactionResponse(t));
+            .map(t => TransactionExtensions.toResponse(t));
         
         return ResponseExtensions.ok(res, result);
-    } catch (ex) {
-        const error = ex as Error;
-
-        return ResponseExtensions.internalError(res, error.message ?? ex);
-    }
-};
-
-const save = async (req: Request, res: Response) => {
-    const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
-
-    const identifiers = res.locals.googleOAuth2Identifiers as GoogleOAuth2Identifiers;
-
-    try {
-        const ids: [] = req.body;
-
-        const created = await saveTransactionsAsync(identifiers, {
-            save: true,
-            ids: ids.join(',')
-        }, logger);
-        
-        return ResponseExtensions.added(res, created, 'transaction');
     } catch (ex) {
         const error = ex as Error;
 
@@ -128,35 +102,8 @@ const resolveTransactionsAsync = (
     generateTransactionsAsync(identifiers, options, logger, (gmailTransactionProvider, transactionId) =>
         gmailTransactionProvider.resolveTransactionAsync(transactionId));
 
-const saveTransactionsAsync = async (
-    identifiers: GoogleOAuth2Identifiers,
-    options: Options,
-    logger: ILogger) => {
-    const transactionRepository = DependencyInjector.Singleton.resolve<TransactionRepository>(injectables.TransactionRepository);
-
-    const existingTransactionIds = await transactionRepository.getAllIdsAsync();
-    
-    const transactions = await generateTransactionsAsync(identifiers, options, logger, async (gmailTransactionProvider, transactionId) =>
-        transactionExists(transactionId, existingTransactionIds, logger)
-            ? null
-            : gmailTransactionProvider.resolveTransactionAsync(transactionId));
-
-    const created = await transactionRepository.bulkCreateAsync(transactions);
-
-    return created;
-}
-
-const transactionExists = (transactionId: string, existingTransactionIds: string[], logger?: ILogger) => {
-    const exists = existingTransactionIds.find((id) => id === transactionId) !== undefined;
-
-    if (exists) {
-        logger?.warn("Transaction already exists", { transactionId: transactionId });
-
-        return true;
-    }
-
-    return false;
-};
+const transactionExists = (transactionId: string, existingTransactionIds: string[]) =>
+    existingTransactionIds.find((id) => id === transactionId) !== undefined;
 
 const generateTransactionsAsync = async <T>(
     identifiers: GoogleOAuth2Identifiers,
@@ -219,26 +166,24 @@ const generateTransactionsAsync = async <T>(
 };
 
 const logResult = (options: Options, resolvedCount: number, skippedCount: number, logger: ILogger) => {
-    const response = `${options.save === true
-        ? `Resolved & saved`
-        : `Resolved`}${!options.last !== undefined
-            ? ` ${resolvedCount}`
-            : ` ${resolvedCount} out of the last ${options.last}`
-                } transaction${!options.last !== undefined && resolvedCount == 1 ? '' : 's'}${skippedCount > 0
-                        ? `, skipped ${skippedCount}${options.skipDepth !== undefined
-                            ? ` with a skip depth of ${options.skipDepth}`
-                            : ''}`
-                        : ``}`
+    const response = `Resolved${!options.last !== undefined
+        ? ` ${resolvedCount}`
+        : ` ${resolvedCount} out of the last ${options.last}`
+            } transaction${!options.last !== undefined && resolvedCount == 1 ? '' : 's'}${skippedCount > 0
+                ? `, skipped ${skippedCount}${options.skipDepth !== undefined
+                    ? ` with a skip depth of ${options.skipDepth}`
+                    : ''}`
+                : ``}`
 
-    const { save, skipDepth, ...labels } = options;
+    const { skipDepth, ...labels } = options;
 
-    logger.log(response, { ...labels, ...(!Number.isNaN(skipDepth)) && { skipDepth } });
+    logger.log(response, { ...labels, ...(skipDepth !== undefined && !Number.isNaN(skipDepth)) && { skipDepth } });
 };
 
 const logError = (options: Options, error: Error, logger: ILogger) => {
-    const { save, skipDepth, ...labels } = options;
+    const { skipDepth, ...labels } = options;
 
-    logger.error(error, { ...labels, ...(!Number.isNaN(skipDepth)) && { skipDepth } });
+    logger.error(error, { ...labels, ...(skipDepth !== undefined && !Number.isNaN(skipDepth)) && { skipDepth } });
 }
 
-export { getLast, resolve, save }
+export { getLast, resolve }

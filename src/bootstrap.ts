@@ -1,6 +1,7 @@
 
 import express from 'express';
 import * as googleOAuth2Middleware from './web/middleware/googleOAuth2Middleware';
+import { router as transactionsRouter } from './web/routes/transactionsRoutes';
 import { router as gmailTransactionsRouter } from './web/routes/gmailTransactionsRoutes';
 import { router as swaggerRouter } from './web/routes/swaggerRoutes';
 import { router as kubernetesProbesRouter } from './web/routes/kubernetesProbesRoutes';
@@ -80,6 +81,9 @@ const startServerAsync = (port: number) => {
 
     // Google OAuth2 Callback Route. Used for authz of all ../gmail routes, as well as for authn via oauth2-proxy
     app.use('/api/oauthcallback', googleOAuth2Middleware.redirect);
+
+    // Transactions Routes
+    app.use('/api/transactions', transactionsRouter);
 
     // Gmail Transactions Routes
     app.use('/api/transactions/gmail', googleOAuth2Middleware.protect, gmailTransactionsRouter);

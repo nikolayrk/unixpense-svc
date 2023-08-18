@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, beforeAll, afterAll, expect } from '@jest/globals';
+import { describe, it, beforeAll, afterAll, expect, beforeEach } from '@jest/globals';
 import * as supertest from 'supertest';
 import { createDatabaseConnectionAsync, registerDependencies, startServerAsync } from '../../bootstrap';
 import ILogger from '../../core/contracts/ILogger';
@@ -293,66 +293,10 @@ describe('Gmail Transactions Routes Tests', () => {
             .send(transactionIds);
 
         const expected = transactions
-            .map(t => TransactionExtensions.MapTransactionResponse(t));
+            .map(t => TransactionExtensions.toResponse(t));
 
         expect(response.statusCode).toBe(200);
         expect(response.headers["content-type"]).toMatch(/json/);
         expect(response.body).toEqual(expected);
-    });
-
-    it('should error out while trying to persist a transaction', async () => {
-        const response = await supertest.agent(app)
-            .post(`/api/transactions/gmail/save`)
-            .auth(Constants.Mock.accessToken, { type: "bearer" })
-            .set('Accept', 'application/json')
-            .send([ Constants.Mock.errorTransactionSourceId ]);
-
-        expect(response.statusCode).toBe(500);
-        expect(response.headers["content-type"]).toMatch(/json/);
-        expect(response.body).toEqual({ error: Constants.Mock.errorTransactionSourceId });
-    });
-
-    it('should persist a random number of transactions', async () => {
-        const expectedTransactionIds = resolveRandomTransactionIds().sort((a, b) => a.localeCompare(b));
-
-        const response = await supertest.agent(app)
-            .post(`/api/transactions/gmail/save`)
-            .auth(Constants.Mock.accessToken, { type: "bearer" })
-            .set('Accept', 'application/json')
-            .send(expectedTransactionIds);
-
-        const added = expectedTransactionIds.length;
-
-        const persistedTransactionIds = await transactionRepository.getAllIdsAsync();
-        const actualTransactionIds = persistedTransactionIds.sort((a, b) => a.localeCompare(b));
-
-        expect(response.statusCode).toBe(201);
-        expect(response.headers["content-type"]).toMatch(/json/);
-        expect(response.body).toEqual({ message: `Added ${added} transaction${added == 1 ? '' : 's'} to database`})
-        expect(actualTransactionIds).toEqual(expectedTransactionIds);
-    });
-
-    it('should persist a random number of transactions and skip a portion', async () => {
-        const transactions = await resolveRandomTransactionsAsync();
-        const existingTransactionsCount = Math.floor(Math.random() * (transactions.length - 1) + 1);
-        const expectedTransactionIds = transactions.map(t => t.id).sort((a, b) => a.localeCompare(b));
-
-        await transactionRepository.bulkCreateAsync(transactions.slice(0, existingTransactionsCount));
-
-        const response = await supertest.agent(app)
-            .post(`/api/transactions/gmail/save`)
-            .auth(Constants.Mock.accessToken, { type: "bearer" })
-            .set('Accept', 'application/json')
-            .send(transactions.map(t => t.id));
-
-        const added = transactions.length - existingTransactionsCount;
-
-        const persistedTransactionIds = await transactionRepository.getAllIdsAsync();
-        const actualTransactionIds = persistedTransactionIds.sort((a, b) => a.localeCompare(b));
-
-        expect(response.statusCode).toBe(201);
-        expect(response.headers["content-type"]).toMatch(/json/);
-        expect(response.body).toEqual({ message: `Added ${added} transaction${added == 1 ? '' : 's'} to database`})
-        expect(actualTransactionIds).toEqual(expectedTransactionIds);
     });
 });
