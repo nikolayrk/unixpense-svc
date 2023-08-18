@@ -3,7 +3,7 @@ import { TransactionTypeExtensions } from "../extensions/transactionTypeExtensio
 
 export default class UnsupportedTxnError extends Error {
     constructor(type: TransactionType) {
-        const message = `Unsupported transaction type '${TransactionTypeExtensions.ToString(type)}'`;
+        const message = `Unsupported transaction type '${TransactionTypeExtensions.toString(type)}'`;
 
         super(message);
 

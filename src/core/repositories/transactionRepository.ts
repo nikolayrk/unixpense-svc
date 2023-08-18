@@ -12,7 +12,7 @@ export default class TransactionRepository {
 
     // throws RepositoryError
     public async bulkCreateAsync(transactions: Transaction<PaymentDetails>[]) {
-        const mapped = transactions.map(TransactionExtensions.MapTransactionEntity);
+        const mapped = transactions.map(TransactionExtensions.toEntity);
         
         try {
             const created = await TransactionEntity.bulkCreate(mapped, {

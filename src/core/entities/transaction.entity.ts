@@ -51,11 +51,11 @@ export default class TransactionEntity extends Model {
     sum!: string;
 
     @AllowNull(false)
-    @Column(EntryTypeExtensions.ToDataType())
+    @Column(EntryTypeExtensions.toDataType())
     entry_type!: string;
 
     @Unique('unique-transaction')
     @AllowNull(false)
-    @Column(TransactionTypeExtensions.ToDataType())
+    @Column(TransactionTypeExtensions.toDataType())
     type!: string;
 }

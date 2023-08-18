@@ -81,17 +81,17 @@ export default class PaymentDetailsContext {
     
     // throws UnsupportedTxnError
     private tryGetStrategyByType(transactionType: TransactionType): AbstractPaymentDetailsStrategy<PaymentDetails> {  
-        if (TransactionTypeExtensions.IsCardOperation(transactionType)) {
+        if (TransactionTypeExtensions.isCardOperation(transactionType)) {
             return this.cardOperationStrategy;
-        } else if (TransactionTypeExtensions.IsCrossBorderTransfer(transactionType)) {
+        } else if (TransactionTypeExtensions.isCrossBorderTransfer(transactionType)) {
             return this.crossBorderTransferStrategy;
-        } else if (TransactionTypeExtensions.IsCrossBorderTransferFee(transactionType)) {
+        } else if (TransactionTypeExtensions.isCrossBorderTransferFee(transactionType)) {
             return this.crossBorderTransferFeeStrategy;
-        } else if (TransactionTypeExtensions.IsDeskWithdrawal(transactionType)) {
+        } else if (TransactionTypeExtensions.isDeskWithdrawal(transactionType)) {
             return this.deskWithdrawalStrategy;
-        } else if (TransactionTypeExtensions.IsStandardFee(transactionType)) {
+        } else if (TransactionTypeExtensions.isStandardFee(transactionType)) {
             return this.standardFeeStrategy;
-        } else if (TransactionTypeExtensions.IsStandardTransfer(transactionType)) {
+        } else if (TransactionTypeExtensions.isStandardTransfer(transactionType)) {
             return this.standardTransferStrategy;
         } else {
             throw new UnsupportedTxnError(transactionType);

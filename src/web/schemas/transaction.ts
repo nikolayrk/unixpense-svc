@@ -33,7 +33,7 @@ const createTransactionSchema = (type: Schema, paymentDetails: Schema): Schema =
             },
             entry_type: {
                 type: "string",
-                enum: EntryTypeExtensions.Keys(),
+                enum: EntryTypeExtensions.keys(),
                 description: "The entry type of the transaction.",
                 example: "DEBIT"
             },
@@ -45,7 +45,7 @@ const createTransactionSchema = (type: Schema, paymentDetails: Schema): Schema =
 
 const cardOperationTransaction = createTransactionSchema({
         type: "string",
-        enum: TransactionTypeExtensions.Keys(),
+        enum: TransactionTypeExtensions.keys(),
         description: "The type of transaction based on its payment details.",
         example: "CARD_OPERATION"
     }, {
@@ -76,7 +76,7 @@ const cardOperationTransaction = createTransactionSchema({
 
 const standardTransferTransaction = createTransactionSchema({
         type: "string",
-        enum: TransactionTypeExtensions.Keys(),
+        enum: TransactionTypeExtensions.keys(),
         description: "The type of transaction based on its payment details.",
         example: "UTILITY_PAYMENT"
     }, {

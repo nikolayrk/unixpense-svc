@@ -1,5 +1,5 @@
 enum TransactionType {
-    UNKNOWN = -1,
+    UNKNOWN,
     CARD_OPERATION,
     CROSS_BORDER_TRANSFER,
     PERIODIC_FEE,

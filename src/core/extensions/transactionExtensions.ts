@@ -1,63 +1,80 @@
 import TransactionType from "../enums/transactionType";
+import TransactionFactory from "../factories/transactionFactory";
 import PaymentDetails from "../models/paymentDetails";
 import StandardTransfer from "../models/standardTransfer";
 import Transaction from "../models/transaction";
+import { TransactionData } from "../models/transactionData";
 import { EntryTypeExtensions } from "./entryTypeExtensions";
 import { TransactionTypeExtensions } from "./transactionTypeExtensions";
 
 export class TransactionExtensions {
-    public static MapTransactionEntity(transaction: Transaction<PaymentDetails>) {
+    public static toEntity(transaction: Transaction<PaymentDetails>) {
         return {
             id: transaction.id,
             date: transaction.date.toSqlDate(),
             reference: transaction.reference,
             value_date: transaction.valueDate.toSqlDate(),
             sum: transaction.sum,
-            entry_type: EntryTypeExtensions.ToString(transaction.entryType),
-            type: TransactionTypeExtensions.ToString(transaction.type),
+            entry_type: EntryTypeExtensions.toString(transaction.entryType),
+            type: TransactionTypeExtensions.toString(transaction.type),
 
-            ...TransactionTypeExtensions.IsCardOperation(transaction.type) && {
+            ...TransactionTypeExtensions.isCardOperation(transaction.type) && {
                 card_operation: transaction.paymentDetails
             },
 
-            ...(TransactionExtensions.IsStandardTransfer(transaction.type)) && {
-                standard_transfer: TransactionExtensions.MapStandardTransferEntity(transaction.paymentDetails as StandardTransfer)
+            ...(TransactionExtensions.isStandardTransfer(transaction.type)) && {
+                standard_transfer: TransactionExtensions.toStandardTransferEntity(transaction.paymentDetails as StandardTransfer)
             },
         };
     }
 
-    public static MapStandardTransferEntity(standardTransfer: StandardTransfer) {
+    public static toResponse(transaction: Transaction<PaymentDetails>) {
+        return {
+            id: transaction.id,
+            date: transaction.date.toISOString(),
+            reference: transaction.reference,
+            value_date: transaction.valueDate.toISOString(),
+            sum: Number(transaction.sum),
+            entry_type: EntryTypeExtensions.toString(transaction.entryType),
+            type: TransactionTypeExtensions.toString(transaction.type),
+
+            ...TransactionTypeExtensions.isCardOperation(transaction.type) && {
+                card_operation: transaction.paymentDetails
+            },
+
+            ...(TransactionExtensions.isStandardTransfer(transaction.type)) && {
+                standard_transfer: transaction.paymentDetails
+            },
+        };
+    }
+
+    public static toModel(transaction: Record<string, string | number | object>) {
+        const transactionData: TransactionData = {
+            date: new Date(String(transaction.date)),
+            reference: String(transaction.reference),
+            valueDate: new Date(String(transaction.value_date)),
+            sum: String(transaction.sum),
+            entryType: EntryTypeExtensions.toEnum(String(transaction.entry_type)),
+            transactionType: TransactionTypeExtensions.toEnum(String(transaction.type)),
+            paymentDetailsRaw: [''],
+            additionalDetailsRaw: ['']
+        }
+
+        return TransactionFactory.create(String(transaction.id), transactionData, transaction.paymentDetails as PaymentDetails);
+    }
+
+    private static isStandardTransfer = (transactionType: TransactionType) => 
+        TransactionTypeExtensions.isCrossBorderTransfer(transactionType) ||
+        TransactionTypeExtensions.isCrossBorderTransferFee(transactionType) ||
+        TransactionTypeExtensions.isDeskWithdrawal(transactionType) ||
+        TransactionTypeExtensions.isStandardFee(transactionType) ||
+        TransactionTypeExtensions.isStandardTransfer(transactionType);
+
+    private static toStandardTransferEntity(standardTransfer: StandardTransfer) {
         const mappedStandardTransfer: any = standardTransfer;
 
         delete Object.assign(mappedStandardTransfer, { recipient_iban: standardTransfer.recipientIban })[standardTransfer.recipientIban];
 
         return mappedStandardTransfer;
     }
-
-    public static MapTransactionResponse(transaction: Transaction<PaymentDetails>) {
-        return {
-            id: transaction.id,
-            date: `${transaction.date.toDateString()} ${transaction.date.toLocaleTimeString()}`,
-            reference: transaction.reference,
-            value_date: transaction.valueDate.toDateString(),
-            sum: Number(transaction.sum),
-            entry_type: EntryTypeExtensions.ToString(transaction.entryType),
-            type: TransactionTypeExtensions.ToString(transaction.type),
-
-            ...TransactionTypeExtensions.IsCardOperation(transaction.type) && {
-                card_operation: transaction.paymentDetails
-            },
-
-            ...(TransactionExtensions.IsStandardTransfer(transaction.type)) && {
-                standard_transfer: transaction.paymentDetails
-            },
-        };
-    }
-
-    private static IsStandardTransfer = (transactionType: TransactionType) => 
-        TransactionTypeExtensions.IsCrossBorderTransfer(transactionType) ||
-        TransactionTypeExtensions.IsCrossBorderTransferFee(transactionType) ||
-        TransactionTypeExtensions.IsDeskWithdrawal(transactionType) ||
-        TransactionTypeExtensions.IsStandardFee(transactionType) ||
-        TransactionTypeExtensions.IsStandardTransfer(transactionType);
 }

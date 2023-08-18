@@ -1,36 +1,50 @@
 import { DataType } from 'sequelize-typescript';
 import TransactionType from '../enums/transactionType';
-import StandardTransfer from '../models/standardTransfer';
 
 export class TransactionTypeExtensions {
-    public static Keys() {
+    public static keys() {
         return Object.keys(TransactionType).filter(k => isNaN(Number(k)));
     }
-    public static ToString(transactionType: TransactionType) {
-        return Object.keys(TransactionType)[Object.values(TransactionType).indexOf(transactionType)];
+
+    public static toString(value: TransactionType) {
+        const ordinal = Number(TransactionTypeExtensions.toOrdinalEnum(String(value)));
+        const numberValue = Number(value);
+        const index = Number.isNaN(numberValue)
+            ? ordinal
+            : numberValue;
+
+        return this.keys()[index];
     }
 
-    public static ToDataType() {
-        return DataType.ENUM(...this.Keys());
+    public static toDataType() {
+        return DataType.ENUM(...this.keys());
     }
 
-    public static IsCardOperation(transactionType: TransactionType) {
+    public static toEnum(value: string) {
+        return <TransactionType> <unknown> value;
+    }
+
+    public static toOrdinalEnum(value: string) {
+        return Object.entries(TransactionType).find(e => e[0] === value)?.[1] as TransactionType;
+    }
+
+    public static isCardOperation(transactionType: TransactionType) {
         return transactionType === TransactionType.CARD_OPERATION;
     }
 
-    public static IsCrossBorderTransfer(transactionType: TransactionType) {
+    public static isCrossBorderTransfer(transactionType: TransactionType) {
         return transactionType === TransactionType.CROSS_BORDER_TRANSFER
     }
 
-    public static IsCrossBorderTransferFee(transactionType: TransactionType) {
+    public static isCrossBorderTransferFee(transactionType: TransactionType) {
         return transactionType === TransactionType.CROSS_BORDER_TRANSFER_FEE;
     }
 
-    public static IsDeskWithdrawal(transactionType: TransactionType) {
+    public static isDeskWithdrawal(transactionType: TransactionType) {
         return transactionType === TransactionType.DESK_WITHDRAWAL;
     }
 
-    public static IsStandardFee(transactionType: TransactionType) {
+    public static isStandardFee(transactionType: TransactionType) {
         switch (transactionType) {
             case TransactionType.PERIODIC_FEE:
             case TransactionType.INTERBANK_TRANSFER_FEE:
@@ -44,7 +58,7 @@ export class TransactionTypeExtensions {
         }
     }
 
-    public static IsStandardTransfer(transactionType: TransactionType) {
+    public static isStandardTransfer(transactionType: TransactionType) {
         switch (transactionType) {
             case TransactionType.INTEREST_PAYMENT:
             case TransactionType.INTEREST_TAX:
