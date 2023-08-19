@@ -3,8 +3,8 @@
 main() {
     local UNIXPENSE_API_URL=http://unixpense-svc-service.unixpense.svc.cluster.local:8000/api
     local FETCH_TRANSACTION_IDS_URL="$UNIXPENSE_API_URL/transactions/gmail/ids/last/20?skip_saved=true&skip_depth=10"
-    local SAVE_TRANSACTIONS_URL="$UNIXPENSE_API_URL/transactions/gmail/save"
     local RESOLVE_TRANSACTIONS_URL="$UNIXPENSE_API_URL/transactions/gmail/resolve"
+    local SAVE_TRANSACTIONS_URL="$UNIXPENSE_API_URL/transactions/save"
 
     echo "Installing dependencies... "
     
@@ -28,9 +28,9 @@ main() {
 
     local FETCH_RESULT=$(fetchTransactionIds $FETCH_TRANSACTION_IDS_URL $ACCESS_TOKEN $REFRESH_TOKEN)
     
-    local FETCH_ERROR=$(echo $FETCH_RESULT | jq '.error')
+    if [ "$(echo $FETCH_RESULT | jq 'has("error")')" == "true" ]; then
+        local FETCH_ERROR=$(echo $FETCH_RESULT | jq -r '.error')
 
-    if [ "$FETCH_ERROR" != '' ]; then
         echo "Failed."
 
         echo $(sendTelegram "Failed to fetch transaction IDs: $FETCH_ERROR")
@@ -53,33 +53,13 @@ main() {
     # Hydrate access token, in case the first request triggered a token refresh
     ACCESS_TOKEN="$(resolveAccessToken)"
 
-    echo -n "- Saving new transaction IDs... "
-
-    local SAVE_RESULT=$(saveTransactions $SAVE_TRANSACTIONS_URL $ACCESS_TOKEN "$TRANSACTION_IDS")
-    
-    local SAVE_ERROR=$(echo $SAVE_RESULT | jq '.error')
-
-    if [ "$SAVE_ERROR" != null ]; then
-        echo "Failed."
-
-        echo $(sendTelegram "Failed to save transactions: $SAVE_ERROR")
-
-        exit 1
-    fi
-
-    echo "Success."
-
-    local SAVE_MESSAGE=$(echo $SAVE_RESULT | jq '.result')
-
-    echo $(sendTelegram "$SAVE_MESSAGE")
-
     echo -n "- Resolving transactions... "
 
     local RESOLVE_RESULT=$(resolveTransactions $RESOLVE_TRANSACTIONS_URL $ACCESS_TOKEN "$TRANSACTION_IDS")
     
-    local RESOLVE_ERROR=$(echo $RESOLVE_RESULT | jq '.error')
+    if [ "$(echo $RESOLVE_RESULT | jq 'has("error")')" == "true" ]; then
+        local RESOLVE_ERROR=$(echo $RESOLVE_RESULT | jq -r '.error')
 
-    if [ "$RESOLVE_ERROR" != '' ]; then
         echo "Failed."
 
         echo $(sendTelegram "Failed to resolve transactions: $RESOLVE_ERROR")
@@ -89,11 +69,53 @@ main() {
 
     echo "Success."
 
-    local FORMATTED_TRANSACTIONS=$(echo $RESOLVE_RESULT | jq . | sed 's/"/\\"/g')
+    echo -n "- Saving new transaction IDs... "
 
-    local RESOLVE_MESSAGE="<code>$FORMATTED_TRANSACTIONS</code>"
+    local SAVE_RESULT=$(saveTransactions $SAVE_TRANSACTIONS_URL "$RESOLVE_RESULT")
 
-    echo $(sendTelegram "\"$RESOLVE_MESSAGE\"")
+    if [ "$(echo $SAVE_RESULT | jq 'has("error")')" == "true" ]; then
+        local SAVE_ERROR=$(echo $SAVE_RESULT | jq -r '.error')
+
+        echo "Failed."
+
+        echo $(sendTelegram "Failed to save transactions: $SAVE_ERROR")
+
+        exit 1
+    fi
+
+    echo "Success."
+
+    local SAVE_MESSAGE=$(echo $SAVE_RESULT | jq -r '.result')
+    
+    IFS=$'\n'
+    for TRANSACTION in $(echo $RESOLVE_RESULT | jq -c '.[]'); do
+        local VALUE_DATE=$(date +"%m/%d/%y" -d $(echo $TRANSACTION | jq -r '.value_date'))
+        local BASE_SUM=$(echo $TRANSACTION | jq -r '.sum')
+
+        if [ "$(echo $TRANSACTION | jq 'has("card_operation")')" == "true" ]; then
+            local SUM=$(echo $TRANSACTION | jq -r '.card_operation.sum')
+            local CURRENCY=$(echo $TRANSACTION | jq -r '.card_operation.currency')
+            local RECIPIENT=$(echo $TRANSACTION | jq -r '.card_operation.recipient')
+            local INSTRUMENT=$(echo $TRANSACTION | jq -r '.card_operation.instrument')
+
+            if [ "$INSTRUMENT" != 'Fee АТМ' ]; then
+              SAVE_MESSAGE+="\n - <b>${SUM} ${CURRENCY}</b> to <b>${RECIPIENT}</b> via ${INSTRUMENT} on ${VALUE_DATE}"
+            else
+              SAVE_MESSAGE+="\n - <b>${BASE_SUM} BGN</b> to <b>${RECIPIENT}</b> via ${INSTRUMENT} on ${VALUE_DATE}"
+            fi
+        elif [ "$(echo $TRANSACTION | jq -r 'has("standard_transfer")')" == "true" ]; then
+            local RECIPIENT=$(echo $TRANSACTION | jq -r '.standard_transfer.recipient')
+            local DESCRIPTION=$(echo $TRANSACTION | jq -r '.standard_transfer.description')
+
+            if [ "$DESCRIPTION" != 'N/A' ]; then
+                SAVE_MESSAGE+="\n - <b>${BASE_SUM} BGN</b> to <b>${RECIPIENT}</b> for ${DESCRIPTION} on ${VALUE_DATE}"
+            else
+                SAVE_MESSAGE+="\n - <b>${BASE_SUM} BGN</b> to <b>${RECIPIENT}</b> on ${VALUE_DATE}"
+            fi
+        fi
+    done
+
+    echo $(sendTelegram "$SAVE_MESSAGE")
 }
 
 installDependencies() {
@@ -166,28 +188,6 @@ fetchTransactionIds() {
     echo $(formatResult "$RESULT")
 }
 
-saveTransactions() {
-    if [[ $# -ne 3 ]]; then
-        echo $(formatResult "{\"error\": \"saveTransactions(): called with $# parameters, expected 3\"}")
-
-        exit 1
-    fi
-
-    local URL=$1
-    local ACCESS_TOKEN=$2
-    local TRANSACTION_IDS=$3
-
-    local RESULT=$(curl -s \
-        --connect-timeout 180 \
-        -X POST "$URL" \
-        -H "Authorization: Bearer $ACCESS_TOKEN" \
-        -H "Accept: application/json" \
-        -H "Content-Type: application/json" \
-        -d "$TRANSACTION_IDS")
-
-    echo $(formatResult "$RESULT")
-}
-
 resolveTransactions() {
     if [[ $# -ne 3 ]]; then
         echo $(formatResult "{\"error\": \"resolveTransactions(): called with $# parameters, expected 3\"}")
@@ -210,6 +210,26 @@ resolveTransactions() {
     echo $(formatResult "$RESULT")
 }
 
+saveTransactions() {
+    if [[ $# -ne 2 ]]; then
+        echo $(formatResult "{\"error\": \"saveTransactions(): called with $# parameters, expected 3\"}")
+
+        exit 1
+    fi
+
+    local URL=$1
+    local TRANSACTIONS=$2
+
+    local RESULT=$(curl -s \
+        --connect-timeout 180 \
+        -X POST "$URL" \
+        -H "Accept: application/json" \
+        -H "Content-Type: application/json" \
+        -d "$TRANSACTIONS")
+
+    echo $(formatResult "$RESULT")
+}
+
 formatResult() {
     if [[ $# -ne 1 ]]; then
         echo $(formatResult "{\"error\": \"formatResult(): called with $# parameters, expected 1\"}")
@@ -219,8 +239,8 @@ formatResult() {
 
     local RESULT_RAW=$1
 
-    local RESULT_MESSAGE=$(echo $RESULT_RAW | jq '.message' | tr -d '"')
-    local RESULT_ERROR=$(echo $RESULT_RAW | jq '.error' | tr -d '"')
+    local RESULT_MESSAGE=$(echo $RESULT_RAW | jq -r '.message')
+    local RESULT_ERROR=$(echo $RESULT_RAW | jq -r '.error')
 
     if [ "$RESULT_MESSAGE" != '' ] && [ "$RESULT_MESSAGE" != null ]; then
         echo "{\"result\": \"<b>$RESULT_MESSAGE</b>\"}"
@@ -244,7 +264,7 @@ sendTelegram() {
         --connect-timeout 180 \
         -X POST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage \
         -H 'Content-Type: application/json' \
-        -d "{\"chat_id\": \"$TELEGRAM_CHAT_ID\", \"parse_mode\": \"HTML\", \"text\": $MESSAGE, \"disable_notification\": true}")
+        -d "{\"chat_id\": \"$TELEGRAM_CHAT_ID\", \"parse_mode\": \"HTML\", \"text\": \"$MESSAGE\", \"disable_notification\": true}")
 
     TELEGRAM_API_SUCCESSFUL=$(echo $TELEGRAM_API_RESULT | jq '.ok')
 
