@@ -65,6 +65,10 @@ jobs:
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBECONFIG }}
+      - name: Create Namespace
+        run: >
+          kubectl create namespace unixpense
+          -o yaml --dry-run=client | kubectl apply -f -
       - name: Create Configuration ConfigMap
         run: >
           kubectl create configmap unixpense-svc-config
