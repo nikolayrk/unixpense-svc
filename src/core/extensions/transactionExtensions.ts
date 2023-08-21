@@ -1,3 +1,4 @@
+import Constants from "../../constants";
 import TransactionType from "../enums/transactionType";
 import TransactionFactory from "../factories/transactionFactory";
 import PaymentDetails from "../models/paymentDetails";
@@ -54,13 +55,16 @@ export class TransactionExtensions {
             reference: String(transaction.reference),
             valueDate: new Date(String(transaction.value_date)),
             sum: String(transaction.sum),
-            entryType: EntryTypeExtensions.toEnum(String(transaction.entry_type)),
-            transactionType: TransactionTypeExtensions.toEnum(String(transaction.type)),
+            entryType: EntryTypeExtensions.toOrdinalEnum(String(transaction.entry_type)),
+            transactionType: TransactionTypeExtensions.toOrdinalEnum(String(transaction.type)),
             paymentDetailsRaw: [''],
             additionalDetailsRaw: ['']
         }
 
-        return TransactionFactory.create(String(transaction.id), transactionData, transaction.paymentDetails as PaymentDetails);
+        const paymentDetails = (transaction.card_operation ?? transaction.standard_transfer) as PaymentDetails
+            ?? Constants.defaultPaymentDetails;
+
+        return TransactionFactory.create(String(transaction.id), transactionData, paymentDetails);
     }
 
     private static isStandardTransfer = (transactionType: TransactionType) => 

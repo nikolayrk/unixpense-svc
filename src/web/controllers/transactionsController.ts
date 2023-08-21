@@ -17,7 +17,6 @@ const save = async (req: Request, res: Response) => {
         const existingTransactionIds = await transactionRepository.getAllIdsAsync();
         const newTransactions = transactions.filter(t => !transactionExists(t.id, existingTransactionIds, logger));
 
-        // newTransactions.forEach(t => console.log(t));
         const created = await transactionRepository.bulkCreateAsync(newTransactions);
         const skipped = transactionsRaw.length - created;
 
