@@ -11,7 +11,6 @@ import {
     IStandardTransferStrategy
 } from "./core/types/paymentDetailsStrategies";
 import { injectables } from './core/types/injectables';
-import TransactionFactory from './core/factories/transactionFactory';
 import GmailStandardTransferStrategy from './gmail/strategies/gmailStandardTransferStrategy';
 import GmailStandardFeeStrategy from './gmail/strategies/gmailStandardFeeStrategy';
 import GmailDeskWithdrawalStrategy from './gmail/strategies/gmailDeskWIthdrawalStrategy';
