@@ -33,7 +33,7 @@ main() {
 
         echo "Failed."
 
-        echo $(sendTelegram "Failed to fetch transaction IDs: $FETCH_ERROR")
+        echo $(sendTelegram "<u>Failed to fetch transaction IDs</u>\n\n$FETCH_ERROR")
 
         exit 1
     fi
@@ -62,7 +62,7 @@ main() {
 
         echo "Failed."
 
-        echo $(sendTelegram "Failed to resolve transactions: $RESOLVE_ERROR")
+        echo $(sendTelegram "<u>Failed to resolve transactions</u>\n\n$RESOLVE_ERROR")
 
         exit 1
     fi
@@ -78,7 +78,7 @@ main() {
 
         echo "Failed."
 
-        echo $(sendTelegram "Failed to save transactions: $SAVE_ERROR")
+        echo $(sendTelegram "<u>Failed to save transactions</u>\n\n$SAVE_ERROR")
 
         exit 1
     fi
@@ -87,6 +87,8 @@ main() {
 
     local SAVE_MESSAGE=$(echo $SAVE_RESULT | jq -r '.result')
     
+    SAVE_MESSAGE+="\n"
+
     IFS=$'\n'
     for TRANSACTION in $(echo $RESOLVE_RESULT | jq -c '.[]'); do
         local VALUE_DATE=$(date +"%m/%d/%y" -d $(echo $TRANSACTION | jq -r '.value_date'))
@@ -245,7 +247,7 @@ formatResult() {
     if [ "$RESULT_MESSAGE" != '' ] && [ "$RESULT_MESSAGE" != null ]; then
         echo "{\"result\": \"<b>$RESULT_MESSAGE</b>\"}"
     elif [ "$RESULT_ERROR" != '' ] && [ "$RESULT_ERROR" != null ]; then
-        echo "{\"error\": \"<b><u>Error:</u> <i>$RESULT_ERROR</i></b>\"}"
+        echo "{\"error\": \"<b><i>$RESULT_ERROR</i></b>\"}"
     else
         echo "$RESULT_RAW"
     fi
