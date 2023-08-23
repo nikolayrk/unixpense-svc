@@ -12,8 +12,18 @@ jobs:
     name: Telegram Notify Start
     runs-on: ubuntu-latest
     steps:
+    - run: |
+        echo "COMMIT_MESSAGES<<EOF" >> $GITHUB_ENV
+
+        JOINED_COMMITS="$(echo ${{ join(github.event.commits.*.message, '\n') }} | sed 's/\\n/\'$'\n''/g')"
+
+        echo "$JOINED_COMMITS" >> $GITHUB_ENV
+         
+        echo "EOF" >> $GITHUB_ENV
     - name: Telegram Notify
       uses: appleboy/telegram-action@master
+      env:
+        COMMIT_MESSAGES: ${{ env.COMMIT_MESSAGES }}
       with:
         to: ${{ secrets.TELEGRAM_CHAT_ID }}
         token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -22,7 +32,7 @@ jobs:
         message: |
           ♻️ Started ${{ github.repository }} - *${{ github.workflow }} #${{ github.run_number }}*
 
-          ${{ github.event.commits[0].message }}
+          ${{ env.COMMIT_MESSAGES }}
           
   build:
     name: Build
