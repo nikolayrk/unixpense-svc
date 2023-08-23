@@ -176,36 +176,33 @@ jobs:
           MARIADB_NFS_SERVER: ${{ vars.MARIADB_NFS_SERVER }}
           MARIADB_NFS_PATH: ${{ vars.MARIADB_NFS_PATH }}
           CRONTAB: ${{ vars.CRONTAB }}
-  
-  telegram-notify-success:
-    name: Telegram Notify Success
-    if: success()
+
+  telegram-notify-end:
+    name: Telegram Notify End
+    if: always()
     needs: [ build, deploy ]
     runs-on: ubuntu-latest
     steps:
+    - run: |
+        if [ "${{ job.status }}" == "cancelled" ]; then
+          exit 0
+        fi
+
+        if [ "${{ contains(needs.*.result, 'failure') }}" == "true" ]; then
+          echo RESULT_MESSAGE="❌ *${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was unsuccessful*" >> $GITHUB_ENV
+
+          exit 0
+        fi
+
+        echo RESULT_MESSAGE="✅ *${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was successful*" >> $GITHUB_ENV
     - name: Telegram Notify
-      if: success()
       uses: appleboy/telegram-action@master
+      if: ${{ env.RESULT_MESSAGE }} != ''
+      env:
+        RESULT_MESSAGE: ${{ env.RESULT_MESSAGE }}
       with:
         to: ${{ secrets.TELEGRAM_CHAT_ID }}
         token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         disable_notification: true
         format: markdown
-        message: |
-          ✅ *${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was successful*
-    
-  telegram-notify-failed:
-    name: Telegram Notify Failed
-    if: ${{ always() && contains(needs.*.result, 'failure') }}
-    needs: [ build, deploy ]
-    runs-on: ubuntu-latest
-    steps:
-    - name: Telegram Notify
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ secrets.TELEGRAM_CHAT_ID }}
-        token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        disable_notification: true
-        format: markdown
-        message: |
-          ❌ *${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was unsuccessful*
+        message: ${{ env.RESULT_MESSAGE }}
