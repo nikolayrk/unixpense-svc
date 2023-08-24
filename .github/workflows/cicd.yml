@@ -15,11 +15,12 @@ jobs:
     - run: |
         echo "COMMIT_MESSAGES<<EOF" >> $GITHUB_ENV
 
-        JOINED_COMMITS="$(echo ${{ join(github.event.commits.*.message, '\n') }} | sed 's/\\n/\'$'\n''/g')"
+        JOINED_COMMITS="$(echo ' - ${{ join(github.event.commits.*.message, '\n - ') }}')"
 
         echo "$JOINED_COMMITS" >> $GITHUB_ENV
          
         echo "EOF" >> $GITHUB_ENV
+      shell: sh
     - name: Telegram Notify
       uses: appleboy/telegram-action@master
       env:
@@ -184,7 +185,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - run: |
-        if [ "${{ job.status }}" == "cancelled" ]; then
+        if [ "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]; then
           exit 0
         fi
 
@@ -197,7 +198,7 @@ jobs:
         echo RESULT_MESSAGE="✅ *${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was successful*" >> $GITHUB_ENV
     - name: Telegram Notify
       uses: appleboy/telegram-action@master
-      if: ${{ env.RESULT_MESSAGE }} != ''
+      if: env.RESULT_MESSAGE != ''
       env:
         RESULT_MESSAGE: ${{ env.RESULT_MESSAGE }}
       with:
