@@ -17,4 +17,6 @@ ARG PORT
 
 EXPOSE $PORT
 
+USER node
+
 CMD [ "node", "dist/main.js" ]
