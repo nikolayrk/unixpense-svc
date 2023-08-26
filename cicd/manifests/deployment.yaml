@@ -23,9 +23,11 @@ spec:
     spec:
       securityContext:
         runAsUser: 1000
+      imagePullSecrets:
+      - name: dockerconfig
       containers:
       - name: unixpense-svc
-        image: nikolayrk/unixpense-svc:$latest
+        image: $DOCKER_REGISTRY_URL/$DOCKER_REPO:$latest
         resources:
           requests:
             cpu: 150m

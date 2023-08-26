@@ -75,6 +75,7 @@ The Types `var` and `secret` refer to [Configuration Variables](https://docs.git
 | GOOGLE_OAUTH2_CLIENT_ID     | Client ID from [Creating Google Credentials](#creating-google-credentials)| secret      |
 | GOOGLE_OAUTH2_CLIENT_SECRET | Client Secret from [Creating Google Credentials](#creating-google-credentials)| secret      |
 | DOCKER_REPO                 | Docker Image Repository (username/image)                 | var         |
+| DOCKER_REGISTRY_URL         | Docker Image Repository URL (e.g ghcr.io)                | var         |
 | DOCKERHUB_USERNAME          | DockerHub username                                       | secret      |
 | DOCKERHUB_PASSWORD          | DockerHub password                                       | secret      |
 | KUBERNETES_URL              | Kubernetes API URL                                       | var         |

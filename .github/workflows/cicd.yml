@@ -37,6 +37,9 @@ jobs:
           
   build:
     name: Build
+    permissions:
+      contents: read
+      packages: write
     runs-on: ubuntu-latest
     steps:
     - name: Authenticate with PAT
@@ -47,6 +50,7 @@ jobs:
     - name: Login to Docker Hub
       uses: docker/login-action@v2
       with:
+        registry: ${{ vars.DOCKER_REGISTRY_URL }}
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
     - name: Build and push
@@ -57,8 +61,8 @@ jobs:
         platforms: linux/arm64/v8
         push: true
         tags: |
-          ${{ vars.DOCKER_REPO }}:latest
-          ${{ vars.DOCKER_REPO }}:${{ github.sha }}
+          ${{ vars.DOCKER_REGISTRY_URL }}/${{ vars.DOCKER_REPO }}:latest
+          ${{ vars.DOCKER_REGISTRY_URL }}/${{ vars.DOCKER_REPO }}:${{ github.sha }}
         build-args:
           NODE_ENV=${{ vars.NODE_ENV }}
           PORT=${{ vars.PORT }}
@@ -104,6 +108,30 @@ jobs:
           --namespace unixpense
           --from-file=sh/refresh.sh
           -o yaml --dry-run=client | kubectl apply -f -
+      - name: Create Docker Config Secret
+        env:
+          DOCKER_REGISTRY_CREDENTIALS: '${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_PASSWORD }}'
+          DOCKER_REGISTRY_URL: ${{ vars.DOCKER_REGISTRY_URL }}
+        run: |
+          DOCKER_REGISTRY_CREDENTIALS=$(echo -n ${DOCKER_REGISTRY_CREDENTIALS} | base64)
+
+          DOCKERCONFIGJSON=$(cat <<EOF
+          {
+              "auths": {
+                  "${DOCKER_REGISTRY_URL}": {
+                          "auth": "${DOCKER_REGISTRY_CREDENTIALS}"
+                  }
+              }
+          }
+          EOF
+          )
+          
+          kubectl create secret generic dockerconfig \
+          --namespace unixpense \
+          --type=kubernetes.io/dockerconfigjson \
+          --from-literal=.dockerconfigjson="$DOCKERCONFIGJSON" \
+          -o yaml --dry-run=client | kubectl apply -f -
+        shell: sh
       - name: Create MariaDb Secret
         uses: Azure/k8s-create-secret@v4
         with:
@@ -168,6 +196,8 @@ jobs:
             cicd/manifests/cronjob.yaml
           replacement-method: defined
         env:
+          DOCKER_REGISTRY_URL: ${{ vars.DOCKER_REGISTRY_URL }}
+          DOCKER_REPO: ${{ vars.DOCKER_REPO }}
           latest: ${{ github.sha }}
           PORT: ${{ vars.PORT }}
           REDIS_NFS_SERVER: ${{ vars.REDIS_NFS_SERVER }}
