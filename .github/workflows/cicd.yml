@@ -15,7 +15,7 @@ jobs:
     - run: |
         echo "COMMIT_MESSAGES<<EOF" >> $GITHUB_ENV
 
-        JOINED_COMMITS="$(echo ' - ${{ join(github.event.commits.*.message, '\n - ') }}')"
+        JOINED_COMMITS="$(echo '${{ join(github.event.commits.*.message, '\n\n') }}')"
 
         echo "$JOINED_COMMITS" >> $GITHUB_ENV
          
