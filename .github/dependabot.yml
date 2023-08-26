@@ -4,6 +4,10 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    groups:
+      npm:
+        patterns:
+          - "*"
 
   - package-ecosystem: "docker"
     directory: "/cicd/"
