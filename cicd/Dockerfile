@@ -17,6 +17,10 @@ ARG PORT
 
 EXPOSE $PORT
 
+RUN apk add --no-cache tini
+
 USER node
+
+ENTRYPOINT ["/sbin/tini", "--"]
 
 CMD [ "node", "dist/main.js" ]
