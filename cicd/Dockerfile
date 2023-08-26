@@ -8,7 +8,7 @@ COPY src ./src
 
 ARG NODE_ENV
 
-RUN yarn install --pure-lockfile && \
+RUN yarn install --pure-lockfile --prod && \
     yarn build && \
     rm -rf  ./src \
             tsconfig.json
