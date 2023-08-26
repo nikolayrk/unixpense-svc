@@ -56,23 +56,25 @@ const main = async () => {
         pid: process.pid
     });
 
-    const closeResources = () => {
-        server.close(async (err) => {
-            let exitCode = 0;
+    const closeResourcesAsync = () => {
+        return new Promise<number>(resolve => {
+            server.close(async (err) => {
+                let exitCode = 0;
+    
+                if(err) {
+                    logger.error(err);
+    
+                    exitCode = 1;
+                }
+            
+                await logger.beforeExit();
+    
+                await connection.close();
+    
+                await stopServerAsync(server);
 
-            if(err) {
-                logger.error(err);
-
-                exitCode = 1;
-            }
-        
-            await logger.beforeExit();
-
-            await connection.close();
-
-            await stopServerAsync(server);
-
-            process.exit(exitCode);
+                resolve(exitCode);
+            });
         });
     }
 
@@ -84,7 +86,9 @@ const main = async () => {
             signal: signal
         });
 
-        closeResources();
+        const exitCode = await closeResourcesAsync();
+
+        process.exit(exitCode);
     };
     
     const gracefulShutdownAsync = async (err: Error) => {
@@ -94,7 +98,9 @@ const main = async () => {
             pid: process.pid
         });
 
-        closeResources();
+        const exitCode = await closeResourcesAsync();
+
+        process.exit(exitCode);
     };
     
     const beforeExitAsync = async (exitCode: number) => {
@@ -105,7 +111,9 @@ const main = async () => {
             exitCode: exitCode
         });
 
-        closeResources();
+        const serverExitCode = await closeResourcesAsync();
+
+        process.exit(serverExitCode);
     };
     
     process.on('SIGINT', signalHandlerAsync);
