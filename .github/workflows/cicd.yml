@@ -12,14 +12,18 @@ jobs:
     name: Telegram Notify Start
     runs-on: ubuntu-latest
     steps:
-    - run: |
+    - id: setenv
+      run: |
         echo "COMMIT_MESSAGES<<EOF" >> $GITHUB_ENV
+        echo "COMMIT_MESSAGES<<EOF" >> $GITHUB_OUTPUT
 
         JOINED_COMMITS="$(echo '${{ join(github.event.commits.*.message, '\n\n') }}')"
 
         echo "$JOINED_COMMITS" >> $GITHUB_ENV
+        echo "$JOINED_COMMITS" >> $GITHUB_OUTPUT
          
         echo "EOF" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_OUTPUT
       shell: sh
     - name: Telegram Notify
       uses: appleboy/telegram-action@master
@@ -34,9 +38,12 @@ jobs:
           ♻️ Started ${{ github.repository }} - *${{ github.workflow }} #${{ github.run_number }}*
 
           ${{ env.COMMIT_MESSAGES }}
+    outputs:
+      commit_messages: ${{ steps.setenv.outputs.COMMIT_MESSAGES }}
           
   build:
     name: Build
+    needs: telegram-notify-start
     permissions:
       contents: read
       packages: write
@@ -53,6 +60,13 @@ jobs:
         registry: ${{ vars.DOCKER_REGISTRY_URL }}
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ vars.DOCKER_REPO }}
+        labels: |
+          org.opencontainers.image.description=${{ needs.telegram-notify-start.outputs.commit_messages }}
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
@@ -60,6 +74,7 @@ jobs:
         file: cicd/Dockerfile
         platforms: linux/arm64/v8
         push: true
+        labels: ${{ steps.meta.outputs.labels }}
         tags: |
           ${{ vars.DOCKER_REGISTRY_URL }}/${{ vars.DOCKER_REPO }}:latest
           ${{ vars.DOCKER_REGISTRY_URL }}/${{ vars.DOCKER_REPO }}:${{ github.sha }}
