@@ -6,6 +6,7 @@ import ILogger from './core/contracts/ILogger';
 import { injectables } from './core/types/injectables';
 import { createDatabaseConnectionAsync, registerDependencies, startServerAsync, stopServerAsync } from './bootstrap';
 import Constants from './constants';
+import { Sequelize } from 'sequelize-typescript';
 
 const main = async () => {
     const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
@@ -24,17 +25,17 @@ const main = async () => {
         throw new Error('Missing database credentials');
     }
 
-    const connection = await (async () => {
-        try {
-            return await createDatabaseConnectionAsync(mariadbHost, mariadbPort, username, password, database);
-        } catch(ex) {
-            const error = ex as Error;
+    let connection: Sequelize | null = null;
 
-            logger.error(error);
+    try {
+        connection = await createDatabaseConnectionAsync(mariadbHost, mariadbPort, username, password, database);
+    } catch(ex) {
+        const error = ex as Error;
 
-            throw new Error(`Failed to create a connection to the database: ${error.message}`);
-        }
-    })();
+        logger.error(error);
+
+        throw new Error(`Failed to create a connection to the database: ${error.message}`);
+    };
 
     logger.log('Registering dependencies...');
 
@@ -69,7 +70,7 @@ const main = async () => {
             
                 await logger.beforeExit();
     
-                await connection.close();
+                await connection?.close();
     
                 await stopServerAsync(server);
 
