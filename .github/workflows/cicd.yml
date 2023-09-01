@@ -40,10 +40,21 @@ jobs:
           ${{ env.COMMIT_MESSAGES }}
     outputs:
       commit_messages: ${{ steps.setenv.outputs.COMMIT_MESSAGES }}
+
+  shellcheck:
+    name: Shellcheck
+    needs: telegram-notify-start
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './sh'
           
   build:
     name: Build
-    needs: telegram-notify-start
+    needs: shellcheck
     permissions:
       contents: read
       packages: write
@@ -226,7 +237,7 @@ jobs:
   telegram-notify-end:
     name: Telegram Notify End
     if: always()
-    needs: [ build, deploy ]
+    needs: [ shellcheck, build, deploy ]
     runs-on: ubuntu-latest
     steps:
     - run: |
