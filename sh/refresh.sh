@@ -104,37 +104,8 @@ main() {
     echo "Success."
 
     local SAVE_MESSAGE=$(echo $SAVE_RESULT | jq -r '.result')
-    
-    SAVE_MESSAGE+="\n"
 
-    IFS=$'\n'
-    for TRANSACTION in $(echo $RESOLVE_RESULT | jq -c '.[]'); do
-        local VALUE_DATE=$(date +"%m/%d/%y" -d $(echo $TRANSACTION | jq -r '.value_date'))
-        local BASE_SUM=$(echo $TRANSACTION | jq -r '.sum')
-        local OPERATION=$(echo $TRANSACTION | jq -r 'if .entryType=="CREDIT" then "from" else "to" end')
-
-        if [ "$(echo $TRANSACTION | jq 'has("card_operation")')" == "true" ]; then
-            local SUM=$(echo $TRANSACTION | jq -r '.card_operation.sum')
-            local CURRENCY=$(echo $TRANSACTION | jq -r '.card_operation.currency')
-            local RECIPIENT=$(echo $TRANSACTION | jq -r '.card_operation.recipient')
-            local INSTRUMENT=$(echo $TRANSACTION | jq -r '.card_operation.instrument')
-
-            if [ "$INSTRUMENT" != 'Fee АТМ' ]; then
-              SAVE_MESSAGE+="\n - <b>${SUM} ${CURRENCY}</b> ${OPERATION} <b>${RECIPIENT}</b> via ${INSTRUMENT} on ${VALUE_DATE}"
-            else
-              SAVE_MESSAGE+="\n - <b>${BASE_SUM} BGN</b> ${OPERATION} <b>${RECIPIENT}</b> via ${INSTRUMENT} on ${VALUE_DATE}"
-            fi
-        elif [ "$(echo $TRANSACTION | jq -r 'has("standard_transfer")')" == "true" ]; then
-            local RECIPIENT=$(echo $TRANSACTION | jq -r '.standard_transfer.recipient')
-            local DESCRIPTION=$(echo $TRANSACTION | jq -r '.standard_transfer.description')
-
-            if [ "$DESCRIPTION" != 'N/A' ]; then
-                SAVE_MESSAGE+="\n - <b>${BASE_SUM} BGN</b> ${OPERATION} <b>${RECIPIENT}</b> for ${DESCRIPTION} on ${VALUE_DATE}"
-            else
-                SAVE_MESSAGE+="\n - <b>${BASE_SUM} BGN</b> ${OPERATION} <b>${RECIPIENT}</b> on ${VALUE_DATE}"
-            fi
-        fi
-    done
+    SAVE_MESSAGE+=$(formatTransactions "$RESOLVE_RESULT")
 
     echo $(sendTelegram "$SAVE_MESSAGE")
 }
@@ -270,6 +241,49 @@ formatResult() {
     else
         echo "$RESULT_RAW"
     fi
+}
+
+formatTransactions() {
+    if [[ $# -ne 1 ]]; then
+        echo $(formatResult "{\"error\": \"formatTransactions(): called with $# parameters, expected 1\"}")
+
+        exit 1
+    fi
+
+    local TRANSACTIONS=$1
+
+    local RESULT+="\n"
+
+    IFS=$'\n'
+    for TRANSACTION in $(echo $TRANSACTIONS | jq -c '.[]'); do
+        local VALUE_DATE=$(date +"%m/%d/%y" -d $(echo $TRANSACTION | jq -r '.value_date'))
+        local BASE_SUM=$(echo $TRANSACTION | jq -r '.sum')
+        local OPERATION=$(echo $TRANSACTION | jq -r 'if .entryType=="CREDIT" then "from" else "to" end')
+
+        if [ "$(echo $TRANSACTION | jq 'has("card_operation")')" == "true" ]; then
+            local SUM=$(echo $TRANSACTION | jq -r '.card_operation.sum')
+            local CURRENCY=$(echo $TRANSACTION | jq -r '.card_operation.currency')
+            local RECIPIENT=$(echo $TRANSACTION | jq -r '.card_operation.recipient')
+            local INSTRUMENT=$(echo $TRANSACTION | jq -r '.card_operation.instrument')
+
+            if [ "$INSTRUMENT" != 'Fee АТМ' ]; then
+              RESULT+="\n - <b>${SUM} ${CURRENCY}</b> ${OPERATION} <b>${RECIPIENT}</b> via ${INSTRUMENT} on ${VALUE_DATE}"
+            else
+              RESULT+="\n - <b>${BASE_SUM} BGN</b> ${OPERATION} <b>${RECIPIENT}</b> via ${INSTRUMENT} on ${VALUE_DATE}"
+            fi
+        elif [ "$(echo $TRANSACTION | jq -r 'has("standard_transfer")')" == "true" ]; then
+            local RECIPIENT=$(echo $TRANSACTION | jq -r '.standard_transfer.recipient')
+            local DESCRIPTION=$(echo $TRANSACTION | jq -r '.standard_transfer.description')
+
+            if [ "$DESCRIPTION" != 'N/A' ]; then
+                RESULT+="\n - <b>${BASE_SUM} BGN</b> ${OPERATION} <b>${RECIPIENT}</b> for ${DESCRIPTION} on ${VALUE_DATE}"
+            else
+                RESULT+="\n - <b>${BASE_SUM} BGN</b> ${OPERATION} <b>${RECIPIENT}</b> on ${VALUE_DATE}"
+            fi
+        fi
+    done
+
+    echo "$RESULT"
 }
 
 sendTelegram() {
