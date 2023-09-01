@@ -51,6 +51,7 @@ jobs:
         uses: ludeeus/action-shellcheck@master
         with:
           scandir: './sh'
+          severity: error
           
   build:
     name: Build
