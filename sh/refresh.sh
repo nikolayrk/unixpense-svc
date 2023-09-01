@@ -36,6 +36,12 @@ main() {
         echo $(sendTelegram "<u>Failed to fetch transaction IDs</u>\n\n$FETCH_ERROR")
 
         exit 1
+    elif [ "$(echo $FETCH_RESULT | jq 'type=="array"')" != "true" ]; then
+        echo "Unexpected response."
+
+        echo $(sendTelegram "<u>Unexpected response received while fetching transaction IDs</u>\n\n$FETCH_RESULT")
+
+        exit 1
     fi
 
     local TRANSACTION_IDS="$FETCH_RESULT"
@@ -65,6 +71,12 @@ main() {
         echo $(sendTelegram "<u>Failed to resolve transactions</u>\n\n$RESOLVE_ERROR")
 
         exit 1
+    elif [ "$(echo $RESOLVE_RESULT | jq 'type=="array"')" != "true" ]; then
+        echo "Unexpected response."
+
+        echo $(sendTelegram "<u>Unexpected response received while resolving transactions</u>\n\n$RESOLVE_RESULT")
+
+        exit 1
     fi
 
     echo "Success."
@@ -79,6 +91,12 @@ main() {
         echo "Failed."
 
         echo $(sendTelegram "<u>Failed to save transactions</u>\n\n$SAVE_ERROR")
+
+        exit 1
+    elif [ "$(echo $SAVE_RESULT | jq 'has("result")')" != "true" ]; then
+        echo "Unexpected response."
+
+        echo $(sendTelegram "<u>Unexpected response received while saving transactions</u>\n\n$SAVE_RESULT")
 
         exit 1
     fi
