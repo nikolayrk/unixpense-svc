@@ -11,6 +11,7 @@ import bodyParser from 'body-parser';
 import { DependencyInjector } from './dependencyInjector';
 import * as mariadb from 'mariadb';
 import { Server } from 'http';
+import { limiter as rateLimiter } from './web/middleware/rateLimiter';
 
 const createDatabaseIfNotExistsAsync = async (host: string, port: number, username: string, password: string, database: string) => {
     const pool = mariadb.createPool({
@@ -62,6 +63,8 @@ const registerDependencies = () => {
 
 const startServerAsync = (port?: number) => {
     const app = express();
+
+    app.use(rateLimiter);
 
     app.use(bodyParser.urlencoded({ extended: true }));
     
