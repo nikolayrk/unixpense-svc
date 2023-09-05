@@ -46,7 +46,7 @@ jobs:
     needs: telegram-notify-start
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
         with:
@@ -63,7 +63,7 @@ jobs:
     steps:
     - name: Authenticate with PAT
       run: echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Docker Setup Buildx
       uses: docker/setup-buildx-action@v2.10.0
     - name: Login to Docker Hub
@@ -101,7 +101,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Kubernetes Set Context
         uses: Azure/k8s-set-context@v3.1
         with:
