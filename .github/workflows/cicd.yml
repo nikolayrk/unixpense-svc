@@ -17,7 +17,7 @@ jobs:
         echo "COMMIT_MESSAGES<<EOF" >> $GITHUB_ENV
         echo "COMMIT_MESSAGES<<EOF" >> $GITHUB_OUTPUT
 
-        JOINED_COMMITS="$(echo '${{ join(github.event.commits.*.message, '\n\n') }}')"
+        JOINED_COMMITS="$(echo "${{ join(github.event.commits.*.message, '\n\n') }}")"
 
         echo "$JOINED_COMMITS" >> $GITHUB_ENV
         echo "$JOINED_COMMITS" >> $GITHUB_OUTPUT
@@ -238,7 +238,7 @@ jobs:
   telegram-notify-end:
     name: Telegram Notify End
     if: always()
-    needs: [ shellcheck, build, deploy ]
+    needs: [ telegram-notify-start, shellcheck, build, deploy ]
     runs-on: ubuntu-latest
     steps:
     - run: |
