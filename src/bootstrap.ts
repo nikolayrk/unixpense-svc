@@ -64,14 +64,14 @@ const registerDependencies = () => {
 const startServerAsync = (port?: number) => {
     const app = express();
 
-    app.use(rateLimiter);
-
     app.use(bodyParser.urlencoded({ extended: true }));
     
     app.use(express.json());
 
     // Kubernetes Startup, Readiness and Liveness Probes
     app.use(kubernetesProbesRouter);
+
+    app.use(rateLimiter);
 
     // Google OAuth2 Callback Route. Used for authz of all ../gmail routes, as well as for authn via oauth2-proxy
     app.use('/api/oauthcallback', googleOAuth2Middleware.redirect);
