@@ -22,10 +22,10 @@ export default abstract class AbstractTransactionProvider implements ITransactio
         this.paymentDetailsContext = DependencyInjector.Singleton.resolve<PaymentDetailsContext>(injectables.PaymentDetailsContext);
     }
 
-    public async * generateAsync(transactionIdsQuery?: string) {
-        this.logger.log(`Generating transaction IDs...`, transactionIdsQuery !== undefined ? { query: transactionIdsQuery } : {});
+    public async * generateAsync() {
+        this.logger.log(`Generating transaction IDs...`);
         
-        for await (const transactionId of this.generateTransactionIdsAsync(transactionIdsQuery)) {
+        for await (const transactionId of this.transactionSourceProvider.generateTransactionIdsAsync()) {
             yield transactionId;
         }
 
@@ -48,25 +48,5 @@ export default abstract class AbstractTransactionProvider implements ITransactio
         const transaction = TransactionFactory.create(transactionId, transactionData, paymentDetails);
 
         return transaction;
-    }
-
-    private generateTransactionIdsAsync(transactionIdsQuery?: string) {
-        return transactionIdsQuery !== undefined
-            ? this.generateTransactionIdsFromQueryAsync(transactionIdsQuery)
-            : this.transactionSourceProvider.generateTransactionIdsAsync();
-    }
-
-    private async * generateTransactionIdsFromQueryAsync(transactionIdsQuery: string) {
-        const transactionIds = transactionIdsQuery
-            .split(',')
-            .filter(id => id.trim() !== '');
-
-        for (const i in transactionIds) {
-            const transactionId = transactionIds[i];
-
-            yield transactionId;
-        }
-
-        return [];
     }
 }

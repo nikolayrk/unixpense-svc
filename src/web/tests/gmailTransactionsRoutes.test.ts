@@ -76,7 +76,7 @@ describe('Gmail Transactions Routes Tests', () => {
 
         expect(response.statusCode).toBe(400);
         expect(response.headers["content-type"]).toMatch(/json/);
-        expect(response.body).toEqual({ error: "Invalid last amount provided" });
+        expect(response.body).toEqual({ error: "Invalid last amount provided: xxx" });
     });
 
     it('should error out with a negative last value', async () => {
@@ -88,7 +88,7 @@ describe('Gmail Transactions Routes Tests', () => {
 
         expect(response.statusCode).toBe(400);
         expect(response.headers["content-type"]).toMatch(/json/);
-        expect(response.body).toEqual({ error: "Invalid last amount provided" });
+        expect(response.body).toEqual({ error: "Invalid last amount provided: -1" });
     });
 
     it('should error out with an invalid skip depth value', async () => {
@@ -102,7 +102,7 @@ describe('Gmail Transactions Routes Tests', () => {
 
         expect(response.statusCode).toBe(400);
         expect(response.headers["content-type"]).toMatch(/json/);
-        expect(response.body).toEqual({ error: "Invalid skip depth provided" });
+        expect(response.body).toEqual({ error: "Invalid skip depth provided: xxx" });
     });
 
     it('should error out with a negative skip depth value', async () => {
@@ -116,7 +116,7 @@ describe('Gmail Transactions Routes Tests', () => {
 
         expect(response.statusCode).toBe(400);
         expect(response.headers["content-type"]).toMatch(/json/);
-        expect(response.body).toEqual({ error: "Invalid skip depth provided" });
+        expect(response.body).toEqual({ error: "Invalid skip depth provided: -1" });
     });
 
     it('should fetch a random number of transaction IDs', async () => {
