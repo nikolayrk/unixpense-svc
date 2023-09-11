@@ -12,7 +12,7 @@ const save = async (req: Request, res: Response) => {
 
     try {
         const transactionsRaw: Record<string, string | number | object>[] = req.body;
-        const transactions = transactionsRaw.map(t => TransactionExtensions.toModel(t));
+        const transactions = transactionsRaw.map(TransactionExtensions.toModel);
 
         const existingTransactionIds = await transactionRepository.getAllIdsAsync();
         const newTransactions = transactions.filter(t => !transactionExists(t.id, existingTransactionIds, logger));

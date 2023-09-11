@@ -15,8 +15,8 @@ const resolveRandomTransactionsAsync = async (transactionProvider: ITransactionP
     const transactionIds = resolveRandomTransactionIds();
 
     const transactions = transactionIds
-        .map(async (transactionId: string) => {
-            const transaction = await transactionProvider.resolveTransactionAsync(transactionId);
+        .map((transactionId: string) => {
+            const transaction = transactionProvider.resolveTransactionAsync(transactionId);
             
             return transaction;
         })

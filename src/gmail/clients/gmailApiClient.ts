@@ -83,7 +83,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
         return attachmentData;
     }
     
-    private async fetchMessagesAsync(pageToken?: string | undefined) {
+    private async fetchMessagesAsync(pageToken?: string) {
         this.logger.log(`Requesting messages...`);
 
         const response = await this.makeApiCallAsync(async () =>
