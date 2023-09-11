@@ -13,6 +13,7 @@ import { ICardOperationStrategy,
     IStandardTransferStrategy } from "../../core/types/paymentDetailsStrategies";
 import ILogger from "../../core/contracts/ILogger";
 import Constants from "../../constants";
+import PaymentDetailsProcessingError from "../errors/paymentDetailsProcessingError";
 
 @injectable()
 export default class PaymentDetailsContext {
@@ -62,24 +63,24 @@ export default class PaymentDetailsContext {
         
             return paymentDetails;
         } catch(ex) {
-            const error = ex as Error;
-            
-            if (ex instanceof UnsupportedTxnError) {
-                this.logger.warn(error.message, { transactionReference: reference });
-            } else {
-                this.logger.error(error, { transactionReference: reference });
-            }
-        }
+            if (ex instanceof UnsupportedTxnError || ex instanceof PaymentDetailsProcessingError) {
+                this.logger.warn(ex.message, { transactionReference: reference });
 
-        this.logger.log(`Falling back to using default payment details body...`, {
-            transactionReference: reference,
-            transactionType: transactionType
-        });
-        
-        return Constants.defaultPaymentDetails;
+                this.logger.log(`Falling back to using default payment details body...`, {
+                    transactionReference: reference,
+                    transactionType: transactionType
+                });
+                
+                return Constants.defaultPaymentDetails;
+            }
+
+            throw ex;
+        }
     }
     
-    // throws UnsupportedTxnError
+    /**
+     * @throws UnsupportedTxnError
+    **/
     private tryGetStrategyByType(transactionType: TransactionType): AbstractPaymentDetailsStrategy<PaymentDetails> {  
         if (TransactionTypeExtensions.isCardOperation(transactionType)) {
             return this.cardOperationStrategy;

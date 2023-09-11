@@ -14,7 +14,9 @@ export abstract class AbstractPaymentDetailsStrategy<T extends PaymentDetails> {
         this.paymentDetailsFactory = paymentDetailsFactory;
     }
 
-    // throws PaymentDetailsProcessingError
+    /**
+     * @throws PaymentDetailsProcessingError
+    **/
     abstract tryCreate(paymentDetailsRaw: string[], additionalDetailsRaw: string[]): T;
 }
 
