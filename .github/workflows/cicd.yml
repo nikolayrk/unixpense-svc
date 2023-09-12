@@ -80,7 +80,7 @@ jobs:
         labels: |
           org.opencontainers.image.description=${{ needs.telegram-notify-start.outputs.commit_messages }}
     - name: Build and push
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v5
       with:
         context: .
         file: cicd/Dockerfile
