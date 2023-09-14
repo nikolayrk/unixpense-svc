@@ -80,7 +80,7 @@ const getLast = async (req: Request, res: Response) => {
             last: last,
             ...(skipDepthQuery !== undefined && !Number.isNaN(skipDepth)) && { skipDepth: skipDepth },
             ...(skipSaved !== undefined) && { skipSaved },
-            ...identifiers,
+            userEmail: identifiers.userEmail
         });
 
         return ResponseExtensions.ok(res, transactionIds);
@@ -91,7 +91,7 @@ const getLast = async (req: Request, res: Response) => {
             last: last,
             ...(skipDepthQuery !== undefined && !Number.isNaN(skipDepth)) && { skipDepth: skipDepth },
             ...(skipSaved !== undefined) && { skipSaved },
-            ...identifiers,
+            userEmail: identifiers.userEmail
         })
 
         return ResponseExtensions.internalError(res, error.message ?? ex);
@@ -125,7 +125,7 @@ const resolve = async (req: Request, res: Response) => {
 
         const message = `Resolved ${resolvedCount} transaction${resolvedCount == 1 ? '' : 's'}`;
 
-        logger.log(message, { transactionIds: aggregatedIds, ...identifiers })
+        logger.log(message, { transactionIds: aggregatedIds, userEmail: identifiers.userEmail });
 
         const result = transactions.map(TransactionExtensions.toResponse);
         
@@ -133,7 +133,7 @@ const resolve = async (req: Request, res: Response) => {
     } catch (ex) {
         const error = ex as Error;
 
-        logger.error(error, { transactionIds: aggregatedIds, ...identifiers })
+        logger.error(error, { transactionIds: aggregatedIds, userEmail: identifiers.userEmail });
 
         return ResponseExtensions.internalError(res, error.message ?? ex);
     }
