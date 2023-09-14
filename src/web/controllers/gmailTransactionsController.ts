@@ -53,7 +53,6 @@ const getLast = async (req: Request, res: Response) => {
                 break;
             }
 
-            const transaction = await gmailTransactionProvider.resolveTransactionAsync(transactionId);
             const transactionExists = existingTransactionIds.find((id) => id === transactionId) !== undefined;
 
             if (skipSaved && transactionExists) {
@@ -63,7 +62,7 @@ const getLast = async (req: Request, res: Response) => {
                 continue;
             }
             
-            transactionIds.push(transaction.id);
+            transactionIds.push(transactionId);
 
             consecutiveSkippedCount = 0;
         }
