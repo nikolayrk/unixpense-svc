@@ -16,10 +16,12 @@ export default class Constants {
         'https://www.googleapis.com/auth/gmail.readonly'
     ] as const;
 
-    public static readonly defaultRedirectUri = `${process.env.NODE_ENV === 'production'
-            ? `https://${process.env.UNIXPENSE_HOST}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
-            : `http://${process.env.HOSTNAME ?? 'localhost'}:${process.env.port ?? Constants.Defaults.port}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
-        }/api/oauthcallback` as const;
+    public static readonly host = `${process.env.NODE_ENV === 'production'
+        ? `https://${process.env.UNIXPENSE_HOST}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
+        : `http://localhost:${process.env.PORT ?? Constants.Defaults.port}`
+    }`;
+
+    public static readonly defaultRedirectUri = `${Constants.host}/api/oauthcallback` as const;
 
     public static readonly Mock = {
         userEmail: "email",

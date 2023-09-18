@@ -8,7 +8,7 @@ import Constants from '../../constants';
 export default class WinstonLokiLogger implements ILogger {
     private readonly labels = {
         job: 'unixpense',
-        host: `${process.env.HOSTNAME ?? 'localhost'}:${process.env.port ?? Constants.Defaults.port}`,
+        host: Constants.host,
         
         ...(process.env.VERSION !== undefined) && {
             version: process.env.VERSION
