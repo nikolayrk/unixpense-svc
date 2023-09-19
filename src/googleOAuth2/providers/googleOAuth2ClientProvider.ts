@@ -20,7 +20,7 @@ export default class GoogleOAuth2ClientProvider extends AbstractGoogleOAuth2Clie
     }
 
     public override async tryAuthorizeAsync(code: string) {
-        this.logger.log(`Authorizing with code ${code}`, { authorizationCode: code });
+        this.logger.log(`Received authorization request`, { authorizationCode: code });
 
         try {
             const response = await this.oauth2Client.getToken(code); // triggers 'tokens' event
