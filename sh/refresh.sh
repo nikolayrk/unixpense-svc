@@ -231,12 +231,13 @@ formatResult() {
 
     local RESULT_RAW=$1
 
-    local RESULT_MESSAGE=$(echo $RESULT_RAW | jq -r '.message')
-    local RESULT_ERROR=$(echo $RESULT_RAW | jq -r '.error')
+    if [ "$(echo $RESULT_RAW | jq 'has("message")')" == "true" ]; then
+        local RESULT_MESSAGE=$(echo $RESULT_RAW | jq -r '.message')
 
-    if [ "$RESULT_MESSAGE" != '' ] && [ "$RESULT_MESSAGE" != null ]; then
         echo "{\"result\": \"<b>$RESULT_MESSAGE</b>\"}"
-    elif [ "$RESULT_ERROR" != '' ] && [ "$RESULT_ERROR" != null ]; then
+    if [ "$(echo $RESULT_RAW | jq 'has("error")')" == "true" ]; then
+        local RESULT_ERROR=$(echo $RESULT_RAW | jq -r '.error')
+
         echo "{\"error\": \"<b><i>$RESULT_ERROR</i></b>\"}"
     else
         echo "$RESULT_RAW"
