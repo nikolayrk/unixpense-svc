@@ -203,7 +203,8 @@
 <a name='L138'></a><a href='#L138'>138</a>
 <a name='L139'></a><a href='#L139'>139</a>
 <a name='L140'></a><a href='#L140'>140</a>
-<a name='L141'></a><a href='#L141'>141</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -249,27 +250,27 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">61x</span>
-<span class="cline-any cline-yes">29x</span>
+<span class="cline-any cline-yes">67x</span>
+<span class="cline-any cline-yes">32x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">30x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">29x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">26x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">29x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">24x</span>
+<span class="cline-any cline-yes">23x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">24x</span>
+<span class="cline-any cline-yes">23x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
@@ -293,6 +294,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -320,9 +322,9 @@
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">23x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">21x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -425,7 +427,7 @@ const getLast = async (req: Request, res: Response) =&gt; {
             last: last,
             ...(skipDepthQuery !== undefined &amp;&amp; !Number.isNaN(skipDepth)) &amp;&amp; { skipDepth: skipDepth },
             ...(skipSaved !== undefined) &amp;&amp; { skipSaved },
-            userEmail: identifiers.userEmail
+            accessToken: identifiers.accessToken
         });
 &nbsp;
         return ResponseExtensions.ok(res, transactionIds);
@@ -435,7 +437,8 @@ const getLast = async (req: Request, res: Response) =&gt; {
 <span class="cstat-no" title="statement not covered" >        logger.error(error, {</span>
             last: last,
             ...(skipDepthQuery !== undefined &amp;&amp; !Number.isNaN(skipDepth)) &amp;&amp; { skipDepth: skipDepth },
-            ...(skipSaved !== undefined) &amp;&amp; { skipSaved }
+            ...(skipSaved !== undefined) &amp;&amp; { skipSaved },
+            accessToken: identifiers.accessToken
         })
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        return ResponseExtensions.internalError(res, error.message ?? ex);</span>
@@ -469,7 +472,7 @@ const resolve = async (req: Request, res: Response) =&gt; {
 &nbsp;
         const message = `Resolved ${resolvedCount} transaction${resolvedCount == 1 ? <span class="branch-0 cbranch-no" title="branch not covered" >'' </span>: 's'}`;
 &nbsp;
-        logger.log(message, { transactionIds: aggregatedIds });
+        logger.log(message, { transactionIds: aggregatedIds, accessToken: identifiers.accessToken });
 &nbsp;
         const result = transactions.map(TransactionExtensions.toResponse);
         
@@ -477,7 +480,7 @@ const resolve = async (req: Request, res: Response) =&gt; {
     } catch (ex) {
         const error = ex as Error;
 &nbsp;
-        logger.error(error, { transactionIds: aggregatedIds });
+        logger.error(error, { transactionIds: aggregatedIds, accessToken: identifiers.accessToken });
 &nbsp;
         return ResponseExtensions.internalError(res, error.message ?? <span class="branch-1 cbranch-no" title="branch not covered" >ex)</span>;
     }
@@ -490,7 +493,7 @@ export { getLast, resolve }</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2023-09-19T08:59:07.451Z
+                at 2023-09-19T19:56:58.079Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
