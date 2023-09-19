@@ -80,7 +80,7 @@ const getLast = async (req: Request, res: Response) => {
             last: last,
             ...(skipDepthQuery !== undefined && !Number.isNaN(skipDepth)) && { skipDepth: skipDepth },
             ...(skipSaved !== undefined) && { skipSaved },
-            userEmail: identifiers.userEmail
+            accessToken: identifiers.accessToken
         });
 
         return ResponseExtensions.ok(res, transactionIds);
@@ -90,7 +90,8 @@ const getLast = async (req: Request, res: Response) => {
         logger.error(error, {
             last: last,
             ...(skipDepthQuery !== undefined && !Number.isNaN(skipDepth)) && { skipDepth: skipDepth },
-            ...(skipSaved !== undefined) && { skipSaved }
+            ...(skipSaved !== undefined) && { skipSaved },
+            accessToken: identifiers.accessToken
         })
 
         return ResponseExtensions.internalError(res, error.message ?? ex);
@@ -124,7 +125,7 @@ const resolve = async (req: Request, res: Response) => {
 
         const message = `Resolved ${resolvedCount} transaction${resolvedCount == 1 ? '' : 's'}`;
 
-        logger.log(message, { transactionIds: aggregatedIds });
+        logger.log(message, { transactionIds: aggregatedIds, accessToken: identifiers.accessToken });
 
         const result = transactions.map(TransactionExtensions.toResponse);
         
@@ -132,7 +133,7 @@ const resolve = async (req: Request, res: Response) => {
     } catch (ex) {
         const error = ex as Error;
 
-        logger.error(error, { transactionIds: aggregatedIds });
+        logger.error(error, { transactionIds: aggregatedIds, accessToken: identifiers.accessToken });
 
         return ResponseExtensions.internalError(res, error.message ?? ex);
     }

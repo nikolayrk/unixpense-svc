@@ -20,8 +20,12 @@ export default class GoogleOAuth2ClientProvider extends AbstractGoogleOAuth2Clie
     }
 
     public override async tryAuthorizeAsync(code: string) {
+        this.logger.log(`Authorizing with code ${code}`, { authorizationCode: code });
+
         try {
             const response = await this.oauth2Client.getToken(code); // triggers 'tokens' event
+
+            this.logger.log(`Authorization successful`, { accessToken: response.tokens.access_token });
 
             return response.tokens;
         } catch(ex) {
@@ -30,10 +34,12 @@ export default class GoogleOAuth2ClientProvider extends AbstractGoogleOAuth2Clie
                 const error_description = String(ex.response?.data.error_description);
                 const innerError = new Error(`Axios error encountered during authorization: ${error} (${error_description})`);
 
-                this.logger.error(innerError, { code });
+                this.logger.error(innerError, { authorizationCode: code });
 
                 throw innerError;
             }
+
+            this.logger.error(ex as Error, { authorizationCode: code });
 
             throw ex;
         }
@@ -46,14 +52,20 @@ export default class GoogleOAuth2ClientProvider extends AbstractGoogleOAuth2Clie
             identifiers.redirectUri ?? Constants.defaultRedirectUri);
         
         this.oauth2Client.on('tokens', async (tokens: Credentials) => {
-            this.logger.log(`Received new OAuth2 Client tokens`, tokens);
+            this.logger.log(`Received new OAuth2 Client tokens`, {
+                accessToken: tokens.access_token,
+                ...(tokens.refresh_token !== undefined) && { refreshToken: tokens.refresh_token}
+            });
             
             try {
                 await this.tryHandleTokensAsync(tokens);
             } catch(ex) {
                 const error = ex as Error;
 
-                this.logger.error(error, { ...tokens });
+                this.logger.error(error, {
+                    accessToken: tokens.access_token,
+                    ...(tokens.refresh_token !== undefined) && { refreshToken: tokens.refresh_token}
+                });
             }
         });
     }
