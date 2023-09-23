@@ -235,7 +235,7 @@ formatResult() {
         local RESULT_MESSAGE=$(echo $RESULT_RAW | jq -r '.message')
 
         echo "{\"result\": \"<b>$RESULT_MESSAGE</b>\"}"
-    if [ "$(echo $RESULT_RAW | jq 'has("error")')" == "true" ]; then
+    elif [ "$(echo $RESULT_RAW | jq 'has("error")')" == "true" ]; then
         local RESULT_ERROR=$(echo $RESULT_RAW | jq -r '.error')
 
         echo "{\"error\": \"<b><i>$RESULT_ERROR</i></b>\"}"
