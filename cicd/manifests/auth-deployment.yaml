@@ -24,8 +24,9 @@ spec:
           - key: redis.conf
             path: redis.conf
       - name: redis-volume
-        persistentVolumeClaim:
-          claimName: redis-pvc
+        nfs:
+          server: $REDIS_NFS_SERVER
+          path: $REDIS_NFS_PATH
       - name: oauth2-authenticated-emails
         configMap:
           name: oauth2-authenticated-emails
@@ -58,10 +59,10 @@ spec:
         ports:
         - containerPort: 6379
         volumeMounts:
-        - name: redis-config
-          mountPath: /etc/redis
-        - name: redis-volume
-          mountPath: /data
+        - mountPath: /etc/redis
+          name: redis-config
+        - mountPath: /data
+          name: redis-volume
       - name: oauth2-proxy
         image: quay.io/oauth2-proxy/oauth2-proxy:latest-arm64
         args:

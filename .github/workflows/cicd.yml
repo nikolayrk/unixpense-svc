@@ -211,10 +211,8 @@ jobs:
         with:
           k8-config-file-paths: |
             cicd/manifests/redis-config.yaml
-            cicd/manifests/redis-persistence.yaml
             cicd/manifests/auth-deployment.yaml
             cicd/manifests/auth-network.yaml
-            cicd/manifests/mariadb-persistence.yaml
             cicd/manifests/mariadb-deployment.yaml
             cicd/manifests/mariadb-service.yaml
             cicd/manifests/deployment.yaml
