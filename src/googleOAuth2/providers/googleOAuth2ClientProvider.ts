@@ -39,6 +39,10 @@ export default class GoogleOAuth2ClientProvider extends AbstractGoogleOAuth2Clie
                 throw innerError;
             }
 
+            console.log(`DEBUG`);
+            console.log(ex);
+            console.log(`DEBUG`);
+            
             this.logger.error(ex as Error, { authorizationCode: code });
 
             throw ex;
