@@ -55,7 +55,10 @@ export default abstract class AbstractGoogleOAuth2ClientProvider implements IOAu
             refresh_token: refreshToken,
         };
 
-        this.logger.log(`Using OAuth2 Client tokens`, { ...tokens });
+        this.logger.log(`Using OAuth2 Client tokens`, {
+            access_token: tokens.access_token,
+            ...(tokens.refresh_token !== undefined) && { refresh_token: tokens.refresh_token}
+        });
 
         this.authenticate(refreshableTokens);
     }

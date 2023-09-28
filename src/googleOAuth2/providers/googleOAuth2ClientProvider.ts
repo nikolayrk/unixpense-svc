@@ -5,6 +5,7 @@ import { Credentials } from 'google-auth-library';
 import GoogleOAuth2Identifiers from '../models/googleOAuth2Identifiers';
 import Constants from '../../constants';
 import AbstractGoogleOAuth2ClientProvider from './abstractGoogleOAuth2ClientProvider';
+import { FetchError } from 'node-fetch'
 
 export default class GoogleOAuth2ClientProvider extends AbstractGoogleOAuth2ClientProvider {
     private oauth2Client: OAuth2Client;
@@ -20,12 +21,12 @@ export default class GoogleOAuth2ClientProvider extends AbstractGoogleOAuth2Clie
     }
 
     public override async tryAuthorizeAsync(code: string) {
-        this.logger.log(`Received authorization request`, { authorizationCode: code });
+        this.logger.log(`Received authorization request`, { authorization_code: code });
 
         try {
             const response = await this.oauth2Client.getToken(code); // triggers 'tokens' event
 
-            this.logger.log(`Authorization successful`, { accessToken: response.tokens.access_token });
+            this.logger.log(`Authorization successful`, { access_token: response.tokens.access_token });
 
             return response.tokens;
         } catch(ex) {
@@ -34,16 +35,20 @@ export default class GoogleOAuth2ClientProvider extends AbstractGoogleOAuth2Clie
                 const error_description = String(ex.response?.data.error_description);
                 const innerError = new Error(`Axios error encountered during authorization: ${error} (${error_description})`);
 
-                this.logger.error(innerError, { authorizationCode: code });
+                this.logger.error(innerError, { authorization_code: code });
 
                 throw innerError;
-            }
+            } else if (ex instanceof FetchError) {
+                if (ex.type == 'system') {
+                    const innerError = new Error(`System error ${ex.errno} encountered during network fetch: ${ex.message}`);
 
-            console.log(`DEBUG`);
-            console.log(ex);
-            console.log(`DEBUG`);
+                    this.logger.error(innerError, { authorization_code: code });
+
+                    throw innerError;
+                }
+            }
             
-            this.logger.error(ex as Error, { authorizationCode: code });
+            this.logger.error(ex as Error, { authorization_code: code });
 
             throw ex;
         }
@@ -57,8 +62,8 @@ export default class GoogleOAuth2ClientProvider extends AbstractGoogleOAuth2Clie
         
         this.oauth2Client.on('tokens', async (tokens: Credentials) => {
             this.logger.log(`Received new OAuth2 Client tokens`, {
-                accessToken: tokens.access_token,
-                ...(tokens.refresh_token !== undefined) && { refreshToken: tokens.refresh_token}
+                access_token: tokens.access_token,
+                ...(tokens.refresh_token !== undefined) && { refresh_token: tokens.refresh_token}
             });
             
             try {
@@ -67,8 +72,8 @@ export default class GoogleOAuth2ClientProvider extends AbstractGoogleOAuth2Clie
                 const error = ex as Error;
 
                 this.logger.error(error, {
-                    accessToken: tokens.access_token,
-                    ...(tokens.refresh_token !== undefined) && { refreshToken: tokens.refresh_token}
+                    access_token: tokens.access_token,
+                    ...(tokens.refresh_token !== undefined) && { refresh_token: tokens.refresh_token}
                 });
             }
         });
