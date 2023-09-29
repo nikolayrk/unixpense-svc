@@ -78,9 +78,9 @@ const getLast = async (req: Request, res: Response) => {
 
         logger.log(message, {
             last: last,
-            ...(skipDepthQuery !== undefined && !Number.isNaN(skipDepth)) && { skipDepth: skipDepth },
-            ...(skipSaved !== undefined) && { skipSaved },
-            accessToken: identifiers.accessToken
+            ...(skipDepthQuery !== undefined && !Number.isNaN(skipDepth)) && { skip_depth: skipDepth },
+            ...(skipSaved !== undefined) && { skip_saved: skipSaved },
+            access_token: identifiers.accessToken
         });
 
         return ResponseExtensions.ok(res, transactionIds);
@@ -89,9 +89,9 @@ const getLast = async (req: Request, res: Response) => {
 
         logger.error(error, {
             last: last,
-            ...(skipDepthQuery !== undefined && !Number.isNaN(skipDepth)) && { skipDepth: skipDepth },
-            ...(skipSaved !== undefined) && { skipSaved },
-            accessToken: identifiers.accessToken
+            ...(skipDepthQuery !== undefined && !Number.isNaN(skipDepth)) && { skip_depth: skipDepth },
+            ...(skipSaved !== undefined) && { skip_saved: skipSaved },
+            access_token: identifiers.accessToken
         })
 
         return ResponseExtensions.internalError(res, error.message ?? ex);
@@ -125,7 +125,7 @@ const resolve = async (req: Request, res: Response) => {
 
         const message = `Resolved ${resolvedCount} transaction${resolvedCount == 1 ? '' : 's'}`;
 
-        logger.log(message, { transactionIds: aggregatedIds, accessToken: identifiers.accessToken });
+        logger.log(message, { transaction_ids: aggregatedIds, access_token: identifiers.accessToken });
 
         const result = transactions.map(TransactionExtensions.toResponse);
         
@@ -133,7 +133,7 @@ const resolve = async (req: Request, res: Response) => {
     } catch (ex) {
         const error = ex as Error;
 
-        logger.error(error, { transactionIds: aggregatedIds, accessToken: identifiers.accessToken });
+        logger.error(error, { transactionIds: aggregatedIds, access_token: identifiers.accessToken });
 
         return ResponseExtensions.internalError(res, error.message ?? ex);
     }
