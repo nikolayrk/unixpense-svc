@@ -15,7 +15,7 @@ import GoogleOAuth2IdentifiersFactory from '../../googleOAuth2/factories/googleO
 import Transaction from '../../core/models/transaction';
 import PaymentDetails from '../../core/models/paymentDetails';
 import { TransactionExtensions } from '../../core/extensions/transactionExtensions';
-import { resolveRandomTransactionIds, resolveRandomTransactionsAsync } from '../../gmail/utils/randomTransactionsUtils';
+import { resolveRandomNumberOfTransactionIds, resolveTransactionsAsync, resolveTransactionIds, randomiseTransactionIds } from '../../gmail/utils/randomTransactionsUtils';
 
 describe('Gmail Transactions Routes Tests', () => {
     let container: StartedTestContainer;
@@ -92,10 +92,10 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should error out with an invalid skip depth value', async () => {
-        const expectedTransactionIds = resolveRandomTransactionIds();
+        const transactionIds = resolveRandomNumberOfTransactionIds(resolveTransactionIds());
 
         const response = await supertest.agent(app)
-            .get(`/api/transactions/gmail/ids/last/${expectedTransactionIds.length}?skip_depth=xxx`)
+            .get(`/api/transactions/gmail/ids/last/${transactionIds.length}?skip_depth=xxx`)
             .auth(Constants.Mock.accessToken, { type: "bearer" })
             .set('Accept', 'application/json')
             .send();
@@ -106,10 +106,10 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should error out with a negative skip depth value', async () => {
-        const expectedTransactionIds = resolveRandomTransactionIds();
+        const transactionIds = resolveRandomNumberOfTransactionIds(resolveTransactionIds());
 
         const response = await supertest.agent(app)
-            .get(`/api/transactions/gmail/ids/last/${expectedTransactionIds.length}?skip_depth=-1`)
+            .get(`/api/transactions/gmail/ids/last/${transactionIds.length}?skip_depth=-1`)
             .auth(Constants.Mock.accessToken, { type: "bearer" })
             .set('Accept', 'application/json')
             .send();
@@ -120,7 +120,7 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should fetch a random number of transaction IDs', async () => {
-        const expectedTransactionIds = resolveRandomTransactionIds();
+        const expectedTransactionIds = resolveRandomNumberOfTransactionIds(resolveTransactionIds());
 
         const response = await supertest.agent(app)
             .get(`/api/transactions/gmail/ids/last/${expectedTransactionIds.length}`)
@@ -136,7 +136,7 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should fetch a random number of transaction IDs and skip a portion', async () => {
-        const transactions = await resolveRandomTransactionsAsync(transactionProvider);
+        const transactions = await resolveTransactionsAsync(transactionProvider, resolveTransactionIds());
         const halfwayPoint = Math.floor(transactions.length / 2);
         const existingTransactionsCount = Math.floor(Math.random() * (halfwayPoint - 1) + 1);
         const skipDepth = existingTransactionsCount + 1;
@@ -158,7 +158,7 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should fetch an empty array after entering skip depth constraints', async () => {
-        const transactions = await resolveRandomTransactionsAsync(transactionProvider);
+        const transactions = await resolveTransactionsAsync(transactionProvider, resolveTransactionIds());
         const halfwayPoint = Math.ceil(transactions.length / 2);
         const existingTransactionsCount = Math.floor(Math.random() * (halfwayPoint - 1) + 1);
         const skipDepth = existingTransactionsCount;
@@ -194,7 +194,7 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should resolve a random number of transactions', async () => {
-        const transactions = await resolveRandomTransactionsAsync(transactionProvider);
+        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveTransactionIds()));
         const transactionIds = transactions.map(t => t.id);
 
         const response = await supertest.agent(app)

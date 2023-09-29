@@ -3,17 +3,34 @@ import PaymentDetails from "../../core/models/paymentDetails";
 import Transaction from "../../core/models/transaction";
 import { paymentDetailsTestCases } from "../types/paymentDetailsTestCases";
 
-const resolveRandomTransactionIds = () => {
-    const allTransactionIds = Object.keys(paymentDetailsTestCases).filter(k => isNaN(Number(k)));
-    const count = Math.random() * (allTransactionIds.length - 1) + 1;
-    const transactionIds = allTransactionIds.splice(0, count);
+const durstenfeldShuffle = <T>(array: T[]) => {
+    const result = array.slice(0);
+
+    for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+    }
+
+    return result;
+}
+
+const resolveTransactionIds = () => {
+    return Object.keys(paymentDetailsTestCases).filter(k => isNaN(Number(k)));
+}
+
+const randomiseTransactionIds = (transactionIds: string[]) => {
+    const randomizedTransactionIds = durstenfeldShuffle(transactionIds);
     
-    return transactionIds;
+    return randomizedTransactionIds;
 };
 
-const resolveRandomTransactionsAsync = async (transactionProvider: ITransactionProvider) => {    
-    const transactionIds = resolveRandomTransactionIds();
+const resolveRandomNumberOfTransactionIds = (transactionIds: string[]) => {
+    const size = Math.random() * (transactionIds.length - 1) + 1;
 
+    return transactionIds.slice(0, size);
+}
+
+const resolveTransactionsAsync = async (transactionProvider: ITransactionProvider, transactionIds: string[]) => {
     const transactions = transactionIds
         .map((transactionId: string) => {
             const transaction = transactionProvider.resolveTransactionAsync(transactionId);
@@ -22,10 +39,6 @@ const resolveRandomTransactionsAsync = async (transactionProvider: ITransactionP
         })
         .reduce(async (accumulator, current, i) => {
             const currentValue = await current;
-
-            if (currentValue === null) {
-                return accumulator;
-            }
             
             const accumulatorValue = await accumulator;
 
@@ -37,7 +50,9 @@ const resolveRandomTransactionsAsync = async (transactionProvider: ITransactionP
     return transactions;
 };
 
-export { 
-    resolveRandomTransactionIds,
-    resolveRandomTransactionsAsync
+export {
+    resolveTransactionIds,
+    randomiseTransactionIds,
+    resolveRandomNumberOfTransactionIds,
+    resolveTransactionsAsync
 }

@@ -1,5 +1,5 @@
 import { describe, it, beforeEach, beforeAll, afterAll, expect } from '@jest/globals';
-import { resolveRandomTransactionsAsync } from '../../gmail/utils/randomTransactionsUtils';
+import { randomiseTransactionIds, resolveTransactionIds, resolveTransactionsAsync } from '../../gmail/utils/randomTransactionsUtils';
 import GoogleOAuth2TokensRepository from '../../googleOAuth2/repositories/googleOAuth2TokensRepository';
 import TransactionRepository from '../repositories/transactionRepository';
 import ITransactionProvider from '../contracts/ITransactionProvider';
@@ -26,7 +26,7 @@ describe('Transaction Extensions Tests', () => {
     });
 
     it('should map a random number of transactions to responses then back to models again', async () => {
-        const transactions = await resolveRandomTransactionsAsync(transactionProvider);
+        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveTransactionIds()));
         const responses = transactions.map(TransactionExtensions.toResponse);
         const models = responses.map(TransactionExtensions.toModel);
 

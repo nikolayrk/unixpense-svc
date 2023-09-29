@@ -10,7 +10,7 @@ import TransactionRepository from '../../core/repositories/transactionRepository
 import ITransactionProvider from '../../core/contracts/ITransactionProvider';
 import GoogleOAuth2IdentifiersFactory from '../../googleOAuth2/factories/googleOAuth2IdentifiersFactory';
 import Constants from '../../constants';
-import { resolveRandomTransactionsAsync } from '../../gmail/utils/randomTransactionsUtils';
+import { randomiseTransactionIds, resolveTransactionIds, resolveTransactionsAsync } from '../../gmail/utils/randomTransactionsUtils';
 
 describe('Transaction Repository Tests', () => {
     let container: StartedTestContainer;
@@ -44,7 +44,7 @@ describe('Transaction Repository Tests', () => {
     });
 
     it('should throw a repository error', async () => {
-        const transactions = await resolveRandomTransactionsAsync(transactionProvider);
+        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveTransactionIds()));
 
         const first = await transactionRepository.bulkCreateAsync(transactions);
 
@@ -56,7 +56,7 @@ describe('Transaction Repository Tests', () => {
             const error = ex as Error;
 
             expect(error.name).toBe('RepositoryError');
-            expect(error.message).toMatch(/Validation error: SequelizeUniqueConstraintError \(Duplicate entry '(?:\w+)' for key '(?:\w+)'\)/);
+            expect(error.message).toMatch(/Validation error: SequelizeUniqueConstraintError \(Duplicate entry '(?:.+)' for key '(?:\w+)'\)/);
         }
 
         expect(second).toBe(null);

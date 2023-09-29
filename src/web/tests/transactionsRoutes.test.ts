@@ -12,7 +12,7 @@ import TransactionRepository from '../../core/repositories/transactionRepository
 import ITransactionProvider from '../../core/contracts/ITransactionProvider';
 import GoogleOAuth2IdentifiersFactory from '../../googleOAuth2/factories/googleOAuth2IdentifiersFactory';
 import { TransactionExtensions } from '../../core/extensions/transactionExtensions';
-import { resolveRandomTransactionsAsync } from '../../gmail/utils/randomTransactionsUtils';
+import { randomiseTransactionIds, resolveTransactionIds, resolveTransactionsAsync } from '../../gmail/utils/randomTransactionsUtils';
 
 describe('Base Transactions Routes Tests', () => {
     let container: StartedTestContainer;
@@ -50,7 +50,7 @@ describe('Base Transactions Routes Tests', () => {
     });
 
     it('should persist a random number of transactions', async () => {
-        const transactions = await resolveRandomTransactionsAsync(transactionProvider);
+        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveTransactionIds()));
         const transactionsResponse = transactions.map(t => TransactionExtensions.toResponse(t));
 
         const expectedTransactionIds = transactions.map(t => t.id).sort((a, b) => a.localeCompare(b));
@@ -72,7 +72,7 @@ describe('Base Transactions Routes Tests', () => {
     });
 
     it('should persist a random number of transactions and skip a portion', async () => {
-        const transactions = await resolveRandomTransactionsAsync(transactionProvider);
+        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveTransactionIds()));
         const transactionsResponse = transactions.map(t => TransactionExtensions.toResponse(t));
         
         const existingTransactionsCount = Math.floor(Math.random() * (transactions.length - 1) + 1);
