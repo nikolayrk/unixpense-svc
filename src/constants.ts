@@ -7,7 +7,7 @@ export default class Constants {
         mariadbPassword: 'password',
         mariadbUser: 'root',
         mariadbDatabase: 'unixpense',
-        containerTimeout: 30 * 1000 // 30s
+        containerTimeout: 60 * 1000 // 60s
     }
 
     public static readonly scopes = [
