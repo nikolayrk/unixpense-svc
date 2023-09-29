@@ -22,13 +22,13 @@ export default class WinstonLokiLogger implements ILogger {
 
         const consolePrintHandler = (info: winston.Logform.TransformableInfo): string => {
             const { message, level, stack, labels } = info;
-            const labelStrings = Object.entries({ ...labels })
+            const labelStrings = Object.entries(labels)
                 .map(([k, v]) => `\n\t[${k}]\t${v}`)
                 .join('');
 
-            return 'stack' in info
-                ? `${level}:\t${message}\n${stack}${labelStrings}`
-                : `${level}:\t${message}${labelStrings}`;
+                return 'stack' in info
+                    ? `${level}:\t${message}\n${stack}${labelStrings}`
+                    : `${level}:\t${message}${labelStrings}`;
             };
             
         const lokiPrintHandler = (info: winston.Logform.TransformableInfo): string => 'stack' in info
