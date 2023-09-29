@@ -259,7 +259,7 @@ formatTransactions() {
     for TRANSACTION in $(echo $TRANSACTIONS | jq -c '.[]'); do
         local VALUE_DATE=$(date +"%m/%d/%y" -d $(echo $TRANSACTION | jq -r '.value_date'))
         local BASE_SUM=$(echo $TRANSACTION | jq -r '.sum')
-        local OPERATION=$(echo $TRANSACTION | jq -r 'if .entryType=="CREDIT" then "from" else "to" end')
+        local OPERATION=$(echo $TRANSACTION | jq -r 'if .entry_type=="CREDIT" then "from" else "to" end')
 
         if [ "$(echo $TRANSACTION | jq 'has("card_operation")')" == "true" ]; then
             local SUM=$(echo $TRANSACTION | jq -r '.card_operation.sum')
