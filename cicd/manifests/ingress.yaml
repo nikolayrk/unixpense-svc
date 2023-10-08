@@ -14,7 +14,7 @@ spec:
   - host: $UNIXPENSE_HOST
     http:
       paths:
-      - path: $UNIXPENSE_HOST_PREFIX/(?!oauth2)([^/]*)(?:$|/)(.*) # Protect all routes, except /oauth2
+      - path: $UNIXPENSE_HOST_PREFIX/(?!oauth2)(api|swagger)(?:$|/)(.*) # Protect /api and /swagger, but not /oauth2
         pathType: Prefix
         backend:
           service:
