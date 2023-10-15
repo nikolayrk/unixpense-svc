@@ -3,6 +3,8 @@ import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from 'swagger-ui-express';
 import { cardOperationTransaction, standardTransferTransaction } from "../schemas/transaction";
 import GoogleOAuth2Constants from "../../constants";
+import { transactionTypes } from "../schemas/transactionTypes";
+import { entryTypes } from "../schemas/entryTypes";
 
 const router = express.Router();
 
@@ -43,7 +45,9 @@ const options = {
         },
         schemas: {
           cardOperationTransaction,
-          standardTransferTransaction
+          standardTransferTransaction,
+          transactionTypes,
+          entryTypes,
         }
       }
     },
