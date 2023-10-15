@@ -1,6 +1,10 @@
 import Constants from "../../constants";
+import CardOperationEntity from "../entities/cardOperation.entity";
+import StandardTransferEntity from "../entities/standardTransfer.entity";
+import TransactionEntity from "../entities/transaction.entity";
 import TransactionType from "../enums/transactionType";
 import TransactionFactory from "../factories/transactionFactory";
+import CardOperation from "../models/cardOperation";
 import PaymentDetails from "../models/paymentDetails";
 import StandardTransfer from "../models/standardTransfer";
 import Transaction from "../models/transaction";
@@ -9,7 +13,7 @@ import { EntryTypeExtensions } from "./entryTypeExtensions";
 import { TransactionTypeExtensions } from "./transactionTypeExtensions";
 
 export class TransactionExtensions {
-    public static toEntity(transaction: Transaction<PaymentDetails>) {
+    public static toRecord(transaction: Transaction<PaymentDetails>) {
         return {
             id: transaction.id,
             date: transaction.date.toSqlDate(),
@@ -44,9 +48,17 @@ export class TransactionExtensions {
             },
 
             ...(TransactionExtensions.isStandardTransfer(transaction.type)) && {
-                standard_transfer: transaction.paymentDetails
+                standard_transfer: TransactionExtensions.toStandardTransferEntity(transaction.paymentDetails as StandardTransfer)
             },
         };
+    }
+
+    public static trimEntity(entity: TransactionEntity) {
+        const { date, value_date, ...rest } = entity.dataValues;
+        const utcDate = entity.dataValues.date.toUTCDate().toISOString();
+        const utcValueDate = entity.dataValues.value_date.toUTCDate().toISOString();
+
+        return { date: utcDate, value_date: utcValueDate, ...rest };
     }
 
     public static toModel(transaction: Record<string, string | number | object>) {
@@ -61,8 +73,20 @@ export class TransactionExtensions {
             additionalDetailsRaw: ['']
         }
 
-        const paymentDetails = (transaction.card_operation ?? transaction.standard_transfer) as PaymentDetails
-            ?? Constants.defaultPaymentDetails;
+        const paymentDetails: PaymentDetails = transaction.card_operation !== undefined && transaction.card_operation !== null
+            ? {
+                recipient: (transaction.card_operation as CardOperationEntity).recipient,
+                instrument: (transaction.card_operation as CardOperationEntity).instrument ?? undefined,
+                sum: (transaction.card_operation as CardOperationEntity).sum ?? undefined,
+                currency: (transaction.card_operation as CardOperationEntity).currency ?? undefined
+            } as CardOperation
+            : transaction.standard_transfer !== undefined && transaction.standard_transfer !== null
+                ? {
+                    recipient: (transaction.standard_transfer as StandardTransferEntity).recipient,
+                    recipientIban: (transaction.standard_transfer as StandardTransferEntity).recipient_iban ?? undefined,
+                    description: (transaction.standard_transfer as StandardTransferEntity).description ?? undefined,
+                } as StandardTransfer
+                : Constants.defaultPaymentDetails;
 
         return TransactionFactory.create(String(transaction.id), transactionData, paymentDetails);
     }
@@ -75,7 +99,7 @@ export class TransactionExtensions {
         TransactionTypeExtensions.isStandardTransfer(transactionType);
 
     private static toStandardTransferEntity(standardTransfer: StandardTransfer) {
-        const mappedStandardTransfer: any = standardTransfer;
+        const mappedStandardTransfer: any = JSON.parse(JSON.stringify(standardTransfer));
 
         delete Object.assign(mappedStandardTransfer, { recipient_iban: standardTransfer.recipientIban })[standardTransfer.recipientIban];
 

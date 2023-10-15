@@ -1,7 +1,6 @@
 import { Table, Column, Model, PrimaryKey, DataType, Unique, AllowNull, IsDate, HasOne } from 'sequelize-typescript';
 import { EntryTypeExtensions } from '../../core/extensions/entryTypeExtensions';
 import { TransactionTypeExtensions } from '../../core/extensions/transactionTypeExtensions';
-import PaymentDetails from '../../core/models/paymentDetails';
 import CardOperationEntity from './cardOperation.entity';
 import StandardTransferEntity from './standardTransfer.entity';
 
@@ -17,13 +16,13 @@ export default class TransactionEntity extends Model {
         as: 'card_operation',
         foreignKey: 'transaction_id'
     })
-    card_operation!: PaymentDetails;
+    card_operation!: CardOperationEntity;
     
     @HasOne(() => StandardTransferEntity, {
         as: 'standard_transfer',
         foreignKey: 'transaction_id',
     })
-    standard_transfer!: PaymentDetails;
+    standard_transfer!: StandardTransferEntity;
 
     @PrimaryKey
     @Unique
