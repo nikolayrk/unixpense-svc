@@ -5,6 +5,75 @@ const router = express.Router();
 
 /**
  * @swagger
+ * /transactions:
+ *   get:
+ *     tags:
+ *       - Transactions
+ *     description: Queries the transactions table for entries matching the provided filters
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: fromDate
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: 2020-03-13
+ *       - name: toDate
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: 2020-05-13
+ *       - name: fromSum
+ *         in: query
+ *         required: false
+ *         type: integer
+ *         example: 10
+ *       - name: toSum
+ *         in: query
+ *         required: false
+ *         type: integer
+ *         example: 1000
+ *       - name: types
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/transactionTypes'
+ *       - name: entryTypes
+ *         in: query
+ *         required: false
+ *         explode: false
+ *         schema:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/entryTypes'
+ *     responses:
+ *       200:
+ *         description: A collection of Gmail transaction data objects
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 oneOf:
+ *                   - $ref: '#/components/schemas/cardOperationTransaction'
+ *                   - $ref: '#/components/schemas/standardTransferTransaction'
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Processing error
+ *       503:
+ *         description: Service error
+ */
+router.route('/').get(transactionsController.get);
+
+/**
+ * @swagger
  * /transactions/save:
  *   post:
  *     tags:

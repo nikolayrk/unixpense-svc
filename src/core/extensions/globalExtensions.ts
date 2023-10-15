@@ -3,6 +3,8 @@ export {};
 declare global {
     interface Date {
         toSqlDate(this: Date): string
+
+        toResponse(this: Date): string
     }
 
     interface String {
@@ -17,6 +19,12 @@ Date.prototype.toSqlDate = function (this: Date) {
         .replace('T', ' ');
 
     return sqlDate;
+}
+
+Date.prototype.toResponse = function (this: Date) {
+    const response = this.toLocaleDateString('en-GB', { timeZone: 'UTC' });
+
+    return response;
 }
 
 String.prototype.toUTCDate = function (this: string) {
