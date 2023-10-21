@@ -4,6 +4,8 @@ declare global {
     interface Date {
         toSqlDate(this: Date): string
 
+        toQuery(this: Date): string
+
         toResponse(this: Date): string
     }
 
@@ -19,6 +21,14 @@ Date.prototype.toSqlDate = function (this: Date) {
         .replace('T', ' ');
 
     return sqlDate;
+}
+
+Date.prototype.toQuery = function (this: Date) {
+    const query = this
+        .toISOString()
+        .replace(/T.*/, '');
+
+    return query;
 }
 
 Date.prototype.toResponse = function (this: Date) {

@@ -12,7 +12,9 @@ import TransactionRepository from '../../core/repositories/transactionRepository
 import ITransactionProvider from '../../core/contracts/ITransactionProvider';
 import GoogleOAuth2IdentifiersFactory from '../../googleOAuth2/factories/googleOAuth2IdentifiersFactory';
 import { TransactionExtensions } from '../../core/extensions/transactionExtensions';
-import { randomiseTransactionIds, resolveTransactionIds, resolveTransactionsAsync } from '../../gmail/utils/randomTransactionsUtils';
+import { randomiseTransactionIds, resolveRandomNumberOfTransactionIds, resolveTransactionIds, resolveTransactionsAsync } from '../../gmail/utils/randomTransactionsUtils';
+import { TransactionTypeExtensions } from '../../core/extensions/transactionTypeExtensions';
+import { EntryTypeExtensions } from '../../core/extensions/entryTypeExtensions';
 
 describe('Base Transactions Routes Tests', () => {
     let container: StartedTestContainer;
@@ -49,9 +51,228 @@ describe('Base Transactions Routes Tests', () => {
         await clearDatabaseAsync(connection);
     });
 
+    it('should persist a random number of transactions then fail to query them back due to passing an invalid date', async () => {
+        const expected = { error: "Invalid date value: xxx / xxx" };
+
+        const response = await supertest.agent(app)
+            .get(`/api/transactions?fromDate=xxx&toDate=xxx`)
+            .set('Accept', 'application/json')
+            .send({});
+
+        expect(response.body).toEqual(expected)
+        expect(response.statusCode).toBe(400);
+        expect(response.headers["content-type"]).toMatch(/json/);
+    });
+
+    it('should persist a random number of transactions then fail to query them back due to passing an invalid date range', async () => {
+        const fromDate = new Date();
+        const toDate = new Date(fromDate);
+        toDate.setDate(fromDate.getDate() - 1);
+
+        const fromDateQuery = fromDate.toQuery();
+        const toDateQuery = toDate.toQuery();
+
+        const expected = { error: `Invalid date range: ${fromDate.toResponse()} - ${toDate.toResponse()}` };
+
+        const response = await supertest.agent(app)
+            .get(`/api/transactions?fromDate=${fromDateQuery}&toDate=${toDateQuery}`)
+            .set('Accept', 'application/json')
+            .send({});
+
+        expect(response.body).toEqual(expected)
+        expect(response.statusCode).toBe(400);
+        expect(response.headers["content-type"]).toMatch(/json/);
+    });
+
+    it('should persist a random number of transactions then fail to query them back due to passing an invalid sum value', async () => {
+        const date = new Date();
+        const dateQuery = date.toQuery();
+
+        const expected = { error: "Invalid sum value: xxx" };
+
+        const response = await supertest.agent(app)
+            .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&fromSum=xxx`)
+            .set('Accept', 'application/json')
+            .send({});
+
+        expect(response.body).toEqual(expected)
+        expect(response.statusCode).toBe(400);
+        expect(response.headers["content-type"]).toMatch(/json/);
+    });
+
+    it('should persist a random number of transactions then fail to query them back due to passing an invalid sum range', async () => {
+        const date = new Date();
+        const dateQuery = date.toQuery();
+        const fromSum = 3;
+        const toSum = 2;
+
+        const expected = { error: `Invalid sum range: ${fromSum} - ${toSum}` };
+
+        const response = await supertest.agent(app)
+            .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&fromSum=${fromSum}&toSum=${toSum}`)
+            .set('Accept', 'application/json')
+            .send({});
+
+        expect(response.body).toEqual(expected)
+        expect(response.statusCode).toBe(400);
+        expect(response.headers["content-type"]).toMatch(/json/);
+    });
+
+    it('should persist a random number of transactions then fail to query them back due to passing an invalid type', async () => {
+        const date = new Date();
+        const dateQuery = date.toQuery();
+        const typeQuery = 'xxx';
+
+        const expected = { error: `Invalid types value: ${typeQuery}` };
+
+        const response = await supertest.agent(app)
+            .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&types=${typeQuery}`)
+            .set('Accept', 'application/json')
+            .send({});
+
+        expect(response.body).toEqual(expected)
+        expect(response.statusCode).toBe(400);
+        expect(response.headers["content-type"]).toMatch(/json/);
+    });
+
+    it('should persist a random number of transactions then fail to query them back due to passing an invalid entryType', async () => {
+        const date = new Date();
+        const dateQuery = date.toQuery();
+        const entryTypeQuery = 'xxx';
+
+        const expected = { error: `Invalid entryTypes value: ${entryTypeQuery}` };
+
+        const response = await supertest.agent(app)
+            .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&entryTypes=${entryTypeQuery}`)
+            .set('Accept', 'application/json')
+            .send({});
+
+        expect(response.body).toEqual(expected)
+        expect(response.statusCode).toBe(400);
+        expect(response.headers["content-type"]).toMatch(/json/);
+    });
+
+    it('should persist a random number of transactions then query them back by date', async () => {
+        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveRandomNumberOfTransactionIds(resolveTransactionIds())));
+        const transactionsResponse = transactions.map(TransactionExtensions.toResponse);
+        const date = transactions
+            .map(t => t.valueDate)
+            .sort((first: Date, second: Date) => first.getTime() - second.getTime())
+            .at(0)!;
+        const dateQuery = date.toQuery();
+
+        const _ = await transactionRepository.bulkCreateAsync(transactions);
+
+        const expected = transactions
+            .sort((a, b) => a.id.localeCompare(b.id))
+            .map(TransactionExtensions.toResponse);
+
+        const response = await supertest.agent(app)
+            .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}`)
+            .set('Accept', 'application/json')
+            .send(transactionsResponse);
+
+        expect(response.body).toEqual(expected)
+        expect(response.statusCode).toBe(200);
+        expect(response.headers["content-type"]).toMatch(/json/);
+    });
+
+    it('should persist a random number of transactions then query them back by sum', async () => {
+        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveRandomNumberOfTransactionIds(resolveTransactionIds())));
+        const transactionsResponse = transactions.map(TransactionExtensions.toResponse);
+        const date = transactions
+            .map(t => t.valueDate)
+            .sort((first: Date, second: Date) => first.getTime() - second.getTime())
+            .at(0) as Date;
+        const dateQuery = date.toQuery();
+        const sum = transactions
+            .map(t => Number(t.sum))
+            .sort((first: number, second: number) => first - second)
+            .at(0) as number;
+
+        const _ = await transactionRepository.bulkCreateAsync(transactions);
+
+        const expected = transactions
+            .sort((a, b) => a.id.localeCompare(b.id))
+            .map(TransactionExtensions.toResponse);
+
+        const response = await supertest.agent(app)
+            .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&fromSum=${sum}&toSum=${sum}`)
+            .set('Accept', 'application/json')
+            .send(transactionsResponse);
+
+        expect(response.body).toEqual(expected)
+        expect(response.statusCode).toBe(200);
+        expect(response.headers["content-type"]).toMatch(/json/);
+    });
+
+    it('should persist a random number of transactions then query them back by type', async () => {
+        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveRandomNumberOfTransactionIds(resolveTransactionIds())));
+        const transactionsResponse = transactions.map(TransactionExtensions.toResponse);
+        const date = transactions
+            .map(t => t.valueDate)
+            .sort((first: Date, second: Date) => first.getTime() - second.getTime())
+            .at(0) as Date;
+        const dateQuery = date.toQuery();
+        const types = transactions
+            .map(t => t.type)
+            .filter((t, i, a) => a.indexOf(t) === i)
+            .map(t => TransactionTypeExtensions.toOrdinalEnum(String(t)));
+        const typesQuery = types
+            .map(t => `&types=${t}`)
+            .join('');
+
+        const _ = await transactionRepository.bulkCreateAsync(transactions);
+
+        const expected = transactions
+            .sort((a, b) => a.id.localeCompare(b.id))
+            .map(TransactionExtensions.toResponse);
+
+        const response = await supertest.agent(app)
+            .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}${typesQuery}`)
+            .set('Accept', 'application/json')
+            .send(transactionsResponse);
+
+        expect(response.body).toEqual(expected)
+        expect(response.statusCode).toBe(200);
+        expect(response.headers["content-type"]).toMatch(/json/);
+    });
+
+    it('should persist a random number of transactions then query them back by entryType', async () => {
+        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveRandomNumberOfTransactionIds(resolveTransactionIds())));
+        const transactionsResponse = transactions.map(TransactionExtensions.toResponse);
+        const date = transactions
+            .map(t => t.valueDate)
+            .sort((first: Date, second: Date) => first.getTime() - second.getTime())
+            .at(0) as Date;
+        const dateQuery = date.toQuery();
+        const entryTypes = transactions
+            .map(t => t.entryType)
+            .filter((t, i, a) => a.indexOf(t) === i)
+            .map(t => EntryTypeExtensions.toOrdinalEnum(String(t)));
+        const entryTypesQuery = entryTypes
+            .map(t => `&entryTypes=${t}`)
+            .join('');
+
+        const _ = await transactionRepository.bulkCreateAsync(transactions);
+
+        const expected = transactions
+            .sort((a, b) => a.id.localeCompare(b.id))
+            .map(TransactionExtensions.toResponse);
+
+        const response = await supertest.agent(app)
+            .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}${entryTypesQuery}`)
+            .set('Accept', 'application/json')
+            .send(transactionsResponse);
+
+        expect(response.body).toEqual(expected)
+        expect(response.statusCode).toBe(200);
+        expect(response.headers["content-type"]).toMatch(/json/);
+    });
+
     it('should persist a random number of transactions', async () => {
         const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveTransactionIds()));
-        const transactionsResponse = transactions.map(t => TransactionExtensions.toResponse(t));
+        const transactionsResponse = transactions.map(TransactionExtensions.toResponse);
 
         const expectedTransactionIds = transactions.map(t => t.id).sort((a, b) => a.localeCompare(b));
 
