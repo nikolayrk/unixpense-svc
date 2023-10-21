@@ -136,7 +136,7 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should fetch a random number of transaction IDs and skip a portion', async () => {
-        const transactions = await resolveTransactionsAsync(transactionProvider, resolveTransactionIds());
+        const transactions = await resolveTransactionsAsync(transactionProvider, resolveRandomNumberOfTransactionIds(resolveTransactionIds()));
         const halfwayPoint = Math.floor(transactions.length / 2);
         const existingTransactionsCount = Math.floor(Math.random() * (halfwayPoint - 1) + 1);
         const skipDepth = existingTransactionsCount + 1;
@@ -158,7 +158,7 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should fetch an empty array after entering skip depth constraints', async () => {
-        const transactions = await resolveTransactionsAsync(transactionProvider, resolveTransactionIds());
+        const transactions = await resolveTransactionsAsync(transactionProvider, resolveRandomNumberOfTransactionIds(resolveTransactionIds()));
         const halfwayPoint = Math.ceil(transactions.length / 2);
         const existingTransactionsCount = Math.floor(Math.random() * (halfwayPoint - 1) + 1);
         const skipDepth = existingTransactionsCount;
@@ -194,7 +194,7 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should resolve a random number of transactions', async () => {
-        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveTransactionIds()));
+        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveRandomNumberOfTransactionIds(resolveTransactionIds())));
         const transactionIds = transactions.map(t => t.id);
 
         const response = await supertest.agent(app)
