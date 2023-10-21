@@ -57,7 +57,7 @@ describe('Base Transactions Routes Tests', () => {
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=xxx&toDate=xxx`)
             .set('Accept', 'application/json')
-            .send({});
+            .send();
 
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(400);
@@ -77,7 +77,7 @@ describe('Base Transactions Routes Tests', () => {
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${fromDateQuery}&toDate=${toDateQuery}`)
             .set('Accept', 'application/json')
-            .send({});
+            .send();
 
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(400);
@@ -93,7 +93,7 @@ describe('Base Transactions Routes Tests', () => {
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&fromSum=xxx`)
             .set('Accept', 'application/json')
-            .send({});
+            .send();
 
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(400);
@@ -111,7 +111,7 @@ describe('Base Transactions Routes Tests', () => {
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&fromSum=${fromSum}&toSum=${toSum}`)
             .set('Accept', 'application/json')
-            .send({});
+            .send();
 
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(400);
@@ -128,7 +128,7 @@ describe('Base Transactions Routes Tests', () => {
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&types=${typeQuery}`)
             .set('Accept', 'application/json')
-            .send({});
+            .send();
 
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(400);
@@ -145,7 +145,7 @@ describe('Base Transactions Routes Tests', () => {
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&entryTypes=${entryTypeQuery}`)
             .set('Accept', 'application/json')
-            .send({});
+            .send();
 
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(400);
@@ -154,13 +154,12 @@ describe('Base Transactions Routes Tests', () => {
 
     it('should persist a random number of transactions then query them back by date', async () => {
         const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveRandomNumberOfTransactionIds(resolveTransactionIds())));
-        const transactionsResponse = transactions.map(TransactionExtensions.toResponse);
         const date = transactions
             .map(t => t.valueDate)
             .sort((first: Date, second: Date) => first.getTime() - second.getTime())
             .at(0)!;
         const dateQuery = date.toQuery();
-
+        
         const _ = await transactionRepository.bulkCreateAsync(transactions);
 
         const expected = transactions
@@ -170,7 +169,7 @@ describe('Base Transactions Routes Tests', () => {
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}`)
             .set('Accept', 'application/json')
-            .send(transactionsResponse);
+            .send();
 
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(200);
@@ -179,7 +178,6 @@ describe('Base Transactions Routes Tests', () => {
 
     it('should persist a random number of transactions then query them back by sum', async () => {
         const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveRandomNumberOfTransactionIds(resolveTransactionIds())));
-        const transactionsResponse = transactions.map(TransactionExtensions.toResponse);
         const date = transactions
             .map(t => t.valueDate)
             .sort((first: Date, second: Date) => first.getTime() - second.getTime())
@@ -199,7 +197,7 @@ describe('Base Transactions Routes Tests', () => {
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&fromSum=${sum}&toSum=${sum}`)
             .set('Accept', 'application/json')
-            .send(transactionsResponse);
+            .send();
 
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(200);
@@ -208,7 +206,6 @@ describe('Base Transactions Routes Tests', () => {
 
     it('should persist a random number of transactions then query them back by type', async () => {
         const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveRandomNumberOfTransactionIds(resolveTransactionIds())));
-        const transactionsResponse = transactions.map(TransactionExtensions.toResponse);
         const date = transactions
             .map(t => t.valueDate)
             .sort((first: Date, second: Date) => first.getTime() - second.getTime())
@@ -231,7 +228,7 @@ describe('Base Transactions Routes Tests', () => {
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}${typesQuery}`)
             .set('Accept', 'application/json')
-            .send(transactionsResponse);
+            .send();
 
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(200);
@@ -240,7 +237,6 @@ describe('Base Transactions Routes Tests', () => {
 
     it('should persist a random number of transactions then query them back by entryType', async () => {
         const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveRandomNumberOfTransactionIds(resolveTransactionIds())));
-        const transactionsResponse = transactions.map(TransactionExtensions.toResponse);
         const date = transactions
             .map(t => t.valueDate)
             .sort((first: Date, second: Date) => first.getTime() - second.getTime())
@@ -263,7 +259,7 @@ describe('Base Transactions Routes Tests', () => {
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}${entryTypesQuery}`)
             .set('Accept', 'application/json')
-            .send(transactionsResponse);
+            .send();
 
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(200);

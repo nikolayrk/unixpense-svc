@@ -55,8 +55,13 @@ export class TransactionExtensions {
 
     public static trimEntity(entity: TransactionEntity) {
         const { date, value_date, ...rest } = entity.dataValues;
-        const utcDate = entity.dataValues.date.toUTCDate().toISOString();
-        const utcValueDate = entity.dataValues.value_date.toUTCDate().toISOString();
+
+        if (date instanceof Date && value_date instanceof Date) {
+            return entity.dataValues;
+        }
+        
+        const utcDate = date.toUTCDate().toISOString();
+        const utcValueDate = value_date.toUTCDate().toISOString();
 
         return { date: utcDate, value_date: utcValueDate, ...rest };
     }
