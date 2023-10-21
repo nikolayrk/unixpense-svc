@@ -35,7 +35,6 @@ import ITransactionProvider from './core/contracts/ITransactionProvider';
 import MockGmailTransactionSourceProvider from './gmail/providers/mockGmailTransactionSourceProvider';
 import MockGoogleOAuth2ClientProvider from './googleOAuth2/providers/mockGoogleOAuth2ClientProvider';
 import IOAuth2ClientProvider from './googleOAuth2/contracts/IOAuth2ClientProvider';
-import NoLogger from './core/loggers/noLogger';
 
 export class DependencyInjector {
     private static singleton: DependencyInjector;
@@ -70,9 +69,7 @@ export class DependencyInjector {
     }
 
     private registerCoreServices() {
-        this.container.bind<ILogger>(injectables.ILogger)
-            .to(process.env.NODE_ENV == 'test' ? NoLogger : WinstonLokiLogger)
-            .inSingletonScope();
+        this.container.bind<ILogger>(injectables.ILogger).to(WinstonLokiLogger).inSingletonScope();
         this.container.bind<PaymentDetailsFactory>(injectables.PaymentDetailsFactory).to(PaymentDetailsFactory);
         this.container.bind<PaymentDetailsContext>(injectables.PaymentDetailsContext).to(PaymentDetailsContext);
         this.container.bind<TransactionRepository>(injectables.TransactionRepository).to(TransactionRepository);
