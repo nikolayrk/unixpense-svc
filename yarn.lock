@@ -1090,18 +1090,18 @@
   resolved "https://registry.yarnpkg.com/@types/ms/-/ms-0.7.31.tgz#31b7ca6407128a3d2bbc27fe2d21b345397f6197"
   integrity sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==
 
-"@types/node-fetch@^2.6.10":
-  version "2.6.10"
-  resolved "https://registry.yarnpkg.com/@types/node-fetch/-/node-fetch-2.6.10.tgz#ff5c1ceacab782f2b7ce69957d38c1c27b0dc469"
-  integrity sha512-PPpPK6F9ALFTn59Ka3BaL+qGuipRfxNE8qVgkp0bVixeiR2c2/L+IVOiBdu9JhhT22sWnQEp6YyHGI2b2+CMcA==
+"@types/node-fetch@^2.6.11":
+  version "2.6.11"
+  resolved "https://registry.yarnpkg.com/@types/node-fetch/-/node-fetch-2.6.11.tgz#9b39b78665dae0e82a08f02f4967d62c66f95d24"
+  integrity sha512-24xFj9R5+rfQJLRyM56qh+wnVSYhyXC2tkoBndtY0U+vubqNsYXGjufB2nn8Q6gt0LrARwL6UBtMCSVCwl4B1g==
   dependencies:
     "@types/node" "*"
     form-data "^4.0.0"
 
-"@types/node@*", "@types/node@>=13.7.0", "@types/node@^20.11.3":
-  version "20.11.3"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.11.3.tgz#ac29fba7aeadc74046b02e50758156f4850f1296"
-  integrity sha512-nrlmbvGPNGaj84IJZXMPhQuCMEVTT/hXZMJJG/aIqVL9fKxqk814sGGtJA4GI6hpJSLQjpi6cn0Qx9eOf9SDVg==
+"@types/node@*", "@types/node@>=13.7.0", "@types/node@^20.11.5":
+  version "20.11.5"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.11.5.tgz#be10c622ca7fcaa3cf226cf80166abc31389d86e"
+  integrity sha512-g557vgQjUUfN76MZAN/dt1z3dzcUsimuysco0KeluHgrPdJXkP/XdAURgyO2W9fZWHRtRBiVKzKn8vyOAwlG+w==
   dependencies:
     undici-types "~5.26.4"
 
@@ -2741,10 +2741,10 @@ googleapis-common@^7.0.0:
     url-template "^2.0.8"
     uuid "^9.0.0"
 
-googleapis@^130.0.0:
-  version "130.0.0"
-  resolved "https://registry.yarnpkg.com/googleapis/-/googleapis-130.0.0.tgz#bfa8f0cd8a9fc441981ee52077d1fdb2e046dcd1"
-  integrity sha512-+ZSOowVv+vGBTueu1Ot9O7EqC0U4PS9l7fUjzc0ThCT4w4g+r78Vgn17q7eGBB5JMu4hxYC1hbbm1U/MCnYFdg==
+googleapis@^131.0.0:
+  version "131.0.0"
+  resolved "https://registry.yarnpkg.com/googleapis/-/googleapis-131.0.0.tgz#2b7bdedcc993135cb1b60e8f7fea362b12a3dea7"
+  integrity sha512-fa4kdkY0VwHDw/04ItpQv2tlvlPIwbh6NjHDoWAVrV52GuaZbYCMOC5Y+hRmprp5HHIMRODmyb2YujlbZSRUbQ==
   dependencies:
     google-auth-library "^9.0.0"
     googleapis-common "^7.0.0"
@@ -4639,10 +4639,10 @@ test-exclude@^6.0.0:
     glob "^7.1.4"
     minimatch "^3.0.4"
 
-testcontainers@^10.5.0:
-  version "10.5.0"
-  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-10.5.0.tgz#587f845e7b6d71d9216f43b04e751f79eb49ea28"
-  integrity sha512-VgZeX3CRDvJXx2mdBW4/tF4AaCpIvE7nztxvGq5I/N6fgkQg9JoB16cUBdoAZJB/uyHDtCqtw9b/eFrTBanEjQ==
+testcontainers@^10.6.0:
+  version "10.6.0"
+  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-10.6.0.tgz#205ad9148e68ff5c43a6209a30b12965acbe89d8"
+  integrity sha512-FDJ3o3J8IMu1V7Uc6lNZ2MAD8+BV4HdpR/Vf5mHtgYHKdn6k1EbGFwtnvVNOxanJ99FCjf/EU8eA5ZQ4yjlsGA==
   dependencies:
     "@balena/dockerignore" "^1.0.2"
     "@types/dockerode" "^3.3.21"
