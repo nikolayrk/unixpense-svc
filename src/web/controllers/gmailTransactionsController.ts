@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { injectables } from "../../core/types/injectables";
 import { DependencyInjector } from "../../dependencyInjector";
-import GoogleOAuth2Identifiers from "../../googleOAuth2/models/googleOAuth2Identifiers";
+import GoogleOAuth2Identifiers from "../../googleOAuth2/types/googleOAuth2Identifiers";
 import ILogger from "../../core/contracts/ILogger";
 import TransactionRepository from "../../core/repositories/transactionRepository";
 import ITransactionProvider from "../../core/contracts/ITransactionProvider";

@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import GoogleOAuth2Identifiers from "../models/googleOAuth2Identifiers";
+import GoogleOAuth2Identifiers from "../types/googleOAuth2Identifiers";
 import AbstractGoogleOAuth2ClientProvider from "./abstractGoogleOAuth2ClientProvider";
 import { Credentials } from "google-auth-library";
 import Constants from "../../constants";

@@ -2,7 +2,7 @@ import { google } from 'googleapis';
 import { GaxiosError } from 'gaxios';
 import { OAuth2Client } from 'googleapis-common';
 import { Credentials } from 'google-auth-library';
-import GoogleOAuth2Identifiers from '../models/googleOAuth2Identifiers';
+import GoogleOAuth2Identifiers from '../types/googleOAuth2Identifiers';
 import Constants from '../../constants';
 import AbstractGoogleOAuth2ClientProvider from './abstractGoogleOAuth2ClientProvider';
 import { FetchError } from 'node-fetch'

@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import ITransactionSourceProvider from "../../core/contracts/ITransactionSourceProvider";
 import IUsesGoogleOAuth2 from "../../googleOAuth2/contracts/IUsesGoogleOAuth2";
-import GoogleOAuth2Identifiers from "../../googleOAuth2/models/googleOAuth2Identifiers";
+import GoogleOAuth2Identifiers from "../../googleOAuth2/types/googleOAuth2Identifiers";
 import { DependencyInjector } from "../../dependencyInjector";
 import { injectables } from "../../core/types/injectables";
 import { paymentDetailsTestCases } from "../types/paymentDetailsTestCases";

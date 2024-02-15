@@ -24,7 +24,7 @@ import GmailTransactionSourceProvider from './gmail/providers/gmailTransactionSo
 import ILogger from './core/contracts/ILogger';
 import WinstonLokiLogger from './core/loggers/winstonLokiLogger';
 import GmailCrossBorderTransferFeeStrategy from './gmail/strategies/gmailCrossBorderTransferFeeStrategy';
-import GoogleOAuth2Identifiers from './googleOAuth2/models/googleOAuth2Identifiers';
+import GoogleOAuth2Identifiers from './googleOAuth2/types/googleOAuth2Identifiers';
 import IUsesGoogleOAuth2 from './googleOAuth2/contracts/IUsesGoogleOAuth2';
 import GoogleOAuth2TokensRepository from './googleOAuth2/repositories/googleOAuth2TokensRepository';
 import GoogleOAuth2ClientProvider from './googleOAuth2/providers/googleOAuth2ClientProvider';

@@ -5,7 +5,7 @@ import IUsesGoogleOAuth2 from "../../googleOAuth2/contracts/IUsesGoogleOAuth2";
 import GmailApiClient from "../clients/gmailApiClient";
 import { injectables } from "../../core/types/injectables";
 import ILogger from "../../core/contracts/ILogger";
-import GoogleOAuth2Identifiers from "../../googleOAuth2/models/googleOAuth2Identifiers";
+import GoogleOAuth2Identifiers from "../../googleOAuth2/types/googleOAuth2Identifiers";
 import { DependencyInjector } from "../../dependencyInjector";
 
 @injectable()

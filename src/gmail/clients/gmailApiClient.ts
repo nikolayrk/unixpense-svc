@@ -3,7 +3,7 @@ import { inject, injectable } from 'inversify';
 import GmailMessageData from '../types/gmailMessageData';
 import GoogleOAuth2ClientProvider from '../../googleOAuth2/providers/googleOAuth2ClientProvider';
 import { injectables } from '../../core/types/injectables';
-import GoogleOAuth2Identifiers from '../../googleOAuth2/models/googleOAuth2Identifiers';
+import GoogleOAuth2Identifiers from '../../googleOAuth2/types/googleOAuth2Identifiers';
 import { DependencyInjector } from '../../dependencyInjector';
 import IUsesGoogleOAuth2 from '../../googleOAuth2/contracts/IUsesGoogleOAuth2';
 import ILogger from '../../core/contracts/ILogger';

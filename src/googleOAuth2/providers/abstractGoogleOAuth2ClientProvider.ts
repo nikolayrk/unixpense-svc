@@ -4,7 +4,7 @@ import { injectable } from 'inversify';
 import { injectables } from "../../core/types/injectables";
 import GoogleOAuth2TokensRepository from '../repositories/googleOAuth2TokensRepository';
 import ILogger from '../../core/contracts/ILogger';
-import GoogleOAuth2Identifiers from '../models/googleOAuth2Identifiers';
+import GoogleOAuth2Identifiers from '../types/googleOAuth2Identifiers';
 import IUsesGoogleOAuth2 from '../../googleOAuth2/contracts/IUsesGoogleOAuth2';
 import Constants from '../../constants';
 import IOAuth2ClientProvider from '../contracts/IOAuth2ClientProvider';
