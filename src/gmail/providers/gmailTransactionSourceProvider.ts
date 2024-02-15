@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import GmailMessageData from "../models/gmailMessageData";
+import GmailMessageData from "../types/gmailMessageData";
 import ITransactionSourceProvider from "../../core/contracts/ITransactionSourceProvider";
 import IUsesGoogleOAuth2 from "../../googleOAuth2/contracts/IUsesGoogleOAuth2";
 import GmailApiClient from "../clients/gmailApiClient";
