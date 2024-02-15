@@ -1,5 +1,5 @@
 import Transaction from '../types/transaction';
-import TransactionEntity from '../entities/transaction.entity';
+import { default as TransactionModel } from '../models/transaction.model';
 import PaymentDetails from "../types/paymentDetails";
 import '../extensions/globalExtensions';
 import { injectable } from 'inversify';
@@ -11,10 +11,10 @@ import { Op } from 'sequelize';
 
 @injectable()
 export default class TransactionRepository {
-    public getAllIdsAsync = async () => (await TransactionEntity.findAll({attributes: ['id']})).map(e => e.id);
+    public getAllIdsAsync = async () => (await TransactionModel.findAll({attributes: ['id']})).map(e => e.id);
 
     public async getAsync(fromDate: Date, toDate: Date, types: TransactionType[], entryTypes: EntryType[], fromSum: number | null, toSum: number | null) {
-        const entities: TransactionEntity[] = await TransactionEntity.findAll({
+        const entities: TransactionModel[] = await TransactionModel.findAll({
             where: {
                 value_date: {
                     [Op.between]: [fromDate.toSqlDate(), toDate.toSqlDate()]
@@ -41,8 +41,8 @@ export default class TransactionRepository {
                 }
             },
             include: [
-                TransactionEntity.associations['card_operation'],
-                TransactionEntity.associations['standard_transfer'],
+                TransactionModel.associations['card_operation'],
+                TransactionModel.associations['standard_transfer'],
             ]
         });
 
@@ -56,10 +56,10 @@ export default class TransactionRepository {
         const mapped = transactions.map(TransactionExtensions.toRecord);
         
         try {
-            const created = await TransactionEntity.bulkCreate(mapped, {
+            const created = await TransactionModel.bulkCreate(mapped, {
                 include: [
-                    TransactionEntity.associations['card_operation'],
-                    TransactionEntity.associations['standard_transfer'],
+                    TransactionModel.associations['card_operation'],
+                    TransactionModel.associations['standard_transfer'],
                 ]
             });
 

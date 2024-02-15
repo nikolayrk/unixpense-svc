@@ -47,7 +47,7 @@ const createDatabaseConnectionAsync = async(host: string, port: number, username
             acquire: 30000,
             idle: 10000
         },
-        models: [__dirname + '/**/entities/*.entity.{js,ts}'],
+        models: [__dirname + '/**/models/*.model.{js,ts}'],
     });
 
     await connection.authenticate();

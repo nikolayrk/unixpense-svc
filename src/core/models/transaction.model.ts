@@ -1,8 +1,8 @@
 import { Table, Column, Model, PrimaryKey, DataType, Unique, AllowNull, IsDate, HasOne } from 'sequelize-typescript';
-import { EntryTypeExtensions } from '../../core/extensions/entryTypeExtensions';
-import { TransactionTypeExtensions } from '../../core/extensions/transactionTypeExtensions';
-import CardOperationEntity from './cardOperation.entity';
-import StandardTransferEntity from './standardTransfer.entity';
+import { EntryTypeExtensions } from '../extensions/entryTypeExtensions';
+import { TransactionTypeExtensions } from '../extensions/transactionTypeExtensions';
+import CardOperation from './cardOperation.model';
+import StandardTransfer from './standardTransfer.model';
 
 @Table({
     modelName: "transaction",
@@ -11,18 +11,18 @@ import StandardTransferEntity from './standardTransfer.entity';
         fields: ['id']
     }]
 })
-export default class TransactionEntity extends Model {
-    @HasOne(() => CardOperationEntity, {
+export default class Transaction extends Model {
+    @HasOne(() => CardOperation, {
         as: 'card_operation',
         foreignKey: 'transaction_id'
     })
-    card_operation!: CardOperationEntity;
+    card_operation!: CardOperation;
     
-    @HasOne(() => StandardTransferEntity, {
+    @HasOne(() => StandardTransfer, {
         as: 'standard_transfer',
         foreignKey: 'transaction_id',
     })
-    standard_transfer!: StandardTransferEntity;
+    standard_transfer!: StandardTransfer;
 
     @PrimaryKey
     @Unique

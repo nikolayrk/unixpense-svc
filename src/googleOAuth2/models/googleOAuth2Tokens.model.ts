@@ -7,7 +7,7 @@ import { AllowNull, Column, DataType, Model, PrimaryKey, Table, Unique } from "s
         fields: ['user_email']
     }]
 })
-export default class GoogleOAuth2TokensEntity extends Model {
+export default class GoogleOAuth2Tokens extends Model {
     @PrimaryKey
     @Unique
     @AllowNull(false)

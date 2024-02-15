@@ -1,7 +1,7 @@
 import Constants from "../../constants";
-import CardOperationEntity from "../entities/cardOperation.entity";
-import StandardTransferEntity from "../entities/standardTransfer.entity";
-import TransactionEntity from "../entities/transaction.entity";
+import { default as CardOperationModel } from "../models/cardOperation.model";
+import { default as StandardTransferModel } from "../models/standardTransfer.model";
+import { default as TransactionModel } from "../models/transaction.model";
 import TransactionType from "../enums/transactionType";
 import TransactionFactory from "../factories/transactionFactory";
 import CardOperation from "../types/cardOperation";
@@ -53,7 +53,7 @@ export class TransactionExtensions {
         };
     }
 
-    public static trimEntity(entity: TransactionEntity) {
+    public static trimEntity(entity: TransactionModel) {
         const { date, value_date, ...rest } = entity.dataValues;
 
         if (date instanceof Date && value_date instanceof Date) {
@@ -80,16 +80,16 @@ export class TransactionExtensions {
 
         const paymentDetails: PaymentDetails = transaction.card_operation !== undefined && transaction.card_operation !== null
             ? {
-                recipient: (transaction.card_operation as CardOperationEntity).recipient,
-                instrument: (transaction.card_operation as CardOperationEntity).instrument ?? undefined,
-                sum: (transaction.card_operation as CardOperationEntity).sum ?? undefined,
-                currency: (transaction.card_operation as CardOperationEntity).currency ?? undefined
+                recipient: (transaction.card_operation as CardOperationModel).recipient,
+                instrument: (transaction.card_operation as CardOperationModel).instrument ?? undefined,
+                sum: (transaction.card_operation as CardOperationModel).sum ?? undefined,
+                currency: (transaction.card_operation as CardOperationModel).currency ?? undefined
             } as CardOperation
             : transaction.standard_transfer !== undefined && transaction.standard_transfer !== null
                 ? {
-                    recipient: (transaction.standard_transfer as StandardTransferEntity).recipient,
-                    recipientIban: (transaction.standard_transfer as StandardTransferEntity).recipient_iban ?? undefined,
-                    description: (transaction.standard_transfer as StandardTransferEntity).description ?? undefined,
+                    recipient: (transaction.standard_transfer as StandardTransferModel).recipient,
+                    recipientIban: (transaction.standard_transfer as StandardTransferModel).recipient_iban ?? undefined,
+                    description: (transaction.standard_transfer as StandardTransferModel).description ?? undefined,
                 } as StandardTransfer
                 : Constants.defaultPaymentDetails;
 

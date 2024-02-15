@@ -1,5 +1,5 @@
 import { Table, AllowNull, Column, DataType } from "sequelize-typescript";
-import PaymentDetailsEntityBase from "./paymentDetails.entity.base";
+import PaymentDetailsBase from "./paymentDetails.model.base";
 
 
 @Table({
@@ -9,7 +9,7 @@ import PaymentDetailsEntityBase from "./paymentDetails.entity.base";
         fields: ['transaction_id']
     }]
 })
-export default class CardOperationEntity extends PaymentDetailsEntityBase {
+export default class CardOperation extends PaymentDetailsBase {
     @AllowNull(true)
     @Column
     instrument!: string;

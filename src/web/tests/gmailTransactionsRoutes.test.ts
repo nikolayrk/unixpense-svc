@@ -12,8 +12,8 @@ import GoogleOAuth2TokensRepository from '../../googleOAuth2/repositories/google
 import TransactionRepository from '../../core/repositories/transactionRepository';
 import ITransactionProvider from '../../core/contracts/ITransactionProvider';
 import GoogleOAuth2IdentifiersFactory from '../../googleOAuth2/factories/googleOAuth2IdentifiersFactory';
-import Transaction from '../../core/models/transaction';
-import PaymentDetails from '../../core/models/paymentDetails';
+import Transaction from '../../core/types/transaction';
+import PaymentDetails from '../../core/types/paymentDetails';
 import { TransactionExtensions } from '../../core/extensions/transactionExtensions';
 import { resolveRandomNumberOfTransactionIds, resolveTransactionsAsync, resolveTransactionIds, randomiseTransactionIds } from '../../gmail/utils/randomTransactionsUtils';
 
