@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
-import CardOperation from "../../core/models/cardOperation";
-import StandardTransfer from "../../core/models/standardTransfer";
+import CardOperation from "../types/cardOperation";
+import StandardTransfer from "../types/standardTransfer";
 
 @injectable()
 export default class PaymentDetailsFactory {

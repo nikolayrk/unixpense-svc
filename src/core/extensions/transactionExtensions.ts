@@ -4,11 +4,11 @@ import StandardTransferEntity from "../entities/standardTransfer.entity";
 import TransactionEntity from "../entities/transaction.entity";
 import TransactionType from "../enums/transactionType";
 import TransactionFactory from "../factories/transactionFactory";
-import CardOperation from "../models/cardOperation";
-import PaymentDetails from "../models/paymentDetails";
-import StandardTransfer from "../models/standardTransfer";
-import Transaction from "../models/transaction";
-import { TransactionData } from "../models/transactionData";
+import CardOperation from "../types/cardOperation";
+import PaymentDetails from "../types/paymentDetails";
+import StandardTransfer from "../types/standardTransfer";
+import Transaction from "../types/transaction";
+import { TransactionData } from "../types/transactionData";
 import { EntryTypeExtensions } from "./entryTypeExtensions";
 import { TransactionTypeExtensions } from "./transactionTypeExtensions";
 

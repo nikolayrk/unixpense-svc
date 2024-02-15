@@ -1,4 +1,4 @@
-import StandardTransfer from "../../core/models/standardTransfer";
+import StandardTransfer from "../../core/types/standardTransfer";
 import { AbstractPaymentDetailsStrategy } from "../../core/strategies/abstractPaymentDetailsStrategy";
 
 export default class GmailStandardTransferStrategy extends AbstractPaymentDetailsStrategy<StandardTransfer> {

@@ -1,5 +1,5 @@
 import { AbstractPaymentDetailsStrategy } from "../../core/strategies/abstractPaymentDetailsStrategy";
-import DeskWithdrawal from "../../core/models/deskWithdrawal";
+import DeskWithdrawal from "../../core/types/deskWithdrawal";
 
 export default class GmailDeskWithdrawalStrategy extends AbstractPaymentDetailsStrategy<DeskWithdrawal> {
     public tryCreate(paymentDetailsRaw: string[], additionalDetailsRaw: string[]): DeskWithdrawal {

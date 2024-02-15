@@ -1,5 +1,5 @@
 import { AbstractPaymentDetailsStrategy } from "../../core/strategies/abstractPaymentDetailsStrategy";
-import CardOperation from "../../core/models/cardOperation";
+import CardOperation from "../../core/types/cardOperation";
 import PaymentDetailsProcessingError from "../../core/errors/paymentDetailsProcessingError";
 
 export default class GmailCardOperationStrategy extends AbstractPaymentDetailsStrategy<CardOperation> {

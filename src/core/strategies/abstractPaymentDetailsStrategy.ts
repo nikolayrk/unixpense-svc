@@ -1,4 +1,4 @@
-import PaymentDetails from "../../core/models/paymentDetails";
+import PaymentDetails from "../types/paymentDetails";
 import { inject, injectable } from "inversify";
 import { injectables } from "../../core/types/injectables";
 import PaymentDetailsFactory from "../factories/paymentDetailsFactory";

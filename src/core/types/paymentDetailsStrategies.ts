@@ -1,10 +1,10 @@
-import CardOperation from "../models/cardOperation";
-import CrossBorderTransfer from "../models/crossBorderTransfer";
-import StandardFee from "../models/standardFee";
-import StandardTransfer from "../models/standardTransfer";
-import DeskWithdrawal from "../models/deskWithdrawal";
+import CardOperation from "./cardOperation";
+import CrossBorderTransfer from "./crossBorderTransfer";
+import StandardFee from "./standardFee";
+import StandardTransfer from "./standardTransfer";
+import DeskWithdrawal from "./deskWithdrawal";
 import { AbstractPaymentDetailsStrategy } from "../../core/strategies/abstractPaymentDetailsStrategy";
-import CrossBorderTransferFee from "../models/crossBorderTransferFee";
+import CrossBorderTransferFee from "./crossBorderTransferFee";
 
 export type ICardOperationStrategy = AbstractPaymentDetailsStrategy<CardOperation>;
 

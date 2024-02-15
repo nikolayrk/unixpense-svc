@@ -1,6 +1,6 @@
-import Transaction from '../../core/models/transaction';
+import Transaction from '../types/transaction';
 import TransactionEntity from '../entities/transaction.entity';
-import PaymentDetails from "../../core/models/paymentDetails";
+import PaymentDetails from "../types/paymentDetails";
 import '../extensions/globalExtensions';
 import { injectable } from 'inversify';
 import RepositoryError from '../../core/errors/repositoryError';

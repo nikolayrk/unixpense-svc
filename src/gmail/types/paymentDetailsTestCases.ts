@@ -1,13 +1,13 @@
 import Constants from "../../constants";
 import TransactionType from "../../core/enums/transactionType";
-import CardOperation from "../../core/models/cardOperation";
-import CrossBorderTransfer from "../../core/models/crossBorderTransfer";
-import CrossBorderTransferFee from "../../core/models/crossBorderTransferFee";
-import DeskWithdrawal from "../../core/models/deskWithdrawal";
-import PaymentDetails from "../../core/models/paymentDetails";
-import StandardFee from "../../core/models/standardFee";
-import StandardTransfer from "../../core/models/standardTransfer";
-import { TransactionDataBody } from '../../core/models/transactionData';
+import CardOperation from "../../core/types/cardOperation";
+import CrossBorderTransfer from "../../core/types/crossBorderTransfer";
+import CrossBorderTransferFee from "../../core/types/crossBorderTransferFee";
+import DeskWithdrawal from "../../core/types/deskWithdrawal";
+import PaymentDetails from "../../core/types/paymentDetails";
+import StandardFee from "../../core/types/standardFee";
+import StandardTransfer from "../../core/types/standardTransfer";
+import { TransactionDataBody } from '../../core/types/transactionData';
 
 export type PaymentDetailsTestCase<T extends PaymentDetails> = {
   attachmentDataBody: string;

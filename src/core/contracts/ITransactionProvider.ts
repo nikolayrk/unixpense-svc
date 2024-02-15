@@ -1,5 +1,5 @@
-import PaymentDetails from "../../core/models/paymentDetails";
-import Transaction from "../../core/models/transaction";
+import PaymentDetails from "../types/paymentDetails";
+import Transaction from "../types/transaction";
 
 export default interface ITransactionProvider {
     generateAsync(): AsyncGenerator<string, never[], unknown>;

@@ -4,7 +4,7 @@ import { inject, injectable } from 'inversify';
 import ILogger from '../../core/contracts/ILogger';
 import ITransactionDataProvider from '../../core/contracts/ITransactionDataProvider';
 import { injectables } from '../../core/types/injectables';
-import { TransactionData } from '../../core/models/transactionData';
+import { TransactionData } from '../../core/types/transactionData';
 import EntryType from '../../core/enums/entryType';
 import { TRANSACTION_TYPES } from '../../core/types/transactionTypeString';
 import transactionTypesByString from '../../core/types/transactionTypeByString'

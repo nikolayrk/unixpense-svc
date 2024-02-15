@@ -1,5 +1,5 @@
 import { AbstractPaymentDetailsStrategy } from "../../core/strategies/abstractPaymentDetailsStrategy";
-import CrossBorderTransfer from "../../core/models/crossBorderTransfer";
+import CrossBorderTransfer from "../../core/types/crossBorderTransfer";
 import PaymentDetailsProcessingError from "../../core/errors/paymentDetailsProcessingError";
 
 export default class GmailCrossBorderTransferStrategy extends AbstractPaymentDetailsStrategy<CrossBorderTransfer> {

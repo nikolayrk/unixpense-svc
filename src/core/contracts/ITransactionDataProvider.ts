@@ -1,4 +1,4 @@
-import { TransactionData } from "../../core/models/transactionData";
+import { TransactionData } from "../types/transactionData";
 
 export default interface ITransactionDataProvider {
     get(transactionDataRaw: string): TransactionData

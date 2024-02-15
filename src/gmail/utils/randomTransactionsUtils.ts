@@ -1,6 +1,6 @@
 import ITransactionProvider from "../../core/contracts/ITransactionProvider";
-import PaymentDetails from "../../core/models/paymentDetails";
-import Transaction from "../../core/models/transaction";
+import PaymentDetails from "../../core/types/paymentDetails";
+import Transaction from "../../core/types/transaction";
 import { paymentDetailsTestCases } from "../types/paymentDetailsTestCases";
 
 const durstenfeldShuffle = <T>(array: T[]) => {

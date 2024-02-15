@@ -7,8 +7,8 @@ import TransactionRepository from "../../core/repositories/transactionRepository
 import ITransactionProvider from "../../core/contracts/ITransactionProvider";
 import { ResponseExtensions } from "../../core/extensions/responseExtensions";
 import { TransactionExtensions } from "../../core/extensions/transactionExtensions";
-import Transaction from "../../core/models/transaction";
-import PaymentDetails from "../../core/models/paymentDetails";
+import Transaction from "../../core/types/transaction";
+import PaymentDetails from "../../core/types/paymentDetails";
 
 const getLast = async (req: Request, res: Response) => {
     const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);

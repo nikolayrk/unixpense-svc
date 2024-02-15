@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 import TransactionType from "../../core/enums/transactionType";
 import UnsupportedTxnError from "../../core/errors/unsupportedTxnError";
 import { TransactionTypeExtensions } from "../../core/extensions/transactionTypeExtensions";
-import PaymentDetails from "../../core/models/paymentDetails";
+import PaymentDetails from "../types/paymentDetails";
 import { AbstractPaymentDetailsStrategy } from "../strategies/abstractPaymentDetailsStrategy";
 import { injectables } from "../../core/types/injectables";
 import { ICardOperationStrategy,

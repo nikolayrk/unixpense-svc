@@ -1,4 +1,4 @@
-import { TransactionDataHead } from '../../core/models/transactionData';
+import { TransactionDataHead } from '../../core/types/transactionData';
 import EntryType from "../../core/enums/entryType";
 import { parse as dateParse } from 'date-format-parse';
 import seedrandom from 'seedrandom';

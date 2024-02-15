@@ -1,4 +1,4 @@
-import PaymentDetails from "../src/core/models/paymentDetails";
+import PaymentDetails from "./core/types/paymentDetails";
 
 export default class Constants {
     public static readonly Defaults = {
