@@ -120,6 +120,7 @@ The Service is exposed via an [Ingress](https://kubernetes.io/docs/concepts/serv
 - [Google APIs Node.js Client](https://github.com/googleapis/google-api-nodejs-client)
 - [MariaDB](https://github.com/mariadb)
 - [Sequelize](https://github.com/sequelize/sequelize)
+- [Umzug](https://github.com/sequelize/umzug)
 - [InversifyJS](https://github.com/inversify/InversifyJS)
 - [winston](https://github.com/winstonjs/winston)
 - [winston-loki](https://github.com/JaniAnttonen/winston-loki)
