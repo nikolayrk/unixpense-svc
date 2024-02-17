@@ -8,7 +8,7 @@ import CardOperation from "../types/cardOperation";
 import PaymentDetails from "../types/paymentDetails";
 import StandardTransfer from "../types/standardTransfer";
 import Transaction from "../types/transaction";
-import { TransactionData } from "../types/transactionData";
+import TransactionData from "../types/transactionData";
 import { EntryTypeExtensions } from "./entryTypeExtensions";
 import { TransactionTypeExtensions } from "./transactionTypeExtensions";
 

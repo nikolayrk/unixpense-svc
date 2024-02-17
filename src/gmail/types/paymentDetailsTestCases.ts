@@ -7,12 +7,12 @@ import DeskWithdrawal from "../../core/types/deskWithdrawal";
 import PaymentDetails from "../../core/types/paymentDetails";
 import StandardFee from "../../core/types/standardFee";
 import StandardTransfer from "../../core/types/standardTransfer";
-import { TransactionDataBody } from '../../core/types/transactionData';
+import TransactionData from '../../core/types/transactionData';
 
 export type PaymentDetailsTestCase<T extends PaymentDetails> = {
   attachmentDataBody: string;
-  expectedTransactionDataBody: TransactionDataBody;
   expectedPaymentDetails: T;
+  expectedTransactionDataBody: Partial<TransactionData>;
 };
 
 export const paymentDetailsTestCases: Record<string, PaymentDetailsTestCase<PaymentDetails>> = {

@@ -1,11 +1,11 @@
-import { TransactionDataHead } from '../../core/types/transactionData';
+import TransactionData from '../../core/types/transactionData';
 import EntryType from "../../core/enums/entryType";
 import { parse as dateParse } from 'date-format-parse';
 import seedrandom from 'seedrandom';
 
 export type TransactionDataTestCase = {
   attachmentDataHead: string;
-  expectedTransactionDataHead: TransactionDataHead;
+  expectedTransactionDataHead: Partial<TransactionData>;
 };
 
 const generateReference = (seed: string) => {
