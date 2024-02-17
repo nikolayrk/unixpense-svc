@@ -1,13 +1,13 @@
 import { describe, it, beforeAll, afterAll, expect } from '@jest/globals';
 import * as supertest from 'supertest';
-import { registerDependencies, startServerAsync, stopServerAsync } from '../../bootstrap';
+import { defineDatabaseModels, registerDependencies, startServerAsync, stopServerAsync } from '../../bootstrap';
 import { createContainerDatabaseConnectionAsync, createMariaDbContainerAsync } from '../../core/utils/databaseContainerUtils';
 import { DependencyInjector } from '../../dependencyInjector';
 import { injectables } from '../../core/types/injectables';
 import { StartedTestContainer } from 'testcontainers';
 import { Server } from 'http';
 import GoogleOAuth2TokensRepository from '../../googleOAuth2/repositories/googleOAuth2TokensRepository';
-import { Sequelize } from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 import Constants from '../../constants';
 
 describe('Google OAuth2 Routes Tests', () => {
@@ -27,6 +27,7 @@ describe('Google OAuth2 Routes Tests', () => {
         
         container = await createMariaDbContainerAsync();
         connection = await createContainerDatabaseConnectionAsync(container);
+        await defineDatabaseModels(connection);
         app = await startServerAsync();
     }, Constants.Defaults.containerTimeout);
     

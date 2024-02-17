@@ -1,4 +1,3 @@
-
 import express from 'express';
 import * as googleOAuth2Middleware from './web/middleware/googleOAuth2Middleware';
 import { router as transactionsRouter } from './web/routes/transactionsRoutes';
@@ -30,7 +29,7 @@ const createDatabaseIfNotExistsAsync = async (host: string, port: number, userna
     await pool.end();
 }
 
-const createDatabaseConnectionAsync = async(host: string, port: number, username: string, password: string, database: string) => {
+const createDatabaseConnectionAsync = async (host: string, port: number, username: string, password: string, database: string) => {
     await createDatabaseIfNotExistsAsync(host, port, username, password, database);
 
     const connection = new Sequelize({
@@ -47,14 +46,19 @@ const createDatabaseConnectionAsync = async(host: string, port: number, username
             acquire: 30000,
             idle: 10000
         },
-        models: [__dirname + '/**/models/*.model.{js,ts}'],
     });
-
+    
     await connection.authenticate();
+    
+    return connection;
+}
+
+const defineDatabaseModels = async (connection: Sequelize) => {
+    connection.addModels([__dirname + '/**/models/*.model.{js,ts}']);
 
     await connection.sync();
+}
 
-    return connection;
 }
 
 const registerDependencies = () => {
@@ -65,7 +69,7 @@ const startServerAsync = (port?: number) => {
     const app = express();
 
     app.use(bodyParser.urlencoded({ extended: true }));
-    
+
     app.use(express.json());
 
     // Kubernetes Startup, Readiness and Liveness Probes
@@ -99,13 +103,14 @@ const startServerAsync = (port?: number) => {
     return server;
 };
 
-const stopServerAsync = async (app: Server) => 
-    new Promise<void>((resolve) => 
+const stopServerAsync = async (app: Server) =>
+    new Promise<void>((resolve) =>
         app.on('close', () => resolve())
-           .close());
+            .close());
 
 export {
     createDatabaseConnectionAsync,
+    defineDatabaseModels,
     registerDependencies,
     startServerAsync,
     stopServerAsync

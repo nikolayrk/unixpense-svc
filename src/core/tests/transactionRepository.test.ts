@@ -1,5 +1,5 @@
 import { describe, it, beforeEach, beforeAll, afterAll, expect } from '@jest/globals';
-import { registerDependencies } from '../../bootstrap';
+import { defineDatabaseModels, registerDependencies } from '../../bootstrap';
 import { clearDatabaseAsync, createContainerDatabaseConnectionAsync, createMariaDbContainerAsync } from '../utils/databaseContainerUtils';
 import { DependencyInjector } from '../../dependencyInjector';
 import { injectables } from '../../core/types/injectables';
@@ -33,6 +33,7 @@ describe('Transaction Repository Tests', () => {
         
         container = await createMariaDbContainerAsync();
         connection = await createContainerDatabaseConnectionAsync(container);
+        await defineDatabaseModels(connection);
     }, Constants.Defaults.containerTimeout);
     
     afterAll(async () => {

@@ -1,6 +1,6 @@
 import { describe, it, beforeAll, afterAll, expect, beforeEach } from '@jest/globals';
 import * as supertest from 'supertest';
-import { registerDependencies, startServerAsync, stopServerAsync } from '../../bootstrap';
+import { defineDatabaseModels, registerDependencies, startServerAsync, stopServerAsync } from '../../bootstrap';
 import { clearDatabaseAsync, createContainerDatabaseConnectionAsync, createMariaDbContainerAsync } from '../../core/utils/databaseContainerUtils';
 import { DependencyInjector } from '../../dependencyInjector';
 import { injectables } from '../../core/types/injectables';
@@ -40,6 +40,7 @@ describe('Gmail Transactions Routes Tests', () => {
         
         container = await createMariaDbContainerAsync();
         connection = await createContainerDatabaseConnectionAsync(container);
+        await defineDatabaseModels(connection);
         app = await startServerAsync();
 
         await DependencyInjector.Singleton

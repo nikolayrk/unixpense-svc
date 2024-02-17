@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, beforeAll, afterAll, expect } from '@jest/globals';
 import * as supertest from 'supertest';
-import { registerDependencies, startServerAsync, stopServerAsync } from '../../bootstrap';
+import { defineDatabaseModels, registerDependencies, startServerAsync, stopServerAsync } from '../../bootstrap';
 import { clearDatabaseAsync, createContainerDatabaseConnectionAsync, createMariaDbContainerAsync } from '../../core/utils/databaseContainerUtils';
 import { DependencyInjector } from '../../dependencyInjector';
 import { injectables } from '../../core/types/injectables';
@@ -39,6 +39,7 @@ describe('Base Transactions Routes Tests', () => {
         
         container = await createMariaDbContainerAsync();
         connection = await createContainerDatabaseConnectionAsync(container);
+        await defineDatabaseModels(connection);
         app = await startServerAsync();
     }, Constants.Defaults.containerTimeout);
     

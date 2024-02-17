@@ -4,7 +4,13 @@ import "reflect-metadata"
 import { DependencyInjector } from './dependencyInjector';
 import ILogger from './core/contracts/ILogger';
 import { injectables } from './core/types/injectables';
-import { createDatabaseConnectionAsync, registerDependencies, startServerAsync, stopServerAsync } from './bootstrap';
+import {
+    createDatabaseConnectionAsync,
+    defineDatabaseModels,
+    registerDependencies,
+    startServerAsync,
+    stopServerAsync
+} from './bootstrap';
 import Constants from './constants';
 import { Sequelize } from 'sequelize-typescript';
 
@@ -36,6 +42,10 @@ const main = async () => {
 
         throw new Error(`Failed to create a connection to the database: ${error.message}`);
     };
+
+    logger.log('Defining database models...');
+
+    await defineDatabaseModels(connection);
 
     logger.log('Registering dependencies...');
 
