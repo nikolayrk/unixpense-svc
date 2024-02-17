@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, beforeAll, afterAll, expect } from '@jest/globals';
 import * as supertest from 'supertest';
 import { registerDependencies, startServerAsync, stopServerAsync } from '../../bootstrap';
-import { clearDatabaseAsync, createContainerDatabaseConnectionAsync, createMariaDbContainerAsync } from '../../core/tests/helpers';
+import { clearDatabaseAsync, createContainerDatabaseConnectionAsync, createMariaDbContainerAsync } from '../../core/utils/databaseContainerUtils';
 import { DependencyInjector } from '../../dependencyInjector';
 import { injectables } from '../../core/types/injectables';
 import { StartedTestContainer } from 'testcontainers';
@@ -12,9 +12,10 @@ import TransactionRepository from '../../core/repositories/transactionRepository
 import ITransactionProvider from '../../core/contracts/ITransactionProvider';
 import GoogleOAuth2IdentifiersFactory from '../../googleOAuth2/factories/googleOAuth2IdentifiersFactory';
 import { TransactionExtensions } from '../../core/extensions/transactionExtensions';
-import { randomiseTransactionIds, resolveRandomNumberOfTransactionIds, resolveTransactionIds, resolveTransactionsAsync } from '../../gmail/utils/randomTransactionsUtils';
+import { randomiseTransactionIds, resolveRandomNumberOfTransactionIds, resolveTransactionIds, resolveTransactionsAsync } from '../../core/utils/transactionUtils';
 import { TransactionTypeExtensions } from '../../core/extensions/transactionTypeExtensions';
 import { EntryTypeExtensions } from '../../core/extensions/entryTypeExtensions';
+import { gmailPaymentDetailsTestCases } from '../../gmail/types/gmailPaymentDetailsTestCases';
 
 describe('Base Transactions Routes Tests', () => {
     let container: StartedTestContainer;
@@ -51,20 +52,20 @@ describe('Base Transactions Routes Tests', () => {
         await clearDatabaseAsync(connection);
     });
 
-    it('should persist a random number of transactions then fail to query them back due to passing an invalid date', async () => {
-        const expected = { error: "Invalid date value: xxx / xxx" };
-
+    it('should fail to query transactions due to passing an invalid date', async () => {
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=xxx&toDate=xxx`)
             .set('Accept', 'application/json')
             .send();
+
+        const expected = { error: "Invalid date value: xxx / xxx" };
 
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(400);
         expect(response.headers["content-type"]).toMatch(/json/);
     });
 
-    it('should persist a random number of transactions then fail to query them back due to passing an invalid date range', async () => {
+    it('should fail to query transactions due to passing an invalid date range', async () => {
         const fromDate = new Date();
         const toDate = new Date(fromDate);
         toDate.setDate(fromDate.getDate() - 1);
@@ -72,80 +73,80 @@ describe('Base Transactions Routes Tests', () => {
         const fromDateQuery = fromDate.toQuery();
         const toDateQuery = toDate.toQuery();
 
-        const expected = { error: `Invalid date range: ${fromDate.toResponse()} - ${toDate.toResponse()}` };
-
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${fromDateQuery}&toDate=${toDateQuery}`)
             .set('Accept', 'application/json')
             .send();
+
+        const expected = { error: `Invalid date range: ${fromDate.toResponse()} - ${toDate.toResponse()}` };
 
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(400);
         expect(response.headers["content-type"]).toMatch(/json/);
     });
 
-    it('should persist a random number of transactions then fail to query them back due to passing an invalid sum value', async () => {
+    it('should fail to query transactions due to passing an invalid sum value', async () => {
         const date = new Date();
         const dateQuery = date.toQuery();
-
-        const expected = { error: "Invalid sum value: xxx" };
 
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&fromSum=xxx`)
             .set('Accept', 'application/json')
             .send();
 
+        const expected = { error: "Invalid sum value: xxx" };
+
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(400);
         expect(response.headers["content-type"]).toMatch(/json/);
     });
 
-    it('should persist a random number of transactions then fail to query them back due to passing an invalid sum range', async () => {
+    it('should fail to query transactions due to passing an invalid sum range', async () => {
         const date = new Date();
         const dateQuery = date.toQuery();
         const fromSum = 3;
         const toSum = 2;
-
-        const expected = { error: `Invalid sum range: ${fromSum} - ${toSum}` };
 
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&fromSum=${fromSum}&toSum=${toSum}`)
             .set('Accept', 'application/json')
             .send();
 
+        const expected = { error: `Invalid sum range: ${fromSum} - ${toSum}` };
+
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(400);
         expect(response.headers["content-type"]).toMatch(/json/);
     });
 
-    it('should persist a random number of transactions then fail to query them back due to passing an invalid type', async () => {
+    it('should fail to query transactions due to passing an invalid type', async () => {
         const date = new Date();
         const dateQuery = date.toQuery();
         const typeQuery = 'xxx';
-
-        const expected = { error: `Invalid types value: ${typeQuery}` };
 
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&types=${typeQuery}`)
             .set('Accept', 'application/json')
             .send();
 
+        const expected = { error: `Invalid types value: ${typeQuery}` };
+
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(400);
         expect(response.headers["content-type"]).toMatch(/json/);
     });
 
-    it('should persist a random number of transactions then fail to query them back due to passing an invalid entryType', async () => {
+    it('should fail to query transactions due to passing an invalid entryType', async () => {
         const date = new Date();
         const dateQuery = date.toQuery();
         const entryTypeQuery = 'xxx';
-
-        const expected = { error: `Invalid entryTypes value: ${entryTypeQuery}` };
 
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&entryTypes=${entryTypeQuery}`)
             .set('Accept', 'application/json')
             .send();
+
+        const expected = { error: `Invalid entryTypes value: ${entryTypeQuery}` };
 
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(400);
@@ -153,23 +154,28 @@ describe('Base Transactions Routes Tests', () => {
     });
 
     it('should persist a random number of transactions then query them back by date', async () => {
-        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveRandomNumberOfTransactionIds(resolveTransactionIds())));
+        const transactions = await
+            resolveTransactionsAsync(transactionProvider,
+                resolveRandomNumberOfTransactionIds(
+                    randomiseTransactionIds(
+                        resolveTransactionIds(gmailPaymentDetailsTestCases))));
+        
+        const _ = await transactionRepository.bulkCreateAsync(transactions);
+                    
         const date = transactions
             .map(t => t.valueDate)
             .sort((first: Date, second: Date) => first.getTime() - second.getTime())
             .at(0)!;
         const dateQuery = date.toQuery();
-        
-        const _ = await transactionRepository.bulkCreateAsync(transactions);
-
-        const expected = transactions
-            .sort((a, b) => a.id.localeCompare(b.id))
-            .map(TransactionExtensions.toResponse);
 
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}`)
             .set('Accept', 'application/json')
             .send();
+        
+        const expected = transactions
+            .sort((a, b) => a.id.localeCompare(b.id))
+            .map(TransactionExtensions.toResponse);
 
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(200);
@@ -177,7 +183,14 @@ describe('Base Transactions Routes Tests', () => {
     });
 
     it('should persist a random number of transactions then query them back by sum', async () => {
-        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveRandomNumberOfTransactionIds(resolveTransactionIds())));
+        const transactions = await
+            resolveTransactionsAsync(transactionProvider,
+                resolveRandomNumberOfTransactionIds(
+                    randomiseTransactionIds(
+                        resolveTransactionIds(gmailPaymentDetailsTestCases))));
+
+        const _ = await transactionRepository.bulkCreateAsync(transactions);
+                    
         const date = transactions
             .map(t => t.valueDate)
             .sort((first: Date, second: Date) => first.getTime() - second.getTime())
@@ -187,25 +200,30 @@ describe('Base Transactions Routes Tests', () => {
             .map(t => Number(t.sum))
             .sort((first: number, second: number) => first - second)
             .at(0) as number;
-
-        const _ = await transactionRepository.bulkCreateAsync(transactions);
-
-        const expected = transactions
-            .sort((a, b) => a.id.localeCompare(b.id))
-            .map(TransactionExtensions.toResponse);
-
+            
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&fromSum=${sum}&toSum=${sum}`)
             .set('Accept', 'application/json')
             .send();
-
+            
+        const expected = transactions
+            .sort((a, b) => a.id.localeCompare(b.id))
+            .map(TransactionExtensions.toResponse);
+            
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(200);
         expect(response.headers["content-type"]).toMatch(/json/);
     });
 
     it('should persist a random number of transactions then query them back by type', async () => {
-        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveRandomNumberOfTransactionIds(resolveTransactionIds())));
+        const transactions = await
+            resolveTransactionsAsync(transactionProvider,
+                resolveRandomNumberOfTransactionIds(
+                    randomiseTransactionIds(
+                        resolveTransactionIds(gmailPaymentDetailsTestCases))));
+
+        const _ = await transactionRepository.bulkCreateAsync(transactions);
+                    
         const date = transactions
             .map(t => t.valueDate)
             .sort((first: Date, second: Date) => first.getTime() - second.getTime())
@@ -219,16 +237,14 @@ describe('Base Transactions Routes Tests', () => {
             .map(t => `&types=${t}`)
             .join('');
 
-        const _ = await transactionRepository.bulkCreateAsync(transactions);
-
-        const expected = transactions
-            .sort((a, b) => a.id.localeCompare(b.id))
-            .map(TransactionExtensions.toResponse);
-
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}${typesQuery}`)
             .set('Accept', 'application/json')
             .send();
+
+        const expected = transactions
+            .sort((a, b) => a.id.localeCompare(b.id))
+            .map(TransactionExtensions.toResponse);
 
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(200);
@@ -236,7 +252,14 @@ describe('Base Transactions Routes Tests', () => {
     });
 
     it('should persist a random number of transactions then query them back by entryType', async () => {
-        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveRandomNumberOfTransactionIds(resolveTransactionIds())));
+        const transactions = await
+            resolveTransactionsAsync(transactionProvider,
+                resolveRandomNumberOfTransactionIds(
+                    randomiseTransactionIds(
+                        resolveTransactionIds(gmailPaymentDetailsTestCases))));
+
+        const _ = await transactionRepository.bulkCreateAsync(transactions);
+                    
         const date = transactions
             .map(t => t.valueDate)
             .sort((first: Date, second: Date) => first.getTime() - second.getTime())
@@ -250,16 +273,14 @@ describe('Base Transactions Routes Tests', () => {
             .map(t => `&entryTypes=${t}`)
             .join('');
 
-        const _ = await transactionRepository.bulkCreateAsync(transactions);
-
-        const expected = transactions
-            .sort((a, b) => a.id.localeCompare(b.id))
-            .map(TransactionExtensions.toResponse);
-
         const response = await supertest.agent(app)
             .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}${entryTypesQuery}`)
             .set('Accept', 'application/json')
             .send();
+
+        const expected = transactions
+            .sort((a, b) => a.id.localeCompare(b.id))
+            .map(TransactionExtensions.toResponse);
 
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(200);
@@ -267,49 +288,55 @@ describe('Base Transactions Routes Tests', () => {
     });
 
     it('should persist a random number of transactions', async () => {
-        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveTransactionIds()));
+        const transactions = await
+            resolveTransactionsAsync(transactionProvider,
+                randomiseTransactionIds(
+                    resolveTransactionIds(gmailPaymentDetailsTestCases)));
+                    
         const transactionsResponse = transactions.map(TransactionExtensions.toResponse);
-
-        const expectedTransactionIds = transactions.map(t => t.id).sort((a, b) => a.localeCompare(b));
 
         const response = await supertest.agent(app)
             .post(`/api/transactions/save`)
             .set('Accept', 'application/json')
             .send(transactionsResponse);
 
-        const added = expectedTransactionIds.length;
-
         const persistedTransactionIds = await transactionRepository.getAllIdsAsync();
         const actualTransactionIds = persistedTransactionIds.sort((a, b) => a.localeCompare(b));
 
+        const expectedTransactionIds = transactions.map(t => t.id).sort((a, b) => a.localeCompare(b));
+        const added = expectedTransactionIds.length;
+
+        expect(actualTransactionIds).toEqual(expectedTransactionIds);
         expect(response.body).toEqual({ message: `Added ${added} transaction${added == 1 ? '' : 's'} to database`})
         expect(response.statusCode).toBe(201);
         expect(response.headers["content-type"]).toMatch(/json/);
-        expect(actualTransactionIds).toEqual(expectedTransactionIds);
     });
 
     it('should persist a random number of transactions and skip a portion', async () => {
-        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveTransactionIds()));
-        const transactionsResponse = transactions.map(t => TransactionExtensions.toResponse(t));
+        const transactions = await
+            resolveTransactionsAsync(transactionProvider,
+                randomiseTransactionIds(
+                    resolveTransactionIds(gmailPaymentDetailsTestCases)));
         
         const existingTransactionsCount = Math.floor(Math.random() * (transactions.length - 1) + 1);
-        const expectedTransactionIds = transactions.map(t => t.id).sort((a, b) => a.localeCompare(b));
 
         await transactionRepository.bulkCreateAsync(transactions.slice(0, existingTransactionsCount));
+                    
+        const transactionsResponse = transactions.map(TransactionExtensions.toResponse);
 
         const response = await supertest.agent(app)
             .post(`/api/transactions/save`)
             .set('Accept', 'application/json')
             .send(transactionsResponse);
 
-        const added = transactions.length - existingTransactionsCount;
-
         const persistedTransactionIds = await transactionRepository.getAllIdsAsync();
         const actualTransactionIds = persistedTransactionIds.sort((a, b) => a.localeCompare(b));
+        const expectedTransactionIds = transactions.map(t => t.id).sort((a, b) => a.localeCompare(b));
+        const added = transactions.length - existingTransactionsCount;
 
+        expect(actualTransactionIds).toEqual(expectedTransactionIds);
         expect(response.body).toEqual({ message: `Added ${added} transaction${added == 1 ? '' : 's'} to database`})
         expect(response.statusCode).toBe(201);
         expect(response.headers["content-type"]).toMatch(/json/);
-        expect(actualTransactionIds).toEqual(expectedTransactionIds);
     });
 });

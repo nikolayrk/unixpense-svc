@@ -1,5 +1,5 @@
-import { describe, it, beforeEach, beforeAll, afterAll, expect } from '@jest/globals';
-import { randomiseTransactionIds, resolveTransactionIds, resolveTransactionsAsync } from '../../gmail/utils/randomTransactionsUtils';
+import { describe, it, beforeAll, expect } from '@jest/globals';
+import { randomiseTransactionIds, resolveTransactionIds, resolveTransactionsAsync } from '../utils/transactionUtils';
 import GoogleOAuth2TokensRepository from '../../googleOAuth2/repositories/googleOAuth2TokensRepository';
 import TransactionRepository from '../repositories/transactionRepository';
 import ITransactionProvider from '../contracts/ITransactionProvider';
@@ -8,6 +8,7 @@ import GoogleOAuth2IdentifiersFactory from '../../googleOAuth2/factories/googleO
 import { injectables } from '../types/injectables';
 import { registerDependencies } from '../../bootstrap';
 import { TransactionExtensions } from '../extensions/transactionExtensions';
+import { gmailPaymentDetailsTestCases } from '../../gmail/types/gmailPaymentDetailsTestCases';
 
 describe('Transaction Extensions Tests', () => {
     let googleOAuth2TokensRepository: GoogleOAuth2TokensRepository;
@@ -26,7 +27,10 @@ describe('Transaction Extensions Tests', () => {
     });
 
     it('should map a random number of transactions to responses then back to models again', async () => {
-        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveTransactionIds()));
+        const transactions = await
+            resolveTransactionsAsync(transactionProvider,
+                randomiseTransactionIds(
+                    resolveTransactionIds(gmailPaymentDetailsTestCases)));
         const responses = transactions.map(TransactionExtensions.toResponse);
         const models = responses.map(TransactionExtensions.toModel);
 

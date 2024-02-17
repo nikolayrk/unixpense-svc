@@ -4,9 +4,9 @@ import IUsesGoogleOAuth2 from "../../googleOAuth2/contracts/IUsesGoogleOAuth2";
 import GoogleOAuth2Identifiers from "../../googleOAuth2/types/googleOAuth2Identifiers";
 import { DependencyInjector } from "../../dependencyInjector";
 import { injectables } from "../../core/types/injectables";
-import { paymentDetailsTestCases } from "../types/paymentDetailsTestCases";
-import { constructTransactionDataTestCase } from "../types/transactionDataTestCase";
+import { gmailPaymentDetailsTestCases } from "../types/gmailPaymentDetailsTestCases";
 import Constants from "../../constants";
+import { constructGmailTransactionDataTestCase } from "../utils/constructGmailTransactionDataTestCase";
 
 @injectable()
 export default class MockGmailTransactionSourceProvider implements ITransactionSourceProvider, IUsesGoogleOAuth2 {
@@ -101,7 +101,7 @@ export default class MockGmailTransactionSourceProvider implements ITransactionS
     }
 
     public async * generateTransactionIdsAsync(): AsyncGenerator<string, [], undefined> {
-        yield * Object.keys(paymentDetailsTestCases).filter(k => isNaN(Number(k)))[Symbol.iterator]();
+        yield * Object.keys(gmailPaymentDetailsTestCases).filter(k => isNaN(Number(k)))[Symbol.iterator]();
 
         return [];
     }
@@ -115,9 +115,9 @@ export default class MockGmailTransactionSourceProvider implements ITransactionS
             throw new Error(Constants.Mock.errorTransactionSourceId);
         }
 
-        if (transactionId in paymentDetailsTestCases) {
-            const transactionHead = constructTransactionDataTestCase(transactionId).attachmentDataHead;
-            const transactionBody = paymentDetailsTestCases[transactionId].attachmentDataBody;
+        if (transactionId in gmailPaymentDetailsTestCases) {
+            const transactionHead = constructGmailTransactionDataTestCase(transactionId).attachmentDataHead;
+            const transactionBody = gmailPaymentDetailsTestCases[transactionId].attachmentDataBody;
 
             return `${this.attachmentPaddingTop}${transactionHead}${transactionBody}${this.attachmentPaddingBottom}`;
         }

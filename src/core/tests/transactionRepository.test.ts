@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, beforeAll, afterAll, expect } from '@jest/globals';
 import { registerDependencies } from '../../bootstrap';
-import { clearDatabaseAsync, createContainerDatabaseConnectionAsync, createMariaDbContainerAsync } from '../tests/helpers';
+import { clearDatabaseAsync, createContainerDatabaseConnectionAsync, createMariaDbContainerAsync } from '../utils/databaseContainerUtils';
 import { DependencyInjector } from '../../dependencyInjector';
 import { injectables } from '../../core/types/injectables';
 import { StartedTestContainer } from 'testcontainers';
@@ -10,9 +10,8 @@ import TransactionRepository from '../../core/repositories/transactionRepository
 import ITransactionProvider from '../../core/contracts/ITransactionProvider';
 import GoogleOAuth2IdentifiersFactory from '../../googleOAuth2/factories/googleOAuth2IdentifiersFactory';
 import Constants from '../../constants';
-import { randomiseTransactionIds, resolveRandomNumberOfTransactionIds, resolveTransactionIds, resolveTransactionsAsync } from '../../gmail/utils/randomTransactionsUtils';
-import { TransactionTypeExtensions } from '../extensions/transactionTypeExtensions';
-import { EntryTypeExtensions } from '../extensions/entryTypeExtensions';
+import { randomiseTransactionIds, resolveTransactionIds, resolveTransactionsAsync } from '../utils/transactionUtils';
+import { gmailPaymentDetailsTestCases } from '../../gmail/types/gmailPaymentDetailsTestCases';
 
 describe('Transaction Repository Tests', () => {
     let container: StartedTestContainer;
@@ -46,7 +45,10 @@ describe('Transaction Repository Tests', () => {
     });
 
     it('should throw a repository error', async () => {
-        const transactions = await resolveTransactionsAsync(transactionProvider, randomiseTransactionIds(resolveTransactionIds()));
+        const transactions = await 
+            resolveTransactionsAsync(transactionProvider,
+                randomiseTransactionIds(
+                    resolveTransactionIds(gmailPaymentDetailsTestCases)));
 
         const _ = await transactionRepository.bulkCreateAsync(transactions);
 

@@ -1,7 +1,7 @@
 import { describe, it, beforeAll, afterAll, expect } from '@jest/globals';
 import * as supertest from 'supertest';
 import { registerDependencies, startServerAsync, stopServerAsync } from '../../bootstrap';
-import { createContainerDatabaseConnectionAsync, createMariaDbContainerAsync } from '../../core/tests/helpers';
+import { createContainerDatabaseConnectionAsync, createMariaDbContainerAsync } from '../../core/utils/databaseContainerUtils';
 import { DependencyInjector } from '../../dependencyInjector';
 import { injectables } from '../../core/types/injectables';
 import { StartedTestContainer } from 'testcontainers';

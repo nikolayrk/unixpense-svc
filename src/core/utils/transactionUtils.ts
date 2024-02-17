@@ -1,9 +1,20 @@
-import ITransactionProvider from "../../core/contracts/ITransactionProvider";
-import PaymentDetails from "../../core/types/paymentDetails";
-import Transaction from "../../core/types/transaction";
-import { paymentDetailsTestCases } from "../types/paymentDetailsTestCases";
+import seedrandom from "seedrandom";
+import ITransactionProvider from "../contracts/ITransactionProvider";
+import PaymentDetails from "../types/paymentDetails";
+import { PaymentDetailsTestCase, PaymentDetailsTestCaseData } from "../types/paymentDetailsTestCase";
+import Transaction from "../types/transaction";
 
-const durstenfeldShuffle = <T>(array: T[]) => {
+const generateTransactionReference = (seed: string) => {
+    const rng = seedrandom(seed);
+    const random = Math.floor(rng() * Math.pow(10, 17));
+    const reference = random
+        .toString(16)
+        .toUpperCase();
+
+    return reference;
+}
+
+const durstenfeldShuffle = <T>(array: Array<T>) => {
     const result = array.slice(0);
 
     for (let i = result.length - 1; i > 0; i--) {
@@ -14,9 +25,11 @@ const durstenfeldShuffle = <T>(array: T[]) => {
     return result;
 }
 
-const resolveTransactionIds = () => {
-    return Object.keys(paymentDetailsTestCases).filter(k => isNaN(Number(k)));
-}
+const resolveTransactionIds = <T extends PaymentDetailsTestCaseData>(
+    paymentDetailsTestCases: PaymentDetailsTestCase<T>
+) => Object
+        .keys(paymentDetailsTestCases)
+        .filter(k => isNaN(Number(k)));
 
 const randomiseTransactionIds = (transactionIds: string[]) => {
     const randomizedTransactionIds = durstenfeldShuffle(transactionIds);
@@ -51,6 +64,7 @@ const resolveTransactionsAsync = async (transactionProvider: ITransactionProvide
 };
 
 export {
+    generateTransactionReference,
     resolveTransactionIds,
     randomiseTransactionIds,
     resolveRandomNumberOfTransactionIds,

@@ -8,14 +8,15 @@ import PaymentDetails from "../../core/types/paymentDetails";
 import StandardFee from "../../core/types/standardFee";
 import StandardTransfer from "../../core/types/standardTransfer";
 import TransactionData from '../../core/types/transactionData';
+import { PaymentDetailsTestCase } from "../../core/types/paymentDetailsTestCase";
 
-export type PaymentDetailsTestCase<T extends PaymentDetails> = {
+export type GmailPaymentDetailsTestCaseData = {
   attachmentDataBody: string;
-  expectedPaymentDetails: T;
   expectedTransactionDataBody: Partial<TransactionData>;
+  expectedPaymentDetails: PaymentDetails;
 };
 
-export const paymentDetailsTestCases: Record<string, PaymentDetailsTestCase<PaymentDetails>> = {
+export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDetailsTestCaseData> = {
   'UNKNOWN': {
       attachmentDataBody: `
           <td nowrap="" align="left">xxx<br></td>
