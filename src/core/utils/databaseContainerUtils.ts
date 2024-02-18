@@ -1,3 +1,4 @@
+// @ts-ignore
 import { GenericContainer, StartedTestContainer, Wait } from 'testcontainers';
 import Constants from '../../constants';
 import { createDatabaseConnectionAsync } from '../../bootstrap';
