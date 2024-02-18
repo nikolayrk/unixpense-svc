@@ -1704,7 +1704,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase&lt;GmailPaymen
   // Standard Transfers
   'INTEREST_PAYMENT': {
       attachmentDataBody: `
-        &lt;td nowrap="" align="left"&gt;Плащане на лихва&lt;br&gt;&lt;br&gt;Плащане на лихва 70001234567820 BGN .25&lt;br&gt;&lt;/td&gt;
+        &lt;td nowrap="" align="left"&gt;Плащане на лихва&lt;br&gt;&lt;br&gt;Плащане на лихва 70001234567820 BGN 1234.56&lt;br&gt;&lt;/td&gt;
         &lt;td align="center"&gt;
         &lt;table&gt;
             &lt;tbody&gt;&lt;tr&gt;
@@ -1717,7 +1717,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase&lt;GmailPaymen
         &lt;/td&gt;`,
       expectedTransactionDataBody: {
           transactionType: TransactionType.INTEREST_PAYMENT,
-          paymentDetailsRaw: ['70001234567820 BGN .25'],
+          paymentDetailsRaw: ['70001234567820 BGN 1234.56'],
           additionalDetailsRaw: [
               'NA',
               'UNICREDIT BULBANK'
@@ -1726,12 +1726,12 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase&lt;GmailPaymen
       expectedPaymentDetails: {
           recipient: 'UNICREDIT BULBANK',
           recipientIban: 'NA',
-          description: '70001234567820 BGN .25',
+          description: '70001234567820 BGN 1234.56',
       } as StandardTransfer
   },
   'INTEREST_TAX': {
       attachmentDataBody: `
-        &lt;td nowrap="" align="left"&gt;Удържане на данък в/у лихва&lt;br&gt;&lt;br&gt;Удържане на данък в/у лихва 70001234567820 BGN .02&lt;br&gt;&lt;/td&gt;
+        &lt;td nowrap="" align="left"&gt;Удържане на данък в/у лихва&lt;br&gt;&lt;br&gt;Удържане на данък в/у лихва 70001234567820 BGN 1234.56&lt;br&gt;&lt;/td&gt;
         &lt;td align="center"&gt;
           &lt;table width="100%"&gt;
             &lt;tbody&gt;&lt;tr&gt;
@@ -1744,7 +1744,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase&lt;GmailPaymen
         &lt;/td&gt;`,
       expectedTransactionDataBody: {
           transactionType: TransactionType.INTEREST_TAX,
-          paymentDetailsRaw: ['70001234567820 BGN .02'],
+          paymentDetailsRaw: ['70001234567820 BGN 1234.56'],
           additionalDetailsRaw: [
               'NA',
               'UNICREDIT BULBANK'
@@ -1753,7 +1753,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase&lt;GmailPaymen
       expectedPaymentDetails: {
           recipient: 'UNICREDIT BULBANK',
           recipientIban: 'NA',
-          description: '70001234567820 BGN .02'
+          description: '70001234567820 BGN 1234.56'
       } as StandardTransfer
   },
   'PRINCIPAL_REPAYMENT': {
@@ -1785,7 +1785,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase&lt;GmailPaymen
   },
   'INSURANCE_PREMIUM': {
       attachmentDataBody: `
-        &lt;td nowrap="" align="left"&gt;Застрахователна премия&lt;br&gt;&lt;br&gt;Застрахователна премия 70001234567820 BGN 1.23&lt;br&gt;&lt;/td&gt;
+        &lt;td nowrap="" align="left"&gt;Застрахователна премия&lt;br&gt;&lt;br&gt;Застрахователна премия 70001234567820 BGN 1234.56&lt;br&gt;&lt;/td&gt;
         &lt;td align="center"&gt;
           &lt;table width="100%"&gt;
             &lt;tbody&gt;&lt;tr&gt;
@@ -1798,7 +1798,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase&lt;GmailPaymen
         &lt;/td&gt;`,
       expectedTransactionDataBody: {
           transactionType: TransactionType.INSURANCE_PREMIUM,
-          paymentDetailsRaw: ['70001234567820 BGN 1.23'],
+          paymentDetailsRaw: ['70001234567820 BGN 1234.56'],
           additionalDetailsRaw: [
               'NA',
               'UNICREDIT BULBANK'
@@ -1807,12 +1807,12 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase&lt;GmailPaymen
       expectedPaymentDetails: {
           recipient: 'UNICREDIT BULBANK',
           recipientIban: 'NA',
-          description: '70001234567820 BGN 1.23'
+          description: '70001234567820 BGN 1234.56'
       } as StandardTransfer
   },
   'INTEREST_REPAYMENT': {
       attachmentDataBody: `
-        &lt;td nowrap="" align="left"&gt;Погасяв.на л-ва за редовна главница&lt;br&gt;&lt;br&gt;Погасяв.на л-ва за редовна главница 70001234567820 BGN 4.56&lt;br&gt;&lt;/td&gt;
+        &lt;td nowrap="" align="left"&gt;Погасяв.на л-ва за редовна главница&lt;br&gt;&lt;br&gt;Погасяв.на л-ва за редовна главница 70001234567820 BGN 1234.56&lt;br&gt;&lt;/td&gt;
         &lt;td align="center"&gt;
           &lt;table width="100%"&gt;
             &lt;tbody&gt;&lt;tr&gt;
@@ -1825,7 +1825,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase&lt;GmailPaymen
         &lt;/td&gt;`,
       expectedTransactionDataBody: {
           transactionType: TransactionType.INTEREST_REPAYMENT,
-          paymentDetailsRaw: ['70001234567820 BGN 4.56'],
+          paymentDetailsRaw: ['70001234567820 BGN 1234.56'],
           additionalDetailsRaw: [
               'NA',
               'UNICREDIT BULBANK'
@@ -1834,7 +1834,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase&lt;GmailPaymen
       expectedPaymentDetails: {
           recipient: 'UNICREDIT BULBANK',
           recipientIban: 'NA',
-          description: '70001234567820 BGN 4.56'
+          description: '70001234567820 BGN 1234.56'
       } as StandardTransfer
   },
   'INTERNAL_TRANSFER &gt; Вътрешно банков превод Payroll': {
@@ -2143,7 +2143,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase&lt;GmailPaymen
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-02-18T19:51:45.742Z
+                at 2024-02-18T21:04:53.880Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
