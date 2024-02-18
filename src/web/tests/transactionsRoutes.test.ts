@@ -350,12 +350,8 @@ describe('Base Transactions Routes Tests', () => {
 
         const selectedDescription = resolveDescription(selectedTransaction);
 
-        console.log(selectedDescription);
-
         const filteredTransactions = transactions
             .filter(t => t.id === selectedTransaction.id || resolveDescription(t) !== selectedDescription);
-
-        console.log(filteredTransactions);
 
         const _ = await transactionRepository.bulkCreateAsync(filteredTransactions);
                     
