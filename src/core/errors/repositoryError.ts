@@ -4,7 +4,7 @@ import { DatabaseError, ValidationError } from "sequelize";
 export default class RepositoryError extends Error {
     constructor(error: Error) {
         const message = (error instanceof ValidationError || error instanceof DatabaseError)
-            ? `${error.message}: ${error.name}${ 'parent' in error && error.parent instanceof SqlError
+            ? `${error.name}${ 'parent' in error && error.parent instanceof SqlError
                 ? ` (${String(error.parent.text)})`
                 : ''
             }`

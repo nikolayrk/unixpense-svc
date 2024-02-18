@@ -62,7 +62,7 @@ describe('Transaction Repository Tests', () => {
             const error = ex as Error;
 
             expect(error.name).toBe('RepositoryError');
-            expect(error.message).toMatch(/Validation error: SequelizeUniqueConstraintError \(Duplicate entry '(?:.+)' for key '(?:\w+)'\)/);
+            expect(error.message).toMatch(/SequelizeUniqueConstraintError \(Duplicate entry '(?:.+)' for key '(?:\w+)'\)/);
         }
 
         expect(actual).toBe(expected);
