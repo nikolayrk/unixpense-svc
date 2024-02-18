@@ -189,19 +189,19 @@
 <a name='L124'></a><a href='#L124'>124</a>
 <a name='L125'></a><a href='#L125'>125</a>
 <a name='L126'></a><a href='#L126'>126</a>
-<a name='L127'></a><a href='#L127'>127</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">8x</span>
+<a name='L127'></a><a href='#L127'>127</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -263,7 +263,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -288,7 +288,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -298,19 +298,19 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">263x</span>
+<span class="cline-any cline-yes">296x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">262x</span>
+<span class="cline-any cline-yes">295x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">261x</span>
-<span class="cline-any cline-yes">261x</span>
-<span class="cline-any cline-yes">261x</span>
+<span class="cline-any cline-yes">294x</span>
+<span class="cline-any cline-yes">294x</span>
+<span class="cline-any cline-yes">294x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">261x</span>
+<span class="cline-any cline-yes">294x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -318,12 +318,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { injectable } from "inversify";
 import ITransactionSourceProvider from "../../core/contracts/ITransactionSourceProvider";
 import IUsesGoogleOAuth2 from "../../googleOAuth2/contracts/IUsesGoogleOAuth2";
-import GoogleOAuth2Identifiers from "../../googleOAuth2/models/googleOAuth2Identifiers";
+import GoogleOAuth2Identifiers from "../../googleOAuth2/types/googleOAuth2Identifiers";
 import { DependencyInjector } from "../../dependencyInjector";
 import { injectables } from "../../core/types/injectables";
-import { paymentDetailsTestCases } from "../types/paymentDetailsTestCases";
-import { constructTransactionDataTestCase } from "../types/transactionDataTestCase";
+import { gmailPaymentDetailsTestCases } from "../types/gmailPaymentDetailsTestCases";
 import Constants from "../../constants";
+import { constructGmailTransactionDataTestCase } from "../utils/constructGmailTransactionDataTestCase";
 &nbsp;
 @injectable()
 export default class MockGmailTransactionSourceProvider implements ITransactionSourceProvider, IUsesGoogleOAuth2 {
@@ -418,7 +418,7 @@ export default class MockGmailTransactionSourceProvider implements ITransactionS
     }
 &nbsp;
     public async * generateTransactionIdsAsync(): AsyncGenerator&lt;string, [], undefined&gt; {
-        yield * Object.keys(paymentDetailsTestCases).filter(k =&gt; isNaN(Number(k)))[Symbol.iterator]();
+        yield * Object.keys(gmailPaymentDetailsTestCases).filter(k =&gt; isNaN(Number(k)))[Symbol.iterator]();
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        return [];</span>
     }
@@ -432,9 +432,9 @@ export default class MockGmailTransactionSourceProvider implements ITransactionS
             throw new Error(Constants.Mock.errorTransactionSourceId);
         }
 &nbsp;
-        if (transactionId in paymentDetailsTestCases) {
-            const transactionHead = constructTransactionDataTestCase(transactionId).attachmentDataHead;
-            const transactionBody = paymentDetailsTestCases[transactionId].attachmentDataBody;
+        if (transactionId in gmailPaymentDetailsTestCases) {
+            const transactionHead = constructGmailTransactionDataTestCase(transactionId).attachmentDataHead;
+            const transactionBody = gmailPaymentDetailsTestCases[transactionId].attachmentDataBody;
 &nbsp;
             return `${this.attachmentPaddingTop}${transactionHead}${transactionBody}${this.attachmentPaddingBottom}`;
         }
@@ -448,7 +448,7 @@ export default class MockGmailTransactionSourceProvider implements ITransactionS
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-02-16T08:54:19.820Z
+                at 2024-02-18T19:51:45.742Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

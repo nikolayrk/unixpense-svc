@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/gmail/utils/randomTransactionsUtils.ts</title>
+    <title>Code coverage report for src/core/utils/databaseContainerUtils.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../../prettify.css" />
     <link rel="stylesheet" href="../../../base.css" />
@@ -19,13 +19,13 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/gmail/utils</a> randomTransactionsUtils.ts</h1>
+        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/core/utils</a> databaseContainerUtils.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>32/32</span>
+                <span class='fraction'>25/25</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>10/10</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>29/29</span>
+                <span class='fraction'>22/22</span>
             </div>
         
             
@@ -120,120 +120,126 @@
 <a name='L55'></a><a href='#L55'>55</a>
 <a name='L56'></a><a href='#L56'>56</a>
 <a name='L57'></a><a href='#L57'>57</a>
-<a name='L58'></a><a href='#L58'>58</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">180x</span>
-<span class="cline-any cline-yes">180x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">406x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">211x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">211x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">211x</span>
-<span class="cline-any cline-yes">211x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">211x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">211x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">211x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import ITransactionProvider from "../../core/contracts/ITransactionProvider";
-import PaymentDetails from "../../core/models/paymentDetails";
-import Transaction from "../../core/models/transaction";
-import { paymentDetailsTestCases } from "../types/paymentDetailsTestCases";
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">75x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// @ts-ignore
+import { GenericContainer, StartedTestContainer, Wait } from 'testcontainers';
+import Constants from '../../constants';
+import { createDatabaseConnectionAsync } from '../../bootstrap';
+import { Sequelize } from 'sequelize-typescript';
+import * as mariadb from 'mariadb';
 &nbsp;
-const durstenfeldShuffle = &lt;T&gt;(array: T[]) =&gt; {
-    const result = array.slice(0);
+const createMariaDbContainerAsync = async () =&gt; {
+    const container = await new GenericContainer("mariadb")
+        .withEnvironment({ "MARIADB_ROOT_PASSWORD": Constants.Defaults.mariadbPassword })
+        .withExposedPorts(Constants.Defaults.mariadbPort)
+        .withWaitStrategy(Wait.forLogMessage("mariadbd: ready for connections.", 1))
+        .start();
 &nbsp;
-    for (let i = result.length - 1; i &gt; 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [result[i], result[j]] = [result[j], result[i]];
-    }
-&nbsp;
-    return result;
+    return container;
 }
 &nbsp;
-const resolveTransactionIds = () =&gt; {
-    return Object.keys(paymentDetailsTestCases).filter(k =&gt; isNaN(Number(k)));
-}
-&nbsp;
-const randomiseTransactionIds = (transactionIds: string[]) =&gt; {
-    const randomizedTransactionIds = durstenfeldShuffle(transactionIds);
+const createContainerDatabaseConnectionAsync = async (container: StartedTestContainer) =&gt; {
+    const mariadbHost = container.getHost();
+    const mariadbMappedPort = container.getMappedPort(Constants.Defaults.mariadbPort);
     
-    return randomizedTransactionIds;
-};
+    const connection = await createDatabaseConnectionAsync(
+        mariadbHost,
+        mariadbMappedPort,
+        Constants.Defaults.mariadbUser,
+        Constants.Defaults.mariadbPassword,
+        Constants.Defaults.mariadbDatabase);
 &nbsp;
-const resolveRandomNumberOfTransactionIds = (transactionIds: string[]) =&gt; {
-    const size = Math.random() * (transactionIds.length - 1) + 1;
-&nbsp;
-    return transactionIds.slice(0, size);
+    return connection;
 }
 &nbsp;
-const resolveTransactionsAsync = async (transactionProvider: ITransactionProvider, transactionIds: string[]) =&gt; {
-    const transactions = transactionIds
-        .map((transactionId: string) =&gt; {
-            const transaction = transactionProvider.resolveTransactionAsync(transactionId);
-            
-            return transaction;
-        })
-        .reduce(async (accumulator, current, i) =&gt; {
-            const currentValue = await current;
-            
-            const accumulatorValue = await accumulator;
+const clearDatabaseAsync = async (connection: Sequelize) =&gt; {
+    const pool = mariadb.createPool({
+        host: connection.options.host,
+        port: connection.options.port,
+        user: Constants.Defaults.mariadbUser,
+        password: Constants.Defaults.mariadbPassword,
+        database: Constants.Defaults.mariadbDatabase,
+        multipleStatements: true
+    });
 &nbsp;
-            accumulatorValue.push(currentValue);
+    const conn = await pool.getConnection();
 &nbsp;
-            return accumulator;
-        }, Promise.resolve([] as Transaction&lt;PaymentDetails&gt;[]));
+    await conn.query([
+            'card_operations',
+            'standard_transfers',
+            'transactions'
+       ].map(table =&gt; `DELETE FROM ${table};`)
+        .join(''));
 &nbsp;
-    return transactions;
-};
+    await conn.release();
+&nbsp;
+    await pool.end();
+}
 &nbsp;
 export {
-    resolveTransactionIds,
-    randomiseTransactionIds,
-    resolveRandomNumberOfTransactionIds,
-    resolveTransactionsAsync
+    createMariaDbContainerAsync,
+    createContainerDatabaseConnectionAsync,
+    clearDatabaseAsync
 }</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -241,7 +247,7 @@ export {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-02-16T08:54:19.820Z
+                at 2024-02-18T19:51:45.742Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

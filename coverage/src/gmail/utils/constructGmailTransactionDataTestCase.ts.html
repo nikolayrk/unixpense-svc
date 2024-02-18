@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/core/entities/cardOperation.entity.ts</title>
+    <title>Code coverage report for src/gmail/utils/constructGmailTransactionDataTestCase.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../../prettify.css" />
     <link rel="stylesheet" href="../../../base.css" />
@@ -19,13 +19,13 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/core/entities</a> cardOperation.entity.ts</h1>
+        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/gmail/utils</a> constructGmailTransactionDataTestCase.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
@@ -39,7 +39,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
@@ -86,8 +86,17 @@
 <a name='L21'></a><a href='#L21'>21</a>
 <a name='L22'></a><a href='#L22'>22</a>
 <a name='L23'></a><a href='#L23'>23</a>
-<a name='L24'></a><a href='#L24'>24</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">323x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">323x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -97,49 +106,46 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Table, AllowNull, Column, DataType } from "sequelize-typescript";
-import PaymentDetailsEntityBase from "./paymentDetails.entity.base";
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import EntryType from "../../core/enums/entryType";
+import { TransactionDataTestCase } from "../../core/types/transactionDataTestCase";
+import { generateTransactionReference } from "../../core/utils/transactionUtils";
+import { parse as dateParse } from 'date-format-parse';
 &nbsp;
-&nbsp;
-@Table({
-    modelName: "card_operation",
-    timestamps: false,
-    indexes: [{
-        fields: ['transaction_id']
-    }]
-})
-export default class CardOperationEntity extends PaymentDetailsEntityBase {
-    @AllowNull(true)
-    @Column
-    instrument!: string;
-&nbsp;
-    @AllowNull(true)
-    @Column(DataType.DECIMAL(20, 2))
-    sum!: string;
-&nbsp;
-    @AllowNull(true)
-    @Column
-    currency!: string;
-}</pre></td></tr></table></pre>
+export const constructGmailTransactionDataTestCase = (transactionId: string): TransactionDataTestCase =&gt; {
+    const reference = generateTransactionReference(transactionId);
+    
+    return {
+        attachmentDataHead: `
+                &lt;td nowrap="" align="center"&gt;31.03.2023 14:56:31&lt;/td&gt;
+                &lt;td nowrap="" align="right"&gt;
+                    &lt;font color="blue" data-darkreader-inline-color="" style="--darkreader-inline-color:#337dff;"&gt;${reference}&lt;/font&gt;
+                &lt;/td&gt;
+                &lt;td nowrap="" align="center"&gt;30.03.2023&lt;/td&gt;
+                &lt;td nowrap="" align="right"&gt;4.48&lt;/td&gt;
+                &lt;td nowrap="" align="center"&gt;ДТ&lt;/td&gt;`,
+        expectedTransactionDataHead: {
+            date: dateParse('31.03.2023 14:56:31', 'DD.MM.YYYY HH:mm:ss'),
+            reference: reference,
+            valueDate: dateParse('30.03.2023', 'DD.MM.YYYY'),
+            sum: '4.48',
+            entryType: EntryType.DEBIT,
+        }
+    }
+};</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-02-16T08:54:19.820Z
+                at 2024-02-18T19:51:45.742Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
