@@ -11,6 +11,7 @@ import RepositoryError from '../errors/repositoryError';
 
 const Migrations = [
     '00_initial.up.sql',
+    '01_full-text-indexers.up.sql'
 ] as const;
 
 type MigrationsUnion = typeof Migrations[number];
@@ -51,10 +52,66 @@ describe('Database Migration Tests', () => {
         await clearDatabaseAsync(connection);        
     });
 
+    const defineMigrationTests_01_up = async () => {
+        await connection.query(`
+            INSERT INTO transactions (id, date, reference, value_date, sum, entry_type, type)
+            VALUES ('transaction_id_0', '2024-02-17', 'reference_value_0', '2024-02-17', 0.00, 'entry_type_value', 'type_value');
+
+            INSERT INTO card_operations (transaction_id, recipient, instrument)
+            VALUES ('transaction_id_0', 'Lorem ipsum dolor sit amet', 'Consectetur adipiscing elit');
+
+            INSERT INTO transactions (id, date, reference, value_date, sum, entry_type, type)
+            VALUES ('transaction_id_1', '2024-02-17', 'reference_value_1', '2024-02-17', 0.00, 'entry_type_value', 'type_value');
+            
+            INSERT INTO standard_transfers (transaction_id, recipient, description)
+            VALUES ('transaction_id_1', 'Sed do eiusmod tempor incididunt', 'Vitae aliquam justo tincidunt');
+        `);
+        
+        const cardOperationRecipientResult = await connection.query(`
+            SELECT * FROM card_operations WHERE MATCH(recipient) AGAINST('ipsum');
+        `, { plain: true });
+        
+        const cardOperationInstrumentResult = await connection.query(`
+            SELECT * FROM card_operations WHERE MATCH(instrument) AGAINST('adipiscing');
+        `, { plain: true });
+        
+        const standardTransferRecipientResult = await connection.query(`
+            SELECT * FROM standard_transfers WHERE MATCH(recipient) AGAINST('tempor');
+        `, { plain: true });
+        
+        const standardTransferDescriptionResult = await connection.query(`
+            SELECT * FROM standard_transfers WHERE MATCH(description) AGAINST('justo');
+        `, { plain: true });
+        
+        expect(cardOperationRecipientResult?.recipient).toContain('ipsum');
+        expect(cardOperationInstrumentResult?.instrument).toContain('adipiscing');
+        expect(standardTransferRecipientResult?.recipient).toContain('tempor');
+        expect(standardTransferDescriptionResult?.description).toContain('justo');
+    }
+
+    const defineMigrationTests_01_down = async () => {
+        await expect(async () => connection.query(`
+            SELECT * FROM card_operations WHERE MATCH(recipient) AGAINST('ipsum');
+        `, { plain: true })).rejects.toThrowError(DatabaseError);
+        
+        await expect(async () => connection.query(`
+            SELECT * FROM card_operations WHERE MATCH(instrument) AGAINST('adipiscing');
+        `, { plain: true })).rejects.toThrowError(DatabaseError);
+        
+        await expect(async () => connection.query(`
+            SELECT * FROM standard_transfers WHERE MATCH(recipient) AGAINST('tempor');
+        `, { plain: true })).rejects.toThrowError(DatabaseError);
+        
+        await expect(async () => connection.query(`
+            SELECT * FROM standard_transfers WHERE MATCH(description) AGAINST('justo');
+        `, { plain: true })).rejects.toThrowError(DatabaseError);
+    }
+
     const migrationMap: {
         [key in MigrationsUnion]: [(() => Promise<void>) | undefined, (() => Promise<void>) | undefined]
     } = {
         ['00_initial.up.sql']: [undefined, undefined],
+        ['01_full-text-indexers.up.sql']: [defineMigrationTests_01_up, defineMigrationTests_01_down]
     };
 
     const migrationsWithTests = Object.keys(migrationMap);

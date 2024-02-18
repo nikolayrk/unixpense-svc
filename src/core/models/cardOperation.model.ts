@@ -7,6 +7,12 @@ import PaymentDetailsBase from "./paymentDetails.model.base";
     timestamps: false,
     indexes: [{
         fields: ['transaction_id']
+    }, {
+        fields: ['recipient'],
+        type: 'FULLTEXT'
+    }, {
+        fields: ['instrument'],
+        type: 'FULLTEXT'
     }]
 })
 export default class CardOperation extends PaymentDetailsBase {

@@ -6,6 +6,12 @@ import PaymentDetailsBase from "./paymentDetails.model.base";
     timestamps: false,
     indexes: [{
         fields: ['transaction_id']
+    }, {
+        fields: ['recipient'],
+        type: 'FULLTEXT'
+    }, {
+        fields: ['description'],
+        type: 'FULLTEXT'
     }]
 })
 export default class StandardTransfer extends PaymentDetailsBase {
