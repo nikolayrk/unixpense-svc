@@ -16,6 +16,8 @@ import { randomiseTransactionIds, resolveRandomNumberOfTransactionIds, resolveTr
 import { TransactionTypeExtensions } from '../../core/extensions/transactionTypeExtensions';
 import { EntryTypeExtensions } from '../../core/extensions/entryTypeExtensions';
 import { gmailPaymentDetailsTestCases } from '../../gmail/types/gmailPaymentDetailsTestCases';
+import CardOperation from '../../core/types/cardOperation';
+import StandardTransfer from '../../core/types/standardTransfer';
 
 describe('Base Transactions Routes Tests', () => {
     let container: StartedTestContainer;
@@ -282,6 +284,80 @@ describe('Base Transactions Routes Tests', () => {
         const expected = transactions
             .sort((a, b) => a.id.localeCompare(b.id))
             .map(TransactionExtensions.toResponse);
+
+        expect(response.body).toEqual(expected)
+        expect(response.statusCode).toBe(200);
+        expect(response.headers["content-type"]).toMatch(/json/);
+    });
+
+    it('should persist a random number of transactions then query them back by recipient', async () => {
+        const transactions = await
+            resolveTransactionsAsync(transactionProvider,
+                resolveRandomNumberOfTransactionIds(
+                    randomiseTransactionIds(
+                        resolveTransactionIds(gmailPaymentDetailsTestCases))));
+
+        const _ = await transactionRepository.bulkCreateAsync(transactions);
+                    
+        const date = transactions
+            .map(t => t.valueDate)
+            .sort((first: Date, second: Date) => first.getTime() - second.getTime())
+            .at(0) as Date;
+        const dateQuery = date.toQuery();
+        const recipientQuery = transactions
+            .map(t => t.paymentDetails.recipient)
+            .reduce((acc, curr) => {
+                if(!acc.includes(curr)) {
+                    acc.push(curr);
+                }
+                return acc;
+            }, [] as string[])
+            .filter(r => r !== Constants.defaultPaymentDetails.recipient)
+            .join(' ');
+
+        const response = await supertest.agent(app)
+            .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&recipient=${encodeURIComponent(recipientQuery)}`)
+            .set('Accept', 'application/json')
+            .send();
+
+        const expected = transactions
+            .filter(t => t.paymentDetails.recipient !== Constants.defaultPaymentDetails.recipient)
+            .sort((a, b) => a.id.localeCompare(b.id))
+            .map(TransactionExtensions.toResponse);
+
+        expect(response.body).toEqual(expected)
+        expect(response.statusCode).toBe(200);
+        expect(response.headers["content-type"]).toMatch(/json/);
+    });
+
+    it('should persist a random transaction then query it back by description', async () => {
+        const transactions = await
+            resolveTransactionsAsync(transactionProvider,
+                resolveRandomNumberOfTransactionIds(
+                    randomiseTransactionIds(
+                        resolveTransactionIds(gmailPaymentDetailsTestCases))));
+
+        const selectedTransaction = transactions
+            .filter(t => t.paymentDetails !== Constants.defaultPaymentDetails)
+            .at(0)!;
+
+        const _ = await transactionRepository.bulkCreateAsync([selectedTransaction]);
+                    
+        const date = transactions
+            .map(t => t.valueDate)
+            .sort((first: Date, second: Date) => first.getTime() - second.getTime())
+            .at(0) as Date;
+        const dateQuery = date.toQuery();
+        const descriptionQuery = TransactionTypeExtensions.isCardOperation(selectedTransaction.type)
+            ? (<CardOperation>selectedTransaction.paymentDetails).instrument
+            : (<StandardTransfer>selectedTransaction.paymentDetails).description;
+
+        const response = await supertest.agent(app)
+            .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&description=${encodeURIComponent(String(descriptionQuery))}`)
+            .set('Accept', 'application/json')
+            .send();
+
+        const expected = [TransactionExtensions.toResponse(selectedTransaction)];
 
         expect(response.body).toEqual(expected)
         expect(response.statusCode).toBe(200);

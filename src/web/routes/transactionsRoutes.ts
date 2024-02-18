@@ -52,6 +52,16 @@ const router = express.Router();
  *           type: array
  *           items:
  *             $ref: '#/components/schemas/entryTypes'
+ *       - name: recipient
+ *         in: query
+ *         required: false
+ *         type: string
+ *         example: UNICREDIT BULBANK
+ *       - name: description
+ *         in: query
+ *         required: false
+ *         type: string
+ *         example: ATM
  *     responses:
  *       200:
  *         description: A collection of Gmail transaction data objects

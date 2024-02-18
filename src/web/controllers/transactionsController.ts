@@ -27,13 +27,25 @@ const get = async (req: Request, res: Response) => {
     }
 
     try {
-        const { fromDate, toDate, fromSum, toSum, types, entryTypes } = req.query;
+        const {
+            fromDate,
+            toDate,
+            fromSum,
+            toSum,
+            types,
+            entryTypes,
+            recipient,
+            description
+        } = req.query;
+
         const fromDateParsed = String(fromDate).concat(' 00:00:00').toUTCDate();
         const toDateParsed = String(toDate).concat(' 23:59:59').toUTCDate();
         const fromSumParsed = fromSum === undefined ? null : Number(fromSum);
         const toSumParsed = toSum === undefined ? null : Number(toSum);
         const typesParsed = parseEnumQuery(types).map(TransactionTypeExtensions.toEnum);
         const entryTypesParsed = parseEnumQuery(entryTypes).map(EntryTypeExtensions.toEnum);
+        const recipientParsed = recipient ? String(recipient) : null;
+        const descriptionParsed = description ? String(description) : null;
 
         if (isNaN(fromDateParsed.getTime()) || isNaN(toDateParsed.getTime())) {
             return ResponseExtensions.badRequest(res, `Invalid date value: ${fromDate} / ${toDate}`);
@@ -69,7 +81,15 @@ const get = async (req: Request, res: Response) => {
             }
         }
 
-        const transactions = await transactionRepository.getAsync(fromDateParsed, toDateParsed, typesParsed, entryTypesParsed, fromSumParsed, toSumParsed);
+        const transactions = await transactionRepository.getAsync(
+            fromDateParsed,
+            toDateParsed,
+            typesParsed,
+            entryTypesParsed,
+            fromSumParsed,
+            toSumParsed,
+            recipientParsed,
+            descriptionParsed);
         
         const resolvedCount = transactions.length;
 
@@ -90,6 +110,12 @@ const get = async (req: Request, res: Response) => {
             ...(entryTypesParsed.length > 0) && {
                 entry_types: entryTypesParsed.join()
             },
+            ...(recipientParsed !== null) && {
+                recipient: recipientParsed
+            },
+            ...(descriptionParsed !== null) && {
+                description: description
+            }
         });
 
         const result = transactions.map(TransactionExtensions.toResponse);
