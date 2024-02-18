@@ -257,7 +257,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
   // Standard Transfers
   'INTEREST_PAYMENT': {
       attachmentDataBody: `
-        <td nowrap="" align="left">Плащане на лихва<br><br>Плащане на лихва 70001234567820 BGN .25<br></td>
+        <td nowrap="" align="left">Плащане на лихва<br><br>Плащане на лихва 70001234567820 BGN 1234.56<br></td>
         <td align="center">
         <table>
             <tbody><tr>
@@ -270,7 +270,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
         </td>`,
       expectedTransactionDataBody: {
           transactionType: TransactionType.INTEREST_PAYMENT,
-          paymentDetailsRaw: ['70001234567820 BGN .25'],
+          paymentDetailsRaw: ['70001234567820 BGN 1234.56'],
           additionalDetailsRaw: [
               'NA',
               'UNICREDIT BULBANK'
@@ -279,12 +279,12 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
       expectedPaymentDetails: {
           recipient: 'UNICREDIT BULBANK',
           recipientIban: 'NA',
-          description: '70001234567820 BGN .25',
+          description: '70001234567820 BGN 1234.56',
       } as StandardTransfer
   },
   'INTEREST_TAX': {
       attachmentDataBody: `
-        <td nowrap="" align="left">Удържане на данък в/у лихва<br><br>Удържане на данък в/у лихва 70001234567820 BGN .02<br></td>
+        <td nowrap="" align="left">Удържане на данък в/у лихва<br><br>Удържане на данък в/у лихва 70001234567820 BGN 1234.56<br></td>
         <td align="center">
           <table width="100%">
             <tbody><tr>
@@ -297,7 +297,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
         </td>`,
       expectedTransactionDataBody: {
           transactionType: TransactionType.INTEREST_TAX,
-          paymentDetailsRaw: ['70001234567820 BGN .02'],
+          paymentDetailsRaw: ['70001234567820 BGN 1234.56'],
           additionalDetailsRaw: [
               'NA',
               'UNICREDIT BULBANK'
@@ -306,7 +306,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
       expectedPaymentDetails: {
           recipient: 'UNICREDIT BULBANK',
           recipientIban: 'NA',
-          description: '70001234567820 BGN .02'
+          description: '70001234567820 BGN 1234.56'
       } as StandardTransfer
   },
   'PRINCIPAL_REPAYMENT': {
@@ -338,7 +338,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
   },
   'INSURANCE_PREMIUM': {
       attachmentDataBody: `
-        <td nowrap="" align="left">Застрахователна премия<br><br>Застрахователна премия 70001234567820 BGN 1.23<br></td>
+        <td nowrap="" align="left">Застрахователна премия<br><br>Застрахователна премия 70001234567820 BGN 1234.56<br></td>
         <td align="center">
           <table width="100%">
             <tbody><tr>
@@ -351,7 +351,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
         </td>`,
       expectedTransactionDataBody: {
           transactionType: TransactionType.INSURANCE_PREMIUM,
-          paymentDetailsRaw: ['70001234567820 BGN 1.23'],
+          paymentDetailsRaw: ['70001234567820 BGN 1234.56'],
           additionalDetailsRaw: [
               'NA',
               'UNICREDIT BULBANK'
@@ -360,12 +360,12 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
       expectedPaymentDetails: {
           recipient: 'UNICREDIT BULBANK',
           recipientIban: 'NA',
-          description: '70001234567820 BGN 1.23'
+          description: '70001234567820 BGN 1234.56'
       } as StandardTransfer
   },
   'INTEREST_REPAYMENT': {
       attachmentDataBody: `
-        <td nowrap="" align="left">Погасяв.на л-ва за редовна главница<br><br>Погасяв.на л-ва за редовна главница 70001234567820 BGN 4.56<br></td>
+        <td nowrap="" align="left">Погасяв.на л-ва за редовна главница<br><br>Погасяв.на л-ва за редовна главница 70001234567820 BGN 1234.56<br></td>
         <td align="center">
           <table width="100%">
             <tbody><tr>
@@ -378,7 +378,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
         </td>`,
       expectedTransactionDataBody: {
           transactionType: TransactionType.INTEREST_REPAYMENT,
-          paymentDetailsRaw: ['70001234567820 BGN 4.56'],
+          paymentDetailsRaw: ['70001234567820 BGN 1234.56'],
           additionalDetailsRaw: [
               'NA',
               'UNICREDIT BULBANK'
@@ -387,7 +387,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
       expectedPaymentDetails: {
           recipient: 'UNICREDIT BULBANK',
           recipientIban: 'NA',
-          description: '70001234567820 BGN 4.56'
+          description: '70001234567820 BGN 1234.56'
       } as StandardTransfer
   },
   'INTERNAL_TRANSFER > Вътрешно банков превод Payroll': {

@@ -38,7 +38,9 @@ const randomiseTransactionIds = (transactionIds: string[]) => {
 };
 
 const resolveRandomNumberOfTransactionIds = (transactionIds: string[]) => {
-    const size = Math.random() * (transactionIds.length - 1) + 1;
+    const max = transactionIds.length;
+    const min = transactionIds.length / 2;
+    const size = Math.random() * (max - min) + min;
 
     return transactionIds.slice(0, size);
 }

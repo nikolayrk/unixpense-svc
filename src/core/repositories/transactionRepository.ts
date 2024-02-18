@@ -46,13 +46,13 @@ export default class TransactionRepository {
                     .includes(e.id));
         const filteredRecipientEntities = recipientEntities === null
             ? null
-            : recipientEntities
+            : entities
                 .filter(e => recipientEntities
                     .map(r => r.id)
                     .includes(e.id));
         const filteredDescriptionEntities = descriptionEntities === null
             ? null
-            : descriptionEntities
+            : entities
                 .filter(e => descriptionEntities
                     .map(r => r.id)
                     .includes(e.id));

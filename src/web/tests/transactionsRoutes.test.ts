@@ -18,6 +18,8 @@ import { EntryTypeExtensions } from '../../core/extensions/entryTypeExtensions';
 import { gmailPaymentDetailsTestCases } from '../../gmail/types/gmailPaymentDetailsTestCases';
 import CardOperation from '../../core/types/cardOperation';
 import StandardTransfer from '../../core/types/standardTransfer';
+import PaymentDetails from '../../core/types/paymentDetails';
+import Transaction from '../../core/types/transaction';
 
 describe('Base Transactions Routes Tests', () => {
     let container: StartedTestContainer;
@@ -330,36 +332,48 @@ describe('Base Transactions Routes Tests', () => {
         expect(response.headers["content-type"]).toMatch(/json/);
     });
 
-    it('should persist a random transaction then query it back by description', async () => {
+    it('should persist a random number of transactions then query one back by description', async () => {
         const transactions = await
             resolveTransactionsAsync(transactionProvider,
                 resolveRandomNumberOfTransactionIds(
                     randomiseTransactionIds(
                         resolveTransactionIds(gmailPaymentDetailsTestCases))));
 
+        const resolveDescription = (t: Transaction<PaymentDetails>) =>
+            TransactionTypeExtensions.isCardOperation(t.type)
+                ? (<CardOperation>t.paymentDetails).instrument
+                : (<StandardTransfer>t.paymentDetails).description;
+
         const selectedTransaction = transactions
-            .filter(t => t.paymentDetails !== Constants.defaultPaymentDetails)
+            .filter(t => resolveDescription(t) !== "" && resolveDescription(t) !== "N/A")
             .at(0)!;
 
-        const _ = await transactionRepository.bulkCreateAsync([selectedTransaction]);
+        const selectedDescription = resolveDescription(selectedTransaction);
+
+        console.log(selectedDescription);
+
+        const filteredTransactions = transactions
+            .filter(t => t.id === selectedTransaction.id || resolveDescription(t) !== selectedDescription);
+
+        console.log(filteredTransactions);
+
+        const _ = await transactionRepository.bulkCreateAsync(filteredTransactions);
                     
-        const date = transactions
+        const date = filteredTransactions
             .map(t => t.valueDate)
             .sort((first: Date, second: Date) => first.getTime() - second.getTime())
             .at(0) as Date;
         const dateQuery = date.toQuery();
-        const descriptionQuery = TransactionTypeExtensions.isCardOperation(selectedTransaction.type)
-            ? (<CardOperation>selectedTransaction.paymentDetails).instrument
-            : (<StandardTransfer>selectedTransaction.paymentDetails).description;
+        const descriptionQuery = encodeURIComponent(String(selectedDescription));
 
         const response = await supertest.agent(app)
-            .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&description=${encodeURIComponent(String(descriptionQuery))}`)
+            .get(`/api/transactions?fromDate=${dateQuery}&toDate=${dateQuery}&description=${descriptionQuery}`)
             .set('Accept', 'application/json')
             .send();
 
-        const expected = [TransactionExtensions.toResponse(selectedTransaction)];
+        const expected = TransactionExtensions.toResponse(selectedTransaction);
 
-        expect(response.body).toEqual(expected)
+        expect(response.body).toContainEqual(expected);
         expect(response.statusCode).toBe(200);
         expect(response.headers["content-type"]).toMatch(/json/);
     });
