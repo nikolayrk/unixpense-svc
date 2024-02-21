@@ -9,6 +9,7 @@ import { TransactionTypeExtensions } from "../../core/extensions/transactionType
 import { EntryTypeExtensions } from "../../core/extensions/entryTypeExtensions";
 import TransactionType from "../../core/enums/transactionType";
 import EntryType from "../../core/enums/entryType";
+import Constants from "../../constants";
 
 const get = async (req: Request, res: Response) => {
     const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
@@ -30,6 +31,8 @@ const get = async (req: Request, res: Response) => {
         const {
             fromDate,
             toDate,
+            since,
+            count,
             fromSum,
             toSum,
             types,
@@ -38,8 +41,10 @@ const get = async (req: Request, res: Response) => {
             description
         } = req.query;
 
-        const fromDateParsed = String(fromDate).concat(' 00:00:00').toUTCDate();
-        const toDateParsed = String(toDate).concat(' 23:59:59').toUTCDate();
+        const fromDateParsed = fromDate === undefined ? null : String(fromDate).concat(' 00:00:00').toUTCDate();
+        const toDateParsed = toDate === undefined ? null : String(toDate).concat(' 23:59:59').toUTCDate();
+        const sinceParsed = since === undefined ? new Date() : new Date(String(since));
+        const countParsed = count === undefined ? Constants.defaultTransactionCount : Number(count);
         const fromSumParsed = fromSum === undefined ? null : Number(fromSum);
         const toSumParsed = toSum === undefined ? null : Number(toSum);
         const typesParsed = parseEnumQuery(types).map(TransactionTypeExtensions.toEnum);
@@ -47,12 +52,24 @@ const get = async (req: Request, res: Response) => {
         const recipientParsed = recipient ? String(recipient) : null;
         const descriptionParsed = description ? String(description) : null;
 
-        if (isNaN(fromDateParsed.getTime()) || isNaN(toDateParsed.getTime())) {
-            return ResponseExtensions.badRequest(res, `Invalid date value: ${fromDate} / ${toDate}`);
+        if (fromDateParsed !== null && isNaN(fromDateParsed.getTime())) {
+            return ResponseExtensions.badRequest(res, `Invalid fromDate value: ${fromDate}`);
         }
 
-        if (fromDateParsed.getTime() > toDateParsed.getTime()) {
+        if (toDateParsed !== null && isNaN(toDateParsed.getTime())) {
+            return ResponseExtensions.badRequest(res, `Invalid toDate value: ${toDate}`);
+        }
+
+        if (fromDateParsed !== null && toDateParsed !== null && fromDateParsed.getTime() > toDateParsed.getTime()) {
             return ResponseExtensions.badRequest(res, `Invalid date range: ${fromDateParsed.toResponse()} - ${toDateParsed.toResponse()}`);
+        }
+
+        if (isNaN(sinceParsed.getTime())) {
+            return ResponseExtensions.badRequest(res, `Invalid since value: ${since}`);
+        }
+
+        if (isNaN(Number(countParsed))) {
+            return ResponseExtensions.badRequest(res, `Invalid count value: ${count}`);
         }
 
         if (fromSumParsed !== null && (Number.isNaN(fromSumParsed) || fromSumParsed < 0)) {
@@ -84,6 +101,8 @@ const get = async (req: Request, res: Response) => {
         const transactions = await transactionRepository.getAsync(
             fromDateParsed,
             toDateParsed,
+            sinceParsed,
+            countParsed,
             typesParsed,
             entryTypesParsed,
             fromSumParsed,

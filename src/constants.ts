@@ -39,4 +39,6 @@ export default class Constants {
     public static readonly defaultPaymentDetails: PaymentDetails = {
         recipient: '<N/A>'
     };
+
+    public static readonly defaultTransactionCount: number = 25;
 }

@@ -19,8 +19,10 @@ export default class TransactionRepository {
                 r.map(e => e.id));
 
     public async getAsync(
-        fromDate: Date,
-        toDate: Date,
+        fromDate: Date | null,
+        toDate: Date | null,
+        since: Date,
+        count: number,
         types: TransactionType[],
         entryTypes: EntryType[],
         fromSum: number | null,
@@ -28,7 +30,7 @@ export default class TransactionRepository {
         recipient: string | null,
         description: string | null
     ) {
-        const entities = await this.queryAsync(fromDate, toDate, types, entryTypes, fromSum, toSum);
+        const entities = await this.queryAsync(fromDate, toDate, since, count, types, entryTypes, fromSum, toSum);
 
         const recipientEntities = recipient !== null
             ? await this.searchByRecipientAsync(recipient)
@@ -93,8 +95,10 @@ export default class TransactionRepository {
     }
 
     private async queryAsync(
-        fromDate: Date,
-        toDate: Date,
+        fromDate: Date | null,
+        toDate: Date | null,
+        since: Date,
+        count: number,
         types: TransactionType[],
         entryTypes: EntryType[],
         fromSum: number | null,
@@ -102,8 +106,25 @@ export default class TransactionRepository {
     ) {
         const entities = await TransactionModel.findAll({
             where: {
-                value_date: {
-                    [Op.between]: [fromDate.toSqlDate(), toDate.toSqlDate()]
+                date: {
+                    [Op.lt]: since.toSqlDate()
+                },
+                ...(fromDate !== null && toDate !== null) && {
+                    value_date: {
+                        [Op.between]: [fromDate.toSqlDate(), toDate.toSqlDate()],
+                    },
+                } || {
+                    ...(fromDate !== null) && {
+                        value_date: {
+                            [Op.gte]: fromDate.toSqlDate()
+                        }
+                    } || {
+                        ...(toDate !== null) && {
+                            value_date: {
+                                [Op.lt]: toDate.toSqlDate()
+                            }
+                        }
+                    }
                 },
                 ...(fromSum !== null || toSum !== null) && {
                     sum: {
@@ -129,6 +150,11 @@ export default class TransactionRepository {
             include: [
                 TransactionModel.associations['card_operation'],
                 TransactionModel.associations['standard_transfer'],
+            ],
+            limit: count,
+            order: [
+                [ 'date', 'DESC' ],
+                [ 'id', 'DESC' ],
             ]
         });
 

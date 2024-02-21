@@ -15,14 +15,14 @@ const router = express.Router();
  *     parameters:
  *       - name: fromDate
  *         in: query
- *         required: true
+ *         required: false
  *         schema:
  *           type: string
  *           format: date
  *           example: 2020-03-13
  *       - name: toDate
  *         in: query
- *         required: true
+ *         required: false
  *         schema:
  *           type: string
  *           format: date
@@ -62,6 +62,18 @@ const router = express.Router();
  *         required: false
  *         type: string
  *         example: ATM
+ *       - name: since
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *           example: 2022-07-21T17:32:28.000Z
+ *       - name: count
+ *         in: query
+ *         required: false
+ *         type: integer
+ *         example: 25
  *     responses:
  *       200:
  *         description: A collection of Gmail transaction data objects
