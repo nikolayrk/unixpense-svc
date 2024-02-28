@@ -16,6 +16,9 @@ const Migrations = [
 
 type MigrationsUnion = typeof Migrations[number];
 
+type MigrationAction = (() => Promise<void>) | undefined;
+type MigrationActionPair = [MigrationAction, MigrationAction];
+
 describe('Database Migration Tests', () => {
     let container: StartedTestContainer;
     let connection: Sequelize;
@@ -52,7 +55,7 @@ describe('Database Migration Tests', () => {
         await clearDatabaseAsync(connection);        
     });
 
-    const defineMigrationTests_01_up = async () => {
+    const defineMigrationTests_01_up_postAction = async () => {
         await connection.query(`
             INSERT INTO transactions (id, date, reference, value_date, sum, entry_type, type)
             VALUES ('transaction_id_0', '2024-02-17', 'reference_value_0', '2024-02-17', 0.00, 'entry_type_value', 'type_value');
@@ -89,7 +92,7 @@ describe('Database Migration Tests', () => {
         expect(standardTransferDescriptionResult?.description).toContain('justo');
     }
 
-    const defineMigrationTests_01_down = async () => {
+    const defineMigrationTests_01_down_postAction = async () => {
         await expect(async () => connection.query(`
             SELECT * FROM card_operations WHERE MATCH(recipient) AGAINST('ipsum');
         `, { plain: true })).rejects.toThrowError(DatabaseError);
@@ -108,20 +111,30 @@ describe('Database Migration Tests', () => {
     }
 
     const migrationMap: {
-        [key in MigrationsUnion]: [(() => Promise<void>) | undefined, (() => Promise<void>) | undefined]
+        [key in MigrationsUnion]: [ MigrationActionPair, MigrationActionPair ]
     } = {
-        ['00_initial.up.sql']: [undefined, undefined],
-        ['01_full-text-indexers.up.sql']: [defineMigrationTests_01_up, defineMigrationTests_01_down]
+        ['00_initial.up.sql']: [
+            [undefined, undefined],
+            [undefined, undefined]
+        ],
+        ['01_full-text-indexers.up.sql']: [
+            [undefined, defineMigrationTests_01_up_postAction],
+            [undefined, defineMigrationTests_01_down_postAction]
+        ],
     };
 
     const migrationsWithTests = Object.keys(migrationMap);
 
-    const defineMigrationUpTest = (migrationScriptName: string, verify?: () => Promise<void>) => {
+    const defineMigrationUpTest = (migrationScriptName: string, actions: MigrationActionPair) => {
+        const [preAction, postAction] = [ ...actions ];
+
         it(`should apply '${migrationScriptName.replace('.up.sql', '')}' migration script`, async () => {
             try {
+                await preAction?.();
+
                 await migrationTool.up({ migrations: [migrationScriptName] });
     
-                await verify?.();
+                await postAction?.();
             } catch(ex) {
                 throw new RepositoryError(ex);
             }
@@ -133,12 +146,16 @@ describe('Database Migration Tests', () => {
             .entries(migrationMap)
             .map(([k, [up, _]]) => k === migrationName ? defineMigrationUpTest(k, up) : null);
 
-    const defineMigrationDownTest = (migrationScriptName: string, verify?: () => Promise<void>) => {
+    const defineMigrationDownTest = (migrationScriptName: string, actions: MigrationActionPair) => {
+        const [preAction, postAction] = [ ...actions ];
+
         it(`should revert '${migrationScriptName.replace('.up.sql', '')}' migration script`, async () => {
             try {
+                await preAction?.();
+
                 await migrationTool.down({ migrations: [migrationScriptName] });
     
-                await verify?.();
+                await postAction?.();
             } catch(ex) {
                 throw new RepositoryError(ex);
             }
