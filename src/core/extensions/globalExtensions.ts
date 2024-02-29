@@ -18,7 +18,8 @@ Date.prototype.toSqlDate = function (this: Date) {
     const sqlDate = this
         .toISOString()
         .slice(0, 19)
-        .replace('T', ' ');
+        .replace('T', ' ')
+        .concat('.000000');
 
     return sqlDate;
 }
@@ -38,7 +39,10 @@ Date.prototype.toResponse = function (this: Date) {
 }
 
 String.prototype.toUTCDate = function (this: string) {
-    const isoDate = `${this}.000Z`.replace(' ', 'T');
+    const isoDate = this
+        .replace(' ', 'T')
+        .replace('.000000', '')
+        .concat('.000Z');
     
     return new Date(isoDate)
 }

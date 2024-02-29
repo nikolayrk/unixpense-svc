@@ -54,14 +54,10 @@ export class TransactionExtensions {
     }
 
     public static trimEntity(entity: TransactionModel) {
-        const { date, value_date, ...rest } = entity.dataValues;
-
-        if (date instanceof Date && value_date instanceof Date) {
-            return entity.dataValues;
-        }
+        const { date, value_date, ...rest }: { date: Date, value_date: Date } = entity.dataValues;
         
-        const utcDate = date.toUTCDate().toISOString();
-        const utcValueDate = value_date.toUTCDate().toISOString();
+        const utcDate = date.toISOString();
+        const utcValueDate = value_date.toISOString();
 
         return { date: utcDate, value_date: utcValueDate, ...rest };
     }

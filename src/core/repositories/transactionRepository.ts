@@ -18,7 +18,7 @@ export default class TransactionRepository {
             .then(r =>
                 r.map(e => e.id));
 
-    public async getAsync(
+    public async filterAsync(
         fromDate: Date | null,
         toDate: Date | null,
         since: Date,

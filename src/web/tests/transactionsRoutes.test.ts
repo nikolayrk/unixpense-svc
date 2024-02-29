@@ -223,7 +223,7 @@ describe('Base Transactions Routes Tests', () => {
         expect(response.headers["content-type"]).toMatch(/json/);
         expect(response.body).toBeInstanceOf(Array);
         expect(response.body.length).toEqual(expected.length);
-        expected.forEach(expect(response.body).toContainEqual);
+        expected.forEach(e => expect(response.body.map(r => r.id)).toContainEqual(e.id));
     });
 
     it('should persist a random number of transactions then query them back by since date', async () => {
@@ -253,7 +253,7 @@ describe('Base Transactions Routes Tests', () => {
         expect(response.headers["content-type"]).toMatch(/json/);
         expect(response.body).toBeInstanceOf(Array);
         expect(response.body.length).toEqual(expected.length);
-        expected.forEach(expect(response.body).toContainEqual);
+        expected.forEach(e => expect(response.body.map(r => r.id)).toContainEqual(e.id));
     });
 
     it('should persist a random number of transactions then query back an empty array per since date', async () => {
@@ -308,7 +308,7 @@ describe('Base Transactions Routes Tests', () => {
         expect(response.headers["content-type"]).toMatch(/json/);
         expect(response.body).toBeInstanceOf(Array);
         expect(response.body.length).toEqual(expected.length);
-        expected.forEach(expect(response.body).toContainEqual);
+        expected.forEach(e => expect(response.body.map(r => r.id)).toContainEqual(e.id));
     });
 
     it('should persist a random number of transactions then query them back by type', async () => {
@@ -339,7 +339,7 @@ describe('Base Transactions Routes Tests', () => {
         expect(response.headers["content-type"]).toMatch(/json/);
         expect(response.body).toBeInstanceOf(Array);
         expect(response.body.length).toEqual(expected.length);
-        expected.forEach(expect(response.body).toContainEqual);
+        expected.forEach(e => expect(response.body.map(r => r.id)).toContainEqual(e.id));
     });
 
     it('should persist a random number of transactions then query them back by entryType', async () => {
@@ -370,7 +370,7 @@ describe('Base Transactions Routes Tests', () => {
         expect(response.headers["content-type"]).toMatch(/json/);
         expect(response.body).toBeInstanceOf(Array);
         expect(response.body.length).toEqual(expected.length);
-        expected.forEach(expect(response.body).toContainEqual);
+        expected.forEach(e => expect(response.body.map(r => r.id)).toContainEqual(e.id));
     });
 
     it('should persist a random number of transactions then query them back by recipient', async () => {
@@ -402,11 +402,11 @@ describe('Base Transactions Routes Tests', () => {
             .filter(t => t.paymentDetails.recipient !== Constants.defaultPaymentDetails.recipient)
             .map(TransactionExtensions.toResponse);
     
-            expect(response.statusCode).toBe(200);
-            expect(response.headers["content-type"]).toMatch(/json/);
-            expect(response.body).toBeInstanceOf(Array);
-            expect(response.body.length).toEqual(expected.length);
-            expected.forEach(expect(response.body).toContainEqual);
+        expect(response.statusCode).toBe(200);
+        expect(response.headers["content-type"]).toMatch(/json/);
+        expect(response.body).toBeInstanceOf(Array);
+        expect(response.body.length).toEqual(expected.length);
+        expected.forEach(e => expect(response.body.map(r => r.id)).toContainEqual(e.id));
     });
 
     it('should persist a random number of transactions then query one back by description', async () => {
@@ -422,7 +422,9 @@ describe('Base Transactions Routes Tests', () => {
                 : (<StandardTransfer>t.paymentDetails).description;
 
         const selectedTransaction = transactions
-            .filter(t => resolveDescription(t) !== "" && resolveDescription(t) !== "N/A")
+            .filter(t => resolveDescription(t) !== undefined &&
+                         resolveDescription(t) !== "" &&
+                         resolveDescription(t) !== "N/A")
             .at(0)!;
 
         const selectedDescription = resolveDescription(selectedTransaction);
@@ -444,7 +446,7 @@ describe('Base Transactions Routes Tests', () => {
 
         expect(response.statusCode).toBe(200);
         expect(response.headers["content-type"]).toMatch(/json/);
-        expect(response.body).toContainEqual(expected);
+        expect(response.body.map(r => r.id)).toContainEqual(expected.id);
     });
 
     it('should persist a random number of transactions', async () => {

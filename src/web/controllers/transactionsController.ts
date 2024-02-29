@@ -98,10 +98,7 @@ const get = async (req: Request, res: Response) => {
             }
         }
 
-        // TODO: ew
-        sinceParsed.setMinutes(sinceParsed.getMinutes() + Math.abs(sinceParsed.getTimezoneOffset()));
-
-        const transactions = await transactionRepository.getAsync(
+        const transactions = await transactionRepository.filterAsync(
             fromDateParsed,
             toDateParsed,
             sinceParsed,
