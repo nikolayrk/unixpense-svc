@@ -82,7 +82,7 @@ const resolveMigrationTool = (connection: Sequelize) => {
         const sql = await resolveMigrationFileContentsAsync(path);
 
         try {
-            const [results, _] = await context.query(sql);
+            const [results, ] = await context.query(sql);
             
             return results;
         } catch (ex) {
@@ -100,6 +100,7 @@ const resolveMigrationTool = (connection: Sequelize) => {
         return {
             name: params.name,
             up: async () => executeQueryAsync(params.context, params.path!),
+            // eslint-disable-next-line
             down: async () => executeQueryAsync(params.context, params.path?.replace('.up.sql', '.down.sql')!)
         };
     };
