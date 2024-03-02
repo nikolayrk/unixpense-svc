@@ -31,17 +31,17 @@ SET @standardTransfersRecipient = (
 );
 
 IF @cardOperationsInstrument = 0 THEN
-    ALTER TABLE `card_operations` ADD FULLTEXT(`instrument`);
+    ALTER TABLE `card_operations` ADD FULLTEXT INDEX `card_operations_instrument` (`instrument`);
 END IF;
 
 IF @cardOperationsRecipient = 0 THEN
-    ALTER TABLE `card_operations` ADD FULLTEXT(`recipient`);
+    ALTER TABLE `card_operations` ADD FULLTEXT INDEX `card_operations_recipient` (`recipient`);
 END IF;
 
 IF @standardTransfersDescription = 0 THEN
-    ALTER TABLE `standard_transfers` ADD FULLTEXT(`description`);
+    ALTER TABLE `standard_transfers` ADD FULLTEXT INDEX `standard_transfers_description` (`description`);
 END IF;
 
 IF @standardTransfersRecipient = 0 THEN
-    ALTER TABLE `standard_transfers` ADD FULLTEXT(`recipient`);
+    ALTER TABLE `standard_transfers` ADD FULLTEXT INDEX `standard_transfers_recipient` (`recipient`);
 END IF;

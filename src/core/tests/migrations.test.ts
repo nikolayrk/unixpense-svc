@@ -58,13 +58,13 @@ describe('Database Migration Tests', () => {
     const defineMigrationTests_01_up_postAction = async () => {
         await connection.query(`
             INSERT INTO transactions (id, date, reference, value_date, sum, entry_type, type)
-            VALUES ('transaction_id_0', '2024-02-17', 'reference_value_0', '2024-02-17', 0.00, 'entry_type_value', 'type_value');
+            VALUES ('transaction_id_0', '2024-02-17', 'reference_value_0', '2024-02-17', 0.00, 'NONE', 'UNKNOWN');
 
             INSERT INTO card_operations (transaction_id, recipient, instrument)
             VALUES ('transaction_id_0', 'Lorem ipsum dolor sit amet', 'Consectetur adipiscing elit');
 
             INSERT INTO transactions (id, date, reference, value_date, sum, entry_type, type)
-            VALUES ('transaction_id_1', '2024-02-17', 'reference_value_1', '2024-02-17', 0.00, 'entry_type_value', 'type_value');
+            VALUES ('transaction_id_1', '2024-02-17', 'reference_value_1', '2024-02-17', 0.00, 'NONE', 'UNKNOWN');
             
             INSERT INTO standard_transfers (transaction_id, recipient, description)
             VALUES ('transaction_id_1', 'Sed do eiusmod tempor incididunt', 'Vitae aliquam justo tincidunt');

@@ -32,8 +32,8 @@ export default class Transaction extends Model {
 
     @IsDate
     @AllowNull(false)
-    @Column
-    date!: string;
+    @Column(DataType.DATE)
+    date!: Date;
 
     @Unique('unique-transaction')
     @AllowNull(false)
@@ -42,12 +42,12 @@ export default class Transaction extends Model {
 
     @IsDate
     @AllowNull(false)
-    @Column
-    value_date!: string;
+    @Column(DataType.DATE)
+    value_date!: Date;
 
     @AllowNull(false)
     @Column(DataType.DECIMAL(20, 2))
-    sum!: string;
+    sum!: number;
 
     @AllowNull(false)
     @Column(EntryTypeExtensions.toDataType())
