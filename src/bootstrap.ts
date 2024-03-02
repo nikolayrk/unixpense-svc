@@ -6,6 +6,7 @@ import { router as swaggerRouter } from './web/routes/swaggerRoutes';
 import { router as kubernetesProbesRouter } from './web/routes/kubernetesProbesRoutes';
 import { router as groupsRouter } from './web/routes/groupsRoutes';
 import { Sequelize } from 'sequelize-typescript';
+import { ColumnDescription } from 'sequelize';
 import bodyParser from 'body-parser';
 import { DependencyInjector } from './dependencyInjector';
 import * as mariadb from 'mariadb';
@@ -51,9 +52,9 @@ const createDatabaseConnectionAsync = async (host: string, port: number, usernam
         },
         dialectOptions: {
             multipleStatements: true,
-            typeCast: (field: any, next: () => void) =>
+            typeCast: (field: ColumnDescription, next: () => void) =>
               field.type === 'DATETIME'
-                ? field.string().toUTCDate()
+                ? String(field).toUTCDate()
                 : next(),
         },
         timezone: 'Europe/Sofia',
