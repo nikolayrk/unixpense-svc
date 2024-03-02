@@ -115,8 +115,14 @@ const get = async (req: Request, res: Response) => {
         const message = `Resolved ${resolvedCount} transaction${resolvedCount == 1 ? '' : 's'}`;
         
         logger.log(message, {
-            from_date: fromDate,
-            to_date: toDate,
+            since: sinceParsed.toISOString(),
+            count: countParsed,
+            ...(fromDateParsed !== null) && {
+                from_date: fromDate
+            },
+            ...(toDateParsed !== null) && {
+                to_date: toDate
+            },
             ...(fromSum !== undefined) && {
                 from_sum: fromSum
             },
