@@ -30,9 +30,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">89.74% </span>
+                <span class="strong">82.22% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>35/39</span>
+                <span class='fraction'>37/45</span>
             </div>
         
             
@@ -261,7 +261,13 @@
 <a name='L196'></a><a href='#L196'>196</a>
 <a name='L197'></a><a href='#L197'>197</a>
 <a name='L198'></a><a href='#L198'>198</a>
-<a name='L199'></a><a href='#L199'>199</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L199'></a><a href='#L199'>199</a>
+<a name='L200'></a><a href='#L200'>200</a>
+<a name='L201'></a><a href='#L201'>201</a>
+<a name='L202'></a><a href='#L202'>202</a>
+<a name='L203'></a><a href='#L203'>203</a>
+<a name='L204'></a><a href='#L204'>204</a>
+<a name='L205'></a><a href='#L205'>205</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
@@ -279,7 +285,7 @@
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">73x</span>
+<span class="cline-any cline-yes">98x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -302,6 +308,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -312,14 +320,18 @@
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">360x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">195x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">19x</span>
-<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -501,24 +513,30 @@ export default class TransactionRepository {
             : null;
         const filteredRecipientAndDescriptionEntities = recipientEntities === null || descriptionEntities == null
             ? null
-            : <span class="branch-1 cbranch-no" title="branch not covered" >entities</span>
-                .filter(<span class="fstat-no" title="function not covered" >e </span>=&gt; <span class="cstat-no" title="statement not covered" >recipientEntities</span>
-                    .map(<span class="fstat-no" title="function not covered" >r </span>=&gt; <span class="cstat-no" title="statement not covered" >r.id)</span>
-                    .concat(descriptionEntities
-                        .map(<span class="fstat-no" title="function not covered" >r </span>=&gt; <span class="cstat-no" title="statement not covered" >r.id)</span>)
-                    .includes(e.id));
+            : <span class="branch-1 cbranch-no" title="branch not covered" >entities.length === 0</span>
+                ? recipientEntities.concat(descriptionEntities)
+                : entities
+                    .filter(<span class="fstat-no" title="function not covered" >e </span>=&gt; <span class="cstat-no" title="statement not covered" >recipientEntities</span>
+                        .map(<span class="fstat-no" title="function not covered" >r </span>=&gt; <span class="cstat-no" title="statement not covered" >r.id)</span>
+                        .concat(descriptionEntities
+                            .map(<span class="fstat-no" title="function not covered" >r </span>=&gt; <span class="cstat-no" title="statement not covered" >r.id)</span>)
+                        .includes(e.id));
         const filteredRecipientEntities = recipientEntities === null
             ? null
-            : entities
-                .filter(e =&gt; recipientEntities
-                    .map(r =&gt; r.id)
-                    .includes(e.id));
+            : entities.length === 0
+                ? <span class="branch-0 cbranch-no" title="branch not covered" >recipientEntities</span>
+                : entities
+                    .filter(e =&gt; recipientEntities
+                        .map(r =&gt; r.id)
+                        .includes(e.id));
         const filteredDescriptionEntities = descriptionEntities === null
             ? null
-            : entities
-                .filter(e =&gt; descriptionEntities
-                    .map(r =&gt; r.id)
-                    .includes(e.id));
+            : entities.length === 0
+                ? <span class="branch-0 cbranch-no" title="branch not covered" >descriptionEntities</span>
+                : entities
+                    .filter(e =&gt; descriptionEntities
+                        .map(r =&gt; r.id)
+                        .includes(e.id));
         const filteredEntities = filteredRecipientAndDescriptionEntities !== null
             ? <span class="branch-0 cbranch-no" title="branch not covered" >filteredRecipientAndDescriptionEntities</span>
             : filteredRecipientEntities !== null
@@ -664,7 +682,7 @@ export default class TransactionRepository {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-03-02T21:56:52.713Z
+                at 2024-03-03T14:38:09.976Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
