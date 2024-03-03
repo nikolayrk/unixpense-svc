@@ -402,7 +402,7 @@ describe('Base Transactions Routes Tests', () => {
         expected.forEach(e => expect(response.body.map(r => r.id)).toContainEqual(e.id));
     });
 
-    it('should persist a random number of transactions then query one back by description', async () => {
+    it('should persist all valid transactions then query each one back by description', async () => {
         const transactions = await new TransactionTestHelper(gmailPaymentDetailsTestCases)
             .resolveTransactionsAsync(transactionProvider);
 
@@ -411,32 +411,29 @@ describe('Base Transactions Routes Tests', () => {
                 ? (<CardOperation>t.paymentDetails).instrument
                 : (<StandardTransfer>t.paymentDetails).description;
 
-        const selectedTransaction = transactions
-            .filter(t => resolveDescription(t) !== undefined &&
-                         resolveDescription(t) !== "" &&
-                         resolveDescription(t) !== "N/A")
-            .at(0)!;
-
-        const selectedDescription = resolveDescription(selectedTransaction);
-
         const filteredTransactions = transactions
-            .filter(t => t.id === selectedTransaction.id || resolveDescription(t) !== selectedDescription);
+                .filter(t => resolveDescription(t) !== undefined &&
+                             resolveDescription(t) !== "" &&
+                             resolveDescription(t) !== "N/A")
 
         const _ = await transactionRepository.bulkCreateAsync(filteredTransactions);
-        
-        const filteredDescroption = selectedDescription.replace(' - ', '');
-        const descriptionQuery = encodeURIComponent(String(filteredDescroption));
 
-        const response = await supertest.agent(app)
-            .get(`/api/transactions?description=${descriptionQuery}`)
-            .set('Accept', 'application/json')
-            .send();
+        await Promise.all(filteredTransactions
+            .map(async t => {
+                const description = resolveDescription(t);
+                const descriptionQuery = encodeURIComponent(`"${String(description)}"`);
 
-        const expected = TransactionExtensions.toResponse(selectedTransaction);
+                const response = await supertest.agent(app)
+                    .get(`/api/transactions?description=${descriptionQuery}`)
+                    .set('Accept', 'application/json')
+                    .send();
 
-        expect(response.statusCode).toBe(200);
-        expect(response.headers["content-type"]).toMatch(/json/);
-        expect(response.body.map(r => r.id)).toContainEqual(expected.id);
+                const expected = TransactionExtensions.toResponse(t);
+
+                expect(response.statusCode).toBe(200);
+                expect(response.headers["content-type"]).toMatch(/json/);
+                expect(response.body.map(r => r.id)).toContainEqual(expected.id);
+            }));
     });
 
     it('should persist a random number of transactions', async () => {
