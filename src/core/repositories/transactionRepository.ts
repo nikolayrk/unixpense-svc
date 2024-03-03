@@ -40,24 +40,30 @@ export default class TransactionRepository {
             : null;
         const filteredRecipientAndDescriptionEntities = recipientEntities === null || descriptionEntities == null
             ? null
-            : entities
-                .filter(e => recipientEntities
-                    .map(r => r.id)
-                    .concat(descriptionEntities
-                        .map(r => r.id))
-                    .includes(e.id));
+            : entities.length === 0
+                ? recipientEntities.concat(descriptionEntities)
+                : entities
+                    .filter(e => recipientEntities
+                        .map(r => r.id)
+                        .concat(descriptionEntities
+                            .map(r => r.id))
+                        .includes(e.id));
         const filteredRecipientEntities = recipientEntities === null
             ? null
-            : entities
-                .filter(e => recipientEntities
-                    .map(r => r.id)
-                    .includes(e.id));
+            : entities.length === 0
+                ? recipientEntities
+                : entities
+                    .filter(e => recipientEntities
+                        .map(r => r.id)
+                        .includes(e.id));
         const filteredDescriptionEntities = descriptionEntities === null
             ? null
-            : entities
-                .filter(e => descriptionEntities
-                    .map(r => r.id)
-                    .includes(e.id));
+            : entities.length === 0
+                ? descriptionEntities
+                : entities
+                    .filter(e => descriptionEntities
+                        .map(r => r.id)
+                        .includes(e.id));
         const filteredEntities = filteredRecipientAndDescriptionEntities !== null
             ? filteredRecipientAndDescriptionEntities
             : filteredRecipientEntities !== null
