@@ -10,8 +10,8 @@ import TransactionRepository from '../../core/repositories/transactionRepository
 import ITransactionProvider from '../../core/contracts/ITransactionProvider';
 import GoogleOAuth2IdentifiersFactory from '../../googleOAuth2/factories/googleOAuth2IdentifiersFactory';
 import Constants from '../../constants';
-import { randomiseTransactionIds, resolveTransactionIds, resolveTransactionsAsync } from '../utils/transactionUtils';
 import { gmailPaymentDetailsTestCases } from '../../gmail/types/gmailPaymentDetailsTestCases';
+import TransactionTestHelper from '../utils/transactionTestHelper';
 
 describe('Transaction Repository Tests', () => {
     let container: StartedTestContainer;
@@ -46,10 +46,9 @@ describe('Transaction Repository Tests', () => {
     });
 
     it('should throw a repository error', async () => {
-        const transactions = await 
-            resolveTransactionsAsync(transactionProvider,
-                randomiseTransactionIds(
-                    resolveTransactionIds(gmailPaymentDetailsTestCases)));
+        const transactions = await new TransactionTestHelper(gmailPaymentDetailsTestCases)
+            .randomise()
+            .resolveTransactionsAsync(transactionProvider);
 
         const _ = await transactionRepository.bulkCreateAsync(transactions);
 

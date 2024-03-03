@@ -12,7 +12,6 @@ import TransactionRepository from '../../core/repositories/transactionRepository
 import ITransactionProvider from '../../core/contracts/ITransactionProvider';
 import GoogleOAuth2IdentifiersFactory from '../../googleOAuth2/factories/googleOAuth2IdentifiersFactory';
 import { TransactionExtensions } from '../../core/extensions/transactionExtensions';
-import { randomiseTransactionIds, resolveRandomNumberOfTransactionIds, resolveTransactionIds, resolveTransactionsAsync } from '../../core/utils/transactionUtils';
 import { TransactionTypeExtensions } from '../../core/extensions/transactionTypeExtensions';
 import { EntryTypeExtensions } from '../../core/extensions/entryTypeExtensions';
 import { gmailPaymentDetailsTestCases } from '../../gmail/types/gmailPaymentDetailsTestCases';
@@ -20,6 +19,7 @@ import CardOperation from '../../core/types/cardOperation';
 import StandardTransfer from '../../core/types/standardTransfer';
 import PaymentDetails from '../../core/types/paymentDetails';
 import Transaction from '../../core/types/transaction';
+import TransactionTestHelper from '../../core/utils/transactionTestHelper';
 
 describe('Base Transactions Routes Tests', () => {
     let container: StartedTestContainer;
@@ -198,11 +198,10 @@ describe('Base Transactions Routes Tests', () => {
     });
 
     it('should persist a random number of transactions then query them back by date', async () => {
-        const transactions = await
-            resolveTransactionsAsync(transactionProvider,
-                resolveRandomNumberOfTransactionIds(
-                    randomiseTransactionIds(
-                        resolveTransactionIds(gmailPaymentDetailsTestCases))));
+        const transactions = await new TransactionTestHelper(gmailPaymentDetailsTestCases)
+            .randomise()
+            .randomCount()
+            .resolveTransactionsAsync(transactionProvider);
         
         const _ = await transactionRepository.bulkCreateAsync(transactions);
         
@@ -227,11 +226,10 @@ describe('Base Transactions Routes Tests', () => {
     });
 
     it('should persist a random number of transactions then query them back by since date', async () => {
-        const transactions = await
-            resolveTransactionsAsync(transactionProvider,
-                resolveRandomNumberOfTransactionIds(
-                    randomiseTransactionIds(
-                        resolveTransactionIds(gmailPaymentDetailsTestCases))));
+        const transactions = await new TransactionTestHelper(gmailPaymentDetailsTestCases)
+            .randomise()
+            .randomCount()
+            .resolveTransactionsAsync(transactionProvider);
         
         const _ = await transactionRepository.bulkCreateAsync(transactions);
         
@@ -257,11 +255,10 @@ describe('Base Transactions Routes Tests', () => {
     });
 
     it('should persist a random number of transactions then query back an empty array per since date', async () => {
-        const transactions = await
-            resolveTransactionsAsync(transactionProvider,
-                resolveRandomNumberOfTransactionIds(
-                    randomiseTransactionIds(
-                        resolveTransactionIds(gmailPaymentDetailsTestCases))));
+        const transactions = await new TransactionTestHelper(gmailPaymentDetailsTestCases)
+            .randomise()
+            .randomCount()
+            .resolveTransactionsAsync(transactionProvider);
         
         const _ = await transactionRepository.bulkCreateAsync(transactions);
         
@@ -284,11 +281,10 @@ describe('Base Transactions Routes Tests', () => {
     });
 
     it('should persist a random number of transactions then query them back by sum', async () => {
-        const transactions = await
-            resolveTransactionsAsync(transactionProvider,
-                resolveRandomNumberOfTransactionIds(
-                    randomiseTransactionIds(
-                        resolveTransactionIds(gmailPaymentDetailsTestCases))));
+        const transactions = await new TransactionTestHelper(gmailPaymentDetailsTestCases)
+            .randomise()
+            .randomCount()
+            .resolveTransactionsAsync(transactionProvider);
 
         const _ = await transactionRepository.bulkCreateAsync(transactions);
         
@@ -312,11 +308,10 @@ describe('Base Transactions Routes Tests', () => {
     });
 
     it('should persist a random number of transactions then query them back by type', async () => {
-        const transactions = await
-            resolveTransactionsAsync(transactionProvider,
-                resolveRandomNumberOfTransactionIds(
-                    randomiseTransactionIds(
-                        resolveTransactionIds(gmailPaymentDetailsTestCases))));
+        const transactions = await new TransactionTestHelper(gmailPaymentDetailsTestCases)
+            .randomise()
+            .randomCount()
+            .resolveTransactionsAsync(transactionProvider);
 
         const _ = await transactionRepository.bulkCreateAsync(transactions);
         
@@ -343,11 +338,10 @@ describe('Base Transactions Routes Tests', () => {
     });
 
     it('should persist a random number of transactions then query them back by entryType', async () => {
-        const transactions = await
-            resolveTransactionsAsync(transactionProvider,
-                resolveRandomNumberOfTransactionIds(
-                    randomiseTransactionIds(
-                        resolveTransactionIds(gmailPaymentDetailsTestCases))));
+        const transactions = await new TransactionTestHelper(gmailPaymentDetailsTestCases)
+            .randomise()
+            .randomCount()
+            .resolveTransactionsAsync(transactionProvider);
 
         const _ = await transactionRepository.bulkCreateAsync(transactions);
         
@@ -374,11 +368,10 @@ describe('Base Transactions Routes Tests', () => {
     });
 
     it('should persist a random number of transactions then query them back by recipient', async () => {
-        const transactions = await
-            resolveTransactionsAsync(transactionProvider,
-                resolveRandomNumberOfTransactionIds(
-                    randomiseTransactionIds(
-                        resolveTransactionIds(gmailPaymentDetailsTestCases))));
+        const transactions = await new TransactionTestHelper(gmailPaymentDetailsTestCases)
+            .randomise()
+            .randomCount()
+            .resolveTransactionsAsync(transactionProvider);
 
         const _ = await transactionRepository.bulkCreateAsync(transactions);
         
@@ -410,11 +403,8 @@ describe('Base Transactions Routes Tests', () => {
     });
 
     it('should persist a random number of transactions then query one back by description', async () => {
-        const transactions = await
-            resolveTransactionsAsync(transactionProvider,
-                resolveRandomNumberOfTransactionIds(
-                    randomiseTransactionIds(
-                        resolveTransactionIds(gmailPaymentDetailsTestCases))));
+        const transactions = await new TransactionTestHelper(gmailPaymentDetailsTestCases)
+            .resolveTransactionsAsync(transactionProvider);
 
         const resolveDescription = (t: Transaction<PaymentDetails>) =>
             TransactionTypeExtensions.isCardOperation(t.type)
@@ -450,10 +440,10 @@ describe('Base Transactions Routes Tests', () => {
     });
 
     it('should persist a random number of transactions', async () => {
-        const transactions = await
-            resolveTransactionsAsync(transactionProvider,
-                randomiseTransactionIds(
-                    resolveTransactionIds(gmailPaymentDetailsTestCases)));
+        const transactions = await new TransactionTestHelper(gmailPaymentDetailsTestCases)
+            .randomise()
+            .randomCount()
+            .resolveTransactionsAsync(transactionProvider);
                     
         const transactionsResponse = transactions.map(TransactionExtensions.toResponse);
 
@@ -475,10 +465,10 @@ describe('Base Transactions Routes Tests', () => {
     });
 
     it('should persist a random number of transactions and skip a portion', async () => {
-        const transactions = await
-            resolveTransactionsAsync(transactionProvider,
-                randomiseTransactionIds(
-                    resolveTransactionIds(gmailPaymentDetailsTestCases)));
+        const transactions = await new TransactionTestHelper(gmailPaymentDetailsTestCases)
+            .randomise()
+            .randomCount()
+            .resolveTransactionsAsync(transactionProvider);
         
         const existingTransactionsCount = Math.floor(Math.random() * (transactions.length - 1) + 1);
 

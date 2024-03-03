@@ -15,8 +15,8 @@ import GoogleOAuth2IdentifiersFactory from '../../googleOAuth2/factories/googleO
 import Transaction from '../../core/types/transaction';
 import PaymentDetails from '../../core/types/paymentDetails';
 import { TransactionExtensions } from '../../core/extensions/transactionExtensions';
-import { resolveRandomNumberOfTransactionIds, resolveTransactionsAsync, resolveTransactionIds, randomiseTransactionIds } from '../../core/utils/transactionUtils';
 import { gmailPaymentDetailsTestCases } from '../../gmail/types/gmailPaymentDetailsTestCases';
+import TransactionTestHelper from '../../core/utils/transactionTestHelper';
 
 describe('Gmail Transactions Routes Tests', () => {
     let container: StartedTestContainer;
@@ -94,9 +94,9 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should error out with an invalid skip depth value', async () => {
-        const transactionIds = 
-            resolveRandomNumberOfTransactionIds(
-                resolveTransactionIds(gmailPaymentDetailsTestCases));
+        const transactionIds = new TransactionTestHelper(gmailPaymentDetailsTestCases)
+            .randomCount()
+            .resolveTransactionIds();
 
         const response = await supertest.agent(app)
             .get(`/api/transactions/gmail/ids/last/${transactionIds.length}?skip_depth=xxx`)
@@ -110,9 +110,9 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should error out with a negative skip depth value', async () => {
-        const transactionIds = 
-            resolveRandomNumberOfTransactionIds(
-                resolveTransactionIds(gmailPaymentDetailsTestCases));
+        const transactionIds = new TransactionTestHelper(gmailPaymentDetailsTestCases)
+            .randomCount()
+            .resolveTransactionIds();
 
         const response = await supertest.agent(app)
             .get(`/api/transactions/gmail/ids/last/${transactionIds.length}?skip_depth=-1`)
@@ -126,9 +126,9 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should fetch a random number of transaction IDs', async () => {
-        const expectedTransactionIds = 
-            resolveRandomNumberOfTransactionIds(
-                resolveTransactionIds(gmailPaymentDetailsTestCases));
+        const expectedTransactionIds = new TransactionTestHelper(gmailPaymentDetailsTestCases)
+            .randomCount()
+            .resolveTransactionIds();
 
         const response = await supertest.agent(app)
             .get(`/api/transactions/gmail/ids/last/${expectedTransactionIds.length}`)
@@ -144,10 +144,9 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should fetch a random number of transaction IDs and skip a portion', async () => {
-        const transactions = await
-            resolveTransactionsAsync(transactionProvider, 
-                resolveRandomNumberOfTransactionIds(
-                    resolveTransactionIds(gmailPaymentDetailsTestCases)));
+        const transactions = await new TransactionTestHelper(gmailPaymentDetailsTestCases)
+            .randomCount()
+            .resolveTransactionsAsync(transactionProvider);
                     
         const halfwayPoint = Math.floor(transactions.length / 2);
         const existingTransactionsCount = Math.floor(Math.random() * (halfwayPoint - 1) + 1);
@@ -170,10 +169,9 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should fetch an empty array after entering skip depth constraints', async () => {
-        const transactions = await
-            resolveTransactionsAsync(transactionProvider, 
-                resolveRandomNumberOfTransactionIds(
-                    resolveTransactionIds(gmailPaymentDetailsTestCases)));
+        const transactions = await new TransactionTestHelper(gmailPaymentDetailsTestCases)
+            .randomCount()
+            .resolveTransactionsAsync(transactionProvider);
 
         const halfwayPoint = Math.ceil(transactions.length / 2);
         const existingTransactionsCount = Math.floor(Math.random() * (halfwayPoint - 1) + 1);
@@ -210,11 +208,10 @@ describe('Gmail Transactions Routes Tests', () => {
     });
 
     it('should resolve a random number of transactions', async () => {
-        const transactions = await
-            resolveTransactionsAsync(transactionProvider,
-                randomiseTransactionIds(
-                    resolveRandomNumberOfTransactionIds(
-                        resolveTransactionIds(gmailPaymentDetailsTestCases))));
+        const transactions = await new TransactionTestHelper(gmailPaymentDetailsTestCases)
+            .randomise()
+            .randomCount()
+            .resolveTransactionsAsync(transactionProvider);
 
         const transactionIds = transactions.map(t => t.id);
 
