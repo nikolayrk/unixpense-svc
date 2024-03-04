@@ -64,7 +64,8 @@ export default class GmailTransactionDataProvider implements ITransactionDataPro
         const date = dateParse(transactionData
             ?.[1]
             ?.childNodes[0]
-            ?.rawText, 'DD.MM.YYYY HH:mm:ss');
+            ?.rawText
+            ?.padTimezone(), 'DD.MM.YYYY HH:mm:ssZ');
 
         return date;
     }
@@ -83,7 +84,8 @@ export default class GmailTransactionDataProvider implements ITransactionDataPro
         const valueDate = dateParse(transactionData
             ?.[5]
             ?.childNodes[0]
-            ?.rawText, 'DD.MM.YYYY');
+            ?.rawText
+            ?.concat(' 00:00:00+00:00'), 'DD.MM.YYYY HH:mm:ssZ');
 
         return valueDate;
     }

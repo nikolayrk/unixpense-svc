@@ -113,21 +113,21 @@ export default class TransactionRepository {
         const entities = await TransactionModel.findAll({
             where: {
                 date: {
-                    [Op.lt]: since.toSqlDate()
+                    [Op.lt]: since.toISOString()
                 },
                 ...(fromDate !== null && toDate !== null) && {
                     value_date: {
-                        [Op.between]: [fromDate.toSqlDate(), toDate.toSqlDate()],
+                        [Op.between]: [fromDate.toISOString(), toDate.toISOString()],
                     },
                 } || {
                     ...(fromDate !== null) && {
                         value_date: {
-                            [Op.gte]: fromDate.toSqlDate()
+                            [Op.gte]: fromDate.toISOString()
                         }
                     } || {
                         ...(toDate !== null) && {
                             value_date: {
-                                [Op.lt]: toDate.toSqlDate()
+                                [Op.lt]: toDate.toISOString()
                             }
                         }
                     }

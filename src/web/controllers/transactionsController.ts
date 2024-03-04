@@ -41,8 +41,8 @@ const get = async (req: Request, res: Response) => {
             description
         } = req.query;
 
-        const fromDateParsed = fromDate === undefined ? null : String(fromDate).concat(' 00:00:00').toUTCDate();
-        const toDateParsed = toDate === undefined ? null : String(toDate).concat(' 23:59:59').toUTCDate();
+        const fromDateParsed = fromDate === undefined ? null : new Date(String(fromDate).concat(' 00:00:00Z'));
+        const toDateParsed = toDate === undefined ? null : new Date(String(toDate).concat(' 12:00:00Z'));
         const sinceParsed = since === undefined ? new Date() : new Date(String(since));
         const countParsed = count === undefined ? Constants.defaultTransactionCount : Number(count);
         const fromSumParsed = fromSum === undefined ? null : Number(fromSum);

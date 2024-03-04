@@ -16,9 +16,9 @@ export class TransactionExtensions {
     public static toRecord(transaction: Transaction<PaymentDetails>) {
         return {
             id: transaction.id,
-            date: transaction.date.toSqlDate(),
+            date: transaction.date.toISOString(),
             reference: transaction.reference,
-            value_date: transaction.valueDate.toSqlDate(),
+            value_date: transaction.valueDate.toISOString(),
             sum: transaction.sum,
             entry_type: EntryTypeExtensions.toString(transaction.entryType),
             type: TransactionTypeExtensions.toString(transaction.type),

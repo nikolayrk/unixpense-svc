@@ -51,13 +51,7 @@ const createDatabaseConnectionAsync = async (host: string, port: number, usernam
         },
         dialectOptions: {
             multipleStatements: true,
-            // eslint-disable-next-line
-            typeCast: (field: any, next: () => void) =>
-              field.type === 'DATETIME'
-                ? field.string().toUTCDate()
-                : next(),
         },
-        timezone: 'Europe/Sofia',
     });
     
     await connection.authenticate();

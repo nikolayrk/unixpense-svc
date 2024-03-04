@@ -2,26 +2,14 @@ export {};
 
 declare global {
     interface Date {
-        toSqlDate(this: Date): string
-
         toQuery(this: Date): string
 
         toResponse(this: Date): string
     }
 
     interface String {
-        toUTCDate(this: string): Date
+        padTimezone(this: string): string
     }
-}
-
-Date.prototype.toSqlDate = function (this: Date) {
-    const sqlDate = this
-        .toISOString()
-        .slice(0, 19)
-        .replace('T', ' ')
-        .concat('.000000');
-
-    return sqlDate;
 }
 
 Date.prototype.toQuery = function (this: Date) {
@@ -38,11 +26,26 @@ Date.prototype.toResponse = function (this: Date) {
     return response;
 }
 
-String.prototype.toUTCDate = function (this: string) {
-    const isoDate = this
-        .replace(' ', 'T')
-        .replace('.000000', '')
-        .concat('.000Z');
+String.prototype.padTimezone = function (this: string) {
+    const tz = getTimezoneOffset();
+
+    return this.concat(tz);
+}
+
+function getTimezoneOffset() {
+    const offsetMinutes = new Date().getTimezoneOffset();
+
+    if (offsetMinutes === 0) {
+        return 'Z';
+    }
+
+    const offsetHours = Math.abs(Math.floor(offsetMinutes / 60));
+    const offsetMinutesRemainder = Math.abs(offsetMinutes % 60);
+    const sign = offsetMinutes < 0 ? '+' : '-';
     
-    return new Date(isoDate)
+    return `${sign}${padZero(offsetHours)}:${padZero(offsetMinutesRemainder)}`;
+}
+
+function padZero(number: number) {
+    return String(number).padStart(2, '0');
 }
