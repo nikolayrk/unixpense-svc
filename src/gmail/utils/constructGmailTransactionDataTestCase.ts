@@ -26,9 +26,9 @@ export const constructGmailTransactionDataTestCase = (transactionId: string): Tr
                 <td nowrap="" align="right">4.48</td>
                 <td nowrap="" align="center">ДТ</td>`,
         expectedTransactionDataHead: {
-            date: dateParse('31.03.2023 14:56:31'.padTimezone(), 'DD.MM.YYYY HH:mm:ssZ'),
+            date: dateParse('31.03.2023 14:56:31'.padUTCTimezone(), 'DD.MM.YYYY HH:mm:ssZ').fromLocaltoUTC(),
             reference: reference,
-            valueDate: dateParse('30.03.2023 00:00:00+00:00', 'DD.MM.YYYY HH:mm:ssZ'),
+            valueDate: dateParse('30.03.2023'.padTime().padUTCTimezone(), 'DD.MM.YYYY HH:mm:ssZ'),
             sum: '4.48',
             entryType: EntryType.DEBIT,
         }

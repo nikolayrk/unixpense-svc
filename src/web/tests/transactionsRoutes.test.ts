@@ -222,7 +222,7 @@ describe('Base Transactions Routes Tests', () => {
         expect(response.headers["content-type"]).toMatch(/json/);
         expect(response.body).toBeInstanceOf(Array);
         expect(response.body.length).toEqual(expected.length);
-        expected.forEach(e => expect(response.body.map(r => r.id)).toContainEqual(e.id));
+        expected.forEach(expect(response.body).toContainEqual);
     });
 
     it('should persist a random number of transactions then query them back by since date', async () => {
@@ -251,7 +251,7 @@ describe('Base Transactions Routes Tests', () => {
         expect(response.headers["content-type"]).toMatch(/json/);
         expect(response.body).toBeInstanceOf(Array);
         expect(response.body.length).toEqual(expected.length);
-        expected.forEach(e => expect(response.body.map(r => r.id)).toContainEqual(e.id));
+        expected.forEach(expect(response.body).toContainEqual);
     });
 
     it('should persist a random number of transactions then query back an empty array per since date', async () => {
@@ -304,7 +304,7 @@ describe('Base Transactions Routes Tests', () => {
         expect(response.headers["content-type"]).toMatch(/json/);
         expect(response.body).toBeInstanceOf(Array);
         expect(response.body.length).toEqual(expected.length);
-        expected.forEach(e => expect(response.body.map(r => r.id)).toContainEqual(e.id));
+        expected.forEach(expect(response.body).toContainEqual);
     });
 
     it('should persist a random number of transactions then query them back by type', async () => {
@@ -334,7 +334,7 @@ describe('Base Transactions Routes Tests', () => {
         expect(response.headers["content-type"]).toMatch(/json/);
         expect(response.body).toBeInstanceOf(Array);
         expect(response.body.length).toEqual(expected.length);
-        expected.forEach(e => expect(response.body.map(r => r.id)).toContainEqual(e.id));
+        expected.forEach(expect(response.body).toContainEqual);
     });
 
     it('should persist a random number of transactions then query them back by entryType', async () => {
@@ -364,7 +364,7 @@ describe('Base Transactions Routes Tests', () => {
         expect(response.headers["content-type"]).toMatch(/json/);
         expect(response.body).toBeInstanceOf(Array);
         expect(response.body.length).toEqual(expected.length);
-        expected.forEach(e => expect(response.body.map(r => r.id)).toContainEqual(e.id));
+        expected.forEach(expect(response.body).toContainEqual);
     });
 
     it('should persist a random number of transactions then query them back by recipient', async () => {
@@ -399,7 +399,7 @@ describe('Base Transactions Routes Tests', () => {
         expect(response.headers["content-type"]).toMatch(/json/);
         expect(response.body).toBeInstanceOf(Array);
         expect(response.body.length).toEqual(expected.length);
-        expected.forEach(e => expect(response.body.map(r => r.id)).toContainEqual(e.id));
+        expected.forEach(expect(response.body).toContainEqual);
     });
 
     it('should persist all valid transactions then query each one back by description', async () => {
@@ -432,7 +432,7 @@ describe('Base Transactions Routes Tests', () => {
 
                 expect(response.statusCode).toBe(200);
                 expect(response.headers["content-type"]).toMatch(/json/);
-                expect(response.body.map(r => r.id)).toContainEqual(expected.id);
+                expect(response.body).toContainEqual(expected);
             }));
     });
 

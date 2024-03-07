@@ -5,10 +5,14 @@ declare global {
         toQuery(this: Date): string
 
         toResponse(this: Date): string
+
+        fromLocaltoUTC(this: Date): Date
     }
 
     interface String {
-        padTimezone(this: string): string
+        padTime(this: string): string
+
+        padUTCTimezone(this: string): string
     }
 }
 
@@ -26,26 +30,51 @@ Date.prototype.toResponse = function (this: Date) {
     return response;
 }
 
-String.prototype.padTimezone = function (this: string) {
-    const tz = getTimezoneOffset();
-
-    return this.concat(tz);
-}
-
-function getTimezoneOffset() {
-    const offsetMinutes = new Date().getTimezoneOffset();
-
-    if (offsetMinutes === 0) {
-        return 'Z';
+Date.prototype.fromLocaltoUTC = function (this: Date) {
+    if (Number.isNaN(this.getTime())) {
+        return this;
     }
 
-    const offsetHours = Math.abs(Math.floor(offsetMinutes / 60));
-    const offsetMinutesRemainder = Math.abs(offsetMinutes % 60);
-    const sign = offsetMinutes < 0 ? '+' : '-';
-    
-    return `${sign}${padZero(offsetHours)}:${padZero(offsetMinutesRemainder)}`;
+    const tz = getBulgarianDSTOffset(this);
+    const isoDateString = this
+        .toISOString()
+        .replace(/([+-]\d{2}:?\d{2}|Z)$/, tz);
+
+    const utcDate = new Date(isoDateString);
+
+    return utcDate;
 }
 
-function padZero(number: number) {
-    return String(number).padStart(2, '0');
+function getBulgarianDSTOffset(date: Date) {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const day = date.getDate();
+
+    const marchMonthIndex = 2;
+    const octoberMonthIndex = 9;
+
+    const lastSundayOfMarch = getLastSundayOfMonth(year, marchMonthIndex);
+    const lastSundayOfOctober = getLastSundayOfMonth(year, octoberMonthIndex);
+
+    const isInDST = 
+        (month > marchMonthIndex || (month === marchMonthIndex && day >= lastSundayOfMarch)) &&
+        (month < octoberMonthIndex || (month === octoberMonthIndex && day < lastSundayOfOctober));
+        
+    return isInDST
+        ? '+03:00' // Bulgarian DST offset
+        : '+02:00'; // Standard offset
+}
+
+const getLastSundayOfMonth = (year: number, month: number) => {
+    const lastDayOfMonth = new Date(year, month + 1, 0).getDate(); // Get the last day of the month
+    const lastSunday = lastDayOfMonth - new Date(year, month, lastDayOfMonth).getDay(); // Calculate the date of the last Sunday
+    return lastSunday;
+};
+
+String.prototype.padTime = function (this: string) {
+    return this.concat(' 00:00:00');
+}
+
+String.prototype.padUTCTimezone = function (this: string) {
+    return this.concat('+00:00');
 }

@@ -65,7 +65,8 @@ export default class GmailTransactionDataProvider implements ITransactionDataPro
             ?.[1]
             ?.childNodes[0]
             ?.rawText
-            ?.padTimezone(), 'DD.MM.YYYY HH:mm:ssZ');
+            ?.padUTCTimezone(), 'DD.MM.YYYY HH:mm:ssZ') // Parse as UTC to avoid any client-side conversion side-effects
+            ?.fromLocaltoUTC(); // Treat the parsed datetime as localised so convert it to UTC
 
         return date;
     }
@@ -85,7 +86,8 @@ export default class GmailTransactionDataProvider implements ITransactionDataPro
             ?.[5]
             ?.childNodes[0]
             ?.rawText
-            ?.concat(' 00:00:00+00:00'), 'DD.MM.YYYY HH:mm:ssZ');
+            ?.padTime()
+            ?.padUTCTimezone(), 'DD.MM.YYYY HH:mm:ssZ'); // Value date is date-only, so treat it as midnight UTC to avoid any client-side conversion side-effects
 
         return valueDate;
     }
