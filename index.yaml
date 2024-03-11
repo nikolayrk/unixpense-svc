@@ -9,4 +9,13 @@ entries:
     urls:
     - https://github.com/nikolayrk/unixpense-svc/releases/download/unixpense-svc-1.2.5/unixpense-svc-1.2.5.tgz
     version: 1.2.5
-generated: "2024-03-11T22:43:55.599770137Z"
+  - apiVersion: v2
+    appVersion: 1.2.4
+    created: "2024-03-11T23:47:17.123170716Z"
+    description: A Helm chart for deploying the Unixpense service
+    digest: 86b4c0c55d79035a99fed3960e5dee512e3768d8398adad989535d452646acf2
+    name: unixpense-svc
+    urls:
+    - https://github.com/nikolayrk/unixpense-svc/releases/download/unixpense-svc-1.2.4/unixpense-svc-1.2.4.tgz
+    version: 1.2.4
+generated: "2024-03-11T23:47:17.123234883Z"
