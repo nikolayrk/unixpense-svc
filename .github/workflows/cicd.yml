@@ -160,7 +160,7 @@ jobs:
           -o yaml --dry-run=client | kubectl apply -f -
         shell: sh
       - name: Create MariaDb Secret
-        uses: Azure/k8s-create-secret@v4
+        uses: Azure/k8s-create-secret@v5
         with:
           namespace: 'unixpense'
           secret-type: 'generic'
@@ -175,7 +175,7 @@ jobs:
               "MARIADB_RANDOM_ROOT_PASSWORD": "yes"
             }
       - name: Create Google OAuth2 Credentials Secret
-        uses: Azure/k8s-create-secret@v4
+        uses: Azure/k8s-create-secret@v5
         with:
           namespace: 'unixpense'
           secret-type: 'generic'
@@ -186,7 +186,7 @@ jobs:
               "GOOGLE_OAUTH2_CLIENT_SECRET": "${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}"
             }
       - name: Create OAuth2 Cookie Secret
-        uses: Azure/k8s-create-secret@v4
+        uses: Azure/k8s-create-secret@v5
         with:
           namespace: 'unixpense'
           secret-type: 'generic'
@@ -196,7 +196,7 @@ jobs:
               "cookie-secret": "${{ secrets.OAUTH2_PROXY_COOKIE_SECRET }}"
             }
       - name: Create Telegram Secret
-        uses: Azure/k8s-create-secret@v4
+        uses: Azure/k8s-create-secret@v5
         with:
           namespace: 'unixpense'
           secret-type: 'generic'
