@@ -1,26 +1,29 @@
 FROM node:current-alpine3.16
 
-WORKDIR /usr/src/app
+
+WORKDIR /usr/app
 
 COPY package.json yarn.lock tsconfig.json ./
-
 COPY src ./src
 
-ARG NODE_ENV
+EXPOSE 8000
 
-RUN yarn install --pure-lockfile --prod && \
+
+
+FROM base as prod
+
+ARG PRODUCTION
+
+COPY --from=base /usr/app ./
+
+RUN yarn install --frozen-lockfile --production=${PRODUCTION} && \
     yarn build && \
-    rm -rf  ./src \
-            tsconfig.json
-
-ARG PORT
-
-EXPOSE $PORT
+    rm -rf tsconfig.json ./src
 
 RUN apk add --no-cache tini
 
 USER node
 
-ENTRYPOINT ["/sbin/tini", "--"]
 
+ENTRYPOINT ["/sbin/tini", "--"]
 CMD [ "node", "dist/main.js" ]
