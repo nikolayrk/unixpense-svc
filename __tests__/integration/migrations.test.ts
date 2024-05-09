@@ -1,13 +1,10 @@
-import { describe, it, beforeAll, afterAll, expect } from '@jest/globals';
-import { registerDependencies, resolveMigrationTool } from '../../bootstrap';
-import { clearDatabaseAsync, createContainerDatabaseConnectionAsync, createMariaDbContainerAsync } from '../utils/databaseContainerUtils';
-import { StartedTestContainer } from 'testcontainers';
+import { describe, it, expect } from '@jest/globals';
+import { resolveMigrationTool } from '../../src/bootstrap';
 import { Sequelize } from 'sequelize-typescript';
-import Constants from '../../constants';
 import { Umzug } from 'umzug';
-import { afterEach } from 'node:test';
 import { DatabaseError } from 'sequelize';
-import RepositoryError from '../errors/repositoryError';
+import RepositoryError from '../../src/core/errors/repositoryError';
+import integrationTestBase from './integration.test.base';
 
 const Migrations = [
     '00_initial.up.sql',
@@ -21,17 +18,21 @@ type MigrationAction = (() => Promise<void>) | undefined;
 type MigrationActionPair = [MigrationAction, MigrationAction];
 
 describe('Database Migration Tests', () => {
-    let container: StartedTestContainer;
     let connection: Sequelize;
     let migrationTool: Umzug<Sequelize>;
 
-    beforeAll(async () => {
-        registerDependencies();
+    integrationTestBase({ beforeAllAppendix: async (sequelize: Sequelize) => {
+        connection = sequelize;
 
-        container = await createMariaDbContainerAsync();
-        connection = await createContainerDatabaseConnectionAsync(container);
+        await connection.query(`DROP TABLE IF EXISTS ${[
+            'card_operations',
+            'standard_transfers',
+            'transactions',
+            'google_oauth2_tokens'
+        ].join(', ')};`);
 
         migrationTool = resolveMigrationTool(connection);
+
         const migrations = await migrationTool.pending();
         const migrationNames = migrations.map(m => m.name);
         const allMigrationsHaveTests = migrationNames
@@ -45,16 +46,7 @@ describe('Database Migration Tests', () => {
 
             throw new Error(`Some migrations are missing tests: ${missing}`);
         }
-    }, Constants.Defaults.containerTimeout);
-    
-    afterAll(async () => {
-        await connection.close();
-        await container.stop();
-    });
-
-    afterEach(async () => {
-        await clearDatabaseAsync(connection);        
-    });
+    }, skipDefineDatabaseModels: true });
 
     const defineMigrationTests_01_up_postAction = async () => {
         await connection.query(`
@@ -94,21 +86,21 @@ describe('Database Migration Tests', () => {
     }
 
     const defineMigrationTests_01_down_postAction = async () => {
-        await expect(async () => connection.query(`
+        await expect(connection.query(`
             SELECT * FROM card_operations WHERE MATCH(recipient) AGAINST('ipsum');
-        `, { plain: true })).rejects.toThrowError(DatabaseError);
+        `, { plain: true })).rejects.toThrow(DatabaseError);
         
-        await expect(async () => connection.query(`
+        await expect(connection.query(`
             SELECT * FROM card_operations WHERE MATCH(instrument) AGAINST('adipiscing');
-        `, { plain: true })).rejects.toThrowError(DatabaseError);
+        `, { plain: true })).rejects.toThrow(DatabaseError);
         
-        await expect(async () => connection.query(`
+        await expect(connection.query(`
             SELECT * FROM standard_transfers WHERE MATCH(recipient) AGAINST('tempor');
-        `, { plain: true })).rejects.toThrowError(DatabaseError);
+        `, { plain: true })).rejects.toThrow(DatabaseError);
         
-        await expect(async () => connection.query(`
+        await expect(connection.query(`
             SELECT * FROM standard_transfers WHERE MATCH(description) AGAINST('justo');
-        `, { plain: true })).rejects.toThrowError(DatabaseError);
+        `, { plain: true })).rejects.toThrow(DatabaseError);
     }
 
     const defineMigrationTests_02_up_preAction = async () => {
@@ -186,56 +178,34 @@ describe('Database Migration Tests', () => {
         ],
     };
 
+    const defineMigrationTest = (migrationScriptName: string, [preAction, postAction]: MigrationActionPair, up: boolean) => {
+        it(`should ${up ? 'apply' : 'revert'} '${migrationScriptName.replace('.up.sql', '')}' migration script`, async () => {
+            try {
+                await preAction?.();
+
+                if (up) {
+                    await migrationTool.up({ migrations: [migrationScriptName] });
+                } else {
+                    await migrationTool.down({ migrations: [migrationScriptName] });
+                }
+    
+                await postAction?.();
+            } catch(ex) {
+                throw new RepositoryError(ex as Error);
+            }
+        });
+    }
+
+    const defineMigrationUpTests = (migrationName: string) => Object
+        .entries(migrationMap)
+        .map(([k, [up, _]]) => k === migrationName ? defineMigrationTest(k, up, true) : null);
+
+    const defineMigrationDownTests = (migrationName: string) => Object
+        .entries(migrationMap)
+        .map(([k, [_, down]]) => k === migrationName ? defineMigrationTest(k, down, false) : null);
+
     const migrationsWithTests = Object.keys(migrationMap);
 
-    const defineMigrationUpTest = (migrationScriptName: string, actions: MigrationActionPair) => {
-        const [preAction, postAction] = [ ...actions ];
-
-        it(`should apply '${migrationScriptName.replace('.up.sql', '')}' migration script`, async () => {
-            try {
-                await preAction?.();
-
-                await migrationTool.up({ migrations: [migrationScriptName] });
-    
-                await postAction?.();
-            } catch(ex) {
-                throw new RepositoryError(ex);
-            }
-        });
-    }
-
-    const defineMigrationUpTests = (migrationName: string) =>
-        Object
-            .entries(migrationMap)
-            .map(([k, [up, _]]) => k === migrationName ? defineMigrationUpTest(k, up) : null);
-
-    const defineMigrationDownTest = (migrationScriptName: string, actions: MigrationActionPair) => {
-        const [preAction, postAction] = [ ...actions ];
-
-        it(`should revert '${migrationScriptName.replace('.up.sql', '')}' migration script`, async () => {
-            try {
-                await preAction?.();
-
-                await migrationTool.down({ migrations: [migrationScriptName] });
-    
-                await postAction?.();
-            } catch(ex) {
-                throw new RepositoryError(ex);
-            }
-        });
-    }
-
-    const defineMigrationDownTests = (migrationName: string) => {
-        Object
-            .entries(migrationMap)
-            .map(([k, [_, down]]) => k === migrationName ? defineMigrationDownTest(k, down) : null);
-    }
-
-    migrationsWithTests
-        .map(defineMigrationUpTests);
-
-    migrationsWithTests
-        .slice()
-        .reverse()
-        .map(defineMigrationDownTests);
+    migrationsWithTests.map(defineMigrationUpTests);
+    migrationsWithTests.slice().reverse().map(defineMigrationDownTests);
 });

@@ -8,7 +8,6 @@ import {
     applyDatabaseMigrationsAsync,
     createDatabaseConnectionAsync,
     defineDatabaseModels,
-    registerDependencies,
     resolveMigrationTool,
     startServerAsync,
     stopServerAsync
@@ -57,7 +56,7 @@ const main = async () => {
 
     logger.log('Registering dependencies...');
 
-    registerDependencies();
+    DependencyInjector.Singleton.registerGmailServices();
 
     logger.log('Starting server...');
 
@@ -74,6 +73,14 @@ const main = async () => {
         arch: process.arch,
         pid: process.pid
     });
+
+    if (process.env.NODE_ENV === 'test_integration') {
+        const mocks = await import('./mocks');
+
+        await mocks.applyGoogleMocksAsync();
+
+        logger.log(`Mocks applied`);
+    }
 
     const closeResourcesAsync = () => {
         return new Promise<number>(resolve => {

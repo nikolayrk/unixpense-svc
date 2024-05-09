@@ -11,7 +11,7 @@ import ILogger from '../../core/contracts/ILogger';
 @injectable()
 export default class GmailApiClient implements IUsesGoogleOAuth2 {
     private readonly searchQuery: string = 'from:pb@unicreditgroup.bg subject: "Dvizhenie po smetka"';
-    private readonly maxExponentialBackoffDepth: number = 4;
+    private readonly maxExponentialBackoffDepth: number = 2;
 
     private logger;
     private googleOAuth2ClientProvider: GoogleOAuth2ClientProvider;
@@ -30,7 +30,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
 
     public async useOAuth2IdentifiersAsync(identifiers: GoogleOAuth2Identifiers) {
         this.googleOAuth2ClientProvider = await DependencyInjector.Singleton.generateGmailServiceAsync(injectables.GoogleOAuth2ClientProviderGenerator, identifiers);
-        this.gmail = google.gmail({version: 'v1', auth: this.googleOAuth2ClientProvider.client});
+        this.gmail = google.gmail({ version: 'v1', auth: this.googleOAuth2ClientProvider.client });
     }
 
     public async * generateMessageIdsAsync(pageToken?: string): AsyncGenerator<string, [], undefined> {
@@ -124,7 +124,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
         try {
             result = await apiCall();
         } catch(ex) {
-            this.logger.warn(`Gmail API call failed (${(ex as Error).message ?? ex}). Reattempting after ${this.exponentialBackoffDepth ** 2}s...`);
+            this.logger.warn(`Gmail API call failed (${(ex as Error).message ?? ex}). Reattempting after ${2 ** this.exponentialBackoffDepth}s...`);
             
             result = await this.tryExponentialBackoffAsync(ex, async () => await this.makeApiCallAsync(apiCall));
         }
@@ -147,32 +147,32 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
 
         return result;
     }
-
+    
     private decodeAttachmentData(attachmentDataBase64: string) {
-        const urlDecoded = this.base64UrlDecode(attachmentDataBase64);
+        const base64Encoded = this.fromBase64Url(attachmentDataBase64);
     
-        const base64Decoded = Buffer.from(urlDecoded, 'base64');
+        const utf16leEncoded = Buffer
+            .from(base64Encoded, 'base64')
+            .toString('utf16le');
     
-        const utf16Decoded = base64Decoded.toString('utf16le');
-    
-        return utf16Decoded;
+        return utf16leEncoded;
     }
 
-    private base64UrlDecode(input: string) {
+    private fromBase64Url(input: string) {
         // Replace non-url compatible chars with base64 standard chars
-        input = input
+        let result = input
             .replace(/-/g, '+')
             .replace(/_/g, '/');
     
         // Pad out with standard base64 required padding characters
-        const pad = input.length % 4;
+        const pad = result.length % 4;
         if (pad) {
             if (pad === 1) {
                 throw new Error('InvalidLengthError: Input base64url string is the wrong length to determine padding');
             }
-            input += new Array(5 - pad).join('=');
+            result += new Array(5 - pad).join('=');
         }
     
-        return input;
+        return result;
     }
 }

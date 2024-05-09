@@ -5,7 +5,7 @@ export default class RepositoryError extends Error {
     constructor(error: Error) {
         const message = (error instanceof ValidationError || error instanceof DatabaseError)
             ? `${error.name}${ 'parent' in error && error.parent instanceof SqlError
-                ? ` (${String(error.parent.text)})`
+                ? ` (${String(error.parent.sqlMessage)})`
                 : ''
             }`
             : error.message;

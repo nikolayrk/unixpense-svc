@@ -1,6 +1,5 @@
 import express from "express";
 import * as groupsController from '../controllers/groupsController';
-import { router as groupRulesRouter } from './groupRulesRoutes';
 
 const router = express.Router();
 
@@ -122,7 +121,5 @@ router.route('/:group').get(groupsController.get);
  *         description: Service error
  */
 router.route('/:group').delete(groupsController.delete);
-
-router.use('/:group/rules', groupRulesRouter);
 
 export { router };

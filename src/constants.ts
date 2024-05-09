@@ -1,13 +1,24 @@
 import PaymentDetails from "./core/types/paymentDetails";
 
+const localOrService = (serviceName: string) =>
+    process.env.NODE_ENV === 'test_integration'
+        ? '0.0.0.0'
+        : process.env.WITH_BRIDGE_NETWORK === '1'
+            ? serviceName
+            : 'localhost';
+
 export default class Constants {
+    public static DbComposeServiceName = 'db' as const;
+    public static AppComposeServiceName = 'app' as const;
+
     public static readonly Defaults = {
         port: 8000 as const,
+        mariadbHost: localOrService(this.DbComposeServiceName),
         mariadbPort: 3306 as const,
         mariadbPassword: 'password' as const,
         mariadbUser: 'root' as const,
         mariadbDatabase: 'unixpense' as const,
-        containerTimeout: 60 * 1000 // 60s
+        containerTimeout: 5 * 1000, // 5s
     }
 
     public static readonly scopes = [
@@ -16,12 +27,16 @@ export default class Constants {
         'https://www.googleapis.com/auth/gmail.readonly'
     ] as const;
 
-    public static readonly host = `${process.env.NODE_ENV === 'production'
+    public static readonly host = localOrService(this.AppComposeServiceName);
+
+    public static readonly port = process.env.PORT ?? Constants.Defaults.port;
+
+    public static readonly baseUrl = `${process.env.NODE_ENV === 'production'
         ? `https://${process.env.UNIXPENSE_HOST}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
-        : `http://localhost:${process.env.PORT ?? Constants.Defaults.port}`
+        : `http://${Constants.host}:${Constants.port}`
     }`;
 
-    public static readonly defaultRedirectUri = `${Constants.host}/api/oauthcallback` as const;
+    public static readonly defaultRedirectUri = `${Constants.baseUrl}/api/oauthcallback` as const;
 
     public static readonly Mock = {
         userEmail: "email" as const,

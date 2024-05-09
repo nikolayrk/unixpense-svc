@@ -100,10 +100,13 @@ export class TransactionExtensions {
         TransactionTypeExtensions.isStandardTransfer(transactionType);
 
     private static toStandardTransferEntity(standardTransfer: StandardTransfer) {
-        const mappedStandardTransfer: any = JSON.parse(JSON.stringify(standardTransfer));
+        const { recipientIban, ...rest } = standardTransfer;
 
-        delete Object.assign(mappedStandardTransfer, { recipient_iban: standardTransfer.recipientIban })[standardTransfer.recipientIban];
-
-        return mappedStandardTransfer;
+        return {
+            ...rest,
+            ...(recipientIban !== undefined) && {
+                recipient_iban: recipientIban,
+            },
+        };
     }
 }
