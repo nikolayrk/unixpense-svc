@@ -1,15 +1,24 @@
-import ITransactionProvider from "../contracts/ITransactionProvider";
-import PaymentDetails from "../types/paymentDetails";
+import GmailTransactionTestHelper from "../../gmail/utils/gmailTransactionTestHelper";
 import { PaymentDetailsTestCase, PaymentDetailsTestCaseData } from "../types/paymentDetailsTestCase";
-import Transaction from "../types/transaction";
 
 export default class TransactionTestHelper {
-    private ids: string[];
+    private ids: string[] = [];
+    private gmailTransactionTestHelper: GmailTransactionTestHelper | undefined;
 
-    constructor(testCases: PaymentDetailsTestCase<PaymentDetailsTestCaseData>) {
+    public withTestCases(testCases: PaymentDetailsTestCase<PaymentDetailsTestCaseData>) {
         this.ids = Object
             .keys(testCases)
             .filter(k => isNaN(Number(k)));
+
+        return this;
+    }
+
+    public useGmailContext() {
+        if (!this.gmailTransactionTestHelper) {
+            this.gmailTransactionTestHelper = new GmailTransactionTestHelper();
+        }
+
+        return this.gmailTransactionTestHelper;
     }
 
     public randomise() {
@@ -28,28 +37,14 @@ export default class TransactionTestHelper {
         return this;
     }
 
-    public resolveTransactionIds() {
-        return this.ids;
-    }
-
-    public async resolveTransactionsAsync(transactionProvider: ITransactionProvider) {
-        const transactions = this.ids
-            .map((transactionId: string) => {
-                const transactionPromise = transactionProvider.resolveTransactionAsync(transactionId);
-                
-                return transactionPromise;
-            })
-            .reduce(async (accumulator, current, i) => {
-                const currentValue = await current;
-
-                const accumulatorValue = await accumulator;
-
-                accumulatorValue.push(currentValue);
-
-                return accumulator;
-            }, Promise.resolve([] as Transaction<PaymentDetails>[]));
-
-        return transactions;
+    public resolveTransactionIds(from?: string, to?: string) {
+        return from !== undefined && to !== undefined
+            ? this.ids.slice(this.ids.indexOf(from)+1, this.ids.indexOf(to)+1)
+            : from !== undefined && to === undefined
+                ? this.ids.slice(this.ids.indexOf(from)+1)
+                : from === undefined && to !== undefined
+                    ? this.ids.slice(0, this.ids.indexOf(to)+1)
+                    : this.ids;
     }
 
     private durstenfeldShuffle<T>(array: Array<T>) {
