@@ -4,6 +4,7 @@ import { injectables } from "../../core/types/injectables";
 import GoogleOAuth2IdentifiersFactory from "../../googleOAuth2/factories/googleOAuth2IdentifiersFactory";
 import { ResponseExtensions } from "../../core/extensions/responseExtensions";
 import IOAuth2ClientProvider from "../../googleOAuth2/contracts/IOAuth2ClientProvider";
+import GoogleOAuth2ClientProvider from "../../googleOAuth2/providers/googleOAuth2ClientProvider";
 
 const redirect = async (req: Request, res: Response) => {
     const { client_id, client_secret, redirect_uri, code } = req.body;
@@ -19,10 +20,8 @@ const redirect = async (req: Request, res: Response) => {
     if(code === undefined) {
         return ResponseExtensions.forbidden(res, "No authorization code provided");
     }
-
-    const googleOAuth2IdentifierFactory = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory);
     
-    const identifiers = googleOAuth2IdentifierFactory.create({ redirectUri: String(redirect_uri) });
+    const identifiers = GoogleOAuth2IdentifiersFactory.create({ redirectUri: String(redirect_uri) });
   
     try {
         const googleOAuth2ClientProvider = await DependencyInjector.Singleton.generateGmailServiceAsync<IOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProviderGenerator, identifiers);
@@ -48,9 +47,7 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
 
     const refreshToken = req.get('X-Refresh-Token');
 
-    const googleOAuth2IdentifierFactory = DependencyInjector.Singleton.resolve<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory);
-    
-    const identifiers = googleOAuth2IdentifierFactory.create({ accessToken, refreshToken });
+    const identifiers = GoogleOAuth2IdentifiersFactory.create({ accessToken, refreshToken });
 
     res.locals.googleOAuth2Identifiers = identifiers;
 

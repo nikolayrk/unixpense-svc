@@ -29,7 +29,6 @@ import IUsesGoogleOAuth2 from './googleOAuth2/contracts/IUsesGoogleOAuth2';
 import GoogleOAuth2TokensRepository from './googleOAuth2/repositories/googleOAuth2TokensRepository';
 import GoogleOAuth2ClientProvider from './googleOAuth2/providers/googleOAuth2ClientProvider';
 import GmailApiClient from './gmail/clients/gmailApiClient';
-import GoogleOAuth2IdentifiersFactory from './googleOAuth2/factories/googleOAuth2IdentifiersFactory';
 import ServiceContexts from './core/enums/serviceContexts';
 import ITransactionProvider from './core/contracts/ITransactionProvider';
 import MockGmailTransactionSourceProvider from './gmail/providers/mockGmailTransactionSourceProvider';
@@ -87,7 +86,6 @@ export class DependencyInjector {
                 this.container.bind<ITransactionDataProvider>(injectables.ITransactionDataProvider).to(GmailTransactionDataProvider);
                 this.container.bind<ITransactionProvider>(injectables.ITransactionProvider).to(GmailTransactionProvider);
 
-                this.container.bind<GoogleOAuth2IdentifiersFactory>(injectables.GoogleOAuth2IdentifiersFactory).to(GoogleOAuth2IdentifiersFactory);
                 this.container.bind<GoogleOAuth2TokensRepository>(injectables.GoogleOAuth2TokensRepository).to(GoogleOAuth2TokensRepository);
 
                 if (process.env.NODE_ENV === 'test') {
