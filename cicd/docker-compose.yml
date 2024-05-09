@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  db:
+    networks:
+      - unixpense-custom-bridge-network
+    image: mariadb:latest
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_PASSWORD}
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--innodb_initialized']
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 5
+
+  app:
+    networks:
+      - unixpense-custom-bridge-network
+    build:
+      context: ../
+      dockerfile: cicd/Dockerfile
+      args:
+        - PRODUCTION=${PRODUCTION:-true}
+    ports:
+      - "8000:8000"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      MARIADB_HOST: ${MARIADB_HOST:-db}
+      MARIADB_USER: ${MARIADB_USER:-root}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      GOOGLE_OAUTH2_CLIENT_ID: ${GOOGLE_OAUTH2_CLIENT_ID}
+      GOOGLE_OAUTH2_CLIENT_SECRET: ${GOOGLE_OAUTH2_CLIENT_SECRET}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: wget -q --spider http://localhost:8000/healthz || exit 1
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+
+  unit_tests:
+    build:
+      context: ../
+      dockerfile: cicd/Dockerfile
+      target: test
+
+  coverage_tests:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      TESTCONTAINERS_HOST_OVERRIDE: "host.docker.internal"
+      WITH_BRIDGE_NETWORK: 1
+    networks:
+      - unixpense-custom-bridge-network
+    build:
+      context: ../
+      dockerfile: cicd/Dockerfile
+      target: test
+    command: [ "yarn", "test:coverage" ]
+
+networks:
+  unixpense-custom-bridge-network:
+    external: true

@@ -3,7 +3,7 @@ import * as googleOAuth2Middleware from './web/middleware/googleOAuth2Middleware
 import { router as transactionsRouter } from './web/routes/transactionsRoutes';
 import { router as gmailTransactionsRouter } from './web/routes/gmailTransactionsRoutes';
 import { router as swaggerRouter } from './web/routes/swaggerRoutes';
-import { router as kubernetesProbesRouter } from './web/routes/kubernetesProbesRoutes';
+import { router as healthRouter } from './web/routes/healthRoutes';
 import { router as groupsRouter } from './web/routes/groupsRoutes';
 import { router as groupRulesRouter } from './web/routes/groupRulesRoutes';
 import { Sequelize } from 'sequelize-typescript';
@@ -136,8 +136,8 @@ const startServerAsync = (port?: number) => {
 
     app.use(express.json());
 
-    // Kubernetes Startup, Readiness and Liveness Probes
-    app.use(kubernetesProbesRouter);
+    // Startup, Readiness and Liveness Probes
+    app.use(healthRouter);
 
     app.use(rateLimiter);
 
