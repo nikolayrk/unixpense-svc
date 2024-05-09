@@ -8,9 +8,9 @@ import PaymentDetails from "../../core/types/paymentDetails";
 import StandardFee from "../../core/types/standardFee";
 import StandardTransfer from "../../core/types/standardTransfer";
 import TransactionData from '../../core/types/transactionData';
-import { PaymentDetailsTestCase } from "../../core/types/paymentDetailsTestCase";
+import { PaymentDetailsTestCase, PaymentDetailsTestCaseData } from "../../core/types/paymentDetailsTestCase";
 
-export type GmailPaymentDetailsTestCaseData = {
+export interface GmailPaymentDetailsTestCaseData extends PaymentDetailsTestCaseData {
   attachmentDataBody: string;
   expectedTransactionDataBody: Partial<TransactionData>;
   expectedPaymentDetails: PaymentDetails;
@@ -105,7 +105,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
           </td>`,
       expectedTransactionDataBody: {
           transactionType: TransactionType.CARD_OPERATION,
-          paymentDetailsRaw: [],
+          paymentDetailsRaw: ['xxx'],
           additionalDetailsRaw: ['4591TATB0'],
       },
       expectedPaymentDetails: Constants.defaultPaymentDetails
@@ -131,7 +131,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
           <td align="center"></td>`,
       expectedTransactionDataBody: {
           transactionType: TransactionType.CROSS_BORDER_TRANSFER,
-          paymentDetailsRaw: [],
+          paymentDetailsRaw: [', BUNQNL2AXXX , NL48BUNQ4950396806,   ,  ,', 'AZV-Treehouse Distribution, xxx'],
           additionalDetailsRaw: []
       },
       expectedPaymentDetails: Constants.defaultPaymentDetails
