@@ -3,7 +3,6 @@ import { DependencyInjector } from "../../dependencyInjector";
 import { injectables } from "../../core/types/injectables";
 import GoogleOAuth2IdentifiersFactory from "../../googleOAuth2/factories/googleOAuth2IdentifiersFactory";
 import { ResponseExtensions } from "../../core/extensions/responseExtensions";
-import IOAuth2ClientProvider from "../../googleOAuth2/contracts/IOAuth2ClientProvider";
 import GoogleOAuth2ClientProvider from "../../googleOAuth2/providers/googleOAuth2ClientProvider";
 
 const redirect = async (req: Request, res: Response) => {
@@ -24,7 +23,7 @@ const redirect = async (req: Request, res: Response) => {
     const identifiers = GoogleOAuth2IdentifiersFactory.create({ redirectUri: String(redirect_uri) });
   
     try {
-        const googleOAuth2ClientProvider = await DependencyInjector.Singleton.generateGmailServiceAsync<IOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProviderGenerator, identifiers);
+        const googleOAuth2ClientProvider = await DependencyInjector.Singleton.generateGmailServiceAsync<GoogleOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProviderGenerator, identifiers);
 
         const tokens = await googleOAuth2ClientProvider.tryAuthorizeAsync(String(code));
 

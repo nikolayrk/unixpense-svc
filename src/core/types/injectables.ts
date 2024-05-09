@@ -18,7 +18,7 @@ export const injectables = {
 
     // Gmail Services
     GoogleOAuth2TokensRepository: Symbol.for('GoogleOAuth2TokensRepository'),
-    IOAuth2ClientProvider: Symbol.for('IOAuth2ClientProvider'),
+    GoogleOAuth2ClientProvider: Symbol.for('GoogleOAuth2ClientProvider'),
     GmailApiClient: Symbol.for('GmailApiClient'),
 
     // Google OAuth2 Service Generators (Providers)

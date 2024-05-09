@@ -4,23 +4,53 @@ import { OAuth2Client } from 'googleapis-common';
 import { Credentials } from 'google-auth-library';
 import GoogleOAuth2Identifiers from '../types/googleOAuth2Identifiers';
 import Constants from '../../constants';
-import AbstractGoogleOAuth2ClientProvider from './abstractGoogleOAuth2ClientProvider';
 import { FetchError } from 'node-fetch'
+import { DependencyInjector } from '../../dependencyInjector';
+import ILogger from '../../core/contracts/ILogger';
+import { injectables } from '../../core/types/injectables';
+import GoogleOAuth2TokensRepository from '../repositories/googleOAuth2TokensRepository';
+import IUsesGoogleOAuth2 from '../contracts/IUsesGoogleOAuth2';
+import { injectable } from 'inversify';
 
-export default class GoogleOAuth2ClientProvider extends AbstractGoogleOAuth2ClientProvider {
+@injectable()
+export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
+    private readonly logger;
+    private readonly googleOAuth2TokensRepository;
+
     private oauth2Client: OAuth2Client;
 
     public constructor() {
-        super();
+        this.logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
+        this.googleOAuth2TokensRepository = DependencyInjector.Singleton.resolve<GoogleOAuth2TokensRepository>(injectables.GoogleOAuth2TokensRepository);
 
         this.oauth2Client = null!;
     }
 
-    public override get client() {
+    public get client() {
         return this.oauth2Client;
     }
 
-    public override async tryAuthorizeAsync(code: string) {
+    public async useOAuth2IdentifiersAsync(identifiers: GoogleOAuth2Identifiers) {
+        this.oauth2Client = new google.auth.OAuth2(
+            process.env.GOOGLE_OAUTH2_CLIENT_ID,
+            process.env.GOOGLE_OAUTH2_CLIENT_SECRET,
+            identifiers.redirectUri ?? Constants.defaultRedirectUri);
+
+        this.oauth2Client.on('tokens', (tokens) => this.tryHandleTokensAsync(tokens));
+
+        if (identifiers.accessToken !== undefined) {
+            const tokens: Credentials = {
+                scope: Constants.scopes.join(' '),
+                token_type: "Bearer",
+                access_token: identifiers.accessToken,
+                refresh_token: identifiers.refreshToken
+            };
+
+            await this.tryHandleTokensAsync(tokens);
+        }
+    }
+
+    public async tryAuthorizeAsync(code: string) {
         this.logger.log(`Received authorization request`, { authorization_code: code });
 
         try {
@@ -54,32 +84,49 @@ export default class GoogleOAuth2ClientProvider extends AbstractGoogleOAuth2Clie
         }
     }
 
-    protected override initialiseClient(identifiers: GoogleOAuth2Identifiers) {
-        this.oauth2Client = new google.auth.OAuth2(
-            process.env.GOOGLE_OAUTH2_CLIENT_ID,
-            process.env.GOOGLE_OAUTH2_CLIENT_SECRET,
-            identifiers.redirectUri ?? Constants.defaultRedirectUri);
-        
-        this.oauth2Client.on('tokens', async (tokens: Credentials) => {
-            this.logger.log(`Received new OAuth2 Client tokens`, {
-                access_token: tokens.access_token,
-                ...(tokens.refresh_token !== undefined) && { refresh_token: tokens.refresh_token}
-            });
-            
-            try {
-                await this.tryHandleTokensAsync(tokens);
-            } catch(ex) {
-                const error = ex as Error;
+    private async tryHandleTokensAsync(tokens: Credentials) {
+        const refreshToken = await this.tryResolveRefreshTokenOrNullAsync(tokens);
 
-                this.logger.error(error, {
-                    access_token: tokens.access_token,
-                    ...(tokens.refresh_token !== undefined) && { refresh_token: tokens.refresh_token}
-                });
-            }
+        const refreshableTokens: Credentials = {
+            ...tokens,
+
+            refresh_token: refreshToken,
+        };
+
+        this.logger.log(`Using OAuth2 Client tokens`, {
+            access_token: tokens.access_token,
+            ...(tokens.refresh_token !== undefined) && { refresh_token: tokens.refresh_token}
         });
+
+        this.authenticate(refreshableTokens);
     }
 
-    protected override async resolveEmailOrNullAsync(accessToken?: string) {
+    private async tryResolveRefreshTokenOrNullAsync(tokens: Credentials) {
+        if (tokens.access_token === undefined || tokens.access_token === null) {
+            throw new Error(`No access token received`);
+        }
+
+        const userEmail = await this.resolveEmailOrNullAsync(tokens.access_token);
+
+        if (userEmail === null) {
+            return tokens.refresh_token ?? null;
+        }
+
+        const refreshToken = tokens.refresh_token ?? await this.resolvePersistedRefreshToken(userEmail);
+
+        if (refreshToken === undefined) {
+            return null;
+        }
+
+        await this.googleOAuth2TokensRepository.createOrUpdateAsync(
+            userEmail,
+            tokens.access_token,
+            refreshToken);
+
+        return refreshToken;
+    }
+
+    private async resolveEmailOrNullAsync(accessToken?: string) {
         if(accessToken === undefined) {
             return null;
         }
@@ -99,7 +146,17 @@ export default class GoogleOAuth2ClientProvider extends AbstractGoogleOAuth2Clie
         }
     }
 
-    protected override authenticate(tokens: Credentials) {
+    private async resolvePersistedRefreshToken(userEmail: string) {
+        const persistedIdentifiers = await this.googleOAuth2TokensRepository.getOrNullAsync(userEmail);
+
+        if (persistedIdentifiers !== null) {
+            this.logger.log(`Using persisted OAuth2 refresh token`, { refresh_token: persistedIdentifiers.refreshToken });
+        }
+        
+        return persistedIdentifiers?.refreshToken;
+    }
+
+    private authenticate(tokens: Credentials) {
         this.oauth2Client.setCredentials(tokens);
     }
 }
