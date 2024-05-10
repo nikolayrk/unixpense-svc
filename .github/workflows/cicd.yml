@@ -52,10 +52,15 @@ jobs:
         with:
           scandir: './sh'
           severity: error
-          
+        
+  run-all-tests:
+    name: Run tests
+    needs: shellcheck
+    uses: ./.github/workflows/run_tests.yml
+
   build:
     name: Build
-    needs: shellcheck
+    needs: run-all-tests
     permissions:
       contents: read
       packages: write

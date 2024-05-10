@@ -1,0 +1,63 @@
+name: 'run-tests-reusable'
+
+on:
+  workflow_call:
+    inputs:
+      NODE_ENV:
+        type: string
+      up-flags:
+        type: string
+      services:
+        type: string
+      test-command:
+        type: string
+      with-bridge-network:
+        type: boolean
+      artifacts-path:
+        type: string
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    env:
+      PRODUCTION: false
+      NODE_ENV: ${{ inputs.NODE_ENV }}
+      MARIADB_PASSWORD: 'password'
+      GOOGLE_OAUTH2_CLIENT_ID: 'client_id'
+      GOOGLE_OAUTH2_CLIENT_SECRET: 'client_secret'
+  
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+  
+      - name: Maybe create bridge network
+        if: ${{ inputs.with-bridge-network }}
+        run: |
+          docker network rm unixpense-custom-bridge-network -f &&
+          docker network create -d bridge unixpense-custom-bridge-network
+
+      - name: Run Docker Compose service(s)
+        uses: adambirds/docker-compose-action@v1.3.0
+        with:
+          compose-file: "./cicd/docker-compose.yml"
+          up-flags: ${{ inputs.up-flags }}
+          services: ${{ inputs.services }}
+        env:
+          PRODUCTION: ${{ env.PRODUCTION }}
+          NODE_ENV: ${{ env.NODE_ENV }}
+          MARIADB_PASSWORD: ${{ env.MARIADB_PASSWORD }}
+          GOOGLE_OAUTH2_CLIENT_ID: ${{ env.GOOGLE_OAUTH2_CLIENT_ID }}
+          GOOGLE_OAUTH2_CLIENT_SECRET: ${{ env.GOOGLE_OAUTH2_CLIENT_SECRET }}
+        
+      - name: Run integration tests
+        if: ${{ inputs.test-command != '' }}
+        run: yarn install --frozen-lockfile --production=${{ env.PRODUCTION }} && ${{ inputs.test-command }}
+        env:
+          NODE_ENV: ${{ env.NODE_ENV }}
+
+      - name: Maybe upload artifacts
+        if: ${{ inputs.artifacts-path != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ inputs.artifacts-path }}
+          overwrite: true

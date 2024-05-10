@@ -11,22 +11,30 @@ permissions:
   contents: write
 
 jobs:
+  run-coverage-tests:
+    name: Run tests
+    uses: ./.github/workflows/run_tests_reusable.yml
+    with:
+      NODE_ENV: test_coverage
+      up-flags: "--build --abort-on-container-exit"
+      services: coverage_tests
+      with-bridge-network: true
+      artifacts-path: coverage/
+
   generate:
-    name: Generate badge
+    name: Generate coverage badge
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Install
-      run: yarn install --pure-lockfile
-    - name: Test
-      run: npm run test
-    - name: Generate Coverage Badge
+    - name: Download coverage report
+      uses: actions/download-artifact@v4
+      with:
+        path: coverage/
+    - name: Generate badge
       uses: jaywcjlove/coverage-badges-cli@main
       with:
         source: coverage/coverage-summary.json
         output: coverage/badge.svg
-    - name: Publish coverage report to GitHub Pages
+    - name: Publish coverage report and badge to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@v4
       with:
         folder: coverage

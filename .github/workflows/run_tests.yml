@@ -1,0 +1,25 @@
+name: 'run-tests'
+
+on:
+  workflow_call:
+
+jobs:
+  unit-tests:
+    name: Run unit tests
+    uses: ./.github/workflows/run_tests_reusable.yml
+    with:
+      up-flags: "--build --abort-on-container-exit"
+      services: unit_tests
+
+  integration-tests:
+    name: Run integration tests
+    needs: unit-tests
+    uses: ./.github/workflows/run_tests_reusable.yml
+    with:
+      NODE_ENV: test_integration
+      up-flags: "--build --wait"
+      services: |
+        db
+        app
+      test-command: test:integration
+      with-bridge-network: true
