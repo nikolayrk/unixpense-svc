@@ -29,6 +29,7 @@ jobs:
     - name: Download coverage report
       uses: actions/download-artifact@v4
       with:
+        name: coverage
         path: coverage/
     - name: Generate badge
       uses: jaywcjlove/coverage-badges-cli@main
