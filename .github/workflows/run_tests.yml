@@ -13,7 +13,6 @@ jobs:
 
   integration-tests:
     name: Run integration tests
-    needs: unit-tests
     uses: ./.github/workflows/run_tests_reusable.yml
     with:
       NODE_ENV: test_integration
@@ -21,4 +20,4 @@ jobs:
       services: |
         db
         app
-      test-command: test:integration
+      test-command: yarn test:integration
