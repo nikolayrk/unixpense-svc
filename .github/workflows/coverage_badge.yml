@@ -19,7 +19,7 @@ jobs:
       up-flags: "--build --abort-on-container-exit"
       services: coverage_tests
       with-bridge-network: true
-      artifacts-path: /home/
+      artifacts-path: coverage/
 
   generate:
     name: Generate coverage badge
