@@ -23,6 +23,7 @@ jobs:
 
   generate:
     name: Generate coverage badge
+    needs: run-coverage-tests
     runs-on: ubuntu-latest
     steps:
     - name: Download coverage report
