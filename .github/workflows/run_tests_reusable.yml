@@ -57,7 +57,7 @@ jobs:
 
       - name: Copy coverage report from volume
         run: |
-          sudo cp -r /var/lib/docker/volumes/coverage ${{ inputs.artifacts-path }} && ls -la ${{ inputs.artifacts-path }}
+          sudo cp -r /var/lib/docker/volumes ${{ inputs.artifacts-path }} && ls -la ${{ inputs.artifacts-path }}
 
       - name: Maybe upload artifacts
         if: ${{ inputs.artifacts-path != '' }}
