@@ -53,6 +53,7 @@ services:
   coverage_tests:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - docker-volume-default-path-volume:/usr/app:rw
     environment:
       TESTCONTAINERS_HOST_OVERRIDE: "172.17.0.1"
       WITH_BRIDGE_NETWORK: 1
