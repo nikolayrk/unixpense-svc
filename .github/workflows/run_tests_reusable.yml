@@ -38,7 +38,8 @@ jobs:
         with:
           compose-file: "./cicd/docker-compose.yml"
           up-flags: ${{ inputs.up-flags }}
-          services: ${{ inputs.services }}
+          services: |
+            ${{ inputs.services }}
         env:
           PRODUCTION: ${{ env.PRODUCTION }}
           NODE_ENV: ${{ env.NODE_ENV }}
