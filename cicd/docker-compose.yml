@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   db:
     networks:
@@ -10,7 +12,7 @@ services:
     healthcheck:
       test: ['CMD', 'healthcheck.sh', '--innodb_initialized']
       start_period: 1m
-      start_interval: 10s
+      # start_interval: 10s # value 'start_interval' does not match any of the regexes: '^x-'\n
       interval: 1m
       timeout: 5s
       retries: 5
