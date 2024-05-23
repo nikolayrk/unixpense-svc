@@ -57,7 +57,7 @@ jobs:
 
       - name: Copy coverage report from volume
         run: |
-          sudo ls -la /var/lib/docker/volumes/cicd_docker-volume-default-path-volume
+          sudo ls -la /var/lib/docker/volumes/cicd_docker-volume-default-path-volume/_data
 
       - name: Maybe upload artifacts
         if: ${{ inputs.artifacts-path != '' }}
