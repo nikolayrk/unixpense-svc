@@ -65,6 +65,9 @@ services:
       target: test
     command: [ "yarn", "test:coverage" ]
 
+volumes:
+  docker-volume-default-path-volume: {}
+  
 networks:
   unixpense-custom-bridge-network:
     external: true
