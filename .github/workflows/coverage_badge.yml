@@ -36,6 +36,8 @@ jobs:
       with:
         source: coverage/coverage-summary.json
         output: coverage/badge.svg
+    - name: Checkout
+      uses: actions/checkout@v4
     - name: Publish coverage report and badge to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@v4
       with:
