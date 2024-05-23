@@ -11,8 +11,6 @@ on:
         type: string
       test-command:
         type: string
-      with-bridge-network:
-        type: boolean
       artifacts-path:
         type: string
 
@@ -30,8 +28,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
   
-      - name: Maybe create bridge network
-        if: ${{ inputs.with-bridge-network }}
+      - name: Create bridge network
         run: |
           docker network rm unixpense-custom-bridge-network -f &&
           docker network create -d bridge unixpense-custom-bridge-network

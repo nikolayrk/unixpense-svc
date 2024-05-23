@@ -18,7 +18,6 @@ jobs:
       NODE_ENV: test_coverage
       up-flags: "--build --abort-on-container-exit"
       services: coverage_tests
-      with-bridge-network: true
       artifacts-path: coverage/
 
   generate:

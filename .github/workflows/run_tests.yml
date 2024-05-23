@@ -22,4 +22,3 @@ jobs:
         db
         app
       test-command: test:integration
-      with-bridge-network: true
