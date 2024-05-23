@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { DockerComposeEnvironment, Wait } from 'testcontainers';
 import Constants from './src/constants';
 
