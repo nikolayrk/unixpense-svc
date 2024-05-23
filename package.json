@@ -13,7 +13,7 @@
     "down": "docker-compose -f cicd/docker-compose.yml down",
     "test:unit": "jest --testMatch **/src/**/*.test.ts",
     "test:integration": "jest --runInBand --runTestsByPath __tests__/integration/*.test.ts",
-    "test:coverage": "NODE_ENV=test_coverage jest --runInBand --config jest.coverage.config.js --ci --coverage --coverageReporters=json-summary --coverageReporters=html"
+    "test:coverage": "jest --runInBand --config jest.coverage.config.js --ci --coverage --coverageReporters=json-summary --coverageReporters=html"
   },
   "repository": {
     "type": "git",

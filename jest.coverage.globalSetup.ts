@@ -3,6 +3,10 @@ import { DockerComposeEnvironment, Wait } from 'testcontainers';
 import Constants from './src/constants';
 
 export default async () => {
+    process.env.NODE_ENV = 'test_coverage';
+    process.env.GOOGLE_OAUTH2_CLIENT_ID = Constants.Mock.clientId;
+    process.env.GOOGLE_OAUTH2_CLIENT_SECRET = Constants.Mock.clientSecret;
+
     globalThis.dbContainer = await createDatabaseConstainerAsync();
 
     const mocks = await import('./src/mocks');
