@@ -54,7 +54,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      TESTCONTAINERS_HOST_OVERRIDE: "host.docker.internal"
+      TESTCONTAINERS_HOST_OVERRIDE: "172.17.0.1"
       WITH_BRIDGE_NETWORK: 1
     networks:
       - unixpense-custom-bridge-network
