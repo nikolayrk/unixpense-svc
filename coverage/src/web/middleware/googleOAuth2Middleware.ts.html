@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>33/33</span>
+                <span class='fraction'>32/32</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>31/31</span>
+                <span class='fraction'>30/30</span>
             </div>
         
             
@@ -121,18 +121,14 @@
 <a name='L56'></a><a href='#L56'>56</a>
 <a name='L57'></a><a href='#L57'>57</a>
 <a name='L58'></a><a href='#L58'>58</a>
-<a name='L59'></a><a href='#L59'>59</a>
-<a name='L60'></a><a href='#L60'>60</a>
-<a name='L61'></a><a href='#L61'>61</a>
-<a name='L62'></a><a href='#L62'>62</a>
-<a name='L63'></a><a href='#L63'>63</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<a name='L59'></a><a href='#L59'>59</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
@@ -150,8 +146,6 @@
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
@@ -181,18 +175,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Request, Response, NextFunction } from "express";
 import { DependencyInjector } from "../../dependencyInjector";
 import { injectables } from "../../core/types/injectables";
 import GoogleOAuth2IdentifiersFactory from "../../googleOAuth2/factories/googleOAuth2IdentifiersFactory";
 import { ResponseExtensions } from "../../core/extensions/responseExtensions";
-import IOAuth2ClientProvider from "../../googleOAuth2/contracts/IOAuth2ClientProvider";
+import GoogleOAuth2ClientProvider from "../../googleOAuth2/providers/googleOAuth2ClientProvider";
 &nbsp;
 const redirect = async (req: Request, res: Response) =&gt; {
     const { client_id, client_secret, redirect_uri, code } = req.body;
@@ -208,13 +200,11 @@ const redirect = async (req: Request, res: Response) =&gt; {
     if(code === undefined) {
         return ResponseExtensions.forbidden(res, "No authorization code provided");
     }
-&nbsp;
-    const googleOAuth2IdentifierFactory = DependencyInjector.Singleton.resolve&lt;GoogleOAuth2IdentifiersFactory&gt;(injectables.GoogleOAuth2IdentifiersFactory);
     
-    const identifiers = googleOAuth2IdentifierFactory.create({ redirectUri: String(redirect_uri) });
+    const identifiers = GoogleOAuth2IdentifiersFactory.create({ redirectUri: String(redirect_uri) });
   
     try {
-        const googleOAuth2ClientProvider = await DependencyInjector.Singleton.generateGmailServiceAsync&lt;IOAuth2ClientProvider&gt;(injectables.GoogleOAuth2ClientProviderGenerator, identifiers);
+        const googleOAuth2ClientProvider = await DependencyInjector.Singleton.generateGmailServiceAsync&lt;GoogleOAuth2ClientProvider&gt;(injectables.GoogleOAuth2ClientProviderGenerator, identifiers);
 &nbsp;
         const tokens = await googleOAuth2ClientProvider.tryAuthorizeAsync(String(code));
 &nbsp;
@@ -237,9 +227,7 @@ const protect = async (req: Request, res: Response, next: NextFunction) =&gt; {
 &nbsp;
     const refreshToken = req.get('X-Refresh-Token');
 &nbsp;
-    const googleOAuth2IdentifierFactory = DependencyInjector.Singleton.resolve&lt;GoogleOAuth2IdentifiersFactory&gt;(injectables.GoogleOAuth2IdentifiersFactory);
-    
-    const identifiers = googleOAuth2IdentifierFactory.create({ accessToken, refreshToken });
+    const identifiers = GoogleOAuth2IdentifiersFactory.create({ accessToken, refreshToken });
 &nbsp;
     res.locals.googleOAuth2Identifiers = identifiers;
 &nbsp;
@@ -256,7 +244,7 @@ export {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-04-12T08:17:31.285Z
+                at 2024-05-23T23:04:19.522Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

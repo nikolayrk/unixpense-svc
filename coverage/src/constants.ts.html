@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">40% </span>
+                <span class="strong">42.85% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>4/10</span>
+                <span class='fraction'>6/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
@@ -106,10 +106,36 @@
 <a name='L41'></a><a href='#L41'>41</a>
 <a name='L42'></a><a href='#L42'>42</a>
 <a name='L43'></a><a href='#L43'>43</a>
-<a name='L44'></a><a href='#L44'>44</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -123,6 +149,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -151,14 +181,25 @@
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import PaymentDetails from "./core/types/paymentDetails";
 &nbsp;
+const localOrService = (serviceName: string) =&gt;
+    process.env.NODE_ENV === 'test_integration'
+        ? <span class="branch-0 cbranch-no" title="branch not covered" >'0.0.0.0'</span>
+        : process.env.WITH_BRIDGE_NETWORK === '1'
+            ? serviceName
+            : <span class="branch-1 cbranch-no" title="branch not covered" >'localhost';</span>
+&nbsp;
 export default class Constants {
+    public static DbComposeServiceName = 'db' as const;
+    public static AppComposeServiceName = 'app' as const;
+&nbsp;
     public static readonly Defaults = {
         port: 8000 as const,
+        mariadbHost: localOrService(this.DbComposeServiceName),
         mariadbPort: 3306 as const,
         mariadbPassword: 'password' as const,
         mariadbUser: 'root' as const,
         mariadbDatabase: 'unixpense' as const,
-        containerTimeout: 60 * 1000 // 60s
+        containerTimeout: 5 * 1000, // 5s
     }
 &nbsp;
     public static readonly scopes = [
@@ -167,12 +208,16 @@ export default class Constants {
         'https://www.googleapis.com/auth/gmail.readonly'
     ] as const;
 &nbsp;
-    public static readonly host = `${process.env.NODE_ENV === 'production'
+    public static readonly host = localOrService(this.AppComposeServiceName);
+&nbsp;
+    public static readonly port = process.env.PORT<span class="branch-0 cbranch-no" title="branch not covered" > ?? C</span>onstants.Defaults.port;
+&nbsp;
+    public static readonly baseUrl = `${process.env.NODE_ENV === 'production'
         ? <span class="branch-0 cbranch-no" title="branch not covered" >`https://${process.env.UNIXPENSE_HOST}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`</span>
-        : `http://localhost:${process.env.PORT<span class="branch-0 cbranch-no" title="branch not covered" > ?? C</span>onstants.Defaults.port}`
+        : `http://${Constants.host}:${Constants.port}`
     }`;
 &nbsp;
-    public static readonly defaultRedirectUri = `${Constants.host}/api/oauthcallback` as const;
+    public static readonly defaultRedirectUri = `${Constants.baseUrl}/api/oauthcallback` as const;
 &nbsp;
     public static readonly Mock = {
         userEmail: "email" as const,
@@ -199,7 +244,7 @@ export default class Constants {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-04-12T08:17:31.285Z
+                at 2024-05-23T23:04:19.522Z
             </div>
         <script src="../prettify.js"></script>
         <script>
