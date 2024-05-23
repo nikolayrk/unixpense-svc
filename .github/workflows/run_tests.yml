@@ -16,7 +16,7 @@ jobs:
     uses: ./.github/workflows/run_tests_reusable.yml
     with:
       NODE_ENV: test_integration
-      up-flags: "--build --wait"
+      up-flags: "--build"
       services: |
         db
         app
