@@ -8,26 +8,14 @@ permissions:
   pull-requests: write
 
 jobs:
-  checks:
-    name: Checks
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        ref: ${{ github.head_ref }}
-    - name: Install
-      run: yarn install --pure-lockfile
-    - name: Lint
-      run: npm run lint
-    - name: Build
-      run: npm run build
-    - name: Test
-      run: npm run test
+  run-all-tests:
+    name: Run tests
+    uses: ./.github/workflows/run_tests.yml
 
   approve:
     name: Approve the PR
     runs-on: ubuntu-latest
-    needs: checks
+    needs: run-all-tests
     if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
     steps:
       - name: Dependabot metadata
