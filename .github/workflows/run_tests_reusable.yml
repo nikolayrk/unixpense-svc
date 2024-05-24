@@ -11,8 +11,6 @@ on:
         type: string
       test-command:
         type: string
-      with-bridge-network:
-        type: boolean
       artifacts-path:
         type: string
 
@@ -30,8 +28,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
   
-      - name: Maybe create bridge network
-        if: ${{ inputs.with-bridge-network }}
+      - name: Create bridge network
         run: |
           docker network rm unixpense-custom-bridge-network -f &&
           docker network create -d bridge unixpense-custom-bridge-network
@@ -41,7 +38,8 @@ jobs:
         with:
           compose-file: "./cicd/docker-compose.yml"
           up-flags: ${{ inputs.up-flags }}
-          services: ${{ inputs.services }}
+          services: |
+            ${{ inputs.services }}
         env:
           PRODUCTION: ${{ env.PRODUCTION }}
           NODE_ENV: ${{ env.NODE_ENV }}
@@ -55,9 +53,15 @@ jobs:
         env:
           NODE_ENV: ${{ env.NODE_ENV }}
 
+      - name: Copy coverage report from volume
+        if: ${{ inputs.artifacts-path != '' }}
+        run: |
+          sudo cp -r /var/lib/docker/volumes/cicd_docker-volume-default-path-volume/_data/coverage ${{ inputs.artifacts-path }}
+
       - name: Maybe upload artifacts
         if: ${{ inputs.artifacts-path != '' }}
         uses: actions/upload-artifact@v4
         with:
+          name: coverage
           path: ${{ inputs.artifacts-path }}
           overwrite: true

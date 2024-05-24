@@ -18,16 +18,19 @@ jobs:
       NODE_ENV: test_coverage
       up-flags: "--build --abort-on-container-exit"
       services: coverage_tests
-      with-bridge-network: true
       artifacts-path: coverage/
 
   generate:
     name: Generate coverage badge
+    needs: run-coverage-tests
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout
+      uses: actions/checkout@v4
     - name: Download coverage report
       uses: actions/download-artifact@v4
       with:
+        name: coverage
         path: coverage/
     - name: Generate badge
       uses: jaywcjlove/coverage-badges-cli@main

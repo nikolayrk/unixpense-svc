@@ -13,13 +13,11 @@ jobs:
 
   integration-tests:
     name: Run integration tests
-    needs: unit-tests
     uses: ./.github/workflows/run_tests_reusable.yml
     with:
       NODE_ENV: test_integration
-      up-flags: "--build --wait"
+      up-flags: "--build"
       services: |
         db
         app
-      test-command: test:integration
-      with-bridge-network: true
+      test-command: yarn test:integration
