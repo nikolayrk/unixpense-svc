@@ -168,7 +168,7 @@ const messageListCallback = (uri: string, requestBody: nock.Body) => {
     const pageToken = new URL(gmailApiBaseUrl.concat(uri)).searchParams.get('pageToken');
     const nextPageToken = new TransactionTestHelper()
         .withTestCases(gmailPaymentDetailsTestCases)
-        .randomCount()
+        .randomCount(true) // ensure test cases go through at least two pages
         .resolveTransactionIds()
         .reduce((_, i) => i);
         

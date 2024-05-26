@@ -27,9 +27,9 @@ export default class TransactionTestHelper {
         return this;
     }
 
-    public randomCount() {
-        const max = this.ids.length;
-        const min = this.ids.length / 2;
+    public randomCount(small: boolean = false) {
+        const max = !small ? this.ids.length : this.ids.length / 2;
+        const min = !small ? this.ids.length / 2 : this.ids.length / 4;
         const size = Math.random() * (max - min) + min;
 
         this.ids = this.ids.slice(0, size);
