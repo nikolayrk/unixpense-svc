@@ -78,7 +78,9 @@ export class TransactionExtensions {
             ? {
                 recipient: (transaction.card_operation as CardOperationModel).recipient,
                 instrument: (transaction.card_operation as CardOperationModel).instrument ?? undefined,
-                sum: (transaction.card_operation as CardOperationModel).sum ?? undefined,
+                sum: (transaction.card_operation as CardOperationModel).sum
+                    ? String((transaction.card_operation as CardOperationModel).sum)
+                    : undefined,
                 currency: (transaction.card_operation as CardOperationModel).currency ?? undefined
             } as CardOperation
             : transaction.standard_transfer !== undefined && transaction.standard_transfer !== null
