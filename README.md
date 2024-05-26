@@ -10,24 +10,28 @@ The Service is responsible for fetching and persisting new transaction data from
 
 ## Setup
 
-### Basic operations
+### Commands
 
 ```bash
-yarn install # Install dependencies
+# Install dependencies
+yarn install
 
-yarn lint # Run linter
+# Run linter
+yarn lint
 
-yarn test # Run tests
+# Docker Compose service operations
+yarn up [db/app/unit_tests/coverage_tests]
+yarn down [db/app/unit_tests/coverage_tests]
 
-yarn build # Build the project
+# Running tests
+yarn test:unit
+yarn test:integration # Make sure to run 'yarn up db app' to bring up the necessary services
+yarn test:coverage
 
-yarn start # Run the API server
-
-yarn dev # Run in development mode
-
-docker build -t nikolayrk/unixpense-svc:latest --build-arg=PORT=8000 # Build a Docker image
-
-docker run nikolayrk/unixpense-svc:latest -p 8000:8000 --env-file .env # Run the image in a container
+# Running the application
+yarn build # Compile the project
+yarn start # Run the application after compilation
+yarn dev # Run in development mode without compilation
 ```
 
 ### Creating Google Credentials
@@ -37,17 +41,17 @@ Google OAuth2 is used both for [Authentication](#authentication), as well as Aut
 2. [Create Google OAuth Credentials](https://developers.google.com/workspace/guides/create-credentials#oauth-client-id)
     - _Credential type_: **OAuth client ID**
     - _Application type_: **Web application**
-    - _Authorised JavaScript origins_: **http://localhost:8000** _(also applicable with a public host)_
-    - _Authorised redirect URIs_: **http://localhost:8000/api/oauthcallback** _(also applicable with a public host)_
+    - _Authorised JavaScript origins_: *e.g* **http://localhost:8000**
+    - _Authorised redirect URIs_: *e.g* **http://localhost:8000/api/oauthcallback**
 3. [Enable the Gmail API](https://cloud.google.com/endpoints/docs/openapi/enable-api)
 
 Once done, carry over the **Client ID** and **Client Secret** to a `.env` file using the variables defined in the `.env.sample` file.
 
 ### Swagger
 
-> **_NOTE:_**  In order to use Swagger, you have to add http://localhost:8000/swagger/oauth2-redirect.html as an additional redirect URI to your Google OAuth Credentials. The same route can be used with a public host, as well.
+> **_NOTE:_**  In order to use Swagger, you have to add *[your uri]/swagger/oauth2-redirect.html* as a redirect URI to your Google OAuth Credentials
 
-[Swagger UI](https://swagger.io/tools/swagger-ui/) is accessible through `http://localhost:8000/swagger/`. The specification is generated from source.
+[Swagger UI](https://swagger.io/tools/swagger-ui/) is accessible through the `/swagger` route. The specification is generated from source.
 
 ## Environment
 
@@ -90,7 +94,7 @@ The necessary manifest files are located in the `/cicd/manifests/` directory. Th
 
 ### Authentication
 
-> **_NOTE:_**  In order to use OAuth2 Authentication, you have to add https://your-hostname/oauth2/callback as an additional redirect URI to your Google OAuth Credentials.
+> **_NOTE:_**  In order to use OAuth2 Authentication, you have to add *[your uri]/oauth2/callback* as a redirect URI to your Google OAuth Credentials.
 
 Authentication is handled by [OAuth2 Proxy](https://github.com/oauth2-proxy/oauth2-proxy) using Google as the IdP and [Redis](https://redis.io/) for session storage.
 
@@ -115,8 +119,9 @@ The Service is exposed via an [Ingress](https://kubernetes.io/docs/concepts/serv
 - [ESLint](https://github.com/eslint/eslint)
 - [Express](https://github.com/expressjs/express)
 - [Jest](https://github.com/jestjs/jest)
+- [Axios](https://github.com/axios/axios)
+- [Nock](https://github.com/nock/nock)
 - [Testcontainers](https://github.com/testcontainers/testcontainers-node)
-- [SuperTest](https://github.com/ladjs/supertest)
 - [Google APIs Node.js Client](https://github.com/googleapis/google-api-nodejs-client)
 - [MariaDB](https://github.com/mariadb)
 - [Sequelize](https://github.com/sequelize/sequelize)
