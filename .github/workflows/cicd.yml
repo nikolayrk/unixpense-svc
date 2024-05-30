@@ -6,6 +6,7 @@ on:
       - develop
     paths-ignore:
       - '**/README.md'
+      - '.github/**'
 
 jobs:
   telegram-notify-start:
