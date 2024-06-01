@@ -1,4 +1,4 @@
-name: Generage Coverage Badges
+name: 'coverage-report'
 
 on: 
   push:
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   run-coverage-tests:
-    name: Run tests
+    name: Run coverage tests
     uses: ./.github/workflows/run_tests_reusable.yml
     with:
       NODE_ENV: test_coverage
@@ -20,7 +20,7 @@ jobs:
       services: coverage_tests
       artifacts-path: coverage/
 
-  generate:
+  generate-badge-and-publish:
     name: Generate coverage badge
     needs: run-coverage-tests
     runs-on: ubuntu-latest
