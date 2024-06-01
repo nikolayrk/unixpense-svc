@@ -25,7 +25,11 @@ jobs:
           echo EOF
         } >> "$GITHUB_ENV"
 
-        echo "COMMIT_MESSAGES=test" >> "$GITHUB_OUTPUT"
+        {
+          echo "COMMIT_MESSAGES<<EOF"
+          echo "$JOINED_COMMITS"
+          echo EOF
+        } >> "$GITHUB_OUTPUT"
       shell: sh
     - name: Telegram Notify
       uses: appleboy/telegram-action@master
@@ -72,7 +76,6 @@ jobs:
         registry: ${{ vars.DOCKER_REGISTRY_URL }}
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
-    - run: echo '${{ needs.telegram-notify-start.outputs.commit_messages }}'
     - name: Docker meta
       id: meta
       uses: docker/metadata-action@v5
