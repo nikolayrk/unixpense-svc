@@ -98,7 +98,8 @@ jobs:
           ${{ vars.DOCKER_REGISTRY_URL }}/${{ vars.DOCKER_REPO }}:${{ github.sha }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
-        outputs: type=image,name=target,annotation-index.org.opencontainers.image.description="${{ needs.telegram-notify-start.outputs.commit_messages }}"
+        outputs: |
+          "type=image,name=target,annotation-index.org.opencontainers.image.description=${{ needs.telegram-notify-start.outputs.commit_messages }}"
 
   deploy:
     name: Deploy
