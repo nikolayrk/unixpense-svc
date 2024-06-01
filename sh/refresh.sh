@@ -57,6 +57,8 @@ main() {
     echo "Received $TRANSACTION_ID_COUNT new transaction(s)."
 
     # Hydrate access token, in case the first request triggered a token refresh
+    sleep 0.5
+
     ACCESS_TOKEN="$(resolveAccessToken)"
 
     echo -n "- Resolving transactions... "
