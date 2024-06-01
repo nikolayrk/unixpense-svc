@@ -2,6 +2,9 @@ name: 'run-tests'
 
 on:
   workflow_call:
+    inputs:
+      ref:
+        type: string
 
 jobs:
   unit-tests:
@@ -10,6 +13,7 @@ jobs:
     with:
       up-flags: "--build --abort-on-container-exit"
       services: unit_tests
+      ref: ${{ inputs.ref }}
 
   integration-tests:
     name: Run integration tests
@@ -21,3 +25,4 @@ jobs:
         db
         app
       test-command: yarn test:integration
+      ref: ${{ inputs.ref }}

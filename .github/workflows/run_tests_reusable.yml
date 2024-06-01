@@ -13,6 +13,8 @@ on:
         type: string
       artifacts-path:
         type: string
+      ref:
+        type: string
 
 jobs:
   run-tests:
@@ -28,7 +30,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ inputs.ref }}
   
       - name: Create bridge network
         run: |
