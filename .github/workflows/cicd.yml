@@ -13,7 +13,7 @@ jobs:
     name: Telegram Notify Start
     runs-on: ubuntu-latest
     outputs:
-      commit_messages: ${{ steps.setenv.outputs.COMMIT_MESSAGES }}
+      image_description: ${{ steps.setenv.outputs.DOCKER_IMAGE_DESCRIPTION }}
     steps:
     - id: setenv
       run: |
@@ -26,8 +26,8 @@ jobs:
         } >> "$GITHUB_ENV"
 
         {
-          echo "COMMIT_MESSAGES<<EOF"
-          echo "$JOINED_COMMITS"
+          echo "DOCKER_IMAGE_DESCRIPTION<<EOF"
+          echo "${{ github.ref }} - ${{ github.event.head_commit.message }}"
           echo EOF
         } >> "$GITHUB_OUTPUT"
       shell: sh
@@ -84,7 +84,7 @@ jobs:
       with:
         images: ${{ vars.DOCKER_REPO }}
         labels: |
-          org.opencontainers.image.description=${{ needs.telegram-notify-start.outputs.commit_messages }}
+          org.opencontainers.image.description=${{ needs.telegram-notify-start.outputs.image_description }}
     - name: Build and push
       uses: docker/build-push-action@v5
       with:
@@ -99,7 +99,7 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
         outputs: |
-          "type=image,name=target,annotation-index.org.opencontainers.image.description=${{ needs.telegram-notify-start.outputs.commit_messages }}"
+          type=image,name=target,annotation-index.org.opencontainers.image.description=${{ needs.telegram-notify-start.outputs.image_description }}
 
   deploy:
     name: Deploy
