@@ -4,8 +4,10 @@ on:
   push:
     branches:
       - develop
-    paths:
-      - 'src/**'
+    # paths:
+    #   - 'src/**'
+    paths-ignore:
+      - '**/README.md'
 
 permissions:
   contents: write

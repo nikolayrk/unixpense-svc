@@ -10,7 +10,7 @@ updates:
           - "*"
 
   - package-ecosystem: "docker"
-    directory: "/cicd/"
+    directory: "/"
     schedule:
       interval: "daily"
     groups:

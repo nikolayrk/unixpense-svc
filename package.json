@@ -9,8 +9,8 @@
     "build": "tsc -p .",
     "start": "node dist/main.js",
     "clean": "tsc --build --clean",
-    "up": "docker-compose -f cicd/docker-compose.yml --env-file .env.integration up --build --wait",
-    "down": "docker-compose -f cicd/docker-compose.yml down",
+    "up": "docker-compose -f docker-compose.yml --env-file .env.integration up --build --wait",
+    "down": "docker-compose -f docker-compose.yml down",
     "test:unit": "jest --testMatch **/src/**/*.test.ts",
     "test:integration": "jest --runInBand --runTestsByPath __tests__/integration/*.test.ts",
     "test:coverage": "jest --runInBand --config jest.coverage.config.js --ci --coverage --coverageReporters=json-summary --coverageReporters=html"

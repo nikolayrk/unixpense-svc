@@ -89,7 +89,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: .
-        file: cicd/Dockerfile
+        file: ./Dockerfile
         platforms: linux/arm64/v8
         push: true
         labels: ${{ steps.meta.outputs.labels }}

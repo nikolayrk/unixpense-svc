@@ -40,7 +40,7 @@ jobs:
       - name: Run Docker Compose service(s)
         uses: adambirds/docker-compose-action@v1.3.0
         with:
-          compose-file: "./cicd/docker-compose.yml"
+          compose-file: "./docker-compose.yml"
           up-flags: ${{ inputs.up-flags }}
           services: |
             ${{ inputs.services }}
@@ -60,7 +60,7 @@ jobs:
       - name: Copy coverage report from volume
         if: ${{ inputs.artifacts-path != '' }}
         run: |
-          sudo cp -r /var/lib/docker/volumes/cicd_docker-volume-default-path-volume/_data/coverage ${{ inputs.artifacts-path }}
+          sudo cp -r /var/lib/docker/volumes/unixpense_svc_artifacts/_data/${{ inputs.artifacts-path }} ${{ inputs.artifacts-path }}
 
       - name: Maybe upload artifacts
         if: ${{ inputs.artifacts-path != '' }}

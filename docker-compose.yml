@@ -21,8 +21,8 @@ services:
     networks:
       - unixpense-custom-bridge-network
     build:
-      context: ../
-      dockerfile: cicd/Dockerfile
+      context: ./
+      dockerfile: ./Dockerfile
       args:
         - PRODUCTION=${PRODUCTION:-true}
     ports:
@@ -46,27 +46,27 @@ services:
 
   unit_tests:
     build:
-      context: ../
-      dockerfile: cicd/Dockerfile
+      context: ./
+      dockerfile: ./Dockerfile
       target: test
 
   coverage_tests:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - docker-volume-default-path-volume:/usr/app:rw
+      - artifacts:/usr/app:rw
     environment:
       TESTCONTAINERS_HOST_OVERRIDE: "172.17.0.1"
       WITH_BRIDGE_NETWORK: 1
     networks:
       - unixpense-custom-bridge-network
     build:
-      context: ../
-      dockerfile: cicd/Dockerfile
+      context: ./
+      dockerfile: ./Dockerfile
       target: test
     command: [ "yarn", "test:coverage" ]
 
 volumes:
-  docker-volume-default-path-volume: {}
+  artifacts: {}
   
 networks:
   unixpense-custom-bridge-network:

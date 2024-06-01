@@ -6,7 +6,7 @@ WORKDIR /usr/app
 
 COPY package.json yarn.lock tsconfig.json ./
 COPY src ./src
-COPY cicd ./cicd
+COPY Dockerfile .dockerignore docker-compose.yml ./
 COPY __tests__ ./__tests__
 COPY jest.config.js \
      jest.coverage.config.js \
@@ -37,7 +37,7 @@ COPY --from=base /usr/app ./
 RUN yarn install --frozen-lockfile --production=${PRODUCTION} && \
     yarn build && \
     rm -rf tsconfig.json ./src \
-        ./cicd \
+        Dockerfile .dockerignore docker-compose.yml \
         ./__tests__ \
         jest.config.js \
         jest.coverage.config.js \

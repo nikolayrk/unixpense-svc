@@ -15,7 +15,7 @@ export default async () => {
 };
 
 async function createDatabaseConstainerAsync() {
-    const container = await new DockerComposeEnvironment('./cicd/', 'docker-compose.yml')
+    const container = await new DockerComposeEnvironment('./', 'docker-compose.yml')
         .withWaitStrategy(`${Constants.DbComposeServiceName}-1`, Wait.forHealthCheck())
         .withEnvironment({
             'GOOGLE_OAUTH2_CLIENT_ID': Constants.Mock.clientId,
