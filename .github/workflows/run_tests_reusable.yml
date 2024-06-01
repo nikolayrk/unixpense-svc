@@ -60,7 +60,7 @@ jobs:
       - name: Copy coverage report from volume
         if: ${{ inputs.artifacts-path != '' }}
         run: |
-          sudo cp -r /var/lib/docker/volumes/unixpense_svc_artifacts/_data/${{ inputs.artifacts-path }} ${{ inputs.artifacts-path }}
+          sudo cp -r /var/lib/docker/volumes/unixpense-svc_artifacts/_data/${{ inputs.artifacts-path }} ${{ inputs.artifacts-path }}
 
       - name: Maybe upload artifacts
         if: ${{ inputs.artifacts-path != '' }}
