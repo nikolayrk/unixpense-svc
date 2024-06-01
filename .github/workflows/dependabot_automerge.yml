@@ -11,6 +11,8 @@ jobs:
   run-all-tests:
     name: Run tests
     uses: ./.github/workflows/run_tests.yml
+    with:
+      ref: ${{ github.head_ref }}
 
   approve:
     name: Approve the PR
