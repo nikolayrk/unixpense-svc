@@ -40,7 +40,7 @@ jobs:
 
           ${{ env.COMMIT_MESSAGES }}
     outputs:
-      commit_messages: ${{ env.COMMIT_MESSAGES }}
+      commit_messages: ${{ steps.setenv.outputs.COMMIT_MESSAGES }}
 
   shellcheck:
     name: Shellcheck
@@ -76,10 +76,12 @@ jobs:
     - name: Docker meta
       id: meta
       uses: docker/metadata-action@v5
+      env:
+        COMMIT_MESSAGES: ${{ needs.telegram-notify-start.outputs.commit_messages }}
       with:
         images: ${{ vars.DOCKER_REPO }}
         labels: |
-          org.opencontainers.image.description=${{ needs.telegram-notify-start.outputs.commit_messages }}
+          org.opencontainers.image.description=${{ env.COMMIT_MESSAGES }}
     - name: Build and push
       uses: docker/build-push-action@v5
       with:
