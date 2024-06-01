@@ -55,7 +55,7 @@ jobs:
 
   build:
     name: Build
-    needs: shellcheck
+    needs: telegram-notify-start
     permissions:
       contents: read
       packages: write
