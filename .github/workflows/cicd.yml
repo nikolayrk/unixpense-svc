@@ -94,11 +94,9 @@ jobs:
         tags: |
           ${{ vars.DOCKER_REGISTRY_URL }}/${{ vars.DOCKER_REPO }}:latest
           ${{ vars.DOCKER_REGISTRY_URL }}/${{ vars.DOCKER_REPO }}:${{ github.sha }}
-        build-args:
-          NODE_ENV=${{ vars.NODE_ENV }}
-          PORT=${{ vars.PORT }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=${{ needs.telegram-notify-start.outputs.commit_messages }}
 
   deploy:
     name: Deploy
