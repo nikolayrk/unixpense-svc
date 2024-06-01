@@ -6,7 +6,7 @@ on:
       - develop
     paths-ignore:
       - '**/README.md'
-      - '.github/**'
+      # - '.github/**'
 
 jobs:
   telegram-notify-start:
@@ -40,7 +40,7 @@ jobs:
 
           ${{ env.COMMIT_MESSAGES }}
     outputs:
-      commit_messages: ${{ steps.setenv.outputs.COMMIT_MESSAGES }}
+      commit_messages: ${{ env.COMMIT_MESSAGES }}
 
   shellcheck:
     name: Shellcheck
