@@ -27,7 +27,7 @@ jobs:
 
         {
           echo "DOCKER_IMAGE_DESCRIPTION<<EOF"
-          echo "${{ github.ref }} - ${{ github.event.head_commit.message }}"
+          echo "${{ github.sha }} - ${{ github.event.head_commit.message }}"
           echo EOF
         } >> "$GITHUB_OUTPUT"
       shell: sh
