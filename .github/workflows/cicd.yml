@@ -25,9 +25,8 @@ jobs:
           echo EOF
         } >> "$GITHUB_ENV"
 
-        LAST_COMMIT_MESSAGE="$(echo "${{ github.event.head_commit.message }}")"
-        LAST_COMMIT_MESSAGE_SUMMARY=${LAST_COMMIT_MESSAGE%$'\n'*}
-        echo "DOCKER_IMAGE_DESCRIPTION=${{ github.sha }} - $LAST_COMMIT_MESSAGE_SUMMARY" >> "$GITHUB_OUTPUT"
+        COMMIT_MESSAGE_SUMMARY=$(git log -1 --pretty=%B | head -n 1)
+        echo "DOCKER_IMAGE_DESCRIPTION=${{ github.sha }} - ${COMMIT_MESSAGE_SUMMARY}" >> "$GITHUB_OUTPUT"
       shell: sh
     - name: Telegram Notify
       uses: appleboy/telegram-action@master
