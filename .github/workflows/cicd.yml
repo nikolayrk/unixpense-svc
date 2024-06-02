@@ -15,6 +15,8 @@ jobs:
     outputs:
       image_description: ${{ steps.setenv.outputs.DOCKER_IMAGE_DESCRIPTION }}
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
     - id: setenv
       run: |
         JOINED_COMMITS="$(echo "${{ join(github.event.commits.*.message, '\n\n') }}")"
