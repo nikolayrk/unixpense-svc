@@ -138,6 +138,7 @@ resolveAccessToken() {
         WHERE user_email='$GMAIL_ADDRESS'"
 
     local ACCESS_TOKEN=$(mariadb unixpense \
+        --disable-ssl \
         -h mariadb-service.unixpense.svc.cluster.local \
         -u$MARIADB_USER \
         -p$MARIADB_PASSWORD \
@@ -153,6 +154,7 @@ resolveRefreshToken() {
         WHERE user_email='$GMAIL_ADDRESS'"
 
     local REFRESH_TOKEN=$(mariadb unixpense \
+        --disable-ssl \
         -h mariadb-service.unixpense.svc.cluster.local \
         -u$MARIADB_USER \
         -p$MARIADB_PASSWORD \
