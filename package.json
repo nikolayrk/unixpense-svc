@@ -36,7 +36,7 @@
   "homepage": "https://github.com/nikolayrk/unixpense-svc#readme",
   "devDependencies": {
     "@jest/globals": "^29.7.0",
-    "@types/node": "^20.14.1",
+    "@types/node": "^20.14.2",
     "@types/sequelize": "^4.28.20",
     "@types/supertest": "^6.0.2",
     "@types/validator": "^13.11.10",
@@ -60,7 +60,7 @@
     "dotenv": "16.4.5",
     "express": "^4.19.2",
     "express-rate-limit": "^7.3.0",
-    "googleapis": "^137.1.0",
+    "googleapis": "^139.0.0",
     "inversify": "^6.0.2",
     "mariadb": "3",
     "node-html-parser": "^6.1.13",
@@ -73,7 +73,7 @@
     "swagger-ui-express": "^5.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
-    "umzug": "^3.8.0",
+    "umzug": "^3.8.1",
     "winston": "^3.13.0",
     "winston-loki": "^6.1.2"
   }
