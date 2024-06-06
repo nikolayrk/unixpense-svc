@@ -3615,9 +3615,9 @@ makeerror@1.0.12:
     tmpl "1.0.5"
 
 mariadb@3:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/mariadb/-/mariadb-3.3.0.tgz#e9c844965d616a1842fa05221206e8678842c09e"
-  integrity sha512-sAL4bJgbfCAtXcE8bXI+NAMzVaPNkIU8hRZUXYfgNFoWB9U57G3XQiMeCx/A6IrS6y7kGwBLylrwgsZQ8kUYlw==
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/mariadb/-/mariadb-3.3.1.tgz#3ee361242411ba4cf4a80b06e304d1c68c97ad90"
+  integrity sha512-L8bh4iuZU3J8H7Co7rQ6OY9FDLItAN1rGy8kPA7Dyxo8AiHADuuONoypKKp1pE09drs6e5LR7UW9luLZ/A4znA==
   dependencies:
     "@types/geojson" "^7946.0.14"
     "@types/node" "^20.11.17"
