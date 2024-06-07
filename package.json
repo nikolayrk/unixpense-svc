@@ -60,7 +60,7 @@
     "dotenv": "16.4.5",
     "express": "^4.19.2",
     "express-rate-limit": "^7.3.0",
-    "googleapis": "^139.0.0",
+    "googleapis": "^140.0.0",
     "inversify": "^6.0.2",
     "mariadb": "3",
     "node-html-parser": "^6.1.13",
