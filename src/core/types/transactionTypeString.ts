@@ -23,7 +23,8 @@ export const TRANSACTION_TYPES = [
     'Комунално плащане BBO' ,
     'Получен междубанков превод' ,
     'Получен вътр.банков превод' ,
-    'Периодично плащане'
+    'Периодично плащане' ,
+    'Получен превод във валута'
 ] as const;
 
 export type TransactionTypeStringUnion = typeof TRANSACTION_TYPES[number];

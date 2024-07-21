@@ -20,6 +20,7 @@ enum TransactionType {
     PRINCIPAL_REPAYMENT,
     INSURANCE_PREMIUM,
     INTEREST_REPAYMENT,
+    RECEIVED_CROSS_BORDER_TRANSFER,
 }
 
 export default TransactionType;

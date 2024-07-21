@@ -33,7 +33,8 @@ export class TransactionTypeExtensions {
     }
 
     public static isCrossBorderTransfer(transactionType: TransactionType) {
-        return transactionType === TransactionType.CROSS_BORDER_TRANSFER
+        return  transactionType === TransactionType.CROSS_BORDER_TRANSFER ||
+                transactionType === TransactionType.RECEIVED_CROSS_BORDER_TRANSFER;
     }
 
     public static isCrossBorderTransferFee(transactionType: TransactionType) {
