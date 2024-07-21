@@ -122,16 +122,16 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
       expectedPaymentDetails: {
           recipient: 'Treehouse Distribution',
           recipientIban: 'NL48BUNQ4950396806',
-          description: 'Ord.Ref: NOTPROVIDED, HEDG, T-535685, GPP Ref.: 2243120123'
+          description: 'Ord.Ref: NOTPROVIDED, HEDG, T-535685, GPP Ref.: 2243120123, 1.9585'
       } as CrossBorderTransfer
   },
   'CROSS_BORDER_TRANSFER > Invalid body': {
       attachmentDataBody: `
-          <td nowrap="" align="left">, BUNQNL2AXXX , NL48BUNQ4950396806,   ,  ,/Издаване на превод във валута<br>AZV-Treehouse Distribution, xxx<br><br></td>
+          <td nowrap="" align="left">/Издаване на превод във валута<br><br><br></td>
           <td align="center"></td>`,
       expectedTransactionDataBody: {
           transactionType: TransactionType.CROSS_BORDER_TRANSFER,
-          paymentDetailsRaw: [', BUNQNL2AXXX , NL48BUNQ4950396806,   ,  ,', 'AZV-Treehouse Distribution, xxx'],
+          paymentDetailsRaw: [],
           additionalDetailsRaw: []
       },
       expectedPaymentDetails: Constants.defaultPaymentDetails
