@@ -72,6 +72,7 @@ export class TransactionTypeExtensions {
             case TransactionType.PRINCIPAL_REPAYMENT:
             case TransactionType.INSURANCE_PREMIUM:
             case TransactionType.INTEREST_REPAYMENT:
+            case TransactionType.TAX_PAYMENT:
                 return true;
             default:
                 return false;

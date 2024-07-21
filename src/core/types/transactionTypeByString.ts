@@ -30,6 +30,7 @@ const transactionTypeByString: {
     ['Получен вътр.банков превод']:             TransactionType.RECEIVED_INTERNAL_PAYMENT, 
     ['Периодично плащане']:                     TransactionType.PERIODIC_PAYMENT, 
     ['Получен превод във валута']:              TransactionType.RECEIVED_CROSS_BORDER_TRANSFER,
+    ['Превод данъчно задължение']:              TransactionType.TAX_PAYMENT,
 };
 
 export default transactionTypeByString;
