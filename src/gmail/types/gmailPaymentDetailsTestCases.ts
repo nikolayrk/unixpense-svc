@@ -704,5 +704,32 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
       recipientIban: 'LT473250088091593028',
       description: 'IZPRATENO OT REVOLUT, GPP Ref.: 4166201234'
   } as CrossBorderTransfer
+  },
+  'TAX_PAYMENT': {
+    attachmentDataBody: `
+      <td nowrap="nowrap" align="left">Превод данъчно задължение<br /><br />Плащане на данъци Цариград Партиден/регистрационен номер: 4210H24505<br /></td>
+      <td align="center">
+        <table width="100%">
+          <tr>
+            <td align="right" nowrap="nowrap">BG29UNCR76301005587757</td>
+          </tr>
+          <tr>
+            <td align="right" nowrap="nowrap">УниКредит Булбанк АД</td>
+          </tr>
+        </table>
+      </td>`,
+    expectedTransactionDataBody: {
+        transactionType: TransactionType.TAX_PAYMENT,
+        paymentDetailsRaw: ['Плащане на данъци Цариград Партиден/регистрационен номер: 4210H24505'],
+        additionalDetailsRaw: [
+            'BG29UNCR76301005587757',
+            'УниКредит Булбанк АД'
+        ]
+    },
+    expectedPaymentDetails: {
+        recipient: 'УниКредит Булбанк АД',
+        recipientIban: 'BG29UNCR76301005587757',
+        description: 'Плащане на данъци Цариград Партиден/регистрационен номер: 4210H24505',
+    } as StandardTransfer
   }
 };
