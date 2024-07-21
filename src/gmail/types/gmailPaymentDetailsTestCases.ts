@@ -689,4 +689,20 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
           description: 'Винетен стикер - СА1234KK',
       } as StandardTransfer
   },
+  'RECEIVED_CROSS_BORDER_TRANSFER': {
+    attachmentDataBody: `
+      <td nowrap="nowrap" align="left">а<br />AZV-1/IVAN IVANOV, IZPRATENO OT REVOLUT  , GPP Ref.: 4166201234, , , REVOLT21XXX , LT473250088091593028,/Получен превод във валут<br /><br /></td>
+      <td align="center" />
+    `,
+    expectedTransactionDataBody: {
+      transactionType: TransactionType.RECEIVED_CROSS_BORDER_TRANSFER,
+      paymentDetailsRaw: ['AZV-1/IVAN IVANOV, IZPRATENO OT REVOLUT  , GPP Ref.: 4166201234, , , REVOLT21XXX , LT473250088091593028,'],
+      additionalDetailsRaw: []
+  },
+  expectedPaymentDetails: {
+      recipient: '1/IVAN IVANOV',
+      recipientIban: 'LT473250088091593028',
+      description: 'IZPRATENO OT REVOLUT, GPP Ref.: 4166201234'
+  } as CrossBorderTransfer
+  }
 };
