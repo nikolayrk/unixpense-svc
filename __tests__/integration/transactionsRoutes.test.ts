@@ -10,6 +10,7 @@ import axios, { AxiosError, AxiosInstance } from 'axios';
 import { TransactionTypeExtensions } from '../../src/core/extensions/transactionTypeExtensions';
 import { EntryTypeExtensions } from '../../src/core/extensions/entryTypeExtensions';
 import integrationTestBase from './integration.test.base';
+import TransactionFactory from '../../src/core/factories/transactionFactory';
 
 describe('Base Transactions Routes Tests', () => {
     let apiClient: AxiosInstance;
@@ -501,5 +502,60 @@ describe('Base Transactions Routes Tests', () => {
         });
 
         expect(actualTransactionIds).toEqual(expectedTransactionIds);
+    });
+
+    it('should persist a random number of transactions and update a portion', async () => {
+        const transactionTestHelper = new TransactionTestHelper()
+            .withTestCases(gmailPaymentDetailsTestCases);
+
+        const transactionTestHelperRandomised = transactionTestHelper
+            .randomise()
+            .randomCount();
+
+        const gmailTransactionTestHelper = transactionTestHelper.useGmailContext();
+        
+        const transactions = transactionTestHelperRandomised
+            .resolveTransactionIds()
+            .map(id => gmailTransactionTestHelper.resolveTransaction(id));
+                
+        await transactionRepository.bulkCreateAsync(transactions);
+        
+        const transactionsToUpdateCount = Math.floor(Math.random() * (transactions.length - 1) + 1);
+        const transactionsToUpdate = transactions.slice(0, transactionsToUpdateCount);
+        const updatedTransactions = transactionsToUpdate
+            .map(transaction => {
+                const gmailTransactionIds = Object.keys(gmailPaymentDetailsTestCases);
+                const randomTransactionId = gmailTransactionIds[Math.floor(Math.random()*gmailTransactionIds.length)];
+                const newTransactionData = gmailTransactionTestHelper.resolveTransactionData(randomTransactionId);
+                newTransactionData.reference = transaction.reference;
+                const newTransactionPaymentDetails = gmailTransactionTestHelper.resolvePaymentDetails(randomTransactionId);
+                const newTransaction = TransactionFactory.create(transaction.id, newTransactionData, newTransactionPaymentDetails);
+                
+                return newTransaction;
+            })
+        
+        const transactionsResponse = updatedTransactions.map(TransactionExtensions.toResponse);
+
+        const response = await apiClient.patch(`/api/transactions/update`, transactionsResponse);
+
+        const date = transactions
+            .map(t => t.date)
+            .sort((first: Date, second: Date) => first.getTime() - second.getTime())
+            .at(0)!;
+        date.setSeconds(date.getSeconds()+1);
+        const persistedTransactions = await transactionRepository.filterAsync(null, null, date, transactions.length, [], [], null, null, null, null);
+        const sortedPersistedTransactions = persistedTransactions.sort((a, b) => a.id.localeCompare(b.id));
+
+        const updatedTransactionIds = updatedTransactions.map(t => t.id);
+        const expectedTransactions = transactions
+            .map(transaction => 
+                updatedTransactionIds.indexOf(transaction.id) == -1
+                    ? transaction
+                    : updatedTransactions.filter(t => t.id === transaction.id).at(0)!)
+            .sort((a, b) => a.id.localeCompare(b.id));
+
+        expect(response.status).toEqual(204);
+
+        expect(sortedPersistedTransactions).toEqual(expectedTransactions);
     });
 });
