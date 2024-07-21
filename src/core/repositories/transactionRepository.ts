@@ -227,7 +227,12 @@ export default class TransactionRepository {
     }
 
     private async updateAsync(transaction: Transaction<PaymentDetails>) {
-        const entity = await TransactionModel.findByPk(transaction.id);
+        const entity = await TransactionModel.findByPk(transaction.id, {
+            include: [
+                TransactionModel.associations['card_operation'],
+                TransactionModel.associations['standard_transfer'],
+            ]
+        });
 
         if (entity === null) {
             return 0;
@@ -237,11 +242,9 @@ export default class TransactionRepository {
 
         const {id, reference, ...data} = record;
 
-        const cardOperation = await CardOperationModel.findOne({ where: { transaction_id: id }});
-        await cardOperation?.destroy();
+        await entity.card_operation?.destroy();
 
-        const standardTransfer = await StandardTransferModel.findOne({ where: { transaction_id: id }});
-        await standardTransfer?.destroy();
+        await entity.standard_transfer?.destroy();
             
         if (record.card_operation !== undefined) {
             await CardOperationModel.create({ transaction_id: id, ...record.card_operation });
