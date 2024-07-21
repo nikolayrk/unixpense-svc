@@ -190,7 +190,7 @@ const update = async (req: Request, res: Response) => {
         const transactions = transactionsRaw.map(TransactionExtensions.toModel);
 
         const updated = await transactionRepository.bulkUpdateAsync(transactions);
-        const skipped = transactionsRaw.length - updated;
+        const skipped = transactions.length - updated;
 
         logger.log(`Updated ${updated} transaction${updated === 1 ? '' : 's'}${skipped > 0 ? `, skipped ${skipped}` : ''}`);
         
