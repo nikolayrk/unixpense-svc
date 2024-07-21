@@ -181,6 +181,29 @@ const save = async (req: Request, res: Response) => {
     }
 };
 
+const update = async (req: Request, res: Response) => {
+    const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
+    const transactionRepository = DependencyInjector.Singleton.resolve<TransactionRepository>(injectables.TransactionRepository);
+
+    try {
+        const transactionsRaw: Record<string, string | number | object>[] = req.body;
+        const transactions = transactionsRaw.map(TransactionExtensions.toModel);
+
+        const updated = await transactionRepository.bulkUpdateAsync(transactions);
+        const skipped = transactionsRaw.length - updated;
+
+        logger.log(`Updated ${updated} transaction${updated === 1 ? '' : 's'}${skipped > 0 ? `, skipped ${skipped}` : ''}`);
+        
+        return ResponseExtensions.noContent(res);
+    } catch (ex) {
+        const error = ex as Error;
+
+        logger.error(error);
+
+        return ResponseExtensions.internalError(res, error.message ?? ex);
+    }
+}
+
 const transactionExists = (transactionId: string, existingTransactionIds: string[], logger: ILogger) => {
     const exists = existingTransactionIds.find((id) => id === transactionId) !== undefined;
 
@@ -193,4 +216,4 @@ const transactionExists = (transactionId: string, existingTransactionIds: string
     return false;
 };
 
-export { save, get }
+export { save, get, update }
