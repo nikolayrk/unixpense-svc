@@ -186,7 +186,7 @@ const update = async (req: Request, res: Response) => {
     const transactionRepository = DependencyInjector.Singleton.resolve<TransactionRepository>(injectables.TransactionRepository);
 
     try {
-        const transactionsRaw: Record<string, string | number | object>[] = req.body;
+        const transactionsRaw: Record<string, string | number | object>[] = Array.isArray(req.body) ? req.body : [];
         const transactions = transactionsRaw.map(TransactionExtensions.toModel);
 
         const updated = await transactionRepository.bulkUpdateAsync(transactions);
