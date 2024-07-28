@@ -136,4 +136,38 @@ router.route('/').get(transactionsController.get);
  */
 router.route('/save').post(transactionsController.save);
 
+/**
+ * @swagger
+ * /transactions/update:
+ *   patch:
+ *     tags:
+ *       - Transactions
+ *     description: Update the provided transactions in the database
+ *     produces:
+ *       - application/json
+ *     requestBody:
+ *       description: Array of transactions to update.
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: array
+ *             items:
+*                oneOf:
+ *                 - $ref: '#/components/schemas/cardOperationTransaction'
+ *                 - $ref: '#/components/schemas/standardTransferTransaction'
+ *     responses:
+ *       204:
+ *         description: Confirmation for the successful update of the transactions
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       500:
+ *         description: Transaction processing error
+ *       503:
+ *         description: Service error
+ */
+router.route('/update').patch(transactionsController.update);
+
 export { router };

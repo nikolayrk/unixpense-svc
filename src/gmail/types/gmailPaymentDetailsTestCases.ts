@@ -122,16 +122,16 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
       expectedPaymentDetails: {
           recipient: 'Treehouse Distribution',
           recipientIban: 'NL48BUNQ4950396806',
-          description: 'Ord.Ref: NOTPROVIDED, HEDG, T-535685, GPP Ref.: 2243120123'
+          description: 'Ord.Ref: NOTPROVIDED, HEDG, T-535685, GPP Ref.: 2243120123, 1.9585'
       } as CrossBorderTransfer
   },
   'CROSS_BORDER_TRANSFER > Invalid body': {
       attachmentDataBody: `
-          <td nowrap="" align="left">, BUNQNL2AXXX , NL48BUNQ4950396806,   ,  ,/Издаване на превод във валута<br>AZV-Treehouse Distribution, xxx<br><br></td>
+          <td nowrap="" align="left">/Издаване на превод във валута<br><br><br></td>
           <td align="center"></td>`,
       expectedTransactionDataBody: {
           transactionType: TransactionType.CROSS_BORDER_TRANSFER,
-          paymentDetailsRaw: [', BUNQNL2AXXX , NL48BUNQ4950396806,   ,  ,', 'AZV-Treehouse Distribution, xxx'],
+          paymentDetailsRaw: [],
           additionalDetailsRaw: []
       },
       expectedPaymentDetails: Constants.defaultPaymentDetails
@@ -689,4 +689,47 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
           description: 'Винетен стикер - СА1234KK',
       } as StandardTransfer
   },
+  'RECEIVED_CROSS_BORDER_TRANSFER': {
+    attachmentDataBody: `
+      <td nowrap="nowrap" align="left">а<br />AZV-1/IVAN IVANOV, IZPRATENO OT REVOLUT  , GPP Ref.: 4166201234, , , REVOLT21XXX , LT473250088091593028,/Получен превод във валут<br /><br /></td>
+      <td align="center" />
+    `,
+    expectedTransactionDataBody: {
+      transactionType: TransactionType.RECEIVED_CROSS_BORDER_TRANSFER,
+      paymentDetailsRaw: ['AZV-1/IVAN IVANOV, IZPRATENO OT REVOLUT  , GPP Ref.: 4166201234, , , REVOLT21XXX , LT473250088091593028,'],
+      additionalDetailsRaw: []
+  },
+  expectedPaymentDetails: {
+      recipient: '1/IVAN IVANOV',
+      recipientIban: 'LT473250088091593028',
+      description: 'IZPRATENO OT REVOLUT, GPP Ref.: 4166201234'
+  } as CrossBorderTransfer
+  },
+  'TAX_PAYMENT': {
+    attachmentDataBody: `
+      <td nowrap="nowrap" align="left">Превод данъчно задължение<br /><br />Плащане на данъци Цариград Партиден/регистрационен номер: 4210H24505<br /></td>
+      <td align="center">
+        <table width="100%">
+          <tr>
+            <td align="right" nowrap="nowrap">BG29UNCR76301005587757</td>
+          </tr>
+          <tr>
+            <td align="right" nowrap="nowrap">УниКредит Булбанк АД</td>
+          </tr>
+        </table>
+      </td>`,
+    expectedTransactionDataBody: {
+        transactionType: TransactionType.TAX_PAYMENT,
+        paymentDetailsRaw: ['Плащане на данъци Цариград Партиден/регистрационен номер: 4210H24505'],
+        additionalDetailsRaw: [
+            'BG29UNCR76301005587757',
+            'УниКредит Булбанк АД'
+        ]
+    },
+    expectedPaymentDetails: {
+        recipient: 'УниКредит Булбанк АД',
+        recipientIban: 'BG29UNCR76301005587757',
+        description: 'Плащане на данъци Цариград Партиден/регистрационен номер: 4210H24505',
+    } as StandardTransfer
+  }
 };

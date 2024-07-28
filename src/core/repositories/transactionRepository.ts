@@ -1,5 +1,7 @@
 import Transaction from '../types/transaction';
 import { default as TransactionModel } from '../models/transaction.model';
+import { default as CardOperationModel } from '../models/cardOperation.model';
+import { default as StandardTransferModel } from '../models/standardTransfer.model';
 import PaymentDetails from "../types/paymentDetails";
 import '../extensions/globalExtensions';
 import { injectable } from 'inversify';
@@ -90,6 +92,27 @@ export default class TransactionRepository {
             });
 
             return created.length;
+        } catch(ex) {
+            // Wrap all thrown db errors and strip of possible sensitive information
+            if (ex instanceof Error) {
+                throw new RepositoryError(ex);
+            }
+
+            throw ex;
+        }
+    }
+
+    public async bulkUpdateAsync(transactions: Transaction<PaymentDetails>[]) {
+        try {
+            const results = await TransactionModel.sequelize?.transaction(_ => Promise.all(transactions.map(this.updateAsync)));
+
+            if (results === undefined) {
+                return 0;
+            }
+
+            const totalAffected = results.reduce((acc, curr) => acc += curr, Number(0));
+
+            return totalAffected;
         } catch(ex) {
             // Wrap all thrown db errors and strip of possible sensitive information
             if (ex instanceof Error) {
@@ -201,5 +224,40 @@ export default class TransactionRepository {
         });
 
         return result;
+    }
+
+    private async updateAsync(transaction: Transaction<PaymentDetails>) {
+        const entity = await TransactionModel.findByPk(transaction.id, {
+            include: [
+                TransactionModel.associations['card_operation'],
+                TransactionModel.associations['standard_transfer'],
+            ]
+        });
+
+        if (entity === null) {
+            return 0;
+        }
+
+        const record = TransactionExtensions.toRecord(transaction);
+
+        const {id, reference, ...data} = record;
+
+        await entity.card_operation?.destroy();
+
+        await entity.standard_transfer?.destroy();
+            
+        if (record.card_operation !== undefined) {
+            await CardOperationModel.create({ transaction_id: id, ...record.card_operation });
+        }
+        
+        if (record.standard_transfer !== undefined) {
+            await StandardTransferModel.create({ transaction_id: id, ...record.standard_transfer });
+        }
+
+        entity.set(data);
+
+        await entity.save();
+
+        return 1;
     }
 }

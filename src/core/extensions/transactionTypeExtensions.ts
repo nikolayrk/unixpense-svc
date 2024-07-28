@@ -33,7 +33,8 @@ export class TransactionTypeExtensions {
     }
 
     public static isCrossBorderTransfer(transactionType: TransactionType) {
-        return transactionType === TransactionType.CROSS_BORDER_TRANSFER
+        return  transactionType === TransactionType.CROSS_BORDER_TRANSFER ||
+                transactionType === TransactionType.RECEIVED_CROSS_BORDER_TRANSFER;
     }
 
     public static isCrossBorderTransferFee(transactionType: TransactionType) {
@@ -71,6 +72,7 @@ export class TransactionTypeExtensions {
             case TransactionType.PRINCIPAL_REPAYMENT:
             case TransactionType.INSURANCE_PREMIUM:
             case TransactionType.INTEREST_REPAYMENT:
+            case TransactionType.TAX_PAYMENT:
                 return true;
             default:
                 return false;
