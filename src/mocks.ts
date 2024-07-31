@@ -25,6 +25,7 @@ const tokenInfoUri = '/tokeninfo';
 const oauthCallbackUri = '/api/oauthcallback';
 const transactionsUri = /\/api\/transactions(?!\/).*/;
 const transactionsSaveUri = '/api/transactions/save';
+const transactionsUpdateUri = '/api/transactions/update';
 const transactionsLastIdsUri = /\/api\/transactions\/gmail\/ids\/last\/([^?]*)[?]*.*/;
 const transactionsGmailResolveUri = '/api/transactions/gmail/resolve';
 const groupsUri = '/api/groups';
@@ -88,6 +89,13 @@ export const applyLocalMocks = () => {
         .post(transactionsSaveUri)
         .reply(function (uri, body) {
             return localPostCallback(uri, body, this.req.headers, transactionsController.save);
+        })
+        .persist();
+
+    appScope
+        .patch(transactionsUpdateUri)
+        .reply(function (uri, body) {
+            return localPatchCallback(uri, body, this.req.headers, transactionsController.update);
         })
         .persist();
 
@@ -263,6 +271,10 @@ const localPostCallback = async (uri: string, body: nock.Body, headers: Record<s
     return localGenericCallback(uri, body, headers, 'POST', ...handlers);
 }
 
+const localPatchCallback = async (uri: string, body: nock.Body, headers: Record<string, string>, ...handlers: Array<Handler>) => {
+    return localGenericCallback(uri, body, headers, 'PATCH', ...handlers);
+}
+
 const localDeleteCallback = async (uri: string, body: nock.Body, headers: Record<string, string>, ...handlers: Array<Handler>) => {
     return localGenericCallback(uri, body, headers, 'DELETE', ...handlers);
 }
@@ -283,7 +295,7 @@ const localGenericCallback = async (uri: string, body: nock.Body, headers: Recor
 
     const request = {
         method: method,
-        ...(method === 'POST') && {
+        ...(method === 'POST' || method === 'PATCH') && {
             body: body
         },
         ...(method === 'GET') && {
