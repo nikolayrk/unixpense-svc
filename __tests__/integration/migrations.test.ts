@@ -11,7 +11,6 @@ const Migrations = [
     '01_full-text-indexers.up.sql',
     '02_local_date_to_utc.up.sql',
     '03_add_tax_payment_type.up.sql',
-    '04_add_received_cross_border_transfer_type.up.sql',
 ] as const;
 
 type MigrationsUnion = typeof Migrations[number];
@@ -169,6 +168,9 @@ describe('Database Migration Tests', () => {
             INSERT INTO transactions (id, date, reference, value_date, sum, entry_type, type)
             VALUES ('transaction_id_5', '2023-07-31 12:00:00.000000', 'reference_value_5', '2023-07-30', 0.00, 'NONE', 'TAX_PAYMENT');
 
+            INSERT INTO transactions (id, date, reference, value_date, sum, entry_type, type)
+            VALUES ('transaction_id_6', '2023-07-31 12:00:00.000000', 'reference_value_6', '2023-07-30', 0.00, 'NONE', 'RECEIVED_CROSS_BORDER_TRANSFER');
+
             ROLLBACK;
         `, { plain: true });
 
@@ -181,27 +183,6 @@ describe('Database Migration Tests', () => {
         .toStrictEqual({ affectedRows: 0, insertId: 0, warningStatus: 0 });
 
     const defineMigrationTests_03_down_postAaction = () => expect(defineMigrationTests_03_action)
-        .rejects
-        .toThrow(DatabaseError);
-
-    const defineMigrationTests_04_action = () => connection.query(`
-            START TRANSACTION;
-
-            INSERT INTO transactions (id, date, reference, value_date, sum, entry_type, type)
-            VALUES ('transaction_id_6', '2023-07-31 12:00:00.000000', 'reference_value_6', '2023-07-30', 0.00, 'NONE', 'RECEIVED_CROSS_BORDER_TRANSFER');
-
-            ROLLBACK;
-        `, { plain: true });
-
-    const defineMigrationTests_04_up_preAaction = () => expect(defineMigrationTests_04_action)
-        .rejects
-        .toThrow(DatabaseError);
-
-    const defineMigrationTests_04_up_postAaction = () => expect(defineMigrationTests_04_action())
-        .resolves
-        .toStrictEqual({ affectedRows: 0, insertId: 0, warningStatus: 0 });
-
-    const defineMigrationTests_04_down_postAaction = () => expect(defineMigrationTests_04_action)
         .rejects
         .toThrow(DatabaseError);
 
@@ -223,10 +204,6 @@ describe('Database Migration Tests', () => {
         ['03_add_tax_payment_type.up.sql']: [
             [defineMigrationTests_03_up_preAaction, defineMigrationTests_03_up_postAaction],
             [undefined, defineMigrationTests_03_down_postAaction]
-        ],
-        ['04_add_received_cross_border_transfer_type.up.sql']: [
-            [defineMigrationTests_04_up_preAaction, defineMigrationTests_04_up_postAaction],
-            [undefined, defineMigrationTests_04_down_postAaction]
         ]
     };
 

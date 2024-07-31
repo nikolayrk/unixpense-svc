@@ -1,9 +1,13 @@
 -- Add TAX_PAYMENT as a possible transaction type
 
-IF (NOT EXISTS (SELECT * FROM information_schema.COLUMNS
+IF (NOT EXISTS (SELECT * 
+                FROM information_schema.COLUMNS
                 WHERE TABLE_NAME = 'transactions'
                   AND COLUMN_NAME = 'type'
-                  AND COLUMN_TYPE LIKE '%TAX_PAYMENT%')) THEN
+                  AND (COLUMN_TYPE LIKE '%RECEIVED_CROSS_BORDER_TRANSFER%' 
+                       OR COLUMN_TYPE LIKE '%TAX_PAYMENT%')
+               )
+   ) THEN
     ALTER TABLE `transactions`
         MODIFY COLUMN `type` ENUM(
             'UNKNOWN',
@@ -27,6 +31,7 @@ IF (NOT EXISTS (SELECT * FROM information_schema.COLUMNS
             'PRINCIPAL_REPAYMENT',
             'INSURANCE_PREMIUM',
             'INTEREST_REPAYMENT',
-            'TAX_PAYMENT'
+            'TAX_PAYMENT',
+            'RECEIVED_CROSS_BORDER_TRANSFER'
         ) NOT NULL;
 END IF;

@@ -1,7 +1,11 @@
-IF (EXISTS (SELECT * FROM information_schema.COLUMNS
+IF (EXISTS (SELECT * 
+                FROM information_schema.COLUMNS
                 WHERE TABLE_NAME = 'transactions'
                   AND COLUMN_NAME = 'type'
-                  AND COLUMN_TYPE LIKE '%TAX_PAYMENT%')) THEN
+                  AND (COLUMN_TYPE LIKE '%RECEIVED_CROSS_BORDER_TRANSFER%' 
+                       OR COLUMN_TYPE LIKE '%TAX_PAYMENT%')
+               )
+   ) THEN
     ALTER TABLE `transactions`
         MODIFY COLUMN `type` ENUM(
             'UNKNOWN',
