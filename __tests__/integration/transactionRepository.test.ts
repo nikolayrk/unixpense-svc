@@ -35,4 +35,18 @@ describe('Transaction Repository Tests', () => {
             .rejects
             .toThrow(RepositoryError);
     });
+
+    Object.entries(gmailPaymentDetailsTestCases).map(([ transactionId, _ ]) =>
+        it(`should persist transaction of type ${transactionId}`, async () => {
+            const transaction = new TransactionTestHelper()
+                .withTestCases(gmailPaymentDetailsTestCases)
+                .useGmailContext()
+                .resolveTransaction(transactionId);
+            const transactions = [transaction];
+            
+            await expect(transactionRepository.bulkCreateAsync(transactions))
+                .resolves
+                .toBe(1);
+        })
+    );
 });
