@@ -11,7 +11,7 @@ jobs:
     name: Run unit tests
     uses: ./.github/workflows/run_tests_reusable.yml
     with:
-      up-flags: "--build --abort-on-container-exit --compatibility"
+      up-flags: "--build --abort-on-container-exit"
       services: unit_tests
       ref: ${{ inputs.ref }}
 
@@ -20,7 +20,7 @@ jobs:
     uses: ./.github/workflows/run_tests_reusable.yml
     with:
       NODE_ENV: test_integration
-      up-flags: "--build --compatibility"
+      up-flags: "--build"
       services: |
         db
         app
