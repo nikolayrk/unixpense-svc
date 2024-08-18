@@ -38,7 +38,7 @@ jobs:
           docker network create -d bridge unixpense-custom-bridge-network
 
       - name: Run Docker Compose service(s)
-        uses: adambirds/docker-compose-action@v1.3.0
+        uses: adambirds/docker-compose-action@v1.4.0
         with:
           compose-file: "./docker-compose.yml"
           up-flags: ${{ inputs.up-flags }}
