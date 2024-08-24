@@ -9,7 +9,7 @@ import RepositoryError from '../../core/errors/repositoryError';
 import { TransactionExtensions } from '../../core/extensions/transactionExtensions';
 import TransactionType from '../enums/transactionType';
 import EntryType from '../enums/entryType';
-import { Op } from 'sequelize';
+import { Op, Transaction as SequelizeTransaction  } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 
 @injectable()
@@ -84,14 +84,16 @@ export default class TransactionRepository {
         const mapped = transactions.map(TransactionExtensions.toRecord);
         
         try {
-            const created = await TransactionModel.bulkCreate(mapped, {
-                include: [
-                    TransactionModel.associations['card_operation'],
-                    TransactionModel.associations['standard_transfer'],
-                ]
-            });
+            const created = await TransactionModel.sequelize?.transaction(t =>
+                TransactionModel.bulkCreate(mapped, {
+                    include: [
+                        TransactionModel.associations['card_operation'],
+                        TransactionModel.associations['standard_transfer'],
+                    ],
+                    transaction: t
+                }));
 
-            return created.length;
+            return created?.length ?? 0;
         } catch(ex) {
             // Wrap all thrown db errors and strip of possible sensitive information
             if (ex instanceof Error) {
@@ -104,7 +106,9 @@ export default class TransactionRepository {
 
     public async bulkUpdateAsync(transactions: Transaction<PaymentDetails>[]) {
         try {
-            const results = await TransactionModel.sequelize?.transaction(_ => Promise.all(transactions.map(this.updateAsync)));
+            const results = await TransactionModel.sequelize?.transaction(t =>
+                Promise.all(transactions.map(transaction =>
+                    this.updateAsync(transaction, t))));
 
             if (results === undefined) {
                 return 0;
@@ -226,7 +230,7 @@ export default class TransactionRepository {
         return result;
     }
 
-    private async updateAsync(transaction: Transaction<PaymentDetails>) {
+    private async updateAsync(transaction: Transaction<PaymentDetails>, t: SequelizeTransaction) {
         const entity = await TransactionModel.findByPk(transaction.id, {
             include: [
                 TransactionModel.associations['card_operation'],
@@ -242,21 +246,21 @@ export default class TransactionRepository {
 
         const {id, reference, ...data} = record;
 
-        await entity.card_operation?.destroy();
+        await entity.card_operation?.destroy({ transaction: t });
 
-        await entity.standard_transfer?.destroy();
+        await entity.standard_transfer?.destroy({ transaction: t });
             
         if (record.card_operation !== undefined) {
-            await CardOperationModel.create({ transaction_id: id, ...record.card_operation });
+            await CardOperationModel.create({ transaction_id: id, ...record.card_operation }, { transaction: t });
         }
         
         if (record.standard_transfer !== undefined) {
-            await StandardTransferModel.create({ transaction_id: id, ...record.standard_transfer });
+            await StandardTransferModel.create({ transaction_id: id, ...record.standard_transfer }, { transaction: t });
         }
 
         entity.set(data);
 
-        await entity.save();
+        await entity.save({ transaction: t });
 
         return 1;
     }
