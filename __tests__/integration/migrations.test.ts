@@ -29,7 +29,8 @@ describe('Database Migration Tests', () => {
             'card_operations',
             'standard_transfers',
             'transactions',
-            'google_oauth2_tokens'
+            'google_oauth2_tokens',
+            'SequelizeMeta' // Umzug metadata
         ].join(', ')};`);
 
         migrationTool = resolveMigrationTool(connection);
