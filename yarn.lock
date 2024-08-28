@@ -1136,10 +1136,10 @@
     "@types/node" "*"
     form-data "^4.0.0"
 
-"@types/node@*", "@types/node@>=13.7.0", "@types/node@^22.5.0":
-  version "22.5.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.5.0.tgz#10f01fe9465166b4cab72e75f60d8b99d019f958"
-  integrity sha512-DkFrJOe+rfdHTqqMg0bSNlGlQ85hSoh2TPzZyhHsXnMtligRWpxUySiyw8FY14ITt24HVCiQPWxS3KO/QlGmWg==
+"@types/node@*", "@types/node@>=13.7.0", "@types/node@^22.5.1":
+  version "22.5.1"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.5.1.tgz#de01dce265f6b99ed32b295962045d10b5b99560"
+  integrity sha512-KkHsxej0j9IW1KKOOAA/XBA0z08UFSrRQHErzEfA3Vgq57eXIMYboIlHJuYIfd+lwCQjtKqUu3UnmKbtUc9yRw==
   dependencies:
     undici-types "~6.19.2"
 
@@ -2812,10 +2812,10 @@ googleapis-common@^7.0.0:
     url-template "^2.0.8"
     uuid "^9.0.0"
 
-googleapis@^142.0.0:
-  version "142.0.0"
-  resolved "https://registry.yarnpkg.com/googleapis/-/googleapis-142.0.0.tgz#fa7a0414ab6ec935554fe52eeba067602676a9c7"
-  integrity sha512-LsU1ynez4/KNPwnFMSDI93pBEsETNdQPCrT3kz2qgiNg5H2pW4dKW+1VmENMkZ4u9lMxA89nnXD3nqWBJ0rruQ==
+googleapis@^143.0.0:
+  version "143.0.0"
+  resolved "https://registry.yarnpkg.com/googleapis/-/googleapis-143.0.0.tgz#caed28afef411a2b2dd80a19082a9b80aaf4d7c3"
+  integrity sha512-hGeNM9d9cDQAV/dm8FvdkismWIDCJRV9v11UTLq4nRPP+s/2jPuHQnpI7dR+sWmL0o3XURW0K3a3THKyDRnWVg==
   dependencies:
     google-auth-library "^9.0.0"
     googleapis-common "^7.0.0"
