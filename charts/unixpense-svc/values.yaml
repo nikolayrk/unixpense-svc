@@ -1,0 +1,63 @@
+replicaCount: 2
+revisionHistoryLimit: 0
+maxSurge: 1
+maxUnavailable: 1
+
+securityContext:
+  runAsUser: 1000
+
+dockerRegistry:
+  url: "https://ghcr.io/"
+  username:
+  password:
+
+image:
+  repository: nikolayrk/unixpense-svc
+  tag: latest
+
+resources:
+  requests:
+    cpu: 150m
+    memory: 128Mi
+  limits:
+    cpu: 350m
+    memory: 256Mi
+
+startupProbe:
+  initialDelaySeconds: 120
+  periodSeconds: 5
+  failureThreshold: 30
+
+readinessProbe:
+  initialDelaySeconds: 120
+  periodSeconds: 10
+
+livenessProbe:
+  initialDelaySeconds: 120
+  periodSeconds: 10
+  failureThreshold: 3
+
+service:
+  port: 8000
+
+config:
+  port: "8000"
+  nodeEnv: "production"
+  logLevel: "info"
+  unixpenseHost:
+  unixpenseHostPrefix:
+  lokiHost:
+  version:
+
+mariadb:
+  auth:
+    database: "unixpense"
+    username:
+    password:
+  primary:
+    persistence:
+      enabled: false
+
+google:
+  clientId:
+  clientSecret:

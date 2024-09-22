@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+  namespace: {{ .Release.Namespace }}
+data:
+  PORT: {{ .Values.config.port | quote }}
+  NODE_ENV: {{ .Values.config.nodeEnv | quote }}
+  LOG_LEVEL: {{ .Values.config.logLevel | quote }}
+  UNIXPENSE_HOST: {{ .Values.config.unixpenseHost | quote }}
+  {{- if .Values.config.unixpenseHostPrefix }}
+  UNIXPENSE_HOST_PREFIX: {{ .Values.config.unixpenseHostPrefix | quote }}
+  {{- end }}
+  {{- if .Values.config.lokiHost }}
+  LOKI_HOST: {{ .Values.config.lokiHost | quote }}
+  {{- end }}
+  VERSION: {{ .Values.config.version | default .Chart.AppVersion | quote }}
