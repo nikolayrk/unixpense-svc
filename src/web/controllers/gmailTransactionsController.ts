@@ -18,7 +18,9 @@ const getLast = async (req: Request, res: Response) => {
     const last = Number(lastParam);
 
     if (Number.isNaN(last) || last < 1) {
-        return ResponseExtensions.badRequest(res, `Invalid last amount provided: ${lastParam}`);
+        ResponseExtensions.badRequest(res, `Invalid last amount provided: ${lastParam}`);
+        
+        return;
     }
 
     const skipDepthQuery = req.query.skip_depth;
@@ -26,7 +28,9 @@ const getLast = async (req: Request, res: Response) => {
     const skipDepth = Number(skipDepthQuery);
 
     if (skipDepthQuery !== undefined && (Number.isNaN(skipDepth) || skipDepth < 1)) {
-        return ResponseExtensions.badRequest(res, `Invalid skip depth provided: ${skipDepthQuery}`);
+        ResponseExtensions.badRequest(res, `Invalid skip depth provided: ${skipDepthQuery}`);
+        
+        return;
     }
 
     const skipSaved = req.query.skip_saved === 'true';
@@ -83,7 +87,7 @@ const getLast = async (req: Request, res: Response) => {
             access_token: identifiers.accessToken
         });
 
-        return ResponseExtensions.ok(res, transactionIds);
+        ResponseExtensions.ok(res, transactionIds);
     } catch (ex) {
         const error = ex as Error;
 
@@ -94,7 +98,7 @@ const getLast = async (req: Request, res: Response) => {
             access_token: identifiers.accessToken
         })
 
-        return ResponseExtensions.internalError(res, error.message ?? ex);
+        ResponseExtensions.internalError(res, error.message ?? ex);
     }
 };
 
@@ -104,7 +108,9 @@ const resolve = async (req: Request, res: Response) => {
     const ids: string[] = req.body;
     
     if (!Array.isArray(ids)) {
-        return ResponseExtensions.badRequest(res, `Bad ids parameter: ${ids}`);
+        ResponseExtensions.badRequest(res, `Bad ids parameter: ${ids}`);
+        
+        return;
     }
 
     const aggregatedIds = ids.join(',');
@@ -129,13 +135,13 @@ const resolve = async (req: Request, res: Response) => {
 
         const result = transactions.map(TransactionExtensions.toResponse);
         
-        return ResponseExtensions.ok(res, result);
+        ResponseExtensions.ok(res, result);
     } catch (ex) {
         const error = ex as Error;
 
         logger.error(error, { transactionIds: aggregatedIds, access_token: identifiers.accessToken });
 
-        return ResponseExtensions.internalError(res, error.message ?? ex);
+        ResponseExtensions.internalError(res, error.message ?? ex);
     }
 };
 

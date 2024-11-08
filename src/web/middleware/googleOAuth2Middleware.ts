@@ -9,15 +9,21 @@ const redirect = async (req: Request, res: Response) => {
     const { client_id, client_secret, redirect_uri, code } = req.body;
     
     if(client_id === undefined || client_secret === undefined || redirect_uri === undefined) {
-        return ResponseExtensions.unauthorized(res, "No credentials provided");
+        ResponseExtensions.unauthorized(res, "No credentials provided");
+
+        return;
     }
 
     if (client_id !== process.env.GOOGLE_OAUTH2_CLIENT_ID || client_secret !== process.env.GOOGLE_OAUTH2_CLIENT_SECRET) {
-        return ResponseExtensions.unauthorized(res, "Mismatched credentials");
+        ResponseExtensions.unauthorized(res, "Mismatched credentials");
+        
+        return;
     }
 
     if(code === undefined) {
-        return ResponseExtensions.forbidden(res, "No authorization code provided");
+        ResponseExtensions.forbidden(res, "No authorization code provided");
+        
+        return;
     }
     
     const identifiers = GoogleOAuth2IdentifiersFactory.create({ redirectUri: String(redirect_uri) });
@@ -27,11 +33,11 @@ const redirect = async (req: Request, res: Response) => {
 
         const tokens = await googleOAuth2ClientProvider.tryAuthorizeAsync(String(code));
 
-        return ResponseExtensions.ok(res, tokens);
+        ResponseExtensions.ok(res, tokens);
     } catch(ex) {
         const error = ex as Error;
 
-        return ResponseExtensions.internalError(res, error.message ?? ex);
+        ResponseExtensions.internalError(res, error.message ?? ex);
     }
 };
 
@@ -39,7 +45,9 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.get('Authorization');
 
     if (authHeader === undefined) {
-        return ResponseExtensions.unauthorized(res, "No access token provided");
+        ResponseExtensions.unauthorized(res, "No access token provided");
+        
+        return;
     }
     
     const accessToken = authHeader.replace('Bearer ', '');
