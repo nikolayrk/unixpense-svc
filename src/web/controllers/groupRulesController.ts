@@ -4,7 +4,7 @@ import { ResponseExtensions } from "../../core/extensions/responseExtensions";
 const newRule = async (req: Request, res: Response) => {
     const result = {}; // TODO
     
-    return ResponseExtensions.added(res, 1, 'rule');
+    ResponseExtensions.added(res, 1, 'rule');
 };
 
 const get = async (req: Request, res: Response) => {
@@ -13,13 +13,13 @@ const get = async (req: Request, res: Response) => {
     
     const result = {}; // TODO
     
-    return ResponseExtensions.ok(res, result);
+    ResponseExtensions.ok(res, result);
 };
 
 const getAll = async (req: Request, res: Response) => {
     const result: string[] = []; // TODO
     
-    return ResponseExtensions.ok(res, result);
+    ResponseExtensions.ok(res, result);
 };
 
 const deleteRule = async (req: Request, res: Response) => {
@@ -28,7 +28,7 @@ const deleteRule = async (req: Request, res: Response) => {
 
     // TODO
 
-    return ResponseExtensions.noContent(res);
+    ResponseExtensions.noContent(res);
 };
 
 export { newRule as new, get, getAll, deleteRule as delete }
