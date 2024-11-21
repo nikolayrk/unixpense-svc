@@ -53,48 +53,68 @@ const get = async (req: Request, res: Response) => {
         const descriptionParsed = description ? String(description) : null;
 
         if (fromDateParsed !== null && isNaN(fromDateParsed.getTime())) {
-            return ResponseExtensions.badRequest(res, `Invalid fromDate value: ${fromDate}`);
+            ResponseExtensions.badRequest(res, `Invalid fromDate value: ${fromDate}`);
+        
+            return;
         }
 
         if (toDateParsed !== null && isNaN(toDateParsed.getTime())) {
-            return ResponseExtensions.badRequest(res, `Invalid toDate value: ${toDate}`);
+            ResponseExtensions.badRequest(res, `Invalid toDate value: ${toDate}`);
+        
+            return;
         }
 
         if (fromDateParsed !== null && toDateParsed !== null && fromDateParsed.getTime() > toDateParsed.getTime()) {
-            return ResponseExtensions.badRequest(res, `Invalid date range: ${fromDateParsed.toResponse()} - ${toDateParsed.toResponse()}`);
+            ResponseExtensions.badRequest(res, `Invalid date range: ${fromDateParsed.toResponse()} - ${toDateParsed.toResponse()}`);
+        
+            return;
         }
 
         if (isNaN(sinceParsed.getTime())) {
-            return ResponseExtensions.badRequest(res, `Invalid since value: ${since}`);
+            ResponseExtensions.badRequest(res, `Invalid since value: ${since}`);
+        
+            return;
         }
 
         if (isNaN(Number(countParsed))) {
-            return ResponseExtensions.badRequest(res, `Invalid count value: ${count}`);
+            ResponseExtensions.badRequest(res, `Invalid count value: ${count}`);
+        
+            return;
         }
 
         if (fromSumParsed !== null && (Number.isNaN(fromSumParsed) || fromSumParsed < 0)) {
-            return ResponseExtensions.badRequest(res, `Invalid sum value: ${fromSum}`);
+            ResponseExtensions.badRequest(res, `Invalid sum value: ${fromSum}`);
+        
+            return;
         }
 
         if (toSumParsed !== null && (Number.isNaN(toSumParsed) || toSumParsed < 0)) {
-            return ResponseExtensions.badRequest(res, `Invalid sum value: ${toSum}`);
+            ResponseExtensions.badRequest(res, `Invalid sum value: ${toSum}`);
+        
+            return;
         }
         
         if (toSumParsed !== null && fromSumParsed !== null) {
             if (fromSumParsed > toSumParsed) {
-                return ResponseExtensions.badRequest(res, `Invalid sum range: ${fromSumParsed} - ${toSumParsed}`);
+                ResponseExtensions.badRequest(res, `Invalid sum range: ${fromSumParsed} - ${toSumParsed}`);
+        
+                return;
             }
         }
 
         for(const type of typesParsed) {
             if (!Object.values(TransactionType).includes(type)) {
-                return ResponseExtensions.badRequest(res, `Invalid types value: ${type}`);
+                ResponseExtensions.badRequest(res, `Invalid types value: ${type}`);
+        
+                return;
             }
         }
 
         for(const entryType of entryTypesParsed) {
             if (!Object.values(EntryType).includes(entryType)) {
-                return ResponseExtensions.badRequest(res, `Invalid entryTypes value: ${entryType}`);
+                ResponseExtensions.badRequest(res, `Invalid entryTypes value: ${entryType}`);
+        
+                return;
             }
         }
 
@@ -145,13 +165,13 @@ const get = async (req: Request, res: Response) => {
 
         const result = transactions.map(TransactionExtensions.toResponse);
 
-        return ResponseExtensions.ok(res, result);
+        ResponseExtensions.ok(res, result);
     } catch(ex) {
         const error = ex as Error;
 
         logger.error(error);
 
-        return ResponseExtensions.internalError(res, error.message ?? ex);
+        ResponseExtensions.internalError(res, error.message ?? ex);
     }
 }
 
@@ -171,13 +191,13 @@ const save = async (req: Request, res: Response) => {
 
         logger.log(`Saved ${created} transaction${created === 1 ? '' : 's'} to database${skipped > 0 ? `, skipped ${skipped}` : ''}`);
         
-        return ResponseExtensions.added(res, created, 'transaction');
+        ResponseExtensions.added(res, created, 'transaction');
     } catch (ex) {
         const error = ex as Error;
 
         logger.error(error);
 
-        return ResponseExtensions.internalError(res, error.message ?? ex);
+        ResponseExtensions.internalError(res, error.message ?? ex);
     }
 };
 
@@ -194,13 +214,13 @@ const update = async (req: Request, res: Response) => {
 
         logger.log(`Updated ${updated} transaction${updated === 1 ? '' : 's'}${skipped > 0 ? `, skipped ${skipped}` : ''}`);
         
-        return ResponseExtensions.noContent(res);
+        ResponseExtensions.noContent(res);
     } catch (ex) {
         const error = ex as Error;
 
         logger.error(error);
 
-        return ResponseExtensions.internalError(res, error.message ?? ex);
+        ResponseExtensions.internalError(res, error.message ?? ex);
     }
 }
 
