@@ -27,6 +27,9 @@ jobs:
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.6.1
 
+      - name: Evaluate vars in kind cluster config
+        run: sed -i "s|\$GITHUB_WORKSPACE|$GITHUB_WORKSPACE|g" ./kind-config.yaml
+
       - name: Create kind cluster
         uses: helm/kind-action@v1.10.0
         with:

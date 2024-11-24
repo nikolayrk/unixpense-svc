@@ -32,7 +32,7 @@ spec:
       volumes:
       - name: app-source
         hostPath:
-          path: /github/workspace  # Default GitHub Actions workspace
+          path: /usr/src # From ./kind-config.yaml
           type: Directory
       restartPolicy: Never
 {{- end }}
