@@ -28,6 +28,8 @@ jobs:
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.10.0
+        with:
+          config: ./kind-config.yaml
 
       - name: Create namespace
         run: kubectl create namespace unixpense
