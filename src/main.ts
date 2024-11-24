@@ -20,7 +20,7 @@ const main = async () => {
 
     logger.log('Creating database connection...');
 
-    const mariadbHost = process.env.MARIADB_HOST ?? process.env.HOSTNAME ?? 'localhost';
+    const mariadbHost = process.env.MARIADB_HOST ?? Constants.Defaults.mariadbHost;
     const mariadbPort = process.env.MARIADB_PORT !== undefined
         ? Number(process.env.MARIADB_PORT)
         : Constants.Defaults.mariadbPort;

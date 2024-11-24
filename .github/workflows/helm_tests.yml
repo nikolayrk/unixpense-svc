@@ -29,4 +29,16 @@ jobs:
         uses: helm/kind-action@v1.10.0
 
       - name: Run chart-testing (install)
-        run: ct install --all
+        run: |
+          ct install --target-branch ${{ github.event.repository.default_branch }} \
+            --skip-clean-up \
+            --namespace unixpense \
+            --helm-extra-set-args "\
+              --set=dockerRegistry.url=${{ vars.DOCKER_REGISTRY_URL }} \
+              --set=dockerRegistry.username=${{ secrets.DOCKERHUB_USERNAME }} \
+              --set=dockerRegistry.password=${{ secrets.GITHUB_TOKEN }} \
+              --set=image.repository=${{ vars.DOCKER_REPO }} \
+              --set=image.tag=${{ github.sha }}"
+
+      - name: Report integration tests job status
+        run: ./sh/report_integration_tests_job_status.sh

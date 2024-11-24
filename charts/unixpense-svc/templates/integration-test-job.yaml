@@ -1,0 +1,38 @@
+{{- if (.Values.run_integration_tests) }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-integration-tests
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Release.Name }}
+    integration_tests: "true" # Used in /sh/report_integration_tests_job_status.sh
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      containers:
+      - name: tests
+        image: debian:bullseye-slim
+        workingDir: /usr/src
+        command: 
+          - /bin/bash
+          - ./sh/run_integration_tests_job.sh
+        env:
+          - name: UNIXPENSE_HOST
+            value: {{ .Release.Name }}-app
+          - name: PORT
+            value: "{{ .Values.service.port }}"
+        envFrom:
+          - secretRef:
+              name: {{ .Release.Name }}-mariadb-secret
+        volumeMounts:
+          - name: app-source
+            mountPath: /usr/src
+      volumes:
+      - name: app-source
+        hostPath:
+          path: /github/workspace  # Default GitHub Actions workspace
+          type: Directory
+      restartPolicy: Never
+{{- end }}

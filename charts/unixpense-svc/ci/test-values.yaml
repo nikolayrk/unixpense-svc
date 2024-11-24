@@ -1,0 +1,47 @@
+run_integration_tests: true
+
+replicaCount: 1
+revisionHistoryLimit: 0
+maxSurge: 1
+maxUnavailable: 1
+
+securityContext:
+  runAsUser: 1000
+
+resources:
+  requests:
+    cpu: 150m
+    memory: 128Mi
+  limits:
+    cpu: 350m
+    memory: 256Mi
+
+startupProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  failureThreshold: 30
+
+readinessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+livenessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  failureThreshold: 3
+
+service:
+  port: 8000
+
+mariadb:
+  auth:
+    database: "unixpense"
+    username: test
+    password: test
+  primary:
+    persistence:
+      enabled: false
+
+google:
+  clientId: client_id
+  clientSecret: client_secret

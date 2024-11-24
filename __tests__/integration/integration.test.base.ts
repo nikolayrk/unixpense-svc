@@ -1,5 +1,4 @@
 import { afterAll, beforeAll, beforeEach } from '@jest/globals';
-import axios from 'axios';
 import { DependencyInjector } from '../../src/dependencyInjector';
 import { createDatabaseConnectionAsync, defineDatabaseModels } from '../../src/bootstrap';
 import Constants from '../../src/constants';
@@ -16,13 +15,15 @@ const integrationTestBase = (options?: {
     beforeAll(async () => {
         DependencyInjector.Singleton.registerGmailServices();
         
-        connection = await createDatabaseConnectionAsync(
-            Constants.Defaults.mariadbHost,
-            Constants.Defaults.mariadbPort,
-            Constants.Defaults.mariadbUser,
-            Constants.Defaults.mariadbPassword,
-            Constants.Defaults.mariadbDatabase
-        );
+        const mariadbHost = process.env.MARIADB_HOST ?? Constants.Defaults.mariadbHost;
+        const mariadbPort = process.env.MARIADB_PORT !== undefined
+            ? Number(process.env.MARIADB_PORT)
+            : Constants.Defaults.mariadbPort;
+        const username = process.env.MARIADB_USER ?? Constants.Defaults.mariadbUser;
+        const password = process.env.MARIADB_PASSWORD ?? Constants.Defaults.mariadbPassword;
+        const database = process.env.MARIADB_DATABASE ?? Constants.Defaults.mariadbDatabase;
+
+        connection = await createDatabaseConnectionAsync(mariadbHost, mariadbPort, username, password, database);
         
         if (options?.skipDefineDatabaseModels === undefined || options?.skipDefineDatabaseModels === false) {
             await defineDatabaseModels(connection, true);

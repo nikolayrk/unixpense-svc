@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}-app
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Release.Name }}
@@ -26,8 +26,8 @@ spec:
       imagePullSecrets:
         - name: {{ .Release.Name }}-dockerconfig
       containers:
-        - name: unixpense-svc
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        - name: app
+          image: "{{ .Values.dockerRegistry.url }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           resources:
             requests:
               cpu: {{ .Values.resources.requests.cpu }}
