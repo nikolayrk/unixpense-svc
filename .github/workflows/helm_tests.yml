@@ -1,7 +1,8 @@
 name: 'hemn-tests'
 
 on:
-  workflow_call:
+  # workflow_call:
+  pull_request:
 
 jobs:
   lint-test:
