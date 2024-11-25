@@ -23,6 +23,24 @@ else
         echo "=== End Pod Logs ==="
         
         echo "=== App Pod Logs ==="
+
+        echo "Verify the label is actually applied"
+        kubectl get pods --namespace $NAMESPACE --show-labels
+
+        echo "Verify the selector works"
+        kubectl get pods --namespace $NAMESPACE --selector=debug_app=true
+
+        echo "Try with different output formats"
+        kubectl get pods --namespace $NAMESPACE --selector=debug_app=true -o wide
+        kubectl get pods --namespace $NAMESPACE --selector=debug_app=true -o name
+
+        echo "For all pods with the selector"
+        kubectl logs -l debug_app=true --namespace $NAMESPACE
+
+        echo "Check deployment and pod creation"
+        kubectl get deployments --namespace $NAMESPACE
+        kubectl get pods --namespace $NAMESPACE
+
         kubectl logs --namespace $NAMESPACE $app_pod --previous 2>/dev/null || echo "No previous logs found"
         kubectl logs --namespace $NAMESPACE $app_pod 2>/dev/null || echo "No current logs found"
         echo "=== End App Pod Logs ==="
