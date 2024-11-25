@@ -5,7 +5,6 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Release.Name }}
-    debug_app: "true"
 spec:
   selector:
     matchLabels:
@@ -21,6 +20,7 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}
+        debug_app: "true"
     spec:
       securityContext:
         runAsUser: {{ .Values.securityContext.runAsUser }}
