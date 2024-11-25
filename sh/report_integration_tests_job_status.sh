@@ -10,6 +10,7 @@ else
     
     # Get the pod for this job
     pod=$(kubectl get pods --namespace $NAMESPACE --selector=job-name=$JOB_NAME --output=jsonpath='{.items[*].metadata.name}')
+    app_pod=$(kubectl get pods --namespace $NAMESPACE --selector=debug_app=true --output=jsonpath='{.items[*].metadata.name}')
     
     if [ -n "$pod" ]; then
         echo "=== Pod Status ==="
@@ -20,6 +21,11 @@ else
         kubectl logs --namespace $NAMESPACE $pod --previous 2>/dev/null || echo "No previous logs found"
         kubectl logs --namespace $NAMESPACE $pod 2>/dev/null || echo "No current logs found"
         echo "=== End Pod Logs ==="
+        
+        echo "=== App Pod Logs ==="
+        kubectl logs --namespace $NAMESPACE $app_pod --previous 2>/dev/null || echo "No previous logs found"
+        kubectl logs --namespace $NAMESPACE $app_pod 2>/dev/null || echo "No current logs found"
+        echo "=== End App Pod Logs ==="
         
         echo "=== Job Status ==="
         kubectl describe job --namespace $NAMESPACE $JOB_NAME
