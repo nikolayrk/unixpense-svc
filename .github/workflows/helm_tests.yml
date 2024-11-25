@@ -46,7 +46,7 @@ jobs:
             --helm-extra-set-args "\
               --set=dockerRegistry.url=${{ vars.DOCKER_REGISTRY_URL }} \
               --set=dockerRegistry.username=${{ secrets.DOCKERHUB_USERNAME }} \
-              --set=dockerRegistry.password=${{ secrets.GH_TOKEN }} \
+              --set=dockerRegistry.password=${{ secrets.DOCKERHUB_PASSWORD }} \
               --set=image.repository=${{ vars.DOCKER_REPO }} \
               --set=image.tag=latest"
 
