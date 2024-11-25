@@ -48,7 +48,7 @@ jobs:
               --set=dockerRegistry.username=${{ secrets.DOCKERHUB_USERNAME }} \
               --set=dockerRegistry.password=${{ secrets.GITHUB_TOKEN }} \
               --set=image.repository=${{ vars.DOCKER_REPO }} \
-              --set=image.tag=${{ github.sha }}"
+              --set=image.tag=latest"
 
       - name: Report integration tests job status
         run: bash ./sh/report_integration_tests_job_status.sh
