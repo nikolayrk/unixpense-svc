@@ -23,9 +23,16 @@ spec:
             value: {{ .Release.Name }}-app
           - name: PORT
             value: "{{ .Values.service.port }}"
-        envFrom:
-          - secretRef:
-              name: {{ .Release.Name }}-mariadb-secret
+          - name: MARIADB_HOST
+            value: "{{ .Release.Name }}-mariadb"
+          - name: MARIADB_PORT
+            value: "{{ .Values.mariadb.primary.service.ports.mysql | default 3306 }}"
+          - name: MARIADB_USER
+            value: "{{ .Values.mariadb.auth.username }}"
+          - name: MARIADB_PASSWORD
+            value: "{{ .Values.mariadb.auth.password }}"
+          - name: MARIADB_DATABASE
+            value: "{{ .Values.mariadb.auth.database }}"
         volumeMounts:
           - name: app-source
             mountPath: /usr/src

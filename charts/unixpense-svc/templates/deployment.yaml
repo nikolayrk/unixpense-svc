@@ -69,10 +69,19 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
+          env:
+            - name: MARIADB_HOST
+              value: "{{ .Release.Name }}-mariadb"
+            - name: MARIADB_PORT
+              value: "{{ .Values.mariadb.primary.service.ports.mysql | default 3306 }}"
+            - name: MARIADB_USER
+              value: "{{ .Values.mariadb.auth.username }}"
+            - name: MARIADB_PASSWORD
+              value: "{{ .Values.mariadb.auth.password }}"
+            - name: MARIADB_DATABASE
+              value: "{{ .Values.mariadb.auth.database }}"
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-config
-            - secretRef:
-                name: {{ .Release.Name }}-mariadb-secret
             - secretRef:
                 name: {{ .Release.Name }}-google-cred
