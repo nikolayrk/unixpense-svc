@@ -26,7 +26,7 @@ else
         echo "=== App Pod Logs ==="
         kubectl get pods --namespace $NAMESPACE --selector=debug_app=true
         kubectl logs -l debug_app=true --namespace $NAMESPACE
-        kubectl get secret $release-dockerconfig -n $NAMESPACE -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d
+        kubectl get secret $release-dockerconfig -n $NAMESPACE -o jsonpath='{.data.\.dockerconfigjson}'
         echo "=== End App Pod Logs ==="
         
         echo "=== Job Status ==="
