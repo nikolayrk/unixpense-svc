@@ -20,12 +20,22 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}
-        debug_app: "true"
     spec:
       securityContext:
         runAsUser: {{ .Values.securityContext.runAsUser }}
       imagePullSecrets:
         - name: {{ .Release.Name }}-dockerconfig
+      initContainers:
+        - name: wait-for-db
+          image: busybox
+          command: 
+            - /bin/sh
+            - -c
+            - |
+              until nc -z {{ .Release.Name }}-mariadb {{ .Values.mariadb.primary.service.ports.mysql | default 3306 }}; do
+                echo "waiting for db..."
+                sleep 2
+              done
       containers:
         - name: app
           image: "{{ .Values.dockerRegistry.url }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
