@@ -11,7 +11,6 @@ else
     # Get the pod for this job
     pod=$(kubectl get pods --namespace $NAMESPACE --selector=job-name=$JOB_NAME --output=jsonpath='{.items[*].metadata.name}')
     app_pod=$(kubectl get pods --namespace $NAMESPACE --selector=debug_app=true --output=jsonpath='{.items[*].metadata.name}')
-    release=$(kubectl get pods --namespace $NAMESPACE --selector=debug_app=true --output=jsonpath='{.items[*].metadata.labels.app}')
     
     if [ -n "$pod" ]; then
         echo "=== Pod Status ==="
@@ -26,7 +25,8 @@ else
         echo "=== App Pod Logs ==="
         kubectl get pods --namespace $NAMESPACE --selector=debug_app=true
         kubectl logs -l debug_app=true --namespace $NAMESPACE
-        kubectl get secret $release-dockerconfig -n $NAMESPACE -o jsonpath='{.data.\.dockerconfigjson}'
+        kubectl describe pod $app_pod -n $NAMESPACE
+        kubectl get events --field-selector involvedObject.name=$app_pod -n $NAMESPACE
         echo "=== End App Pod Logs ==="
         
         echo "=== Job Status ==="
