@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "myapp.fullname" . }}-config
+  name: {{ include "unixpense-svc.fullname" . }}-config
   namespace: {{ .Release.Namespace }}
 data:
   VERSION: {{ .Chart.AppVersion | quote }}

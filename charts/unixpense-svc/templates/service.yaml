@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "myapp.fullname" . }}-app
+  name: {{ include "unixpense-svc.fullname" . }}-app
   namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ include "myapp.fullname" . }}
+    app: {{ include "unixpense-svc.fullname" . }}
 spec:
   selector:
-    app: {{ include "myapp.fullname" . }}
+    app: {{ include "unixpense-svc.fullname" . }}
   ports:
     - name: http
       port: {{ .Values.service.port }}

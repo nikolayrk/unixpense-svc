@@ -2,10 +2,10 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "myapp.fullname" . }}-integration-tests
+  name: {{ include "unixpense-svc.fullname" . }}-integration-tests
   namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ include "myapp.fullname" . }}
+    app: {{ include "unixpense-svc.fullname" . }}
     integration_tests: "true" # Used in /sh/report_integration_tests_job_status.sh
 spec:
   backoffLimit: 0
@@ -20,11 +20,11 @@ spec:
           - ./sh/run_integration_tests_job.sh
         env:
           - name: UNIXPENSE_HOST
-            value: {{ include "myapp.fullname" . }}-app
+            value: {{ include "unixpense-svc.fullname" . }}-app
           - name: PORT
             value: "{{ .Values.service.port }}"
           - name: MARIADB_HOST
-            value: "{{ include "myapp.fullname" . }}-mariadb"
+            value: "{{ include "unixpense-svc.fullname" . }}-mariadb"
           - name: MARIADB_PORT
             value: "{{ .Values.mariadb.primary.service.ports.mysql | default 3306 }}"
           - name: MARIADB_USER

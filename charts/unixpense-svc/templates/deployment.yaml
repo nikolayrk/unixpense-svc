@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "myapp.fullname" . }}-app
+  name: {{ include "unixpense-svc.fullname" . }}-app
   namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ include "myapp.fullname" . }}
+    app: {{ include "unixpense-svc.fullname" . }}
 spec:
   selector:
     matchLabels:
-      app: {{ include "myapp.fullname" . }}
+      app: {{ include "unixpense-svc.fullname" . }}
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
   replicas: {{ .Values.replicaCount }}
   strategy:
@@ -19,12 +19,12 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ include "myapp.fullname" . }}
+        app: {{ include "unixpense-svc.fullname" . }}
     spec:
       securityContext:
         runAsUser: {{ .Values.securityContext.runAsUser }}
       imagePullSecrets:
-        - name: {{ include "myapp.fullname" . }}-dockerconfig
+        - name: {{ include "unixpense-svc.fullname" . }}-dockerconfig
       initContainers:
         - name: wait-for-db
           image: busybox
@@ -82,6 +82,6 @@ spec:
               value: "{{ .Values.mariadb.auth.database }}"
           envFrom:
             - configMapRef:
-                name: {{ include "myapp.fullname" . }}-config
+                name: {{ include "unixpense-svc.fullname" . }}-config
             - secretRef:
-                name: {{ include "myapp.fullname" . }}-google-cred
+                name: {{ include "unixpense-svc.fullname" . }}-google-cred

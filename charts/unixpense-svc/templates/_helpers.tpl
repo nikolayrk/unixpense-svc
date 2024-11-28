@@ -1,4 +1,4 @@
-{{- define "myapp.fullname" -}}
+{{- define "unixpense-svc.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
