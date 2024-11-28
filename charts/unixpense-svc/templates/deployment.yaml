@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-app
+  name: {{ include "myapp.fullname" . }}-app
   namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ .Release.Name }}
+    app: {{ include "myapp.fullname" . }}
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
+      app: {{ include "myapp.fullname" . }}
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
   replicas: {{ .Values.replicaCount }}
   strategy:
@@ -19,12 +19,12 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
+        app: {{ include "myapp.fullname" . }}
     spec:
       securityContext:
         runAsUser: {{ .Values.securityContext.runAsUser }}
       imagePullSecrets:
-        - name: {{ .Release.Name }}-dockerconfig
+        - name: {{ include "myapp.fullname" . }}-dockerconfig
       initContainers:
         - name: wait-for-db
           image: busybox
@@ -82,6 +82,6 @@ spec:
               value: "{{ .Values.mariadb.auth.database }}"
           envFrom:
             - configMapRef:
-                name: {{ .Release.Name }}-config
+                name: {{ include "myapp.fullname" . }}-config
             - secretRef:
-                name: {{ .Release.Name }}-google-cred
+                name: {{ include "myapp.fullname" . }}-google-cred

@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-app
+  name: {{ include "myapp.fullname" . }}-app
   namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ .Release.Name }}
+    app: {{ include "myapp.fullname" . }}
 spec:
   selector:
-    app: {{ .Release.Name }}
+    app: {{ include "myapp.fullname" . }}
   ports:
     - name: http
       port: {{ .Values.service.port }}
