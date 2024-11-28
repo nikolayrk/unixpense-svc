@@ -24,7 +24,7 @@ spec:
           - name: PORT
             value: "{{ .Values.service.port }}"
           - name: MARIADB_HOST
-            value: "{{ include "unixpense-svc.fullname" . }}-mariadb"
+            value: "{{ .Release.Name }}-mariadb"
           - name: MARIADB_PORT
             value: "{{ .Values.mariadb.primary.service.ports.mysql | default 3306 }}"
           - name: MARIADB_USER
