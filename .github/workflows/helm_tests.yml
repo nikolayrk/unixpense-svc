@@ -1,8 +1,7 @@
-name: 'hemn-tests'
+name: 'helm-tests'
 
 on:
-  # workflow_call:
-  pull_request:
+  workflow_call:
 
 jobs:
   lint-test:
