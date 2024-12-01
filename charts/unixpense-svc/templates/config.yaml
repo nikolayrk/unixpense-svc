@@ -8,7 +8,7 @@ data:
   PORT: {{ .Values.service.port | quote }}
   NODE_ENV: {{ (.Values.config).nodeEnv | default "" | quote }}
   LOG_LEVEL: {{ (.Values.config).logLevel | default "" | quote }}
-  UNIXPENSE_HOST: {{ (.Values.config).unixpenseHost | default "" | quote }}
+  UNIXPENSE_HOST: {{ (.Values.ingress).host | default "" | quote }}
   {{- if (.Values.config).unixpenseHostPrefix }}
   UNIXPENSE_HOST_PREFIX: {{ (.Values.config).unixpenseHostPrefix | quote }}
   {{- end }}

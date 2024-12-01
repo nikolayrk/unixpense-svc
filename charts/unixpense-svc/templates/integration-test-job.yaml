@@ -19,10 +19,10 @@ spec:
           - /bin/bash
           - ./sh/run_integration_tests_job.sh
         env:
+          - name: SERVICE_URI_INTERNAL
+            value: "{{ include "unixpense-svc.fullname" $ }}-app:{{ .Values.service.port }}"
           - name: UNIXPENSE_HOST
-            value: {{ include "unixpense-svc.fullname" . }}-app
-          - name: PORT
-            value: "{{ .Values.service.port }}"
+            value: "{{ .Values.ingress.host }}"
           - name: MARIADB_HOST
             value: "{{ .Release.Name }}-mariadb"
           - name: MARIADB_PORT
@@ -41,5 +41,9 @@ spec:
         hostPath:
           path: /usr/src # From ./kind-config.yaml
           type: Directory
+      hostAliases:
+        - ip: "{{ regexReplaceAll "-.*" (index .Values.metallb.ipAddressPool.addresses 0) "" }}"
+          hostnames:
+          - "{{ .Values.ingress.host }}"
       restartPolicy: Never
 {{- end }}

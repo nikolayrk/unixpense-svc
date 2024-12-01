@@ -36,6 +36,9 @@ jobs:
         with:
           config: ./kind-config.yaml
 
+      - name: Setup environment
+        run: bash ./sh/setup_helm_tests_environment.sh
+
       - name: Create namespace
         run: kubectl create namespace unixpense
 

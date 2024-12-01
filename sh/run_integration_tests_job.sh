@@ -37,7 +37,7 @@ main() {
                 
     yarn install --frozen-lockfile
 
-    until curl --silent --fail http://${UNIXPENSE_HOST}:${PORT}/healthz; do
+    until curl --silent --fail http://${SERVICE_URI_INTERNAL}/healthz; do
         echo "Waiting for service to be ready..."
         sleep 5
     done

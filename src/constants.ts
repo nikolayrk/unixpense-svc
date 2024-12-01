@@ -33,7 +33,7 @@ export default class Constants {
 
     public static readonly baseUrl = `${process.env.NODE_ENV === 'production'
         ? `https://${process.env.UNIXPENSE_HOST}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
-        : `http://${process.env.UNIXPENSE_HOST ?? Constants.host}:${Constants.port}`
+        : `http://${process.env.UNIXPENSE_HOST ?? Constants.host}${process.env.PORT === "80" ? "" : `:${process.env.PORT ?? Constants.port}`}`
     }`;
 
     public static readonly defaultRedirectUri = `${Constants.baseUrl}/api/oauthcallback` as const;

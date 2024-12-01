@@ -1,0 +1,14 @@
+{{- if .Values.metallb.enabled }}
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: {{ .Values.metallb.ipAddressPool.name }}
+  namespace: {{ .Values.metallb.namespace }}
+  labels:
+    app: {{ include "unixpense-svc.fullname" . }}
+spec:
+  addresses:
+  {{- range .Values.metallb.ipAddressPool.addresses }}
+  - {{ . }}
+  {{- end }}
+{{- end }}
