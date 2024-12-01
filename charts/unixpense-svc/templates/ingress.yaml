@@ -20,7 +20,7 @@ spec:
             pathType: {{ .Values.ingress.pathType | default "Prefix" }}
             backend:
               service:
-                name: {{ include "unixpense-svc.fullname" $ }}-app
+                name: {{ include "unixpense-svc.fullname" $ }}
                 port:
                   number: {{ $.Values.service.port }}
   {{- if .Values.ingress.tls }}

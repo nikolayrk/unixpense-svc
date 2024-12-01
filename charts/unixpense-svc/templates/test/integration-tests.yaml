@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ .Release.Name }}-integration-tests
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+  - name: tests
+    image: debian:bullseye-slim
+    workingDir: /usr/src
+    command: 
+      - /bin/bash
+      - ./sh/run_integration_tests.sh
+    env:
+      - name: SERVICE_URI_INTERNAL
+        value: "{{ include "unixpense-svc.fullname" $ }}:{{ .Values.service.port }}"
+      - name: UNIXPENSE_HOST
+        value: "{{ .Values.ingress.host }}"
+      - name: MARIADB_HOST
+        value: "{{ .Release.Name }}-mariadb"
+      - name: MARIADB_PORT
+        value: "{{ .Values.mariadb.primary.service.ports.mysql | default 3306 }}"
+      - name: MARIADB_USER
+        value: "{{ .Values.mariadb.auth.username }}"
+      - name: MARIADB_PASSWORD
+        value: "{{ .Values.mariadb.auth.password }}"
+      - name: MARIADB_DATABASE
+        value: "{{ .Values.mariadb.auth.database }}"
+    volumeMounts:
+      - name: app-source
+        mountPath: /usr/src
+  volumes:
+  - name: app-source
+    hostPath:
+      path: /usr/src # From ./kind-config.yaml
+      type: Directory
+  hostAliases:
+    - ip: "{{ regexReplaceAll "-.*" (index .Values.metallb.ipAddressPool.addresses 0) "" }}"
+      hostnames:
+      - "{{ .Values.ingress.host }}"
+  restartPolicy: Never

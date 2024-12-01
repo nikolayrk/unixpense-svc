@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "unixpense-svc.fullname" . }}-app
+  name: {{ include "unixpense-svc.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ include "unixpense-svc.fullname" . }}
