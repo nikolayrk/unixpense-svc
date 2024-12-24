@@ -74,6 +74,10 @@ services:
     environment:
       TESTCONTAINERS_HOST_OVERRIDE: "172.17.0.1"
       WITH_BRIDGE_NETWORK: 1
+      NODE_ENV: ${NODE_ENV}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      GOOGLE_OAUTH2_CLIENT_ID: ${GOOGLE_OAUTH2_CLIENT_ID}
+      GOOGLE_OAUTH2_CLIENT_SECRET: ${GOOGLE_OAUTH2_CLIENT_SECRET}
     networks:
       - unixpense-custom-bridge-network
     build:

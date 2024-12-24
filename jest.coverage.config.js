@@ -4,7 +4,7 @@ var config = require('./jest.config');
 
 config = {
     ...config,
-    testPathIgnorePatterns: [ "/__tests__/integration/integration\\.test\\.base\\.ts$" ],
+    testPathIgnorePatterns: ["/__tests__/e2e/", "/database/migrations/"],
     testMatch: [
         "**/src/**/*.test.ts",
         "**/__tests__/integration/**/*.js",

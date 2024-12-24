@@ -9,3 +9,5 @@ tsNode.register({
         module: 'commonjs'
     }
 });
+
+process.env.NODE_ENV="test_coverage";
