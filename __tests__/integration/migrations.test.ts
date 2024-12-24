@@ -4,7 +4,7 @@ import { Sequelize } from 'sequelize-typescript';
 import { Umzug } from 'umzug';
 import appTestBase from '../helpers/appTestBase';
 import { EmptyMigrationTestCase, MigrationActionPair, MigrationTestCase } from '@database/src/types/migrations';
-import { default as _01_full_text_indexers } from '@database/migrations/01_full-text-indexers.test';
+import { default as _01_full_text_indexers } from '@database/migrations/01_full_text_indexers.test';
 import { default as _02_local_date_to_utc } from '@database/migrations/02_local_date_to_utc.test';
 import { default as _03_03_add_tax_payment_type} from '@database/migrations/03_add_tax_payment_type.test';
 import RepositoryError from '@shared/errors/repositoryError';
