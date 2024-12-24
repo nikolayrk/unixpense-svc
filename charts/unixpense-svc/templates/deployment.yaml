@@ -36,6 +36,19 @@ spec:
                 echo "waiting for db..."
                 sleep 2
               done
+        - name: migrations
+          image: "{{ .Values.dockerRegistry.url }}/{{ .Values.image.repository }}-migrations:{{ .Values.migrations.image.tag }}"
+          env:
+            - name: MARIADB_HOST
+              value: "{{ .Release.Name }}-mariadb"
+            - name: MARIADB_PORT
+              value: "{{ .Values.mariadb.primary.service.ports.mysql | default 3306 }}"
+            - name: MARIADB_USER
+              value: "{{ .Values.mariadb.auth.username }}"
+            - name: MARIADB_PASSWORD
+              value: "{{ .Values.mariadb.auth.password }}"
+            - name: MARIADB_DATABASE
+              value: "{{ .Values.mariadb.auth.database }}"
       containers:
         - name: app
           image: "{{ .Values.dockerRegistry.url }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"

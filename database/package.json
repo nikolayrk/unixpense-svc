@@ -1,0 +1,17 @@
+{
+    "scripts": {
+        "build": "tsc -p . && tsc-alias",
+        "migrate": "node dist/database/src/main.js"
+    },
+    "dependencies": {
+        "@jest/globals": "^29.7.0",
+        "@types/sequelize": "^4.28.20",
+        "mariadb": "^3.4.0",
+        "reflect-metadata": "^0.2.2",
+        "sequelize": "^6.37.5",
+        "sequelize-typescript": "^2.1.6",
+        "tsc-alias": "^1.8.10",
+        "typescript": "^5.7.2",
+        "umzug": "^3.8.2"
+    }
+}

@@ -4,10 +4,6 @@ import "reflect-metadata"
 import { DependencyInjector } from './dependencyInjector';
 import ILogger from './core/contracts/ILogger';
 import { injectables } from './core/types/injectables';
-import {
-    applyDatabaseMigrationsAsync,
-    resolveMigrationTool,
-} from './bootstrap';
 import { createDatabaseConnectionAsync, defineDatabaseModels } from '@shared/database';
 import { Sequelize } from 'sequelize-typescript';
 import { startServerAsync, stopServerAsync } from './server';
@@ -28,12 +24,6 @@ const main = async () => {
 
         throw new Error(`Failed to create a connection to the database: ${error.message}`);
     };
-
-    logger.log('Applying database migrations...');
-
-    const migrationTool = resolveMigrationTool(connection);
-    
-    await applyDatabaseMigrationsAsync(migrationTool);
 
     logger.log('Defining database models...');
 

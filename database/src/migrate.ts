@@ -1,7 +1,8 @@
-import { Sequelize } from 'sequelize-typescript';
-import { Umzug, SequelizeStorage, InputMigrations, Resolver, MigrationParams } from 'umzug';
+import { Sequelize } from "sequelize-typescript";
+import { InputMigrations, MigrationParams, Resolver, SequelizeStorage, Umzug } from "umzug";
+import RepositoryError from "@shared/errors/repositoryError";
 import fs from 'fs';
-import RepositoryError from './core/errors/repositoryError';
+import path from "path";
 
 const resolveMigrationTool = (connection: Sequelize) => {
     const resolveMigrationFileContentsAsync = (path: string) => new Promise<string>(resolve =>
@@ -14,11 +15,17 @@ const resolveMigrationTool = (connection: Sequelize) => {
     const executeQueryAsync = async (context: Sequelize, path: string) => {
         const sql = await resolveMigrationFileContentsAsync(path);
 
+        const transaction = await context.transaction();
+
         try {
-            const [results, ] = await context.query(sql);
+            const [results, ] = await context.query(sql, { transaction });
+            
+            await transaction.commit();
             
             return results;
         } catch (ex) {
+            await transaction.rollback();
+
             if (ex instanceof Error) {
                 throw new RepositoryError(ex);
             }
@@ -39,7 +46,10 @@ const resolveMigrationTool = (connection: Sequelize) => {
     };
     
     const migrations: InputMigrations<Sequelize> = {
-        glob: __dirname + '/**/migrations/*.{js,ts,up.sql}',
+        glob: `{${
+            path.join(__dirname, '../migrations/*.up.sql')},${      // entry from migration tests
+            path.join(__dirname, '../../../migrations/*.up.sql')    // entry from migration service
+        }}`,
         resolve: resolver
     };
 
@@ -49,7 +59,7 @@ const resolveMigrationTool = (connection: Sequelize) => {
         migrations,
         storage,
         context: connection,
-        logger: console,
+        logger: console, // TODO: ILogger
     });
 
     return umzug;
@@ -71,9 +81,8 @@ const revertDatabaseMigrationsAsync = async (umzug: Umzug<Sequelize>, step?: num
     }
 }
 
-
 export {
     resolveMigrationTool,
     applyDatabaseMigrationsAsync,
-    revertDatabaseMigrationsAsync,
+    revertDatabaseMigrationsAsync
 }

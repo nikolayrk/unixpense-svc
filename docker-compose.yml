@@ -17,6 +17,21 @@ services:
       timeout: 5s
       retries: 5
 
+  migrations:
+    networks:
+      - unixpense-custom-bridge-network
+    build:
+      context: ./
+      dockerfile: ./database/migrations.Dockerfile
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      MARIADB_HOST: ${MARIADB_HOST:-db}
+      MARIADB_USER: ${MARIADB_USER:-root}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+
   app:
     networks:
       - unixpense-custom-bridge-network
@@ -37,6 +52,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
     healthcheck:
       test: wget -q --spider http://localhost:8000/healthz || exit 1
       interval: 5s

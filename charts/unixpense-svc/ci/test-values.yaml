@@ -63,3 +63,6 @@ mariadb:
 google:
   clientId: client_id
   clientSecret: client_secret
+migrations:
+  image:
+    tag: latest

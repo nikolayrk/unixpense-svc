@@ -37,7 +37,6 @@ COPY --from=base /usr/app ./
 
 RUN yarn install --frozen-lockfile --production=${PRODUCTION} && \
     yarn build && \
-    cp -r ./src/core/migrations ./dist/core && \
     rm -rf ./src ./shared \
         Dockerfile .dockerignore docker-compose.yml \
         ./__tests__ \
