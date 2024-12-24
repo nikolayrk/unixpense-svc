@@ -2,7 +2,7 @@
 import nock from "nock";
 import TransactionTestHelper from "./core/utils/transactionTestHelper";
 import { gmailPaymentDetailsTestCases } from "./gmail/types/gmailPaymentDetailsTestCases";
-import Constants from "./constants";
+import Constants from "@shared/constants";
 import { URL, URLSearchParams } from "url";
 import * as googleOAuth2Middleware from './web/middleware/googleOAuth2Middleware';
 import * as transactionsController from "./web/controllers/transactionsController";

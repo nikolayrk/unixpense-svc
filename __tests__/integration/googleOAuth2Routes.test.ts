@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import Constants from '../../src/constants';
+import Constants from '@shared/constants';
 import { DependencyInjector } from '../../src/dependencyInjector';
 import GoogleOAuth2TokensRepository from '../../src/googleOAuth2/repositories/googleOAuth2TokensRepository';
 import { injectables } from '../../src/core/types/injectables';

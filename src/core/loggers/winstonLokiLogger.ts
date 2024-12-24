@@ -2,7 +2,7 @@ import winston, { createLogger, transport } from 'winston';
 import LokiTransport from 'winston-loki';
 import ILogger from '../../core/contracts/ILogger';
 import { injectable } from 'inversify';
-import Constants from '../../constants';
+import Constants from '@shared/constants';
 
 @injectable()
 export default class WinstonLokiLogger implements ILogger {

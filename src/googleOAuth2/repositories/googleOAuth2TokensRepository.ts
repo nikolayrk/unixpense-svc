@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 import GoogleOAuth2Tokens from "../models/googleOAuth2Tokens.model";
-import RepositoryError from "../../core/errors/repositoryError";
+import RepositoryError from "@shared/errors/repositoryError";
 import GoogleOAuth2IdentifiersFactory from "../factories/googleOAuth2IdentifiersFactory";
 
 @injectable()

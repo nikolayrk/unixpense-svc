@@ -3,8 +3,8 @@ import { resolveMigrationTool } from '../../src/bootstrap';
 import { Sequelize } from 'sequelize-typescript';
 import { Umzug } from 'umzug';
 import { DatabaseError } from 'sequelize';
-import RepositoryError from '../../src/core/errors/repositoryError';
 import integrationTestBase from './integration.test.base';
+import RepositoryError from '@shared/errors/repositoryError';
 
 const Migrations = [
     '00_initial.up.sql',

@@ -1,7 +1,7 @@
 import { describe, it, expect } from '@jest/globals';
 import integrationTestBase from './integration.test.base';
 import axios, { AxiosInstance } from 'axios';
-import Constants from '../../src/constants';
+import Constants from '@shared/constants';
 
 describe('Group Rules Routes Tests', () => {
     let apiClient: AxiosInstance;

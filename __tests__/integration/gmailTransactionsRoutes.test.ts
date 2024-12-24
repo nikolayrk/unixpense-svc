@@ -1,7 +1,7 @@
 import { describe, it, expect } from '@jest/globals';
 import { DependencyInjector } from '../../src/dependencyInjector';
 import { injectables } from '../../src/core/types/injectables';
-import Constants from '../../src/constants';
+import Constants from '@shared/constants';
 import TransactionRepository from '../../src/core/repositories/transactionRepository';
 import { TransactionExtensions } from '../../src/core/extensions/transactionExtensions';
 import { gmailPaymentDetailsTestCases } from '../../src/gmail/types/gmailPaymentDetailsTestCases';

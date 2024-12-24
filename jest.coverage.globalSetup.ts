@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { DockerComposeEnvironment, Wait } from 'testcontainers';
-import Constants from './src/constants';
+import Constants from "@shared/constants";
 
 export default async () => {
     process.env.NODE_ENV = 'test_coverage';

@@ -2,7 +2,7 @@ import express from "express";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from 'swagger-ui-express';
 import { cardOperationTransaction, standardTransferTransaction } from "../schemas/transaction";
-import GoogleOAuth2Constants from "../../constants";
+import GoogleOAuth2Constants from "@shared/constants";
 import { transactionTypes } from "../schemas/transactionTypes";
 import { entryTypes } from "../schemas/entryTypes";
 

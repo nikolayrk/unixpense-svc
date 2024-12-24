@@ -1,5 +1,3 @@
-import PaymentDetails from "./core/types/paymentDetails";
-
 const localOrService = (serviceName: string) =>
     process.env.NODE_ENV === 'test_integration'
         ? '0.0.0.0'
@@ -18,7 +16,7 @@ export default class Constants {
         mariadbPassword: 'password' as const,
         mariadbUser: 'root' as const,
         mariadbDatabase: 'unixpense' as const,
-        containerTimeout: 5 * 1000, // 5s
+        containerTimeout: 10 * 1000, // 10s
     }
 
     public static readonly scopes = [
@@ -27,13 +25,13 @@ export default class Constants {
         'https://www.googleapis.com/auth/gmail.readonly'
     ] as const;
 
-    public static readonly host = localOrService(this.AppComposeServiceName);
+    private static readonly host = localOrService(this.AppComposeServiceName);
+    private static readonly port = process.env.PORT ?? Constants.Defaults.port;
 
-    public static readonly port = process.env.PORT ?? Constants.Defaults.port;
-
-    public static readonly baseUrl = `${process.env.NODE_ENV === 'production'
+    public static readonly baseUrl = `${
+        process.env.NODE_ENV === 'production'
         ? `https://${process.env.UNIXPENSE_HOST}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
-        : `http://${process.env.UNIXPENSE_HOST ?? Constants.host}${process.env.PORT === "80" ? "" : `:${process.env.PORT ?? Constants.port}`}`
+            : `http://${Constants.host}:${Constants.port}`
     }`;
 
     public static readonly defaultRedirectUri = `${Constants.baseUrl}/api/oauthcallback` as const;
@@ -50,10 +48,6 @@ export default class Constants {
         emptyTransactionSourceId: "empty" as const,
         errorTransactionSourceId: "error" as const
     } as const;
-
-    public static readonly defaultPaymentDetails: PaymentDetails = {
-        recipient: '<N/A>'
-    };
 
     public static readonly defaultTransactionCount: number = 25;
 }

@@ -9,7 +9,7 @@ import { TransactionTypeExtensions } from "../../core/extensions/transactionType
 import { EntryTypeExtensions } from "../../core/extensions/entryTypeExtensions";
 import TransactionType from "../../core/enums/transactionType";
 import EntryType from "../../core/enums/entryType";
-import Constants from "../../constants";
+import Constants from "@shared/constants";
 
 const get = async (req: Request, res: Response) => {
     const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
