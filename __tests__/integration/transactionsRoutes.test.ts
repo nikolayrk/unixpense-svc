@@ -9,17 +9,15 @@ import TransactionTestHelper from '../../src/core/utils/transactionTestHelper';
 import axios, { AxiosError, AxiosInstance } from 'axios';
 import { TransactionTypeExtensions } from '../../src/core/extensions/transactionTypeExtensions';
 import { EntryTypeExtensions } from '../../src/core/extensions/entryTypeExtensions';
-import integrationTestBase from './integration.test.base';
 import TransactionFactory from '../../src/core/factories/transactionFactory';
+import appTestBase from '../helpers/appTestBase';
+import { ApiClient } from '../helpers/apiClient';
 
 describe('Base Transactions Routes Tests', () => {
-    let apiClient: AxiosInstance;
-    let transactionRepository: TransactionRepository;
+    let apiClient = new ApiClient(Constants.baseUrl);
+    let transactionRepository: TransactionRepository = DependencyInjector.Singleton.resolve(injectables.TransactionRepository);
 
-    integrationTestBase({ beforeAllAppendix: async () => {
-        transactionRepository = DependencyInjector.Singleton.resolve(injectables.TransactionRepository);
-        apiClient = axios.create({ baseURL: Constants.baseUrl });
-    }});
+    appTestBase();
 
     it('should fail to query transactions due to passing an invalid fromDate value', async () => {
         const promise = apiClient.get(`/api/transactions?fromDate=xxx`, {

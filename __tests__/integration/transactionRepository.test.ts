@@ -4,8 +4,8 @@ import { injectables } from '../../src/core/types/injectables';
 import TransactionRepository from '../../src/core/repositories/transactionRepository';
 import { gmailPaymentDetailsTestCases } from '../../src/gmail/types/gmailPaymentDetailsTestCases';
 import TransactionTestHelper from '../../src/core/utils/transactionTestHelper';
-import integrationTestBase from './integration.test.base';
 import RepositoryError from '@shared/errors/repositoryError';
+import integrationTestBase from '../helpers/appTestBase';
 import axios, { AxiosInstance } from 'axios';
 import Constants from '@shared/constants';
 

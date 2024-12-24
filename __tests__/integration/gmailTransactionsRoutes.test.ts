@@ -7,7 +7,7 @@ import { TransactionExtensions } from '../../src/core/extensions/transactionExte
 import { gmailPaymentDetailsTestCases } from '../../src/gmail/types/gmailPaymentDetailsTestCases';
 import TransactionTestHelper from '../../src/core/utils/transactionTestHelper';
 import axios, { AxiosError, AxiosInstance } from 'axios';
-import integrationTestBase from './integration.test.base';
+import integrationTestBase from '../helpers/appTestBase';
 
 describe('Gmail Transactions Routes Tests', () => {
     let apiClient: AxiosInstance;

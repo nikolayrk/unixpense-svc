@@ -4,7 +4,7 @@ import { DependencyInjector } from '../../src/dependencyInjector';
 import GoogleOAuth2TokensRepository from '../../src/googleOAuth2/repositories/googleOAuth2TokensRepository';
 import { injectables } from '../../src/core/types/injectables';
 import axios, { AxiosError, AxiosInstance } from 'axios';
-import apiIntegrationTestBase from './integration.test.base';
+import apiIntegrationTestBase from '../helpers/appTestBase';
 
 describe('Google OAuth2 Routes Tests', () => {
     let apiClient: AxiosInstance;

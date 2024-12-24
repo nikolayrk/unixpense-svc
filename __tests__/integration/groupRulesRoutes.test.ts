@@ -1,14 +1,12 @@
 import { describe, it, expect } from '@jest/globals';
-import integrationTestBase from './integration.test.base';
-import axios, { AxiosInstance } from 'axios';
+import appTestBase from '../helpers/appTestBase';
 import Constants from '@shared/constants';
+import { ApiClient } from '../helpers/apiClient';
 
 describe('Group Rules Routes Tests', () => {
-    let apiClient: AxiosInstance;
+    let apiClient = new ApiClient(Constants.baseUrl);
 
-    integrationTestBase({ beforeAllAppendix: () => {
-        apiClient = axios.create({ baseURL: Constants.baseUrl });
-    }});
+    appTestBase();
 
     it('should add a new group rule', async () => {
         const response = await apiClient.post(`/api/groups/xxx/rules`);

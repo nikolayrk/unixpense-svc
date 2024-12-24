@@ -1,9 +1,9 @@
 import { describe, it, expect } from '@jest/globals';
-import { resolveMigrationTool } from '../../src/bootstrap';
+import { resolveMigrationTool } from '@database/src/migrate';
 import { Sequelize } from 'sequelize-typescript';
 import { Umzug } from 'umzug';
 import { DatabaseError } from 'sequelize';
-import integrationTestBase from './integration.test.base';
+import appTestBase from '../helpers/appTestBase';
 import RepositoryError from '@shared/errors/repositoryError';
 
 const Migrations = [
@@ -22,7 +22,7 @@ describe('Database Migration Tests', () => {
     let connection: Sequelize;
     let migrationTool: Umzug<Sequelize>;
 
-    integrationTestBase({ beforeAllAppendix: async (sequelize: Sequelize) => {
+    appTestBase({ beforeAllAppendix: async (sequelize: Sequelize) => {
         connection = sequelize;
 
         await connection.query(`DROP TABLE IF EXISTS ${[
@@ -39,12 +39,12 @@ describe('Database Migration Tests', () => {
         const migrationNames = migrations.map(m => m.name);
         const allMigrationsHaveTests = migrationNames
             .every(m => migrationsWithTests
-            .includes(m));
+                .includes(m));
 
         if (!allMigrationsHaveTests) {
             const missing = migrationNames
                 .filter(m => !migrationsWithTests
-                .includes(m));
+                    .includes(m));
 
             throw new Error(`Some migrations are missing tests: ${missing}`);
         }
