@@ -1,65 +1,7 @@
-import express from 'express';
-import * as googleOAuth2Middleware from './web/middleware/googleOAuth2Middleware';
-import { router as transactionsRouter } from './web/routes/transactionsRoutes';
-import { router as gmailTransactionsRouter } from './web/routes/gmailTransactionsRoutes';
-import { router as swaggerRouter } from './web/routes/swaggerRoutes';
-import { router as healthRouter } from './web/routes/healthRoutes';
-import { router as groupsRouter } from './web/routes/groupsRoutes';
-import { router as groupRulesRouter } from './web/routes/groupRulesRoutes';
 import { Sequelize } from 'sequelize-typescript';
-import bodyParser from 'body-parser';
-import * as mariadb from 'mariadb';
-import { Server } from 'http';
-import { limiter as rateLimiter } from './web/middleware/rateLimiter';
 import { Umzug, SequelizeStorage, InputMigrations, Resolver, MigrationParams } from 'umzug';
 import fs from 'fs';
 import RepositoryError from './core/errors/repositoryError';
-
-const createDatabaseIfNotExistsAsync = async (host: string, port: number, username: string, password: string, database: string) => {
-    const conn = await mariadb.createConnection({
-        host: host,
-        port: port,
-        user: username,
-        password: password
-    });
-
-    await conn.query(`CREATE DATABASE IF NOT EXISTS \`${database}\`;`);
-
-    await conn.end();
-}
-
-const createDatabaseConnectionAsync = async (host: string, port: number, username: string, password: string, database: string) => {
-    await createDatabaseIfNotExistsAsync(host, port, username, password, database);
-
-    const connection = new Sequelize({
-        dialect: "mariadb",
-        host: host,
-        port: port,
-        username: username,
-        password: password,
-        database: database,
-        logging: false,
-        pool: {
-            max: 5,
-            min: 0,
-            acquire: 30000,
-            idle: 10000
-        },
-        dialectOptions: {
-            multipleStatements: true,
-        },
-    });
-    
-    await connection.authenticate();
-    
-    return connection;
-}
-
-const defineDatabaseModels = async (connection: Sequelize, force?: boolean) => {
-    connection.addModels([__dirname + '/**/models/*.model.{js,ts}']);
-
-    await connection.sync({ force });
-}
 
 const resolveMigrationTool = (connection: Sequelize) => {
     const resolveMigrationFileContentsAsync = (path: string) => new Promise<string>(resolve =>
@@ -129,52 +71,9 @@ const revertDatabaseMigrationsAsync = async (umzug: Umzug<Sequelize>, step?: num
     }
 }
 
-const startServerAsync = (port?: number) => {
-    const app = express();
-
-    app.use(bodyParser.urlencoded({ extended: true }));
-
-    app.use(express.json());
-
-    // Startup, Readiness and Liveness Probes
-    app.use(healthRouter);
-
-    app.use(rateLimiter);
-
-    // Google OAuth2 Callback Route. Used for authz of all ../gmail routes, as well as for authn via oauth2-proxy
-    app.use('/api/oauthcallback', googleOAuth2Middleware.redirect);
-
-    // Transactions Routes
-    app.use('/api/transactions', transactionsRouter);
-
-    // Gmail Transactions Routes
-    app.use('/api/transactions/gmail', googleOAuth2Middleware.protect, gmailTransactionsRouter);
-
-    // Transaction Groups Routes
-    app.use('/api/groups', groupsRouter);
-    app.use('/api/groups/:group/rules', groupRulesRouter);
-
-    // Swagger
-    app.use('/swagger', swaggerRouter);
-
-    const server = new Promise<Server>((resolve) => {
-        const server: Server = app.listen(port, () => resolve(server));
-    });
-
-    return server;
-};
-
-const stopServerAsync = async (app: Server) =>
-    new Promise<void>((resolve) =>
-        app.on('close', () => resolve())
-            .close());
 
 export {
-    createDatabaseConnectionAsync,
-    defineDatabaseModels,
     resolveMigrationTool,
     applyDatabaseMigrationsAsync,
     revertDatabaseMigrationsAsync,
-    startServerAsync,
-    stopServerAsync
 }
