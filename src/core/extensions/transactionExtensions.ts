@@ -1,4 +1,3 @@
-import Constants from "../../constants";
 import { default as CardOperationModel } from "../models/cardOperation.model";
 import { default as StandardTransferModel } from "../models/standardTransfer.model";
 import { default as TransactionModel } from "../models/transaction.model";
@@ -11,6 +10,7 @@ import Transaction from "../types/transaction";
 import TransactionData from "../types/transactionData";
 import { EntryTypeExtensions } from "./entryTypeExtensions";
 import { TransactionTypeExtensions } from "./transactionTypeExtensions";
+import PaymentDetailsContext from "../contexts/paymentDetailsContext";
 
 export class TransactionExtensions {
     public static toRecord(transaction: Transaction<PaymentDetails>) {
@@ -89,7 +89,7 @@ export class TransactionExtensions {
                     recipientIban: (transaction.standard_transfer as StandardTransferModel).recipient_iban ?? undefined,
                     description: (transaction.standard_transfer as StandardTransferModel).description ?? undefined,
                 } as StandardTransfer
-                : Constants.defaultPaymentDetails;
+                : PaymentDetailsContext.DefaultPaymentDetails;
 
         return TransactionFactory.create(String(transaction.id), transactionData, paymentDetails);
     }
