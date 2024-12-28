@@ -28,6 +28,9 @@ livenessProbe:
   periodSeconds: 10
   failureThreshold: 3
 
+config:
+  nodeEnv: test_e2e
+
 service:
   port: 8000
 

@@ -31,6 +31,8 @@ export default class Constants {
     public static readonly baseUrl = `${
         process.env.NODE_ENV === 'production'
         ? `https://${process.env.UNIXPENSE_HOST}${process.env.UNIXPENSE_HOST_PREFIX ?? ''}`
+        : process.env.NODE_ENV === 'test_e2e'
+            ? `http://${process.env.UNIXPENSE_HOST}`
             : `http://${Constants.host}:${Constants.port}`
     }`;
 
@@ -50,4 +52,6 @@ export default class Constants {
     } as const;
 
     public static readonly defaultTransactionCount: number = 25;
+
+    public static readonly cookieName = '_oauth2_proxy';
 }

@@ -34,17 +34,17 @@ installDependencies() {
 
 main() {
     installDependencies
-                
+    
     yarn install --frozen-lockfile
+
+    yarn test:e2e:setup
 
     until curl --silent --fail http://${SERVICE_URI_INTERNAL}/healthz; do
         echo "Waiting for service to be ready..."
         sleep 5
     done
 
-    yarn test:integration \
-        --testPathIgnorePatterns \
-        gmailTransactionsRoutes.test.ts googleOAuth2Routes.test.ts # Skip tests that use Google services
+    yarn test:e2e
 }
 
 main
