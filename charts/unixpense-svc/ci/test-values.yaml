@@ -60,9 +60,37 @@ mariadb:
     persistence:
       enabled: false
 
-google:
-  clientId: client_id
-  clientSecret: client_secret
 migrations:
   image:
     tag: latest
+
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+  
+  master:
+    persistence:
+      enabled: false
+  
+  replica:
+    replicaCount: 0
+
+oauth2-proxy:
+  enabled: true
+  
+  config:
+    clientID: client_id
+    clientSecret: client_secret
+    cookieSecret: MockCookieSecret
+    existingConfig: oauth2-proxy-config
+
+  authenticatedEmailsFile:
+    enabled: true
+    restricted_access:
+      user@example.com
+      
+  initContainers:
+    waitForRedis:
+      enabled: true

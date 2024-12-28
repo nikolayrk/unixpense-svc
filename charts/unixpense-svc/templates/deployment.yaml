@@ -97,4 +97,4 @@ spec:
             - configMapRef:
                 name: {{ include "unixpense-svc.fullname" . }}-config
             - secretRef:
-                name: {{ include "unixpense-svc.fullname" . }}-google-cred
+                name: google-cred

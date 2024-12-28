@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+  labels:
+    app: {{ include "unixpense-svc.fullname" . }}
+  name: oauth2-proxy-config
+  namespace: {{ .Release.Namespace }}
+data:
+  oauth2_proxy.cfg: |
+    http_address = "0.0.0.0:4180"
+    cookie_secure = false
+    cookie_domains = ["{{ .Values.ingress.host }}"]
+    whitelist_domains = ["{{ .Values.ingress.host }}"]
+    proxy_prefix = "{{ (.Values.config).unixpenseHostPrefix | default "" }}/oauth2"
+    skip_provider_button = true
+    scope = "openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.readonly"
+    session_store_type = "redis"
+    redis_connection_url = "redis://{{ include "unixpense-svc.fullname" . }}-redis-master:6379"
+    redirect_url = "http://{{ .Values.ingress.host }}{{ (.Values.config).unixpenseHostPrefix | default "" }}/oauth2/callback"
+{{- if .Values.test.enabled }}
+    provider = "oidc"
+    provider_display_name = "Mock OAuth2 Server"
+    oidc_issuer_url = "http://{{ include "unixpense-svc.fullname" . }}-mock-oauth2-server:8080/default"
+{{- else }}
+    skip_auth_route = "{{ (.Values.config).unixpenseHostPrefix | default "" }}/api/oauthcallback"
+    provider = "google"
+    provider_display_name = "Google"
+    redeem_url = "http://{{ include "unixpense-svc.fullname" . }}.{{ include ".Release.Namespace" . }}.svc.cluster.local:8000/api/oauthcallback"
+    oidc_issuer_url = "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline"
+{{- end }}

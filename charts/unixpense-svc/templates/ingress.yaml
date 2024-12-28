@@ -8,6 +8,11 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/auth-response-headers: Authorization
+{{- $oauth2Proxy := index .Values "oauth2-proxy" }}
+    nginx.ingress.kubernetes.io/auth-url: "http://{{ include "unixpense-svc.fullname" . }}-oauth2-proxy.{{ .Release.Namespace}}.svc.cluster.local:{{ $oauth2Proxy.config.port | default 80 }}{{ (.Values.config).unixpenseHostPrefix | default "" }}/oauth2/auth"
+    nginx.ingress.kubernetes.io/auth-signin: "http://$host{{ (.Values.config).unixpenseHostPrefix | default "" }}/oauth2/start?rd=$escaped_request_uri"
 spec:
   {{- if .Values.ingress.className }}
   ingressClassName: {{ .Values.ingress.className }}
