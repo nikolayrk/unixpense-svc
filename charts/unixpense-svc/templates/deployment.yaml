@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "unixpense-svc.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "unixpense-svc.fullname" . }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "unixpense-svc.fullname" . }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: {{ .Values.maxSurge }}
+      maxUnavailable: {{ .Values.maxUnavailable }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "unixpense-svc.fullname" . }}
+    spec:
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+      imagePullSecrets:
+        - name: {{ include "unixpense-svc.fullname" . }}-dockerconfig
+      initContainers:
+        - name: wait-for-db
+          image: busybox
+          command: 
+            - /bin/sh
+            - -c
+            - |
+              until nc -z {{ .Release.Name }}-mariadb {{ .Values.mariadb.primary.service.ports.mysql | default 3306 }}; do
+                echo "waiting for db..."
+                sleep 2
+              done
+        - name: migrations
+          image: "{{ .Values.dockerRegistry.url }}/{{ .Values.image.repository }}-migrations:{{ .Values.migrations.image.tag }}"
+          env:
+            - name: MARIADB_HOST
+              value: "{{ .Release.Name }}-mariadb"
+            - name: MARIADB_PORT
+              value: "{{ .Values.mariadb.primary.service.ports.mysql | default 3306 }}"
+            - name: MARIADB_USER
+              value: "{{ .Values.mariadb.auth.username }}"
+            - name: MARIADB_PASSWORD
+              value: "{{ .Values.mariadb.auth.password }}"
+            - name: MARIADB_DATABASE
+              value: "{{ .Values.mariadb.auth.database }}"
+      containers:
+        - name: app
+          image: "{{ .Values.dockerRegistry.url }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: {{ .Values.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+            failureThreshold: {{ .Values.startupProbe.failureThreshold }}
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          livenessProbe:
+            httpGet:
+              path: /alivez
+              port: http
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          env:
+            - name: MARIADB_HOST
+              value: "{{ .Release.Name }}-mariadb"
+            - name: MARIADB_PORT
+              value: "{{ .Values.mariadb.primary.service.ports.mysql | default 3306 }}"
+            - name: MARIADB_USER
+              value: "{{ .Values.mariadb.auth.username }}"
+            - name: MARIADB_PASSWORD
+              value: "{{ .Values.mariadb.auth.password }}"
+            - name: MARIADB_DATABASE
+              value: "{{ .Values.mariadb.auth.database }}"
+          envFrom:
+            - configMapRef:
+                name: {{ include "unixpense-svc.fullname" . }}-config
+            - secretRef:
+                name: google-cred

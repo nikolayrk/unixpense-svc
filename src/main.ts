@@ -4,38 +4,19 @@ import "reflect-metadata"
 import { DependencyInjector } from './dependencyInjector';
 import ILogger from './core/contracts/ILogger';
 import { injectables } from './core/types/injectables';
-import {
-    applyDatabaseMigrationsAsync,
-    createDatabaseConnectionAsync,
-    defineDatabaseModels,
-    resolveMigrationTool,
-    startServerAsync,
-    stopServerAsync
-} from './bootstrap';
-import Constants from './constants';
+import { createDatabaseConnectionAsync, defineDatabaseModels } from '@shared/database';
 import { Sequelize } from 'sequelize-typescript';
+import { startServerAsync, stopServerAsync } from './server';
 
 const main = async () => {
     const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
 
     logger.log('Creating database connection...');
 
-    const mariadbHost = process.env.MARIADB_HOST ?? process.env.HOSTNAME ?? 'localhost';
-    const mariadbPort = process.env.MARIADB_PORT !== undefined
-        ? Number(process.env.MARIADB_PORT)
-        : Constants.Defaults.mariadbPort;
-    const username = process.env.MARIADB_USER;
-    const password = process.env.MARIADB_PASSWORD;
-    const database = process.env.MARIADB_DATABASE ?? Constants.Defaults.mariadbDatabase;
-
-    if (username === undefined || password === undefined) {
-        throw new Error('Missing database credentials');
-    }
-
     let connection: Sequelize | null = null;
 
     try {
-        connection = await createDatabaseConnectionAsync(mariadbHost, mariadbPort, username, password, database);
+        connection = await createDatabaseConnectionAsync();
     } catch(ex) {
         const error = ex as Error;
 
@@ -43,12 +24,6 @@ const main = async () => {
 
         throw new Error(`Failed to create a connection to the database: ${error.message}`);
     };
-
-    logger.log('Applying database migrations...');
-
-    const migrationTool = resolveMigrationTool(connection);
-    
-    await applyDatabaseMigrationsAsync(migrationTool);
 
     logger.log('Defining database models...');
 
@@ -60,11 +35,7 @@ const main = async () => {
 
     logger.log('Starting server...');
 
-    const port = Number.isNaN(process.env.PORT ?? NaN)
-        ? Constants.Defaults.port
-        : Number(process.env.PORT);
-
-    const server = await startServerAsync(port);
+    const server = await startServerAsync();
 
     logger.log(`Server is running`);
 

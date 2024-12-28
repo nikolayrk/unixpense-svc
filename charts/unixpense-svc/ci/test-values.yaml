@@ -1,0 +1,99 @@
+replicaCount: 1
+revisionHistoryLimit: 0
+maxSurge: 1
+maxUnavailable: 1
+
+securityContext:
+  runAsUser: 1000
+
+resources:
+  requests:
+    cpu: 150m
+    memory: 128Mi
+  limits:
+    cpu: 350m
+    memory: 256Mi
+
+startupProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  failureThreshold: 30
+
+readinessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+livenessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  failureThreshold: 3
+
+config:
+  nodeEnv: test_e2e
+
+service:
+  port: 8000
+
+metallb:
+  enabled: true
+  namespace: metallb
+  ipAddressPool:
+    name: default-pool
+    addresses:
+    - "192.168.0.50-192.168.0.50"
+  l2Advertisement:
+    name: default-advertisement
+    ipAddressPools:
+    - default-pool
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1/$2
+  host: staging.unixpense-svc.local
+  pathType: ImplementationSpecific
+
+mariadb:
+  auth:
+    database: "unixpense"
+    username: test
+    password: test
+  primary:
+    persistence:
+      enabled: false
+
+migrations:
+  image:
+    tag: latest
+
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+  
+  master:
+    persistence:
+      enabled: false
+  
+  replica:
+    replicaCount: 0
+
+oauth2-proxy:
+  enabled: true
+  
+  config:
+    clientID: client_id
+    clientSecret: client_secret
+    cookieSecret: MockCookieSecret
+    existingConfig: oauth2-proxy-config
+
+  authenticatedEmailsFile:
+    enabled: true
+    restricted_access:
+      user@example.com
+      
+  initContainers:
+    waitForRedis:
+      enabled: true

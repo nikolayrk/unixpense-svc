@@ -1,13 +1,13 @@
 import { describe, it, expect } from '@jest/globals';
 import { DependencyInjector } from '../../src/dependencyInjector';
 import { injectables } from '../../src/core/types/injectables';
-import Constants from '../../src/constants';
+import Constants from '@shared/constants';
 import TransactionRepository from '../../src/core/repositories/transactionRepository';
 import { TransactionExtensions } from '../../src/core/extensions/transactionExtensions';
 import { gmailPaymentDetailsTestCases } from '../../src/gmail/types/gmailPaymentDetailsTestCases';
 import TransactionTestHelper from '../../src/core/utils/transactionTestHelper';
 import axios, { AxiosError, AxiosInstance } from 'axios';
-import integrationTestBase from './integration.test.base';
+import integrationTestBase from '../helpers/appTestBase';
 
 describe('Gmail Transactions Routes Tests', () => {
     let apiClient: AxiosInstance;

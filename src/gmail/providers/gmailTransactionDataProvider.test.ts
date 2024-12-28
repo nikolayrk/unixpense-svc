@@ -3,7 +3,7 @@ import { DependencyInjector } from '../../dependencyInjector';
 import { injectables } from '../../core/types/injectables';
 import EntryType from '../../core/enums/entryType';
 import TransactionType from '../../core/enums/transactionType';
-import Constants from '../../constants';
+import Constants from '@shared/constants';
 import { gmailPaymentDetailsTestCases } from '../types/gmailPaymentDetailsTestCases';
 import ITransactionDataProvider from '../../core/contracts/ITransactionDataProvider';
 import TransactionTestHelper from '../../core/utils/transactionTestHelper';

@@ -3,7 +3,7 @@ import { GaxiosError } from 'gaxios';
 import { OAuth2Client } from 'googleapis-common';
 import { Credentials } from 'google-auth-library';
 import GoogleOAuth2Identifiers from '../types/googleOAuth2Identifiers';
-import Constants from '../../constants';
+import Constants from '@shared/constants';
 import { FetchError } from 'node-fetch'
 import { DependencyInjector } from '../../dependencyInjector';
 import ILogger from '../../core/contracts/ILogger';

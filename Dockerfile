@@ -6,6 +6,7 @@ WORKDIR /usr/app
 
 COPY package.json yarn.lock tsconfig.json ./
 COPY src ./src
+COPY shared ./shared
 COPY Dockerfile .dockerignore docker-compose.yml ./
 COPY __tests__ ./__tests__
 COPY jest.config.js \
@@ -36,8 +37,7 @@ COPY --from=base /usr/app ./
 
 RUN yarn install --frozen-lockfile --production=${PRODUCTION} && \
     yarn build && \
-    cp -r ./src/core/migrations ./dist/core && \
-    rm -rf tsconfig.json ./src \
+    rm -rf ./src ./shared \
         Dockerfile .dockerignore docker-compose.yml \
         ./__tests__ \
         jest.config.js \
@@ -54,4 +54,4 @@ HEALTHCHECK --interval=5s --timeout=10s --retries=3 --start-period=5s \
     CMD wget -q --spider http://localhost:8000/healthz || exit 1
 
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD [ "node", "dist/main.js" ]
+CMD [ "node", "dist/src/main.js" ]

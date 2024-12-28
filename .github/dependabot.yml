@@ -9,6 +9,15 @@ updates:
         patterns:
           - "*"
 
+  - package-ecosystem: "npm"
+    directory: "/database"
+    schedule:
+      interval: "daily"
+    groups:
+      npm:
+        patterns:
+          - "*"
+
   - package-ecosystem: "docker"
     directory: "/"
     schedule:

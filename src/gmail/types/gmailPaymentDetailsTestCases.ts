@@ -1,4 +1,3 @@
-import Constants from "../../constants";
 import TransactionType from "../../core/enums/transactionType";
 import CardOperation from "../../core/types/cardOperation";
 import CrossBorderTransfer from "../../core/types/crossBorderTransfer";
@@ -9,6 +8,7 @@ import StandardFee from "../../core/types/standardFee";
 import StandardTransfer from "../../core/types/standardTransfer";
 import TransactionData from '../../core/types/transactionData';
 import { PaymentDetailsTestCase, PaymentDetailsTestCaseData } from "../../core/types/paymentDetailsTestCase";
+import PaymentDetailsContext from "../../core/contexts/paymentDetailsContext";
 
 export interface GmailPaymentDetailsTestCaseData extends PaymentDetailsTestCaseData {
   attachmentDataBody: string;
@@ -35,7 +35,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
           paymentDetailsRaw: [ 'xxx' ],
           additionalDetailsRaw: ['4591TATB0']
       },
-      expectedPaymentDetails: Constants.defaultPaymentDetails
+      expectedPaymentDetails: PaymentDetailsContext.DefaultPaymentDetails
   },
   'CARD_OPERATION > ПОС': {
       attachmentDataBody: `
@@ -108,7 +108,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
           paymentDetailsRaw: ['xxx'],
           additionalDetailsRaw: ['4591TATB0'],
       },
-      expectedPaymentDetails: Constants.defaultPaymentDetails
+      expectedPaymentDetails: PaymentDetailsContext.DefaultPaymentDetails
   },
   'CROSS_BORDER_TRANSFER': {
       attachmentDataBody: `
@@ -134,7 +134,7 @@ export const gmailPaymentDetailsTestCases: PaymentDetailsTestCase<GmailPaymentDe
           paymentDetailsRaw: [],
           additionalDetailsRaw: []
       },
-      expectedPaymentDetails: Constants.defaultPaymentDetails
+      expectedPaymentDetails: PaymentDetailsContext.DefaultPaymentDetails
   },
   'CROSS_BORDER_TRANSFER_FEE': {
       attachmentDataBody: `

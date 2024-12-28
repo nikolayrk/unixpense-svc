@@ -5,7 +5,7 @@ import { default as StandardTransferModel } from '../models/standardTransfer.mod
 import PaymentDetails from "../types/paymentDetails";
 import '../extensions/globalExtensions';
 import { injectable } from 'inversify';
-import RepositoryError from '../../core/errors/repositoryError';
+import RepositoryError from '@shared/errors/repositoryError';
 import { TransactionExtensions } from '../../core/extensions/transactionExtensions';
 import TransactionType from '../enums/transactionType';
 import EntryType from '../enums/entryType';

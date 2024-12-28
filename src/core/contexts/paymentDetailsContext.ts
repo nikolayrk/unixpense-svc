@@ -12,7 +12,6 @@ import { ICardOperationStrategy,
     IStandardFeeStrategy,
     IStandardTransferStrategy } from "../../core/types/paymentDetailsStrategies";
 import ILogger from "../../core/contracts/ILogger";
-import Constants from "../../constants";
 import PaymentDetailsProcessingError from "../errors/paymentDetailsProcessingError";
 
 @injectable()
@@ -24,6 +23,10 @@ export default class PaymentDetailsContext {
     private readonly deskWithdrawalStrategy;
     private readonly standardFeeStrategy;
     private readonly standardTransferStrategy;
+
+    public static readonly DefaultPaymentDetails: PaymentDetails = {
+        recipient: '<N/A>'
+    };
 
     public constructor(
         @inject(injectables.ILogger)
@@ -71,7 +74,7 @@ export default class PaymentDetailsContext {
                     transactionType: transactionType
                 });
                 
-                return Constants.defaultPaymentDetails;
+                return PaymentDetailsContext.DefaultPaymentDetails;
             }
 
             throw ex;

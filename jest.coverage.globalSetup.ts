@@ -1,11 +1,11 @@
 import "reflect-metadata";
 import { DockerComposeEnvironment, Wait } from 'testcontainers';
-import Constants from './src/constants';
+import Constants from "@shared/constants";
+import dotenv from 'dotenv'
+import path from "path";
 
 export default async () => {
-    process.env.NODE_ENV = 'test_coverage';
-    process.env.GOOGLE_OAUTH2_CLIENT_ID = Constants.Mock.clientId;
-    process.env.GOOGLE_OAUTH2_CLIENT_SECRET = Constants.Mock.clientSecret;
+    dotenv.config({ path: path.resolve(process.cwd(), '.env.coverage')});
 
     globalThis.dbContainer = await createDatabaseConstainerAsync();
 
@@ -18,9 +18,9 @@ async function createDatabaseConstainerAsync() {
     const container = await new DockerComposeEnvironment('./', 'docker-compose.yml')
         .withWaitStrategy(`${Constants.DbComposeServiceName}-1`, Wait.forHealthCheck())
         .withEnvironment({
-            'GOOGLE_OAUTH2_CLIENT_ID': Constants.Mock.clientId,
-            'GOOGLE_OAUTH2_CLIENT_SECRET': Constants.Mock.clientSecret,
-            'MARIADB_PASSWORD': Constants.Defaults.mariadbPassword,
+            'GOOGLE_OAUTH2_CLIENT_ID': process.env.GOOGLE_OAUTH2_CLIENT_ID!,
+            'GOOGLE_OAUTH2_CLIENT_SECRET': process.env.GOOGLE_OAUTH2_CLIENT_SECRET!,
+            'MARIADB_PASSWORD': process.env.MARIADB_PASSWORD!,
         })
         .up([Constants.DbComposeServiceName]);
 

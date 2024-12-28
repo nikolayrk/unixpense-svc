@@ -9,4 +9,8 @@ module.exports = {
         isolatedModules: true
       }],
   },
+  moduleNameMapper: {
+    '^@shared/(.*)$': '<rootDir>/shared/$1',
+    '^@database/(.*)$': '<rootDir>/database/$1',
+  }
 };

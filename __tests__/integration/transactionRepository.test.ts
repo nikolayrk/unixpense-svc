@@ -4,18 +4,14 @@ import { injectables } from '../../src/core/types/injectables';
 import TransactionRepository from '../../src/core/repositories/transactionRepository';
 import { gmailPaymentDetailsTestCases } from '../../src/gmail/types/gmailPaymentDetailsTestCases';
 import TransactionTestHelper from '../../src/core/utils/transactionTestHelper';
-import RepositoryError from '../../src/core/errors/repositoryError';
-import integrationTestBase from './integration.test.base';
-import axios, { AxiosInstance } from 'axios';
-import Constants from '../../src/constants';
+import RepositoryError from '@shared/errors/repositoryError';
+import integrationTestBase from '../helpers/appTestBase';
 
 describe('Transaction Repository Tests', () => {
-    let apiClient: AxiosInstance;
     let transactionRepository: TransactionRepository;
 
     integrationTestBase({ beforeAllAppendix: async () => {
         transactionRepository = DependencyInjector.Singleton.resolve(injectables.TransactionRepository);
-        apiClient = axios.create({ baseURL: Constants.baseUrl });
     }});
 
     it('should throw a repository error', async () => {

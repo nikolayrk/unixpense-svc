@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+      "baseUrl": "./",
+      "paths": {
+        "@shared/*": ["../shared/*"]
+      },
+  
+      // Mirrored from app
+      "moduleResolution": "node",
+      "esModuleInterop": true,
+      "module": "commonjs",
+      "target": "es2018",
+      "outDir": "./dist",
+      "rootDirs": [
+        "./src",
+        "../shared"
+      ],
+  
+      // Specific for migrations
+      "experimentalDecorators": true, // For Sequelize-typescript decorators
+      "emitDecoratorMetadata": true,
+      "strictNullChecks": true,
+    },
+    "include": [ 
+      "./src/**/*.ts",
+      "../shared/**/*.ts"
+    ],
+    "exclude": [ "./src/**/*.test.ts" ]
+  }
+  

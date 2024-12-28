@@ -1,0 +1,54 @@
+name: 'helm-tests'
+
+on:
+  workflow_call:
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest # TODO: arm64 
+    # https://github.blog/news-insights/product-news/arm64-on-github-actions-powering-faster-more-efficient-build-systems/#get-started-using-arm-hosted-runners-today
+    # > We expect to begin offering Arm runners for open source projects by the end of [2024].
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4.2.0
+        with:
+          version: v3.14.4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          check-latest: true
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.6.1
+
+      - name: Evaluate vars in kind cluster config
+        run: sed -i "s|\$GITHUB_WORKSPACE|$GITHUB_WORKSPACE|g" ./kind-config.yaml
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.10.0
+        with:
+          config: ./kind-config.yaml
+
+      - name: Setup environment
+        run: bash ./sh/setup_helm_tests_environment.sh
+
+      - name: Setup infrastructure
+        run: bash ./sh/setup_infra.sh
+
+      - name: Run chart-testing (install)
+        run: |
+          ct install --target-branch ${{ github.event.repository.default_branch }} \
+            --helm-extra-set-args "\
+              --set=test.enabled=true \
+              --set=dockerRegistry.url=${{ vars.DOCKER_REGISTRY_URL }} \
+              --set=dockerRegistry.username=${{ secrets.DOCKERHUB_USERNAME }} \
+              --set=dockerRegistry.password=${{ secrets.DOCKERHUB_PASSWORD }} \
+              --set=image.repository=${{ vars.DOCKER_REPO }} \
+              --set=image.tag=latest"
