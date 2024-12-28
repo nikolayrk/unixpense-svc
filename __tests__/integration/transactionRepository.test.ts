@@ -6,16 +6,12 @@ import { gmailPaymentDetailsTestCases } from '../../src/gmail/types/gmailPayment
 import TransactionTestHelper from '../../src/core/utils/transactionTestHelper';
 import RepositoryError from '@shared/errors/repositoryError';
 import integrationTestBase from '../helpers/appTestBase';
-import axios, { AxiosInstance } from 'axios';
-import Constants from '@shared/constants';
 
 describe('Transaction Repository Tests', () => {
-    let apiClient: AxiosInstance;
     let transactionRepository: TransactionRepository;
 
     integrationTestBase({ beforeAllAppendix: async () => {
         transactionRepository = DependencyInjector.Singleton.resolve(injectables.TransactionRepository);
-        apiClient = axios.create({ baseURL: Constants.baseUrl });
     }});
 
     it('should throw a repository error', async () => {
