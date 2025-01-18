@@ -1,13 +1,12 @@
 name: 'helm-tests'
 
 on:
-  workflow_call:
+  # workflow_call:
+  pull_request: # https://stackoverflow.com/a/76439748
 
 jobs:
   lint-test:
-    runs-on: ubuntu-latest # TODO: arm64 
-    # https://github.blog/news-insights/product-news/arm64-on-github-actions-powering-faster-more-efficient-build-systems/#get-started-using-arm-hosted-runners-today
-    # > We expect to begin offering Arm runners for open source projects by the end of [2024].
+    runs-on: ubuntu-22.04-arm
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -35,9 +34,6 @@ jobs:
         uses: helm/kind-action@v1.10.0
         with:
           config: ./kind-config.yaml
-
-      - name: Setup environment
-        run: bash ./sh/setup_helm_tests_environment.sh
 
       - name: Setup infrastructure
         run: bash ./sh/setup_infra.sh
