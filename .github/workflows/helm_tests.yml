@@ -2,7 +2,7 @@ name: 'helm-tests'
 
 on:
   # workflow_call:
-  pull_request: # https://stackoverflow.com/a/76439748 test
+  pull_request: # https://stackoverflow.com/a/76439748
 
 jobs:
   lint-test:
