@@ -18,18 +18,25 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     - id: setenv
+      shell: bash
       run: |
         JOINED_COMMITS="$(echo "${{ join(github.event.commits.*.message, '\n\n') }}")"
 
+        MAX_LEN=3800 # Telegram limit is 4096
+        JOINED_COMMITS_TRUNCATED="$JOINED_COMMITS"
+
+        if [ $(echo "$JOINED_COMMITS" | wc -c) -gt $MAX_LEN ]; then
+          JOINED_COMMITS_TRUNCATED="$(echo "$JOINED_COMMITS" | head -c $MAX_LEN)... (truncated)"
+        fi
+
         {
           echo "COMMIT_MESSAGES<<EOF"
-          echo "$JOINED_COMMITS"
+          echo "$JOINED_COMMITS_TRUNCATED"
           echo EOF
         } >> "$GITHUB_ENV"
 
         COMMIT_MESSAGE_SUMMARY=$(git log -1 --pretty=%B | head -n 1)
         echo "DOCKER_IMAGE_DESCRIPTION=${{ github.sha }} - ${COMMIT_MESSAGE_SUMMARY}" >> "$GITHUB_OUTPUT"
-      shell: sh
     - name: Telegram Notify
       uses: appleboy/telegram-action@master
       env:
