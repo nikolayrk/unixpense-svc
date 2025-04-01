@@ -1,6 +1,7 @@
 import { AbstractPaymentDetailsStrategy } from "../../core/strategies/abstractPaymentDetailsStrategy";
 import CardOperation from "../../core/types/cardOperation";
 import PaymentDetailsProcessingError from "../../core/errors/paymentDetailsProcessingError";
+import { PaymentDetailsFactory } from "../../core/factories/paymentDetailsFactory";
 
 export default class GmailCardOperationStrategy extends AbstractPaymentDetailsStrategy<CardOperation> {
     public tryCreate(paymentDetailsRaw: string[], additionalDetailsRaw: string[]): CardOperation {
@@ -23,6 +24,6 @@ export default class GmailCardOperationStrategy extends AbstractPaymentDetailsSt
             throw new PaymentDetailsProcessingError(`Failed to read regex capture group`);
         }
 
-        return this.paymentDetailsFactory.cardOperation(merchant, instrument, sum, currency);
+        return PaymentDetailsFactory.cardOperation(merchant, instrument, sum, currency);
     }
 }

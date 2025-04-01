@@ -1,3 +1,4 @@
+import { PaymentDetailsFactory } from "../../core/factories/paymentDetailsFactory";
 import { AbstractPaymentDetailsStrategy } from "../../core/strategies/abstractPaymentDetailsStrategy";
 import StandardFee from "../../core/types/standardFee";
 
@@ -7,6 +8,6 @@ export default class GmailStandardFeeStrategy extends AbstractPaymentDetailsStra
             ? paymentDetailsRaw.join('')
             : null;
 
-        return this.paymentDetailsFactory.standardFee(description);
+        return PaymentDetailsFactory.standardFee(description);
     }
 }

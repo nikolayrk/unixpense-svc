@@ -1,6 +1,7 @@
 import CrossBorderTransferFee from "../../core/types/crossBorderTransferFee";
 import StandardTransfer from "../../core/types/standardTransfer";
 import { AbstractPaymentDetailsStrategy } from "../../core/strategies/abstractPaymentDetailsStrategy";
+import { PaymentDetailsFactory } from "../../core/factories/paymentDetailsFactory";
 
 export default class GmailCrossBorderTransferFeeStrategy extends AbstractPaymentDetailsStrategy<CrossBorderTransferFee> {
     tryCreate(paymentDetailsRaw: string[], additionalDetailsRaw: string[]): StandardTransfer {
@@ -12,6 +13,6 @@ export default class GmailCrossBorderTransferFeeStrategy extends AbstractPayment
 
         const description = paymentDetails.join('');
 
-        return this.paymentDetailsFactory.crossBorderTransferFee(description);
+        return PaymentDetailsFactory.crossBorderTransferFee(description);
     }
 }

@@ -17,7 +17,6 @@ import GmailDeskWithdrawalStrategy from './gmail/strategies/gmailDeskWIthdrawalS
 import GmailCrossBorderTransferStrategy from './gmail/strategies/gmailCrossBorderTransferStrategy';
 import ITransactionDataProvider from './core/contracts/ITransactionDataProvider';
 import GmailTransactionDataProvider from './gmail/providers/gmailTransactionDataProvider';
-import PaymentDetailsFactory from './core/factories/paymentDetailsFactory';
 import PaymentDetailsContext from './core/contexts/paymentDetailsContext';
 import ITransactionSourceProvider from './core/contracts/ITransactionSourceProvider';
 import GmailTransactionSourceProvider from './gmail/providers/gmailTransactionSourceProvider';
@@ -66,7 +65,6 @@ export class DependencyInjector {
 
     private registerCoreServices() {
         this.container.bind<ILogger>(injectables.ILogger).to(WinstonLokiLogger).inSingletonScope();
-        this.container.bind<PaymentDetailsFactory>(injectables.PaymentDetailsFactory).to(PaymentDetailsFactory);
         this.container.bind<PaymentDetailsContext>(injectables.PaymentDetailsContext).to(PaymentDetailsContext);
         this.container.bind<TransactionRepository>(injectables.TransactionRepository).to(TransactionRepository);
     }
