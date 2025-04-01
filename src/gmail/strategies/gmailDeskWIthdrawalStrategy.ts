@@ -1,3 +1,4 @@
+import { PaymentDetailsFactory } from "../../core/factories/paymentDetailsFactory";
 import { AbstractPaymentDetailsStrategy } from "../../core/strategies/abstractPaymentDetailsStrategy";
 import DeskWithdrawal from "../../core/types/deskWithdrawal";
 
@@ -7,6 +8,6 @@ export default class GmailDeskWithdrawalStrategy extends AbstractPaymentDetailsS
 
         const beneficiary = paymentDetailsRaw[1].replace(`${description} `, '');
 
-        return this.paymentDetailsFactory.deskWithdrawal(beneficiary, description);
+        return PaymentDetailsFactory.deskWithdrawal(beneficiary, description);
     }
 }

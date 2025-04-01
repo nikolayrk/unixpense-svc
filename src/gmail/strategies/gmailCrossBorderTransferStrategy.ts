@@ -1,6 +1,7 @@
 import { AbstractPaymentDetailsStrategy } from "../../core/strategies/abstractPaymentDetailsStrategy";
 import CrossBorderTransfer from "../../core/types/crossBorderTransfer";
 import PaymentDetailsProcessingError from "../../core/errors/paymentDetailsProcessingError";
+import { PaymentDetailsFactory } from "../../core/factories/paymentDetailsFactory";
 
 export default class GmailCrossBorderTransferStrategy extends AbstractPaymentDetailsStrategy<CrossBorderTransfer> {
     public tryCreate(paymentDetailsRaw: string[], additionalDetailsRaw: string[]): CrossBorderTransfer {
@@ -19,6 +20,6 @@ export default class GmailCrossBorderTransferStrategy extends AbstractPaymentDet
             throw new PaymentDetailsProcessingError(`Failed to execute regex on input '${transactionDetailsRaw}'`);
         }
 
-        return this.paymentDetailsFactory.crossBorderTransfer(beneficiary, iban, description);
+        return PaymentDetailsFactory.crossBorderTransfer(beneficiary, iban, description);
     }
 }

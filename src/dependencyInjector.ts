@@ -1,4 +1,4 @@
-import { Container, interfaces } from 'inversify';
+import { Container, Provider, ServiceIdentifier } from 'inversify';
 import GmailCardOperationStrategy from './gmail/strategies/gmailCardOperationStrategy';
 import GmailTransactionProvider from './gmail/providers/gmailTransactionProvider';
 import TransactionRepository from './core/repositories/transactionRepository';
@@ -17,7 +17,6 @@ import GmailDeskWithdrawalStrategy from './gmail/strategies/gmailDeskWIthdrawalS
 import GmailCrossBorderTransferStrategy from './gmail/strategies/gmailCrossBorderTransferStrategy';
 import ITransactionDataProvider from './core/contracts/ITransactionDataProvider';
 import GmailTransactionDataProvider from './gmail/providers/gmailTransactionDataProvider';
-import PaymentDetailsFactory from './core/factories/paymentDetailsFactory';
 import PaymentDetailsContext from './core/contexts/paymentDetailsContext';
 import ITransactionSourceProvider from './core/contracts/ITransactionSourceProvider';
 import GmailTransactionSourceProvider from './gmail/providers/gmailTransactionSourceProvider';
@@ -51,12 +50,12 @@ export class DependencyInjector {
         return this.singleton;
     }
 
-    public resolve<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>) {
+    public resolve<T>(serviceIdentifier: ServiceIdentifier<T>) {
         return this.container.get<T>(serviceIdentifier);
     }
 
     public generateGmailServiceAsync = <T>(
-        providerIdentifier: interfaces.ServiceIdentifier<interfaces.Provider<T>>,
+        providerIdentifier: ServiceIdentifier<Provider<T>>,
         oauth2Identifiers: GoogleOAuth2Identifiers) => 
             this.generateServiceAsync(providerIdentifier, oauth2Identifiers);
 
@@ -66,7 +65,6 @@ export class DependencyInjector {
 
     private registerCoreServices() {
         this.container.bind<ILogger>(injectables.ILogger).to(WinstonLokiLogger).inSingletonScope();
-        this.container.bind<PaymentDetailsFactory>(injectables.PaymentDetailsFactory).to(PaymentDetailsFactory);
         this.container.bind<PaymentDetailsContext>(injectables.PaymentDetailsContext).to(PaymentDetailsContext);
         this.container.bind<TransactionRepository>(injectables.TransactionRepository).to(TransactionRepository);
     }
@@ -101,12 +99,12 @@ export class DependencyInjector {
     }
 
     private registerGoogleServiceGenerator = <T extends IUsesGoogleOAuth2>(
-        generatorIdentifier: interfaces.ServiceIdentifier<interfaces.Provider<T>>,
-        serviceIdentifier: interfaces.ServiceIdentifier<T>) => 
-            this.container.bind<interfaces.Provider<T>>(generatorIdentifier)
+        generatorIdentifier: ServiceIdentifier<Provider<T>>,
+        serviceIdentifier: ServiceIdentifier<T>) => 
+            this.container.bind<Provider<T>>(generatorIdentifier)
                 .toProvider((context) => {
                     return async (identifiers: GoogleOAuth2Identifiers) => {
-                        const service = context.container.get<T>(serviceIdentifier);
+                        const service = context.get<T>(serviceIdentifier);
         
                         await service.useOAuth2IdentifiersAsync(identifiers);
         
@@ -115,9 +113,9 @@ export class DependencyInjector {
                 });
 
     private generateServiceAsync<T>(
-        providerIdentifier: interfaces.ServiceIdentifier<interfaces.Provider<T>>,
+        providerIdentifier: ServiceIdentifier<Provider<T>>,
         ...args: Record<string, unknown>[]) {
-        const provider = this.container.get<interfaces.Provider<T>>(providerIdentifier);
+        const provider = this.container.get<Provider<T>>(providerIdentifier);
 
         return provider(...args) as Promise<T>;
     }
