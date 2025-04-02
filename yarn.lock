@@ -622,10 +622,10 @@
   resolved "https://registry.yarnpkg.com/@inversifyjs/common/-/common-1.5.0.tgz#542cdb0cfc02e36cca5a19208af726ecf904d400"
   integrity sha512-Qj5BELk11AfI2rgZEAaLPmOftmQRLLmoCXgAjmaF0IngQN5vHomVT5ML7DZ3+CA5fgGcEVMcGbUDAun+Rz+oNg==
 
-"@inversifyjs/container@1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@inversifyjs/container/-/container-1.7.0.tgz#27056cc790fe505196987f9c6ca8db58ff5c7bfd"
-  integrity sha512-M1CHnZ4r4N6zDleC2NNNjS0xMpipHSubEft8NDtzaOpmfGJ2nxgxbIES61xwhA0Y5kAV/jC2STx0pfPG7cyhAA==
+"@inversifyjs/container@1.8.0":
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@inversifyjs/container/-/container-1.8.0.tgz#66e998869e8227cc4d56b85ea39142989163098b"
+  integrity sha512-0LNnbK6hMPnz7ujAiP95U8jhhAIatZ+8swD1f1ltfOBHwV91WAhnyWO3pq5MwEFaIMzQtQKLT9vircQvzDnBzQ==
   dependencies:
     "@inversifyjs/common" "1.5.0"
     "@inversifyjs/core" "5.1.0"
@@ -1348,10 +1348,10 @@
     "@types/node" "*"
     form-data "^4.0.0"
 
-"@types/node@*", "@types/node@>=13.7.0", "@types/node@^22.13.15", "@types/node@^22.5.4":
-  version "22.13.15"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.13.15.tgz#c5cf5865b09739f1333af65545765f61476eaf76"
-  integrity sha512-imAbQEEbVni6i6h6Bd5xkCRwLqFc8hihCsi2GbtDoAtUcAFQ6Zs4pFXTZUUbroTkXdImczWM9AI8eZUuybXE3w==
+"@types/node@*", "@types/node@>=13.7.0", "@types/node@^22.13.17", "@types/node@^22.5.4":
+  version "22.13.17"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.13.17.tgz#9ca6a81a0180cdcfd3719b9cf6c09186756e1754"
+  integrity sha512-nAJuQXoyPj04uLgu+obZcSmsfOenUg6DxPKogeUy6yNCFwWaj5sBF8/G/pNo8EtBJjAfSVgfIlugR/BCOleO+g==
   dependencies:
     undici-types "~6.20.0"
 
@@ -3284,13 +3284,13 @@ inherits@2, inherits@2.0.4, inherits@^2.0.3, inherits@^2.0.4, inherits@~2.0.3:
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.4.tgz#0fa2c64f932917c3433a0ded55363aae37416b7c"
   integrity sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
 
-inversify@^7.3.0:
-  version "7.3.0"
-  resolved "https://registry.yarnpkg.com/inversify/-/inversify-7.3.0.tgz#f9113975e1fe124d6f1f9a082c004776b59e23e0"
-  integrity sha512-mrnIXv4mV1wAPEDPPRFlNLMuQyYnjQCxpbHR06zN+v4hke4Q4CIBXpySNId716GuQK6JL+6hwQkOXt9wbvZP4Q==
+inversify@^7.4.0:
+  version "7.4.0"
+  resolved "https://registry.yarnpkg.com/inversify/-/inversify-7.4.0.tgz#6c021a7c513dfce30ea3d29694ff8c67ddb726dd"
+  integrity sha512-d349kQfSor42VTaE+OWpMa+AFzIA9MWjaEtdAE/dqm7zlZEKugX4yt+BiZl14ldv/p8Bd//rKkQfdLMbGv/YYQ==
   dependencies:
     "@inversifyjs/common" "1.5.0"
-    "@inversifyjs/container" "1.7.0"
+    "@inversifyjs/container" "1.8.0"
     "@inversifyjs/core" "5.1.0"
 
 ipaddr.js@1.9.1:
