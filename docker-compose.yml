@@ -32,6 +32,26 @@ services:
       db:
         condition: service_healthy
 
+  authlet:
+    networks:
+      - unixpense-custom-bridge-network
+    build:
+      context: ./
+      dockerfile: ./authlet/authlet.Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      NODE_ENV: ${NODE_ENV}
+      MARIADB_HOST: ${MARIADB_HOST:-db}
+      MARIADB_USER: ${MARIADB_USER:-root}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+
   app:
     networks:
       - unixpense-custom-bridge-network
