@@ -1,20 +1,16 @@
 import { gmail_v1, google } from 'googleapis';
 import { inject, injectable } from 'inversify';
 import GmailMessageData from '../types/gmailMessageData';
-import GoogleOAuth2ClientProvider from '../../googleOAuth2/providers/googleOAuth2ClientProvider';
 import { injectables } from '../../core/types/injectables';
-import GoogleOAuth2Identifiers from '../../googleOAuth2/types/googleOAuth2Identifiers';
-import { DependencyInjector } from '../../dependencyInjector';
-import IUsesGoogleOAuth2 from '../../googleOAuth2/contracts/IUsesGoogleOAuth2';
 import ILogger from '../../core/contracts/ILogger';
+import IUsesGoogleAuth from '../contracts/IUsesGoogleAuth';
 
 @injectable()
-export default class GmailApiClient implements IUsesGoogleOAuth2 {
+export default class GmailApiClient implements IUsesGoogleAuth {
     private readonly searchQuery: string = 'from:pb@unicreditgroup.bg subject: "Dvizhenie po smetka"';
     private readonly maxExponentialBackoffDepth: number = 2;
 
     private logger;
-    private googleOAuth2ClientProvider: GoogleOAuth2ClientProvider;
     private gmail: gmail_v1.Gmail;
 
     private exponentialBackoffDepth = 0;
@@ -24,13 +20,11 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
         logger: ILogger
     ) {
         this.logger = logger;
-        this.googleOAuth2ClientProvider = null!;
         this.gmail = null!;
     }
 
-    public async useOAuth2IdentifiersAsync(identifiers: GoogleOAuth2Identifiers) {
-        this.googleOAuth2ClientProvider = await DependencyInjector.Singleton.generateGmailServiceAsync(injectables.GoogleOAuth2ClientProviderGenerator, identifiers);
-        this.gmail = google.gmail({ version: 'v1', auth: this.googleOAuth2ClientProvider.client });
+    public authenticate(accessToken: string) {
+        this.gmail = google.gmail({ version: 'v1', auth: accessToken });
     }
 
     public async * generateMessageIdsAsync(pageToken?: string): AsyncGenerator<string, [], undefined> {
@@ -119,7 +113,7 @@ export default class GmailApiClient implements IUsesGoogleOAuth2 {
     }
 
     private async makeApiCallAsync<T>(apiCall: () => T): Promise<T> {
-        let result;
+        let result: T;
 
         try {
             result = await apiCall();

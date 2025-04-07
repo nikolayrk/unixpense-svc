@@ -24,10 +24,6 @@ import GmailTransactionSourceProvider from './gmail/providers/gmailTransactionSo
 import ILogger from './core/contracts/ILogger';
 import WinstonLokiLogger from './core/loggers/winstonLokiLogger';
 import GmailCrossBorderTransferFeeStrategy from './gmail/strategies/gmailCrossBorderTransferFeeStrategy';
-import GoogleOAuth2Identifiers from './googleOAuth2/types/googleOAuth2Identifiers';
-import IUsesGoogleOAuth2 from './googleOAuth2/contracts/IUsesGoogleOAuth2';
-import GoogleOAuth2TokensRepository from './googleOAuth2/repositories/googleOAuth2TokensRepository';
-import GoogleOAuth2ClientProvider from './googleOAuth2/providers/googleOAuth2ClientProvider';
 import GmailApiClient from './gmail/clients/gmailApiClient';
 import ServiceContexts from './core/enums/serviceContexts';
 import ITransactionProvider from './core/contracts/ITransactionProvider';
@@ -55,11 +51,6 @@ export class DependencyInjector {
         return this.container.get<T>(serviceIdentifier);
     }
 
-    public generateGmailServiceAsync = <T>(
-        providerIdentifier: interfaces.ServiceIdentifier<interfaces.Provider<T>>,
-        oauth2Identifiers: GoogleOAuth2Identifiers) => 
-            this.generateServiceAsync(providerIdentifier, oauth2Identifiers);
-
     public registerGmailServices() {
         this.registerServicesByContext(ServiceContexts.GMAIL);
     }
@@ -82,43 +73,12 @@ export class DependencyInjector {
                 this.container.bind<IStandardTransferStrategy>(injectables.IStandardTransferStrategy).to(GmailStandardTransferStrategy);
                 this.container.bind<ITransactionDataProvider>(injectables.ITransactionDataProvider).to(GmailTransactionDataProvider);
                 this.container.bind<ITransactionProvider>(injectables.ITransactionProvider).to(GmailTransactionProvider);
-
-                this.container.bind<GoogleOAuth2TokensRepository>(injectables.GoogleOAuth2TokensRepository).to(GoogleOAuth2TokensRepository);
-
                 this.container.bind<ITransactionSourceProvider>(injectables.ITransactionSourceProvider).to(GmailTransactionSourceProvider);
-                this.container.bind<GoogleOAuth2ClientProvider>(injectables.GoogleOAuth2ClientProvider).to(GoogleOAuth2ClientProvider).inRequestScope();
-                this.container.bind<GmailApiClient>(injectables.GmailApiClient).to(GmailApiClient).inRequestScope();
-
-                this.registerGoogleServiceGenerator(injectables.GoogleOAuth2ClientProviderGenerator, injectables.GoogleOAuth2ClientProvider);
-                this.registerGoogleServiceGenerator(injectables.GmailApiClientGenerator, injectables.GmailApiClient);
-                this.registerGoogleServiceGenerator(injectables.GmailTransactionSourceProviderGenerator, injectables.ITransactionSourceProvider);
-                this.registerGoogleServiceGenerator(injectables.GmailTransactionProviderGenerator, injectables.ITransactionProvider);
+                this.container.bind<GmailApiClient>(injectables.GmailApiClient).to(GmailApiClient);
 
                 break;
             default:
                 throw new Error(`Unrecognised service context '${context}'`);
         }
-    }
-
-    private registerGoogleServiceGenerator = <T extends IUsesGoogleOAuth2>(
-        generatorIdentifier: interfaces.ServiceIdentifier<interfaces.Provider<T>>,
-        serviceIdentifier: interfaces.ServiceIdentifier<T>) => 
-            this.container.bind<interfaces.Provider<T>>(generatorIdentifier)
-                .toProvider((context) => {
-                    return async (identifiers: GoogleOAuth2Identifiers) => {
-                        const service = context.container.get<T>(serviceIdentifier);
-        
-                        await service.useOAuth2IdentifiersAsync(identifiers);
-        
-                        return service;
-                    }
-                });
-
-    private generateServiceAsync<T>(
-        providerIdentifier: interfaces.ServiceIdentifier<interfaces.Provider<T>>,
-        ...args: Record<string, unknown>[]) {
-        const provider = this.container.get<interfaces.Provider<T>>(providerIdentifier);
-
-        return provider(...args) as Promise<T>;
     }
 }

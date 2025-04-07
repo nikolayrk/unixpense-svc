@@ -17,13 +17,5 @@ export const injectables = {
     ITransactionProvider: Symbol.for('ITransactionProvider'),
 
     // Gmail Services
-    GoogleOAuth2TokensRepository: Symbol.for('GoogleOAuth2TokensRepository'),
-    GoogleOAuth2ClientProvider: Symbol.for('GoogleOAuth2ClientProvider'),
     GmailApiClient: Symbol.for('GmailApiClient'),
-
-    // Google OAuth2 Service Generators (Providers)
-    GoogleOAuth2ClientProviderGenerator: Symbol.for('GoogleOAuth2ClientProviderGenerator'),
-    GmailApiClientGenerator: Symbol.for('GmailApiClientGenerator'),
-    GmailTransactionSourceProviderGenerator: Symbol.for('GmailTransactionSourceProviderGenerator'),
-    GmailTransactionProviderGenerator: Symbol.for('GmailTransactionProviderGenerator'),
 };

@@ -1,14 +1,14 @@
-// @ts-nocheck
+// ^@ts-nocheck
 import nock from "nock";
-import TransactionTestHelper from "./core/utils/transactionTestHelper";
-import { gmailPaymentDetailsTestCases } from "./gmail/types/gmailPaymentDetailsTestCases";
+import TransactionTestHelper from "../src/core/utils/transactionTestHelper";
+import { gmailPaymentDetailsTestCases } from "../src/gmail/types/gmailPaymentDetailsTestCases";
 import Constants from "@shared/constants";
 import { URL, URLSearchParams } from "url";
-import * as googleOAuth2Middleware from './web/middleware/googleOAuth2Middleware';
-import * as transactionsController from "./web/controllers/transactionsController";
-import * as gmailTransactionsController from "./web/controllers/gmailTransactionsController";
-import * as groupsController from './web/controllers/groupsController';
-import * as groupRulesController from './web/controllers/groupRulesController';
+import { protect } from '../src/web/middleware/authMiddleware';
+import * as transactionsController from "../src/web/controllers/transactionsController";
+import * as gmailTransactionsController from "../src/web/controllers/gmailTransactionsController";
+import * as groupsController from '../src/web/controllers/groupsController';
+import * as groupRulesController from '../src/web/controllers/groupRulesController';
 import { NextFunction, Request, Response } from "express";
 import queryString from "node:querystring";
 
@@ -102,14 +102,14 @@ export const applyLocalMocks = () => {
     appScope
         .get(transactionsLastIdsUri)
         .reply(function (uri, body) {
-            return localGetCallback(uri, body, this.req.headers, googleOAuth2Middleware.protect, gmailTransactionsController.getLast);
+            return localGetCallback(uri, body, this.req.headers, protect, gmailTransactionsController.getLast);
         })
         .persist();
 
     appScope
         .post(transactionsGmailResolveUri)
         .reply(function (uri, body) {
-            return localPostCallback(uri, body, this.req.headers, googleOAuth2Middleware.protect, gmailTransactionsController.resolve);
+            return localPostCallback(uri, body, this.req.headers, protect, gmailTransactionsController.resolve);
         })
         .persist();
 

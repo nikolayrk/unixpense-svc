@@ -1,20 +1,19 @@
-import ITransactionSourceProvider from "../../core/contracts/ITransactionSourceProvider";
 import { injectables } from "../../core/types/injectables";
-import IUsesGoogleOAuth2 from "../../googleOAuth2/contracts/IUsesGoogleOAuth2";
-import GoogleOAuth2Identifiers from "../../googleOAuth2/types/googleOAuth2Identifiers";
 import { DependencyInjector } from "../../dependencyInjector";
 import AbstractTransactionProvider from "../../core/providers/abstractTransactionProvider";
+import IGmailTransactionProvider from "../contracts/IGmailTransactionProvider";
+import IGmailTransactionSourceProvider from "../contracts/IGmailTransactionSourceProvider";
 
-export default class GmailTransactionProvider extends AbstractTransactionProvider implements IUsesGoogleOAuth2 {
-    protected override transactionSourceProvider: ITransactionSourceProvider;
+export default class GmailTransactionProvider extends AbstractTransactionProvider implements IGmailTransactionProvider {
+    protected override transactionSourceProvider: IGmailTransactionSourceProvider;
 
     public constructor() {
         super();
 
-        this.transactionSourceProvider = null!;
+        this.transactionSourceProvider = DependencyInjector.Singleton.resolve<IGmailTransactionSourceProvider>(injectables.ITransactionSourceProvider);
     }
 
-    public async useOAuth2IdentifiersAsync(identifiers: GoogleOAuth2Identifiers) {
-        this.transactionSourceProvider = await DependencyInjector.Singleton.generateGmailServiceAsync(injectables.GmailTransactionSourceProviderGenerator, identifiers);
+    public authenticate(accessToken: string) {
+        this.transactionSourceProvider.authenticate(accessToken);
     }
 }

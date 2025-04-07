@@ -1,15 +1,13 @@
 import { inject, injectable } from "inversify";
 import GmailMessageData from "../types/gmailMessageData";
-import ITransactionSourceProvider from "../../core/contracts/ITransactionSourceProvider";
-import IUsesGoogleOAuth2 from "../../googleOAuth2/contracts/IUsesGoogleOAuth2";
 import GmailApiClient from "../clients/gmailApiClient";
 import { injectables } from "../../core/types/injectables";
 import ILogger from "../../core/contracts/ILogger";
-import GoogleOAuth2Identifiers from "../../googleOAuth2/types/googleOAuth2Identifiers";
 import { DependencyInjector } from "../../dependencyInjector";
+import IGmailTransactionSourceProvider from "../contracts/IGmailTransactionSourceProvider";
 
 @injectable()
-export default class GmailTransactionSourceProvider implements ITransactionSourceProvider, IUsesGoogleOAuth2 {
+export default class GmailTransactionSourceProvider implements IGmailTransactionSourceProvider {
     private readonly logger;
     private gmailApiClient: GmailApiClient;
 
@@ -21,8 +19,9 @@ export default class GmailTransactionSourceProvider implements ITransactionSourc
         this.gmailApiClient = null!;
     }
 
-    public async useOAuth2IdentifiersAsync(identifiers: GoogleOAuth2Identifiers) {
-        this.gmailApiClient = await DependencyInjector.Singleton.generateGmailServiceAsync(injectables.GmailApiClientGenerator, identifiers);
+    public authenticate(accessToken: string): void {
+        this.gmailApiClient = DependencyInjector.Singleton.resolve<GmailApiClient>(injectables.GmailApiClient);
+        this.gmailApiClient.authenticate(accessToken);
     }
 
     public generateTransactionIdsAsync() {

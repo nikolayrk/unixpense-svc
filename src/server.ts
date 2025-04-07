@@ -1,5 +1,4 @@
 import express from 'express';
-import * as googleOAuth2Middleware from '../src/web/middleware/googleOAuth2Middleware';
 import { router as transactionsRouter } from '../src/web/routes/transactionsRoutes';
 import { router as gmailTransactionsRouter } from '../src/web/routes/gmailTransactionsRoutes';
 import { router as swaggerRouter } from '../src/web/routes/swaggerRoutes';
@@ -10,8 +9,10 @@ import bodyParser from 'body-parser';
 import { Server } from 'http';
 import { limiter as rateLimiter } from '../src/web/middleware/rateLimiter';
 import Constants from '@shared/constants';
+import { protect } from './web/middleware/authMiddleware';
+import ILogger from './core/contracts/ILogger';
 
-const startServerAsync = () => {
+const startServerAsync = (logger: ILogger) => {
     const port = Number.isNaN(process.env.PORT ?? NaN)
         ? Constants.Defaults.port
         : Number(process.env.PORT);
@@ -25,16 +26,17 @@ const startServerAsync = () => {
     // Startup, Readiness and Liveness Probes
     app.use(healthRouter);
 
-    app.use(rateLimiter);
+    app.use(rateLimiter((req, res, next, options) => {
+        logger.warn(`Rate limit reached`, { ip: req.ip, path: req.path });
 
-    // Google OAuth2 Callback Route. Used for authz of all ../gmail routes, as well as for authn via oauth2-proxy
-    app.use('/api/oauthcallback', googleOAuth2Middleware.redirect);
+        res.status(options.statusCode).end(options.message);
+    }));
 
     // Transactions Routes
     app.use('/api/transactions', transactionsRouter);
 
     // Gmail Transactions Routes
-    app.use('/api/transactions/gmail', googleOAuth2Middleware.protect, gmailTransactionsRouter);
+    app.use('/api/transactions/gmail', protect, gmailTransactionsRouter);
 
     // Transaction Groups Routes
     app.use('/api/groups', groupsRouter);

@@ -1,14 +1,13 @@
 import { Request, Response } from "express";
 import { injectables } from "../../core/types/injectables";
 import { DependencyInjector } from "../../dependencyInjector";
-import GoogleOAuth2Identifiers from "../../googleOAuth2/types/googleOAuth2Identifiers";
 import ILogger from "../../core/contracts/ILogger";
 import TransactionRepository from "../../core/repositories/transactionRepository";
-import ITransactionProvider from "../../core/contracts/ITransactionProvider";
 import { ResponseExtensions } from "../../core/extensions/responseExtensions";
 import { TransactionExtensions } from "../../core/extensions/transactionExtensions";
 import Transaction from "../../core/types/transaction";
 import PaymentDetails from "../../core/types/paymentDetails";
+import IGmailTransactionProvider from "src/gmail/contracts/IGmailTransactionProvider";
 
 const getLast = async (req: Request, res: Response) => {
     const logger = DependencyInjector.Singleton.resolve<ILogger>(injectables.ILogger);
@@ -32,12 +31,13 @@ const getLast = async (req: Request, res: Response) => {
         
         return;
     }
+    
+    const gmailTransactionProvider = DependencyInjector.Singleton.resolve<IGmailTransactionProvider>(injectables.ITransactionProvider);
+    const transactionRepository = DependencyInjector.Singleton.resolve<TransactionRepository>(injectables.TransactionRepository);
+    
+    gmailTransactionProvider.authenticate(res.locals.accessToken);
 
     const skipSaved = req.query.skip_saved === 'true';
-
-    const identifiers = res.locals.googleOAuth2Identifiers as GoogleOAuth2Identifiers;
-    const gmailTransactionProvider = await DependencyInjector.Singleton.generateGmailServiceAsync<ITransactionProvider>(injectables.GmailTransactionProviderGenerator, identifiers);
-    const transactionRepository = DependencyInjector.Singleton.resolve<TransactionRepository>(injectables.TransactionRepository);
 
     try {
         const existingTransactionIds = skipSaved
@@ -84,7 +84,7 @@ const getLast = async (req: Request, res: Response) => {
             last: last,
             ...(skipDepthQuery !== undefined && !Number.isNaN(skipDepth)) && { skip_depth: skipDepth },
             ...(skipSaved !== undefined) && { skip_saved: skipSaved },
-            access_token: identifiers.accessToken
+            access_token: res.locals.accessToken
         });
 
         ResponseExtensions.ok(res, transactionIds);
@@ -95,7 +95,7 @@ const getLast = async (req: Request, res: Response) => {
             last: last,
             ...(skipDepthQuery !== undefined && !Number.isNaN(skipDepth)) && { skip_depth: skipDepth },
             ...(skipSaved !== undefined) && { skip_saved: skipSaved },
-            access_token: identifiers.accessToken
+            access_token: res.locals.accessToken
         })
 
         ResponseExtensions.internalError(res, error.message ?? ex);
@@ -115,8 +115,9 @@ const resolve = async (req: Request, res: Response) => {
 
     const aggregatedIds = ids.join(',');
 
-    const identifiers = res.locals.googleOAuth2Identifiers as GoogleOAuth2Identifiers;
-    const gmailTransactionProvider = await DependencyInjector.Singleton.generateGmailServiceAsync<ITransactionProvider>(injectables.GmailTransactionProviderGenerator, identifiers);
+    const gmailTransactionProvider = DependencyInjector.Singleton.resolve<IGmailTransactionProvider>(injectables.ITransactionProvider);
+
+    gmailTransactionProvider.authenticate(res.locals.accessToken);
 
     try {
         let transactions: Transaction<PaymentDetails>[] = [];
@@ -131,7 +132,7 @@ const resolve = async (req: Request, res: Response) => {
 
         const message = `Resolved ${resolvedCount} transaction${resolvedCount == 1 ? '' : 's'}`;
 
-        logger.log(message, { transaction_ids: aggregatedIds, access_token: identifiers.accessToken });
+        logger.log(message, { transaction_ids: aggregatedIds, access_token: res.locals.accessToken });
 
         const result = transactions.map(TransactionExtensions.toResponse);
         
@@ -139,7 +140,7 @@ const resolve = async (req: Request, res: Response) => {
     } catch (ex) {
         const error = ex as Error;
 
-        logger.error(error, { transactionIds: aggregatedIds, access_token: identifiers.accessToken });
+        logger.error(error, { transactionIds: aggregatedIds, access_token: res.locals.accessToken });
 
         ResponseExtensions.internalError(res, error.message ?? ex);
     }

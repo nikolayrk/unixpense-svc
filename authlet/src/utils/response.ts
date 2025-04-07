@@ -1,18 +1,13 @@
 import { Response } from 'express';
 
-export interface ApiResponse {
-    status: 'UP' | 'DOWN' | 'ERROR';
-    message: string;
-}
-
 export function sendResponse(
     res: Response,
     statusCode: number,
-    status: ApiResponse['status'],
-    message: string
-): void {
+    message: string,
+    data?: any
+) {
     res.status(statusCode).json({
-        status,
-        message
+        message,
+        ...(data && { data })
     });
 }

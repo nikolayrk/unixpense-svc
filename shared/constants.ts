@@ -17,6 +17,7 @@ export default class Constants {
         mariadbUser: 'root' as const,
         mariadbDatabase: 'unixpense' as const,
         containerTimeout: 10 * 1000, // 10s
+        authletUrl: `http://localhost:3000`,
     }
 
     public static readonly scopes = [
@@ -36,7 +37,7 @@ export default class Constants {
             : `http://${Constants.host}:${Constants.port}`
     }`;
 
-    public static readonly defaultRedirectUri = `${Constants.baseUrl}/api/oauthcallback` as const;
+    public static readonly defaultRedirectUri = `http://localhost:3000/callback` as const;
 
     public static readonly Mock = {
         userEmail: "email" as const,
