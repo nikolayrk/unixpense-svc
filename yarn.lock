@@ -2387,7 +2387,7 @@ docker-modem@^5.0.6:
     split-ca "^1.0.1"
     ssh2 "^1.15.0"
 
-dockerode@^4.0.4:
+dockerode@^4.0.5:
   version "4.0.5"
   resolved "https://registry.yarnpkg.com/dockerode/-/dockerode-4.0.5.tgz#3e5af60deaa5ff752886c3c880336717d1217384"
   integrity sha512-ZPmKSr1k1571Mrh7oIBS/j0AqAccoecY2yH420ni5j1KyNMgnoTh4Nu4FWunh0HZIJmRSmSysJjBIpa/zyWUEA==
@@ -5252,10 +5252,10 @@ test-exclude@^6.0.0:
     glob "^7.1.4"
     minimatch "^3.0.4"
 
-testcontainers@^10.24.0:
-  version "10.24.0"
-  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-10.24.0.tgz#14cf95a6c964c0428a15dcdc250c73d4ce3287b7"
-  integrity sha512-akkNb3LO2IhxnJzl5kj6dDt2c5q0bWHSTUSLSsqqLuZkaJTYCyWCE76uSzJLGpCkASV7Bw4XOOKvn4Tu0GHeFA==
+testcontainers@^10.24.1:
+  version "10.24.1"
+  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-10.24.1.tgz#7de187fd963c4b1cf0470aae8c19dadb1a5d23e6"
+  integrity sha512-72eJwXrGNg2fyN8LfGrniOI5hpkur7t74w8MEZPrpUZ/YojfBQY8z6ZU/P586TzfJTWEakAH49DO6f8niHsrBQ==
   dependencies:
     "@balena/dockerignore" "^1.0.2"
     "@types/dockerode" "^3.3.35"
@@ -5264,7 +5264,7 @@ testcontainers@^10.24.0:
     byline "^5.0.0"
     debug "^4.3.5"
     docker-compose "^0.24.8"
-    dockerode "^4.0.4"
+    dockerode "^4.0.5"
     get-port "^7.1.0"
     proper-lockfile "^4.1.2"
     properties-reader "^2.3.0"
