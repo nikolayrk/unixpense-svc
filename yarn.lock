@@ -2437,10 +2437,10 @@ domutils@^3.0.1:
     domelementtype "^2.3.0"
     domhandler "^5.0.3"
 
-dotenv@16.4.7:
-  version "16.4.7"
-  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.4.7.tgz#0e20c5b82950140aa99be360a8a5f52335f53c26"
-  integrity sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==
+dotenv@16.5.0:
+  version "16.5.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.5.0.tgz#092b49f25f808f020050051d1ff258e404c78692"
+  integrity sha512-m/C+AwOAr9/W1UOIZUo232ejMNnJAJtYQjUbHoNTBNTJSvqzzDh7vnrei3o3r3m9blf6ZoDkvcw0VmozNRFJxg==
 
 dottie@^2.0.6:
   version "2.0.6"
@@ -5252,10 +5252,10 @@ test-exclude@^6.0.0:
     glob "^7.1.4"
     minimatch "^3.0.4"
 
-testcontainers@^10.24.1:
-  version "10.24.1"
-  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-10.24.1.tgz#7de187fd963c4b1cf0470aae8c19dadb1a5d23e6"
-  integrity sha512-72eJwXrGNg2fyN8LfGrniOI5hpkur7t74w8MEZPrpUZ/YojfBQY8z6ZU/P586TzfJTWEakAH49DO6f8niHsrBQ==
+testcontainers@^10.24.2:
+  version "10.24.2"
+  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-10.24.2.tgz#1312331dc3997ce5d29e9b59b7f5be037b18c524"
+  integrity sha512-Don3EXEQuSw14+nFG9pj48fL9ck/jXDfR9Rb0K3acOyn/gg97+gsnfZaLzpdejl9GcPJVKxACNRe3SYVC2uWqg==
   dependencies:
     "@balena/dockerignore" "^1.0.2"
     "@types/dockerode" "^3.3.35"
