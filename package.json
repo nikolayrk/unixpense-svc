@@ -61,7 +61,7 @@
     "express": "^5.1.0",
     "express-rate-limit": "^7.5.0",
     "googleapis": "^148.0.0",
-    "inversify": "^7.5.0",
+    "inversify": "^7.5.1",
     "mariadb": "3",
     "node-html-parser": "^7.0.1",
     "openapi-types": "^12.1.3",
