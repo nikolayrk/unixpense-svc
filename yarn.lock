@@ -5303,10 +5303,10 @@ test-exclude@^6.0.0:
     glob "^7.1.4"
     minimatch "^3.0.4"
 
-testcontainers@^10.25.0:
-  version "10.25.0"
-  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-10.25.0.tgz#03eef06b696c0b71a23891c6a966fe57b9229bd7"
-  integrity sha512-X3x6cjorEMgei1vVx3M7dnTMzWoWOTi4krpUf3C2iOvOcwsaMUHbca9J4yzpN65ieiWhcK2dA5dxpZyUonwC2Q==
+testcontainers@^10.26.0:
+  version "10.26.0"
+  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-10.26.0.tgz#c91ca8daf64798c5458c8f0da0bb7cc6b42686c9"
+  integrity sha512-4Iv3KB23pZcnxnXg4eIlOpXuvx4aHexxLY6URiciRQrc3Dao09NsVoYGxD8sV9heKUZ107mecalDITx4NZHo7A==
   dependencies:
     "@balena/dockerignore" "^1.0.2"
     "@types/dockerode" "^3.3.35"
