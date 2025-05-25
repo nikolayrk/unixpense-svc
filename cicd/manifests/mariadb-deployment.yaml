@@ -33,11 +33,11 @@ spec:
         image: mariadb:latest
         resources:
           requests:
-            cpu: 300m
-            memory: 75Mi
+            cpu: "1"
+            memory: 512Mi
           limits:
-            cpu: 500m
-            memory: 150Mi
+            cpu: "2"
+            memory: 1Gi
         envFrom:
         - secretRef:
             name: mariadb-secret
