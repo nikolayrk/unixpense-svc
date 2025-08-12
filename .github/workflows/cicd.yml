@@ -16,7 +16,7 @@ jobs:
       image_description: ${{ steps.setenv.outputs.DOCKER_IMAGE_DESCRIPTION }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     - id: setenv
       shell: bash
       run: |
@@ -56,7 +56,7 @@ jobs:
     needs: telegram-notify-start
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
         with:
@@ -73,7 +73,7 @@ jobs:
     steps:
     - name: Authenticate with PAT
       run: echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Docker Setup Buildx
       uses: docker/setup-buildx-action@v3.11.1
       with:
@@ -112,7 +112,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Kubernetes Set Context
         uses: Azure/k8s-set-context@v4
         with:
