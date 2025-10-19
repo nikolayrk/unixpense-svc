@@ -33,13 +33,13 @@ main() {
 
         echo "Failed."
 
-        echo $(sendTelegram "<u>Failed to fetch transaction IDs</u>\n\n$FETCH_ERROR")
+        echo $(sendDiscord "**Failed to fetch transaction IDs**\n\n$FETCH_ERROR")
 
         exit 1
     elif [ "$(echo $FETCH_RESULT | jq 'type=="array"')" != "true" ]; then
         echo "Unexpected response."
 
-        echo $(sendTelegram "<u>Unexpected response received while fetching transaction IDs</u>\n\n$FETCH_RESULT")
+        echo $(sendDiscord "**Unexpected response received while fetching transaction IDs**\n\n$FETCH_RESULT")
 
         exit 1
     fi
@@ -70,13 +70,13 @@ main() {
 
         echo "Failed."
 
-        echo $(sendTelegram "<u>Failed to resolve transactions</u>\n\n$RESOLVE_ERROR")
+        echo $(sendDiscord "**Failed to resolve transactions**\n\n$RESOLVE_ERROR")
 
         exit 1
     elif [ "$(echo $RESOLVE_RESULT | jq 'type=="array"')" != "true" ]; then
         echo "Unexpected response."
 
-        echo $(sendTelegram "<u>Unexpected response received while resolving transactions</u>\n\n$RESOLVE_RESULT")
+        echo $(sendDiscord "**Unexpected response received while resolving transactions**\n\n$RESOLVE_RESULT")
 
         exit 1
     fi
@@ -92,13 +92,13 @@ main() {
 
         echo "Failed."
 
-        echo $(sendTelegram "<u>Failed to save transactions</u>\n\n$SAVE_ERROR")
+        echo $(sendDiscord "**Failed to save transactions**\n\n$SAVE_ERROR")
 
         exit 1
     elif [ "$(echo $SAVE_RESULT | jq 'has("result")')" != "true" ]; then
         echo "Unexpected response."
 
-        echo $(sendTelegram "<u>Unexpected response received while saving transactions</u>\n\n$SAVE_RESULT")
+        echo $(sendDiscord "**Unexpected response received while saving transactions**\n\n$SAVE_RESULT")
 
         exit 1
     fi
@@ -109,7 +109,7 @@ main() {
 
     SAVE_MESSAGE+=$(formatTransactions "$RESOLVE_RESULT")
 
-    echo $(sendTelegram "$SAVE_MESSAGE")
+    echo $(sendDiscord "$SAVE_MESSAGE")
 }
 
 installDependencies() {
@@ -238,11 +238,11 @@ formatResult() {
     if [ "$(echo $RESULT_RAW | jq 'has("message")')" == "true" ]; then
         local RESULT_MESSAGE=$(echo $RESULT_RAW | jq -r '.message')
 
-        echo "{\"result\": \"<b>$RESULT_MESSAGE</b>\"}"
+        echo "{\"result\": \"**$RESULT_MESSAGE**\"}"
     elif [ "$(echo $RESULT_RAW | jq 'has("error")')" == "true" ]; then
         local RESULT_ERROR=$(echo $RESULT_RAW | jq -r '.error')
 
-        echo "{\"error\": \"<b><i>$RESULT_ERROR</i></b>\"}"
+        echo "{\"error\": \"***$RESULT_ERROR***\"}"
     else
         echo "$RESULT_RAW"
     fi
@@ -272,18 +272,18 @@ formatTransactions() {
             local INSTRUMENT=$(echo $TRANSACTION | jq -r '.card_operation.instrument')
 
             if [ "$INSTRUMENT" != 'Fee АТМ' ]; then
-              RESULT+="\n - <b>${SUM} ${CURRENCY}</b> ${OPERATION} <b>${RECIPIENT}</b> via ${INSTRUMENT} on ${VALUE_DATE}"
+              RESULT+="\n - **${SUM} ${CURRENCY}** ${OPERATION} **${RECIPIENT}** via ${INSTRUMENT} on ${VALUE_DATE}"
             else
-              RESULT+="\n - <b>${BASE_SUM} BGN</b> ${OPERATION} <b>${RECIPIENT}</b> via ${INSTRUMENT} on ${VALUE_DATE}"
+              RESULT+="\n - **${BASE_SUM} BGN** ${OPERATION} **${RECIPIENT}** via ${INSTRUMENT} on ${VALUE_DATE}"
             fi
         elif [ "$(echo $TRANSACTION | jq -r 'has("standard_transfer")')" == "true" ]; then
             local RECIPIENT=$(echo $TRANSACTION | jq -r '.standard_transfer.recipient')
             local DESCRIPTION=$(echo $TRANSACTION | jq -r '.standard_transfer.description')
 
             if [ "$DESCRIPTION" != 'N/A' ]; then
-                RESULT+="\n - <b>${BASE_SUM} BGN</b> ${OPERATION} <b>${RECIPIENT}</b> for ${DESCRIPTION} on ${VALUE_DATE}"
+                RESULT+="\n - **${BASE_SUM} BGN** ${OPERATION} **${RECIPIENT}** for ${DESCRIPTION} on ${VALUE_DATE}"
             else
-                RESULT+="\n - <b>${BASE_SUM} BGN</b> ${OPERATION} <b>${RECIPIENT}</b> on ${VALUE_DATE}"
+                RESULT+="\n - **${BASE_SUM} BGN** ${OPERATION} **${RECIPIENT}** on ${VALUE_DATE}"
             fi
         fi
     done
@@ -291,32 +291,32 @@ formatTransactions() {
     echo "$RESULT"
 }
 
-sendTelegram() {
+sendDiscord() {
     if [[ $# -ne 1 ]]; then
-        echo "sendTelegram(): called with $# parameters, expected 1"
+        echo "sendDiscord(): called with $# parameters, expected 1"
 
         exit 1
     fi
 
     local MESSAGE=$1
 
-    TELEGRAM_API_RESULT=$(curl -s \
+    DISCORD_API_RESULT=$(curl -s \
         --connect-timeout 180 \
-        -X POST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage \
+        -X POST "$DISCORD_WEBHOOK" \
         -H 'Content-Type: application/json' \
-        -d "{\"chat_id\": \"$TELEGRAM_CHAT_ID\", \"parse_mode\": \"HTML\", \"text\": \"$MESSAGE\", \"disable_notification\": true}")
+        -d "{\"content\": \"$MESSAGE\"}")
 
-    TELEGRAM_API_SUCCESSFUL=$(echo $TELEGRAM_API_RESULT | jq '.ok')
+    # Discord returns empty response on success (204 No Content) or HTTP 200
+    # Check if the response is empty or doesn't contain an error
+    if [ -n "$DISCORD_API_RESULT" ] && [ "$(echo $DISCORD_API_RESULT | jq -e 'has("message")' 2>/dev/null)" == "true" ]; then
+        DISCORD_API_ERROR_MESSAGE=$(echo $DISCORD_API_RESULT | jq -r '.message')
 
-    if [ "$TELEGRAM_API_SUCCESSFUL" = false ]; then
-        TELEGRAM_API_ERROR_DESCRIPTION=$(echo $TELEGRAM_API_RESULT | jq '.description')
-
-        echo "sendTelegram() failed: $TELEGRAM_API_ERROR_DESCRIPTION"
+        echo "sendDiscord() failed: $DISCORD_API_ERROR_MESSAGE"
 
         exit 1
     fi
 
-    echo "sendTelegram() succeeded"
+    echo "sendDiscord() succeeded"
 }
 
 main

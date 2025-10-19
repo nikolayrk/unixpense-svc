@@ -85,8 +85,7 @@ The Types `var` and `secret` refer to [Configuration Variables](https://docs.git
 | KUBERNETES_URL              | Kubernetes API URL                                       | var         |
 | KUBECONFIG                  | Kubernetes Config Resource                               | secret      |
 | CRONTAB                     | Cron schedule expression for the CronJob                 | var         |
-| TELEGRAM_BOT_TOKEN          | Telegram Bot Token for sending notifications             | secret      |
-| TELEGRAM_CHAT_ID            | Telegram Chat ID for sending notifications               | secret      |
+| DISCORD_WEBHOOK             | Discord Webhook URL for sending notifications            | secret      |
 
 ## Deployment
 

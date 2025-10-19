@@ -42,7 +42,7 @@ spec:
                   key: authenticated-emails
             envFrom:
             - secretRef:
-                name: telegram-secret
+                name: discord-secret
             volumeMounts:
               - mountPath: /usr/sh
                 name: refresh-sh

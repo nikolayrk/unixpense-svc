@@ -9,8 +9,8 @@ on:
       # - '.github/**'
 
 jobs:
-  telegram-notify-start:
-    name: Telegram Notify Start
+  discord-notify-start:
+    name: Discord Notify Start
     runs-on: ubuntu-latest
     outputs:
       image_description: ${{ steps.setenv.outputs.DOCKER_IMAGE_DESCRIPTION }}
@@ -22,7 +22,7 @@ jobs:
       run: |
         JOINED_COMMITS="$(echo "${{ join(github.event.commits.*.message, '\n\n') }}")"
 
-        MAX_LEN=3800 # Telegram limit is 4096
+        MAX_LEN=1900 # Discord limit is 2000 per field
         JOINED_COMMITS_TRUNCATED="$JOINED_COMMITS"
 
         if [ $(echo "$JOINED_COMMITS" | wc -c) -gt $MAX_LEN ]; then
@@ -37,23 +37,19 @@ jobs:
 
         COMMIT_MESSAGE_SUMMARY=$(git log -1 --pretty=%B | head -n 1)
         echo "DOCKER_IMAGE_DESCRIPTION=${{ github.sha }} - ${COMMIT_MESSAGE_SUMMARY}" >> "$GITHUB_OUTPUT"
-    - name: Telegram Notify
-      uses: appleboy/telegram-action@master
+    - name: Discord Notify
+      uses: sarisia/actions-status-discord@v1
       env:
         COMMIT_MESSAGES: ${{ env.COMMIT_MESSAGES }}
       with:
-        to: ${{ secrets.TELEGRAM_CHAT_ID }}
-        token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        disable_notification: true
-        format: markdown
-        message: |
-          ♻️ Started ${{ github.repository }} - *${{ github.workflow }} #${{ github.run_number }}*
-
-          ${{ env.COMMIT_MESSAGES }}
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        nodetail: true
+        title: "♻️ Started ${{ github.repository }} - ${{ github.workflow }} #${{ github.run_number }}"
+        description: ${{ env.COMMIT_MESSAGES }}
 
   shellcheck:
     name: Shellcheck
-    needs: telegram-notify-start
+    needs: discord-notify-start
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -65,7 +61,7 @@ jobs:
 
   build:
     name: Build
-    needs: telegram-notify-start
+    needs: discord-notify-start
     permissions:
       contents: read
       packages: write
@@ -90,7 +86,7 @@ jobs:
       with:
         images: ${{ vars.DOCKER_REPO }}
         labels: |
-          org.opencontainers.image.description=${{ needs.telegram-notify-start.outputs.image_description }}
+          org.opencontainers.image.description=${{ needs.discord-notify-start.outputs.image_description }}
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
@@ -105,7 +101,7 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
         outputs: |
-          type=image,name=target,annotation-index.org.opencontainers.image.description=${{ needs.telegram-notify-start.outputs.image_description }}
+          type=image,name=target,annotation-index.org.opencontainers.image.description=${{ needs.discord-notify-start.outputs.image_description }}
 
   deploy:
     name: Deploy
@@ -206,16 +202,15 @@ jobs:
             {
               "cookie-secret": "${{ secrets.OAUTH2_PROXY_COOKIE_SECRET }}"
             }
-      - name: Create Telegram Secret
+      - name: Create Discord Secret
         uses: Azure/k8s-create-secret@v5
         with:
           namespace: 'unixpense'
           secret-type: 'generic'
-          secret-name: telegram-secret
+          secret-name: discord-secret
           string-data: |
             {
-              "TELEGRAM_BOT_TOKEN": "${{ secrets.TELEGRAM_BOT_TOKEN }}",
-              "TELEGRAM_CHAT_ID": "${{ secrets.TELEGRAM_CHAT_ID }}"
+              "DISCORD_WEBHOOK": "${{ secrets.DISCORD_WEBHOOK }}"
             }
       - name: Deploy to Kubernetes Cluster
         uses: swdotcom/update-and-apply-kubernetes-configs@v1
@@ -244,10 +239,10 @@ jobs:
           MARIADB_NFS_PATH: ${{ vars.MARIADB_NFS_PATH }}
           CRONTAB: ${{ vars.CRONTAB }}
 
-  telegram-notify-end:
-    name: Telegram Notify End
+  discord-notify-end:
+    name: Discord Notify End
     if: always()
-    needs: [ telegram-notify-start, shellcheck, build, deploy ]
+    needs: [ discord-notify-start, shellcheck, build, deploy ]
     runs-on: ubuntu-latest
     steps:
     - run: |
@@ -256,20 +251,19 @@ jobs:
         fi
 
         if [ "${{ contains(needs.*.result, 'failure') }}" == "true" ]; then
-          echo RESULT_MESSAGE="❌ *${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was unsuccessful*" >> $GITHUB_ENV
+          echo STATUS_TITLE="❌ ${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was unsuccessful" >> $GITHUB_ENV
+          echo STATUS_COLOR="0xFF0000" >> $GITHUB_ENV
 
           exit 0
         fi
 
-        echo RESULT_MESSAGE="✅ *${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was successful*" >> $GITHUB_ENV
-    - name: Telegram Notify
-      uses: appleboy/telegram-action@master
-      if: env.RESULT_MESSAGE != ''
-      env:
-        RESULT_MESSAGE: ${{ env.RESULT_MESSAGE }}
+        echo STATUS_TITLE="✅ ${{ github.repository }} ${{ github.workflow }} #${{ github.run_number }} was successful" >> $GITHUB_ENV
+        echo STATUS_COLOR="0x00FF00" >> $GITHUB_ENV
+    - name: Discord Notify
+      uses: sarisia/actions-status-discord@v1
+      if: env.STATUS_TITLE != ''
       with:
-        to: ${{ secrets.TELEGRAM_CHAT_ID }}
-        token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        disable_notification: true
-        format: markdown
-        message: ${{ env.RESULT_MESSAGE }}
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        nodetail: true
+        title: ${{ env.STATUS_TITLE }}
+        color: ${{ env.STATUS_COLOR }}
