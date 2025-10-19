@@ -4,13 +4,17 @@ import { OAuth2Client } from 'googleapis-common';
 import { Credentials } from 'google-auth-library';
 import GoogleOAuth2Identifiers from '../types/googleOAuth2Identifiers';
 import Constants from '../../constants';
-import { FetchError } from 'node-fetch'
 import { DependencyInjector } from '../../dependencyInjector';
 import ILogger from '../../core/contracts/ILogger';
 import { injectables } from '../../core/types/injectables';
 import GoogleOAuth2TokensRepository from '../repositories/googleOAuth2TokensRepository';
 import IUsesGoogleOAuth2 from '../contracts/IUsesGoogleOAuth2';
 import { injectable } from 'inversify';
+
+class FetchError extends Error {
+    type?: any;
+    errno?: any;
+}
 
 @injectable()
 export default class GoogleOAuth2ClientProvider implements IUsesGoogleOAuth2 {
