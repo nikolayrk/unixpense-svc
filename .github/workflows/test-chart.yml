@@ -43,4 +43,4 @@ jobs:
               --set=redis.image.registry=ghcr.io \
               --set=redis.image.repository=nikolayrk/containers/redis \
               --set=redis.image.tag=8.2.2 \
-              --set=global.security.allowInsecureImages=true \"
+              --set=global.security.allowInsecureImages=true"
