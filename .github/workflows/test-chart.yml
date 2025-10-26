@@ -69,6 +69,7 @@ jobs:
           ct install \
             --charts charts/unixpense-svc \
             --target-branch ${{ github.sha }} \
+            --helm-extra-args "--timeout 10m" \
             --helm-extra-set-args "\
               --set=test.enabled=true \
               --set=image.repository=ghcr.io/${{ github.repository }} \
