@@ -51,7 +51,8 @@ spec:
               value: "{{ .Values.mariadb.auth.database }}"
       containers:
         - name: app
-          image: "{{ .Values.dockerRegistry.url }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             requests:
               cpu: {{ .Values.resources.requests.cpu }}
