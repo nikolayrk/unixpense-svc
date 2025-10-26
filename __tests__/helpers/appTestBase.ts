@@ -4,7 +4,7 @@ import { createDatabaseConnectionAsync, defineDatabaseModels } from '@shared/dat
 import Constants from '@shared/constants';
 import { Sequelize } from 'sequelize-typescript';
 import Transaction from '../../src/core/models/transaction.model';
-import GoogleOAuth2Tokens from '../../src/googleOAuth2/models/googleOAuth2Tokens.model';
+import GoogleOAuth2Tokens from '../../shared/models/googleOAuth2Tokens.model';
 
 const appTestBase = (options?: {
     skipDefineDatabaseModels?: boolean,
