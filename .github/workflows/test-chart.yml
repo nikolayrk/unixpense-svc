@@ -1,0 +1,46 @@
+name: Test Helm Chart
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        required: true
+      tag:
+        type: string
+        required: true
+
+jobs:
+  test-chart:
+    runs-on: ubuntu-22.04-arm
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.7.0
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.12.0
+
+      - name: Run chart-testing (install)
+        run: |
+          ct install \
+            --charts charts/unixpense-svc \
+            --target-branch ${{ github.sha }} \
+            --helm-extra-set-args "\
+              --set=test.enabled=true \
+              --set=image.repository=ghcr.io/${{ github.repository }} \
+              --set=image.tag=${{ inputs.tag }} \
+              --set=mariadb.image.registry=ghcr.io \
+              --set=mariadb.image.repository=nikolayrk/containers/mariadb \
+              --set=mariadb.image.tag=12.0.2 \
+              --set=redis.image.registry=ghcr.io \
+              --set=redis.image.repository=nikolayrk/containers/redis \
+              --set=redis.image.tag=8.2.2 \
+              --set=global.security.allowInsecureImages=true \"
