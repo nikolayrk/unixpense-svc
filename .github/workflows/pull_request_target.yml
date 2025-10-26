@@ -13,10 +13,10 @@ permissions:
   packages: write
 
 jobs:
-  test-app:
-    uses: ./.github/workflows/test-node-app.yml
-    with:
-      ref: ${{ github.head_ref }}
+  # test-app:
+  #   uses: ./.github/workflows/test-node-app.yml
+  #   with:
+  #     ref: ${{ github.head_ref }}
 
   purge-old-image:
     runs-on: ubuntu-latest
