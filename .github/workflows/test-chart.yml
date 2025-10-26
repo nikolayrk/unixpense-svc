@@ -29,7 +29,29 @@ jobs:
         uses: helm/kind-action@v1.12.0
 
       - name: Setup infrastructure
-        uses: ./.github/workflows/setup-infra.yml
+        run: |
+          #!/bin/bash
+
+          echo "Installing Metallb..."
+
+          # Install Metallb https://metallb.universe.tf/installation/#installation-with-helm
+          helm repo add metallb https://metallb.github.io/metallb
+          helm install metallb metallb/metallb \
+              --namespace metallb \
+              --create-namespace
+
+          echo "Installing Nginx..."
+
+          # Install Nginx https://kubernetes.github.io/ingress-nginx/deploy/#quick-start
+          helm upgrade --install ingress-nginx ingress-nginx \
+              --repo https://kubernetes.github.io/ingress-nginx \
+              --namespace ingress-nginx \
+              --create-namespace
+
+          # Wait for Nginx to finish starting up...
+          while ! kubectl rollout status deployment -n ingress-nginx ingress-nginx-controller --timeout=60s; do sleep 2 ; done
+
+          echo "Done!"
 
       - name: Run chart-testing (install)
         run: |
