@@ -68,4 +68,7 @@ jobs:
               --set=redis.image.registry=ghcr.io \
               --set=redis.image.repository=nikolayrk/containers/redis \
               --set=redis.image.tag=8.2.2 \
-              --set=global.security.allowInsecureImages=true"
+              --set=global.security.allowInsecureImages=true \
+              --set=dockerRegistry.url=ghcr.io \
+              --set=dockerRegistry.username=${{ secrets.DOCKERHUB_USERNAME }} \
+              --set=dockerRegistry.password=${{ secrets.DOCKERHUB_PASSWORD }}"
