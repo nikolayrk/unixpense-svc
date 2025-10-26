@@ -45,7 +45,7 @@ jobs:
           github-token: ${{ secrets.GH_TOKEN }}
 
   build-image:
-    needs: test-app
+    # needs: test-app
     if: always()
     uses: ./.github/workflows/build-image.yml
     with:
