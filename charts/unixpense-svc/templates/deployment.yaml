@@ -37,7 +37,7 @@ spec:
                 sleep 2
               done
         - name: migrations
-          image: "{{ .Values.dockerRegistry.url }}/{{ .Values.image.repository }}-migrations:{{ .Values.migrations.image.tag }}"
+          image: "{{ .Values.image.repository }}-migrations:{{ .Values.migrations.image.tag }}"
           env:
             - name: MARIADB_HOST
               value: "{{ .Release.Name }}-mariadb"
