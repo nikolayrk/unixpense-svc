@@ -4,6 +4,7 @@ import { Cookie } from "playwright";
 export class ApiClient {
     private axiosInstance: AxiosInstance;
     private oauth2ProxyCookie?: Cookie;
+    private bearerToken?: string;
 
     constructor(baseUrl: string) {
         this.axiosInstance = axios.create({ baseURL: baseUrl });
@@ -11,6 +12,14 @@ export class ApiClient {
 
     public withCookieAuth(cookie: Cookie) {
         this.oauth2ProxyCookie = cookie;
+
+        return this;
+    }
+
+    public withBearerToken(token: string) {
+        this.bearerToken = token;
+
+        return this;
     }
 
     public get(url: string) {
@@ -21,6 +30,12 @@ export class ApiClient {
 
     public post(url: string, data?: object) {
         const result = this.axiosInstance.post(url, data, this.options());
+
+        return result;
+    }
+
+    public put(url: string, data?: object) {
+        const result = this.axiosInstance.put(url, data, this.options());
 
         return result;
     }
@@ -37,9 +52,17 @@ export class ApiClient {
         return result;
     }
 
-    private options = () => ({
-        headers: {
-            Cookie: `${this.oauth2ProxyCookie?.name}=${this.oauth2ProxyCookie?.value}`
+    private options = () => {
+        const headers: Record<string, string> = {};
+        
+        if (this.oauth2ProxyCookie) {
+            headers.Cookie = `${this.oauth2ProxyCookie.name}=${this.oauth2ProxyCookie.value}`;
         }
-    });
+        
+        if (this.bearerToken) {
+            headers.Authorization = `Bearer ${this.bearerToken}`;
+        }
+        
+        return { headers };
+    };
 }

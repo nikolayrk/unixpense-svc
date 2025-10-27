@@ -9,7 +9,7 @@ import { transactionsRoutesCases } from '../cases/transactionsRoutesCases';
 
 describe('Base Transactions Routes Tests', () => {
     let apiClient = new ApiClient(Constants.baseUrl);
-    let transactionRepository: TransactionRepository = DependencyInjector.Singleton.resolve(injectables.TransactionRepository);
+    let transactionRepository = DependencyInjector.Singleton.resolve<TransactionRepository>(injectables.TransactionRepository);
 
     appTestBase();
 

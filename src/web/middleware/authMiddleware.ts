@@ -22,7 +22,7 @@ export async function protect(req: Request, res: Response, next: NextFunction) {
     const authletUrl = process.env.AUTHLET_API_URL || Constants.Defaults.authletUrl;
     
     try {
-        const response = await fetch(`${authletUrl}/validate-token`, {
+        const response = await fetch(`${authletUrl}/google/validate-token`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

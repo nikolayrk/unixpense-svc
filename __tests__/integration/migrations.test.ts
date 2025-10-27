@@ -31,7 +31,7 @@ describe('Database Migration Tests', () => {
     let connection: Sequelize | undefined;
     let migrationTool: Umzug<Sequelize> | undefined;
 
-    appTestBase({ beforeAllAppendix: async (sequelize: Sequelize) => {
+    appTestBase({ skipDefineDatabaseModels: true, beforeAllAppendix: async (sequelize: Sequelize) => {
         connection = sequelize;
 
         await connection.query(`DROP TABLE IF EXISTS ${[
@@ -58,7 +58,7 @@ describe('Database Migration Tests', () => {
 
             throw new Error(`Some migrations are missing tests: ${missing}`);
         }
-    }, skipDefineDatabaseModels: true });
+    }});
 
     const defineMigrationTest = (migrationScriptName: string, [preAction, postAction]: MigrationActionPair, up: boolean) => {
         it(`should ${up ? 'apply' : 'revert'} '${migrationScriptName.replace('.up.sql', '')}' migration script`, async () => {

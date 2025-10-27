@@ -5,8 +5,6 @@ import ILogger from "../../core/contracts/ILogger";
 import TransactionRepository from "../../core/repositories/transactionRepository";
 import { ResponseExtensions } from "../../core/extensions/responseExtensions";
 import { TransactionExtensions } from "../../core/extensions/transactionExtensions";
-import Transaction from "../../core/types/transaction";
-import PaymentDetails from "../../core/types/paymentDetails";
 import IGmailTransactionProvider from "src/gmail/contracts/IGmailTransactionProvider";
 
 const getLast = async (req: Request, res: Response) => {
@@ -120,13 +118,7 @@ const resolve = async (req: Request, res: Response) => {
     gmailTransactionProvider.authenticate(res.locals.accessToken);
 
     try {
-        let transactions: Transaction<PaymentDetails>[] = [];
-
-        for (const id of ids) {
-            const transaction = await gmailTransactionProvider.resolveTransactionAsync(id);
-
-            transactions.push(transaction);
-        }
+        const transactions = await Promise.all(ids.map(id => gmailTransactionProvider.resolveTransactionAsync(id)));
 
         const resolvedCount = transactions.length;
 

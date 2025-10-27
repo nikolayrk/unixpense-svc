@@ -1,6 +1,4 @@
-ARG NODE_VERSION=20.13.0-alpine3.19
-
-FROM node:${NODE_VERSION} AS base
+FROM node:24-alpine AS base
 
 WORKDIR /usr/app
 
@@ -17,7 +15,7 @@ COPY jest.config.js \
 
 EXPOSE 8000
 
-FROM base as test
+FROM base AS test
 
 WORKDIR /usr/app
 
@@ -29,7 +27,7 @@ RUN apk update && apk upgrade && apk --no-cache add docker-cli-compose
 
 CMD [ "yarn", "test:unit" ]
 
-FROM base as prod
+FROM base AS prod
 
 ARG PRODUCTION
 

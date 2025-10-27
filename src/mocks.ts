@@ -3,7 +3,7 @@ import nock from "nock";
 import TransactionTestHelper from "../src/core/utils/transactionTestHelper";
 import { gmailPaymentDetailsTestCases } from "../src/gmail/types/gmailPaymentDetailsTestCases";
 import Constants from "@shared/constants";
-import { URL, URLSearchParams } from "url";
+import { URL } from "url";
 import { protect } from '../src/web/middleware/authMiddleware';
 import * as transactionsController from "../src/web/controllers/transactionsController";
 import * as gmailTransactionsController from "../src/web/controllers/gmailTransactionsController";
@@ -13,16 +13,12 @@ import { NextFunction, Request, Response } from "express";
 import queryString from "node:querystring";
 
 const gmailApiBaseUrl = 'https://gmail.googleapis.com';
-const oauth2ApiBaseUrl = 'https://oauth2.googleapis.com';
 const localApiBaseUrl = Constants.baseUrl;
 
 const messageListUri = /\/gmail\/v1\/users\/[^\/%]+\/messages/;
 const messageUri = /\/gmail\/v1\/users\/[^/]+\/messages\/([^/]+)$/;
 const attachmentsUri = /\/gmail\/v1\/users\/[^/]+\/messages\/([^/]+)\/attachments\/[^/]+/;
-const tokenUri = '/token';
-const tokenInfoUri = '/tokeninfo';
 
-const oauthCallbackUri = '/api/oauthcallback';
 const transactionsUri = /\/api\/transactions(?!\/).*/;
 const transactionsSaveUri = '/api/transactions/save';
 const transactionsUpdateUri = '/api/transactions/update';
@@ -37,7 +33,6 @@ const groupRuleUri = /^\/api\/groups\/[^\/]+\/rules\/(?!all)([^\/?]+)[?]?$/;
 
 export const applyGoogleMocksAsync = async () => {
     const gmailScope = nock(gmailApiBaseUrl);
-    const oauth2Scope = nock(oauth2ApiBaseUrl);
     
     gmailScope
         .get(messageUri)
@@ -53,30 +48,10 @@ export const applyGoogleMocksAsync = async () => {
         .get(messageListUri)
         .reply(200, messageListCallback)
         .persist();
-    
-    oauth2Scope
-        .post(tokenUri, () => true)
-        .reply(oauth2TokenCallback)
-        .persist();
-    
-    oauth2Scope
-        .post(tokenInfoUri, () => true)
-        .reply(200, {
-            scope: Constants.scopes.join(' '),
-            email: Constants.Mock.userEmail,
-        })
-        .persist();
 }
 
 export const applyLocalMocks = () => {
     const appScope = nock(localApiBaseUrl);
-
-    appScope
-        .post(oauthCallbackUri)
-        .reply(function (uri, body) {
-            return localPostCallback(uri, body, this.req.headers, googleOAuth2Middleware.redirect);
-        })
-        .persist();
 
     appScope
         .get(transactionsUri)
@@ -201,8 +176,8 @@ const messageCallback = (uri: string, requestBody: nock.Body) => {
     if (matches === null) {
         throw new Error(`Failed to resolve message id from URI: ${uri}`);
     }
-
-    const messageId = decodeURIComponent(matches[1]);
+    
+    const messageId = decodeURIComponent(matches[1].split('?')[0]);
     
     if (messageId === Constants.Mock.errorTransactionSourceId) {
         return [500, {
@@ -226,13 +201,15 @@ const attachmentsCallback = (uri: string, requestBody: nock.Body) => {
     const matches = uri.match(attachmentsUri);
 
     if (matches === null) {
-        throw new Error(`Failed to resolve message id from URI: ${uri}`);
+        return [500, {
+            error: `Failed to resolve message id from URI: ${uri}`
+        }]
     }
 
     const messageId = decodeURIComponent(matches[1]);
 
     if (messageId == Constants.Mock.emptyTransactionSourceId) {
-        return "";
+        return [200, ""];
     }
     
     const testAttachmentDataBase64 = new TransactionTestHelper()
@@ -244,24 +221,7 @@ const attachmentsCallback = (uri: string, requestBody: nock.Body) => {
     };
 };
 
-const oauth2TokenCallback = (uri: string, requestBody: nock.Body) => {
-    const code = new URLSearchParams(requestBody).get('code');
-
-    if (code === Constants.Mock.authorizationCodeError) {
-        return [500, {
-            error: code,
-            error_description: code,
-        }];
-    }
-
-    return [200, {
-        access_token: Constants.Mock.accessToken,
-        refresh_token: Constants.Mock.refreshToken,
-        redirect_uri: Constants.defaultRedirectUri,
-    }];
-};
-
-type Handler = (req: Request, res: Response, next: NextFunction) => Promise<void | Response>;
+type Handler = (req: Request, res: Response, next: NextFunction) => Promise<void>;
 
 const localGetCallback = async (uri: string, body: nock.Body, headers: Record<string, string>, ...handlers: Array<Handler>) => {
     return localGenericCallback(uri, body, headers, 'GET', ...handlers);
@@ -285,7 +245,12 @@ const localGenericCallback = async (uri: string, body: nock.Body, headers: Recor
     };
 
     const resolveParams = (uri: string) => {
-        const matches = uri.replace(/[?].+/, '').match(/\/([^/]+)\/([^/]+)/g) || [];
+        const matches = uri.replace(/[?].+/, '').match(/\/([^/]+)\/([^/]+)/g);
+
+        if (matches === null) {
+            return {} as Record<string, string>;
+        }
+
         return matches.reduce((params, match) => {
             const [key, value] = match.split('/').filter(Boolean);
             params[key] = value;
@@ -295,6 +260,7 @@ const localGenericCallback = async (uri: string, body: nock.Body, headers: Recor
 
     const request = {
         method: method,
+        headers,
         ...(method === 'POST' || method === 'PATCH') && {
             body: body
         },
@@ -303,10 +269,10 @@ const localGenericCallback = async (uri: string, body: nock.Body, headers: Recor
         },
         get: getHeaderHandler,
         params: resolveParams(uri),
-    } as Request;
+    } as unknown as Request;
     
     let statusCode: number = 0;
-    let data: any;
+    let data: Record<string, any> = {};
 
     const statusHandler = (code: number) => {
         statusCode = code;
@@ -329,7 +295,7 @@ const localGenericCallback = async (uri: string, body: nock.Body, headers: Recor
 
     const next = () => handlers.at(++currentHandlerId)?.(request, response, next);
 
-    await handlers.at(0)?.(request, response, next);
+    await handlers.at(currentHandlerId)?.(request, response, next);
 
     return [statusCode, data];
 };

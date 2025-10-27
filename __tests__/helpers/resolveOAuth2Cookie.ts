@@ -29,8 +29,6 @@ const resolveOAuth2CookieAsync = async () => {
     if (!cookie) {
       const content = await page.content();
 
-      console.log(content);
-
       throw new Error('OAuth2 proxy cookie not found after authentication');
     }
 

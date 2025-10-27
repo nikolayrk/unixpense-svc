@@ -8,6 +8,6 @@ export function sendResponse(
 ) {
     res.status(statusCode).json({
         message,
-        ...(data && { data })
+        ...data
     });
 }

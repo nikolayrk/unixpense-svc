@@ -69,6 +69,7 @@ migrations:
 
 redis-sentinel:
   enabled: false  # Disable sentinel as it's not needed for single instance
+
 redis:
   enabled: true
   architecture: standalone

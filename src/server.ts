@@ -53,9 +53,8 @@ const startServerAsync = (logger: ILogger) => {
 };
 
 const stopServerAsync = async (app: Server) =>
-    new Promise<void>((resolve) =>
-        app.on('close', () => resolve())
-            .close());
+    new Promise<void>((resolve, reject) =>
+        app.close((err) => err ? reject(err) : resolve()));
 
 export {
     startServerAsync,

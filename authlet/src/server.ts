@@ -2,7 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import authRouter from './router';
+import googleAuthRouter from './routers/googleAuthRouter';
+import healthRouter from './routers/healthRouter';
 
 export function createServer() {
     const app = express();
@@ -24,7 +25,7 @@ export function createServer() {
                 description: 'Authentication service for Unixpense'
             },
         },
-        apis: ['./**/src/router.{js,ts}'],
+        apis: ['./**/src/routers/*.{js,ts}'],
     };
 
     const swaggerSpec = swaggerJsdoc(swaggerOptions);
@@ -32,7 +33,8 @@ export function createServer() {
     app.use('/swagger', swaggerUi.serve as unknown as express.RequestHandler[]);
     app.use('/swagger', swaggerUi.setup(swaggerSpec) as unknown as express.RequestHandler[]);
 
-    app.use('/', authRouter);
+    app.use('/', healthRouter);
+    app.use('/google', googleAuthRouter);
 
     return app;
 }

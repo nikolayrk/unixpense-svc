@@ -35,7 +35,7 @@ const main = async () => {
 
     logger.log('Starting server...');
 
-    const server = await startServerAsync();
+    const server = await startServerAsync(logger);
 
     logger.log(`Server is running`);
 
@@ -45,12 +45,14 @@ const main = async () => {
         pid: process.pid
     });
 
-    if (process.env.NODE_ENV === 'test_integration') {
+    if (process.env.NODE_ENV === 'test_integration' ||
+        process.env.NODE_ENV === 'test_e2e'
+    ) {
         const mocks = await import('./mocks');
 
         await mocks.applyGoogleMocksAsync();
 
-        logger.log(`Mocks applied`);
+        logger.log(`Google Mocks applied`);
     }
 
     const closeResourcesAsync = () => {
