@@ -34,6 +34,13 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Print debug build info
+      run: |
+        echo "Building image: ${{ inputs.image-name }}"
+        echo "Using dockerfile: ${{ inputs.dockerfile }}"
+        pwd
+        ls -la
+
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
