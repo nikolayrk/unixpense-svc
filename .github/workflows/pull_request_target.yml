@@ -20,13 +20,19 @@ jobs:
 
   purge-old-image:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image:
+          - name: unixpense-svc
+          - name: unixpense-svc-migrations
+          - name: unixpense-svc-authlet
     steps:
       - name: Check if image tag exists
         id: check_tag
         run: |
           TAG="pr-${{ github.event.pull_request.number }}"
           echo "Checking for tag: $TAG"
-          IMAGES=$(gh api "/users/${{ github.repository_owner }}/packages/container/${{ github.event.repository.name }}/versions" --jq ".[].metadata.container.tags[]" | grep "$TAG" || true)
+          IMAGES=$(gh api "/users/${{ github.repository_owner }}/packages/container/${{ matrix.image.name }}/versions" --jq ".[].metadata.container.tags[]" | grep "$TAG" || true)
           echo "Images found: $IMAGES"
           if [ -n "$IMAGES" ]; then
             echo "tag_exists=true" >> $GITHUB_OUTPUT
@@ -40,17 +46,29 @@ jobs:
         if: steps.check_tag.outputs.tag_exists == 'true'
         uses: chipkent/action-cleanup-package@v1.0.3
         with:
-          package-name: ${{ github.event.repository.name }}
+          package-name: ${{ matrix.image.name }}
           tag: pr-${{ github.event.pull_request.number }}
           github-token: ${{ secrets.GH_TOKEN }}
 
   build-image:
+    needs: purge-old-image
     # needs: test-app
     if: always()
+    strategy:
+      matrix:
+        image:
+          - name: unixpense-svc
+            dockerfile: ./Dockerfile
+          - name: unixpense-svc-migrations
+            dockerfile: ./database/migrations.Dockerfile
+          - name: unixpense-svc-authlet
+            dockerfile: ./authlet/authlet.Dockerfile
     uses: ./.github/workflows/build-image.yml
     with:
       ref: ${{ github.event.pull_request.head.sha }}
       tag: pr-${{ github.event.pull_request.number }}
+      image-name: ${{ matrix.image.name }}
+      dockerfile: ${{ matrix.image.dockerfile }}
 
   test-chart:
     needs: build-image

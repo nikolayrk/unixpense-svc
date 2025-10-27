@@ -72,7 +72,7 @@ jobs:
             --helm-extra-args "--timeout 10m" \
             --helm-extra-set-args "\
               --set=test.enabled=true \
-              --set=image.repository=ghcr.io/${{ github.repository }} \
+              --set=image.repository=ghcr.io/${{ github.repository_owner }}/unixpense-svc \
               --set=image.tag=${{ inputs.tag }} \
               --set=mariadb.image.registry=ghcr.io \
               --set=mariadb.image.repository=nikolayrk/containers/mariadb \

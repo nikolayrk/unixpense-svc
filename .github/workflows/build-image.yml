@@ -9,6 +9,12 @@ on:
       tag:
         type: string
         required: true
+      image-name:
+        type: string
+        required: true
+      dockerfile:
+        type: string
+        required: true
 
 jobs:
   build-docker-image:
@@ -33,9 +39,10 @@ jobs:
       with:
         platforms: linux/arm64/v8
         push: true
+        file: ${{ inputs.dockerfile }}
         tags: |
-          ghcr.io/${{ github.repository }}:${{ inputs.ref }}
-          ghcr.io/${{ github.repository }}:${{ inputs.tag }}
+          ghcr.io/${{ github.repository_owner }}/${{ inputs.image-name }}:${{ inputs.ref }}
+          ghcr.io/${{ github.repository_owner }}/${{ inputs.image-name }}:${{ inputs.tag }}
         build-args: |
           VERSION=${{ inputs.ref }}
         cache-from: type=gha
