@@ -1688,10 +1688,10 @@
   resolved "https://registry.yarnpkg.com/@types/triple-beam/-/triple-beam-1.3.2.tgz#38ecb64f01aa0d02b7c8f4222d7c38af6316fef8"
   integrity sha512-txGIh+0eDFzKGC25zORnswy+br1Ha7hj5cMVwKIU7+s0U2AxxJru/jZSMU6OC9MJWP6+pc/hc6ZjyZShpsyY2g==
 
-"@types/validator@^13.15.6", "@types/validator@^13.7.17":
-  version "13.15.6"
-  resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.15.6.tgz#b02622a355fd3a60bba35cefaad3713c3c31541a"
-  integrity sha512-jc8VD+GfyVLfjVXG9qGq7MPR4UTz6e2fNHI6xmZhZ37f3iZLn0KecpxUnTsHLOPGgf1PfHUZmteBIJVsnYTDkQ==
+"@types/validator@^13.15.8", "@types/validator@^13.7.17":
+  version "13.15.8"
+  resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.15.8.tgz#37f5ebb956f64b43974eb6333352ee919c46fc03"
+  integrity sha512-/NAHBJ0RwpsbLzzbLoLm/GnvCGB+A0/p5S61RUIsh7j3MP2dMkdUbWNdFqnluLlUheAs1CR2GlX2R7uzb7Tc0w==
 
 "@types/yargs-parser@*":
   version "21.0.0"
