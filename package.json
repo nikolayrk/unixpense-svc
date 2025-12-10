@@ -46,7 +46,7 @@
     "eslint": "^9.39.1",
     "jest": "^30.2.0",
     "nock": "^14.0.10",
-    "testcontainers": "^11.9.0",
+    "testcontainers": "^11.10.0",
     "ts-jest": "^29.4.6"
   },
   "dependencies": {
@@ -60,7 +60,7 @@
     "dotenv": "17.2.3",
     "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
-    "googleapis": "^167.0.0",
+    "googleapis": "^168.0.0",
     "inversify": "^7.10.6",
     "mariadb": "3",
     "node-html-parser": "^7.0.1",
