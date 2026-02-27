@@ -28,7 +28,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v6
     - name: Download coverage report
-      uses: actions/download-artifact@v7
+      uses: actions/download-artifact@v8
       with:
         name: coverage
         path: coverage/
