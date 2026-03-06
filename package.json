@@ -59,7 +59,7 @@
     "date-format-parse": "^0.2.7",
     "dotenv": "17.2.4",
     "express": "^5.2.1",
-    "express-rate-limit": "^8.2.1",
+    "express-rate-limit": "^8.2.2",
     "googleapis": "^171.4.0",
     "inversify": "^7.11.0",
     "mariadb": "3",
