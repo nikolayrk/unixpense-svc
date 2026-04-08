@@ -110,7 +110,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Kubernetes Set Context
-        uses: Azure/k8s-set-context@v4
+        uses: Azure/k8s-set-context@v5
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBECONFIG }}
