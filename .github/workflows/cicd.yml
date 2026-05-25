@@ -71,7 +71,7 @@ jobs:
       run: echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
     - uses: actions/checkout@v6
     - name: Docker Setup Buildx
-      uses: docker/setup-buildx-action@v4.0.0
+      uses: docker/setup-buildx-action@v4.1.0
       with:
         platforms: linux/arm64/v8
     - name: Login to Docker Hub
