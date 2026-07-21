@@ -55,7 +55,7 @@
     "@types/seedrandom": "^3.0.8",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
-    "body-parser": "^2.2.2",
+    "body-parser": "^2.3.0",
     "date-format-parse": "^0.2.7",
     "dotenv": "17.2.4",
     "express": "^5.2.1",
